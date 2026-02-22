@@ -30,8 +30,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     },
   });
 
-  const isProfileTab = location === "/profile";
-
   return (
     <div className="min-h-screen bg-[#f5f5f5] pb-20">
       <header className="sticky top-0 z-50 bg-white border-b border-[#eee] shadow-sm">
@@ -65,13 +63,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#eee] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2">
           {navItems.map((item) => {
-            const active = item.href === "/profile"
-              ? isProfileTab
-              : location === item.href;
+            const active = location === item.href;
             return (
-              <Link key={item.href} href={item.href === "/profile" ? "/dashboard" : item.href}>
+              <Link key={item.href} href={item.href}>
                 <button
-                  onClick={item.href === "/profile" ? (e) => { e.preventDefault(); logoutMutation.mutate(); } : undefined}
                   className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors min-w-[56px] ${
                     active
                       ? "text-[#FF6B35]"
