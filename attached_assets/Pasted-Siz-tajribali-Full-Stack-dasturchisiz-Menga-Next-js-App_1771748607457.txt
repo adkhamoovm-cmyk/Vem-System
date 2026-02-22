@@ -1,0 +1,47 @@
+Siz tajribali Full-Stack dasturchisiz. Menga Next.js (App Router), Tailwind CSS va Prisma (SQLite) yordamida "Watch-to-Earn" (Video ko‘rib pul topish) web-platformasining MVP skletini qurib berishingizni xohlayman.
+
+Dizayn va UI/UX talablari (Juda muhim):
+
+Dizayn arzon ko‘rinmasligi kerak. Hech qanday "Neon" yoki o‘yin saytlariga o‘xshash yaltiroq ranglar ishlashilmasin!
+
+Premium Fintech va investitsiya platformasi uslubida bo‘lsin.
+
+Asosiy fon: To‘q Antratsit (Deep Charcoal, #121212).
+
+Urg‘u beruvchi ranglar (Accents): Tilla rang (Muted Gold) va Chuqur ko‘k (Deep Blue).
+
+Elementlar yumshoq soyaga (soft shadow) ega va zamonaviy, jiddiy ko‘rinishda bo‘lsin.
+
+Asosiy funksiyalar va sahifalar ketma-ketligi:
+
+Autentifikatsiya (Auth):
+
+Ro‘yxatdan o‘tish sahifasi: Telefon raqami, Kirish paroli, Moliyaviy parol (Fund password - pul yechish uchun) va Rasmli Captcha (hozircha oddiy checkbox UI qilib turing) kiritish maydonlari.
+
+Kirish (Login) sahifasi.
+
+Dashboard (Asosiy oyna):
+
+Foydalanuvchining umumiy balansi (Tilla rangda, yirik shriftda).
+
+Hozirgi VIP paketi va kunlik vazifalar progressi (masalan, "Bugun 7 ta videodan 3 tasini ko‘rdingiz" degan progress bar).
+
+Vazifalar (Tasks) oynasi:
+
+Xuddi kino saytlaridagi kabi videolar (posterlar) ro‘yxati (Grid uslubida).
+
+Videoni bosganda Modal oyna (yoki yangi sahifa) ochiladi. Ichida pleyer va taymer (18-30 soniya random) bo‘ladi.
+
+Taymer tugamaguncha oynani yopib bo‘lmaydi. Taymer tugagach, "Vazifa bajarildi va pul hisobingizga tushdi" degan xabar chiqishi kerak (hozircha faqat UI/UX va mantiqiy funksiya skleti).
+
+Referal tizimi oynasi:
+
+Foydalanuvchining shaxsiy referal ssilkasi va nusxalash tugmasi.
+
+3 darajali referal statistikasini ko‘rsatuvchi bloklar: 1-daraja (9%), 2-daraja (3%), 3-daraja (1%).
+
+VIP Paketlar oynasi:
+
+Turli xil depozit paketlari kartochkalari. Masalan: 100,000 so‘m (kuniga 7 ta vazifa), 500,000 so‘m (kuniga 15 ta vazifa).
+
+Vazifa: Loyihaning fayllar strukturasini yarating, ma'lumotlar bazasi (Prisma schema) skletini yozing va yuqoridagi sahifalarning vizual qismini (frontend) Tailwind CSS orqali yasab bering.
