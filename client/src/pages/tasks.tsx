@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Play, Clock, CheckCircle, X } from "lucide-react";
+import { Play, Clock, CheckCircle, Star, Calendar, MapPin } from "lucide-react";
 import type { Video, User } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
@@ -16,6 +16,7 @@ function VideoModal({ video, open, onClose }: { video: Video; open: boolean; onC
   const [completed, setCompleted] = useState(false);
   const durationRef = useRef(25);
   const completedRef = useRef(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const completeMutation = useMutation({
     mutationFn: async () => {
@@ -64,29 +65,48 @@ function VideoModal({ video, open, onClose }: { video: Video; open: boolean; onC
     return () => clearInterval(timer);
   }, [started, completed]);
 
+  const handleStart = () => {
+    setStarted(true);
+    if (videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
   const duration = durationRef.current;
   const progress = started ? ((duration - timeLeft) / duration) * 100 : 0;
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen && (completed || !started)) onClose(); }}>
-      <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] max-w-lg" data-testid="modal-video" aria-describedby="video-modal-desc">
+      <DialogContent className="bg-white border-[#eee] max-w-lg rounded-2xl" data-testid="modal-video" aria-describedby="video-modal-desc">
         <DialogHeader>
-          <DialogTitle className="text-[#e0e0e0]">{video.title}</DialogTitle>
-          <p id="video-modal-desc" className="text-[#888] text-sm">Video ko'rib vazifani bajaring</p>
+          <DialogTitle className="text-[#1a1a2e]">{video.title}</DialogTitle>
+          <p id="video-modal-desc" className="text-[#999] text-sm">Video ko'rib vazifani bajaring</p>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="relative rounded-md overflow-hidden aspect-video bg-[#111]">
-            <img
-              src={video.thumbnail}
-              alt={video.title}
-              className="w-full h-full object-cover"
-            />
+          <div className="relative rounded-xl overflow-hidden aspect-video bg-black">
+            {video.videoUrl ? (
+              <video
+                ref={videoRef}
+                src={video.videoUrl}
+                poster={video.thumbnail}
+                className="w-full h-full object-cover"
+                muted
+                playsInline
+                data-testid="video-player"
+              />
+            ) : (
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-full h-full object-cover"
+              />
+            )}
             {!started && !completed && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                 <Button
-                  onClick={() => setStarted(true)}
-                  className="bg-[#c9a84c] text-[#121212] font-semibold no-default-hover-elevate no-default-active-elevate gap-2"
+                  onClick={handleStart}
+                  className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-semibold no-default-hover-elevate no-default-active-elevate gap-2 rounded-xl shadow-lg h-11 px-6"
                   data-testid="button-start-video"
                 >
                   <Play className="w-5 h-5" />
@@ -95,9 +115,9 @@ function VideoModal({ video, open, onClose }: { video: Video; open: boolean; onC
               </div>
             )}
             {completed && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 gap-2">
-                <CheckCircle className="w-12 h-12 text-[#c9a84c]" />
-                <span className="text-[#c9a84c] font-semibold text-lg">Bajarildi!</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 gap-2">
+                <CheckCircle className="w-14 h-14 text-[#4CAF50]" />
+                <span className="text-white font-bold text-lg">Bajarildi!</span>
               </div>
             )}
           </div>
@@ -106,23 +126,23 @@ function VideoModal({ video, open, onClose }: { video: Video; open: boolean; onC
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#c9a84c]" />
-                  <span className="text-[#999] text-sm">Qolgan vaqt</span>
+                  <Clock className="w-4 h-4 text-[#FF6B35]" />
+                  <span className="text-[#666] text-sm">Qolgan vaqt</span>
                 </div>
-                <span className="text-[#e0e0e0] font-mono text-sm" data-testid="text-timer">
+                <span className="text-[#1a1a2e] font-mono text-sm font-bold" data-testid="text-timer">
                   {timeLeft} soniya
                 </span>
               </div>
-              <Progress value={progress} className="h-1.5 bg-[#222]" />
-              <p className="text-[#666] text-xs text-center">
+              <Progress value={progress} className="h-2 bg-[#f0f0f0] rounded-full" />
+              <p className="text-[#999] text-xs text-center">
                 Taymer tugagunga qadar oynani yopmang
               </p>
             </div>
           )}
 
           {completed && (
-            <div className="bg-[#1e1b14] rounded-md p-4 border border-[#2a2510] text-center">
-              <p className="text-[#c9a84c] font-medium">
+            <div className="bg-[#E8F5E9] rounded-xl p-4 border border-[#C8E6C9] text-center">
+              <p className="text-[#2E7D32] font-semibold">
                 +{Number(video.reward).toLocaleString()} so'm hisobingizga tushdi
               </p>
             </div>
@@ -132,7 +152,7 @@ function VideoModal({ video, open, onClose }: { video: Video; open: boolean; onC
             <Button
               onClick={onClose}
               variant="outline"
-              className="w-full border-[#2a2a2a] text-[#999]"
+              className="w-full border-[#e0e0e0] text-[#666] rounded-xl"
               data-testid="button-close-video"
             >
               Yopish
@@ -160,7 +180,7 @@ export default function TasksPage() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
         </div>
       </AppLayout>
     );
@@ -168,49 +188,86 @@ export default function TasksPage() {
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 max-w-4xl mx-auto">
+      <div className="p-4">
         {user && (
-          <div className="mb-6 bg-[#1a1a1a] rounded-lg p-4 border border-[#2a2a2a]">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[#999] text-sm">Bugungi progress</span>
-              <span className="text-[#e0e0e0] text-sm font-medium" data-testid="text-task-count">
-                {user.dailyTasksCompleted} / {user.dailyTasksLimit} vazifa
-              </span>
+          <div className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] rounded-2xl p-4 text-white shadow-lg mb-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-white/80 text-xs font-medium">V{user.vipLevel}</span>
+                <p className="text-sm font-semibold mt-0.5">
+                  Kunlik daromad: {Number(user.balance).toLocaleString()} so'm
+                </p>
+              </div>
+              <div className="text-right">
+                <span className="text-white/80 text-xs">Vazifalar</span>
+                <p className="text-lg font-bold" data-testid="text-task-count">
+                  {user.dailyTasksCompleted} / {user.dailyTasksLimit}
+                </p>
+              </div>
             </div>
             <Progress
               value={user.dailyTasksLimit > 0 ? (user.dailyTasksCompleted / user.dailyTasksLimit) * 100 : 0}
-              className="h-1.5 bg-[#222] mt-2"
+              className="h-1.5 bg-white/20 mt-3 rounded-full"
             />
           </div>
         )}
 
-        <h2 className="text-lg font-semibold text-[#e0e0e0] mb-4">Videolar</h2>
+        <h2 className="text-[#1a1a2e] font-bold text-sm mb-3">Bugungi vazifalar</h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="space-y-3">
           {videos?.map((video) => (
             <div
               key={video.id}
               onClick={() => setSelectedVideo(video)}
-              className="cursor-pointer group"
+              className="bg-white rounded-2xl p-3 flex gap-3 shadow-sm border border-[#f0f0f0] cursor-pointer active:scale-[0.99] transition-transform"
               data-testid={`card-video-${video.id}`}
             >
-              <div className="relative rounded-md overflow-hidden aspect-[3/4] bg-[#111]">
+              <div className="w-24 h-32 rounded-xl overflow-hidden shrink-0 bg-[#f0f0f0]">
                 <img
                   src={video.thumbnail}
                   alt={video.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <h3 className="text-white text-sm font-medium line-clamp-2">{video.title}</h3>
-                  <div className="flex items-center gap-1 mt-1">
-                    <span className="text-[#c9a84c] text-xs font-medium">
-                      +{Number(video.reward).toLocaleString()} so'm
-                    </span>
-                  </div>
+              </div>
+              <div className="flex-1 min-w-0 py-1">
+                <h3 className="text-[#1a1a2e] font-bold text-sm">{video.title}</h3>
+                {video.actors && (
+                  <p className="text-[#999] text-xs mt-1 line-clamp-1">
+                    Aktyor: {video.actors}
+                  </p>
+                )}
+                <div className="flex items-center gap-1 mt-1.5">
+                  {[1,2,3,4,5].map(i => {
+                    const rating = Number(video.rating || 5);
+                    const full = i <= Math.floor(rating);
+                    return (
+                      <Star
+                        key={i}
+                        className={`w-3 h-3 ${full ? "fill-[#FFB300] text-[#FFB300]" : "fill-[#ddd] text-[#ddd]"}`}
+                      />
+                    );
+                  })}
+                  <span className="text-[#999] text-[10px] ml-1">{video.rating}</span>
                 </div>
-                <div className="absolute top-2 right-2 bg-black/60 rounded-full px-2 py-0.5">
-                  <span className="text-white text-[10px]">{video.category}</span>
+                {video.releaseDate && (
+                  <div className="flex items-center gap-1 mt-1">
+                    <Calendar className="w-3 h-3 text-[#bbb]" />
+                    <span className="text-[#bbb] text-[10px]">{video.releaseDate}</span>
+                    {video.country && (
+                      <>
+                        <span className="text-[#ddd] text-[10px]">·</span>
+                        <span className="text-[#bbb] text-[10px]">{video.country}</span>
+                      </>
+                    )}
+                  </div>
+                )}
+                <div className="mt-2 flex items-center justify-between">
+                  <span className="text-[#FF6B35] text-xs font-bold">
+                    +{Number(video.reward).toLocaleString()} so'm
+                  </span>
+                  <span className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white text-[10px] font-semibold px-3 py-1 rounded-full">
+                    Boshlash
+                  </span>
                 </div>
               </div>
             </div>

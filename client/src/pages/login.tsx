@@ -43,17 +43,18 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#121212] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">
-            <span className="text-[#c9a84c]">VEM</span>
-          </h1>
-          <p className="text-[#888] mt-2 text-sm">Premium Video Earning Platform</p>
+          <div className="w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <span className="text-white text-2xl font-bold">V</span>
+          </div>
+          <h1 className="text-2xl font-bold text-[#1a1a2e] tracking-tight">VEM</h1>
+          <p className="text-[#888] mt-1 text-sm">Video Earning Platform</p>
         </div>
 
-        <div className="bg-[#1a1a1a] rounded-lg p-6 border border-[#2a2a2a]" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.3)" }}>
-          <h2 className="text-xl font-semibold text-[#e0e0e0] mb-6">Tizimga kirish</h2>
+        <div className="bg-white rounded-2xl p-6 shadow-md border border-[#eee]">
+          <h2 className="text-lg font-semibold text-[#1a1a2e] mb-6">Tizimga kirish</h2>
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-5">
@@ -62,14 +63,14 @@ export default function LoginPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#999]">Telefon raqami</FormLabel>
+                    <FormLabel className="text-[#555]">Telefon raqami</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#aaa]" />
                         <Input
                           {...field}
                           placeholder="+998 90 123 45 67"
-                          className="pl-10 bg-[#141414] border-[#2a2a2a] text-[#e0e0e0] placeholder:text-[#444] focus:border-[#c9a84c]/50 focus:ring-[#c9a84c]/20"
+                          className="pl-10 bg-[#f9f9f9] border-[#e0e0e0] text-[#1a1a2e] placeholder:text-[#bbb] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20"
                           data-testid="input-phone"
                         />
                       </div>
@@ -84,21 +85,21 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#999]">Parol</FormLabel>
+                    <FormLabel className="text-[#555]">Parol</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#aaa]" />
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
                           placeholder="Parolingizni kiriting"
-                          className="pl-10 pr-10 bg-[#141414] border-[#2a2a2a] text-[#e0e0e0] placeholder:text-[#444] focus:border-[#c9a84c]/50 focus:ring-[#c9a84c]/20"
+                          className="pl-10 pr-10 bg-[#f9f9f9] border-[#e0e0e0] text-[#1a1a2e] placeholder:text-[#bbb] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20"
                           data-testid="input-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#555]"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa]"
                           data-testid="button-toggle-password"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -112,7 +113,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-[#c9a84c] text-[#121212] font-semibold no-default-hover-elevate no-default-active-elevate"
+                className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-semibold no-default-hover-elevate no-default-active-elevate h-11 rounded-xl shadow-md"
                 disabled={loginMutation.isPending}
                 data-testid="button-login"
               >
@@ -122,9 +123,9 @@ export default function LoginPage() {
           </Form>
 
           <div className="mt-6 text-center">
-            <p className="text-[#666] text-sm">
+            <p className="text-[#888] text-sm">
               Hisobingiz yo'qmi?{" "}
-              <Link href="/register" className="text-[#c9a84c] font-medium" data-testid="link-register">
+              <Link href="/register" className="text-[#FF6B35] font-semibold" data-testid="link-register">
                 Ro'yxatdan o'ting
               </Link>
             </p>

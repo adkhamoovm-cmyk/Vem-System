@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Copy, Users, UserPlus, Check } from "lucide-react";
+import { Copy, Users, UserPlus, Check, Share2 } from "lucide-react";
 import { useState } from "react";
 import type { User } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
@@ -40,74 +40,80 @@ export default function ReferralPage() {
   };
 
   const levels = [
-    { level: 1, percent: "9%", color: "#c9a84c", data: stats?.level1 },
-    { level: 2, percent: "3%", color: "#3b6db5", data: stats?.level2 },
-    { level: 3, percent: "1%", color: "#888", data: stats?.level3 },
+    { level: 1, percent: "9%", color: "#FF6B35", bg: "#FFF0EB", data: stats?.level1 },
+    { level: 2, percent: "3%", color: "#4CAF50", bg: "#E8F5E9", data: stats?.level2 },
+    { level: 3, percent: "1%", color: "#2196F3", bg: "#E3F2FD", data: stats?.level3 },
   ];
 
   return (
     <AppLayout>
-      <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-[#1e1b14] to-[#1a1a1a] rounded-lg p-6 border border-[#2a2510]" style={{ boxShadow: "0 4px 24px rgba(0,0,0,0.3)" }}>
-          <div className="flex items-center gap-2 mb-4">
-            <Users className="w-5 h-5 text-[#c9a84c]" />
-            <h2 className="text-lg font-semibold text-[#e0e0e0]">Referal tizimi</h2>
-          </div>
-          <p className="text-[#888] text-sm mb-4">
-            Do'stlaringizni taklif qiling va ularning daromadidan foiz oling
-          </p>
-
-          <div className="space-y-3">
-            <label className="text-[#999] text-xs uppercase tracking-wider">Sizning referal ssilkangiz</label>
-            <div className="flex gap-2">
-              <div className="flex-1 bg-[#141414] border border-[#2a2a2a] rounded-md px-3 py-2 text-[#e0e0e0] text-sm truncate" data-testid="text-referral-link">
-                {referralLink}
-              </div>
-              <Button
-                onClick={copyLink}
-                className="bg-[#c9a84c] text-[#121212] font-medium shrink-0 no-default-hover-elevate no-default-active-elevate"
-                data-testid="button-copy-link"
-              >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              </Button>
+      <div className="p-4 space-y-4">
+        <div className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] rounded-2xl p-5 text-white shadow-lg">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
+              <Share2 className="w-5 h-5" />
             </div>
+            <div>
+              <h2 className="font-bold text-lg">Referal tizimi</h2>
+              <p className="text-white/70 text-xs">Do'stlaringizni taklif qiling</p>
+            </div>
+          </div>
+          <p className="text-white/80 text-xs leading-relaxed">
+            Do'stlaringizni taklif qiling va ularning har bir vazifa daromadidan foiz oling!
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]">
+          <label className="text-[#999] text-xs font-medium uppercase tracking-wider">Sizning referal ssilkangiz</label>
+          <div className="flex gap-2 mt-2">
+            <div className="flex-1 bg-[#f5f5f5] border border-[#e8e8e8] rounded-xl px-3 py-2.5 text-[#1a1a2e] text-xs truncate font-mono" data-testid="text-referral-link">
+              {referralLink}
+            </div>
+            <Button
+              onClick={copyLink}
+              className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-medium shrink-0 no-default-hover-elevate no-default-active-elevate rounded-xl h-10 px-4 shadow-md"
+              data-testid="button-copy-link"
+            >
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            </Button>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <h3 className="text-[#e0e0e0] font-semibold">Referal darajalari</h3>
+        <div className="space-y-3">
+          <h3 className="text-[#1a1a2e] font-bold text-sm">Referal darajalari</h3>
 
           {levels.map((item) => (
             <div
               key={item.level}
-              className="bg-[#1a1a1a] rounded-lg p-4 border border-[#2a2a2a]"
+              className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]"
               data-testid={`card-referral-level-${item.level}`}
             >
               <div className="flex items-center justify-between gap-4 mb-3">
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold"
-                    style={{ backgroundColor: `${item.color}20`, color: item.color }}
+                    className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold"
+                    style={{ backgroundColor: item.bg, color: item.color }}
                   >
                     {item.level}
                   </div>
                   <div>
-                    <h4 className="text-[#e0e0e0] font-medium text-sm">{item.level}-daraja</h4>
-                    <span className="text-xs" style={{ color: item.color }}>{item.percent} komissiya</span>
+                    <h4 className="text-[#1a1a2e] font-semibold text-sm">{item.level}-daraja</h4>
+                    <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} komissiya</span>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-1">
-                    <UserPlus className="w-3 h-3 text-[#666]" />
-                    <span className="text-[#e0e0e0] text-sm font-medium">
+                    <UserPlus className="w-3.5 h-3.5 text-[#999]" />
+                    <span className="text-[#1a1a2e] text-sm font-bold">
                       {item.data?.count ?? 0}
                     </span>
                   </div>
+                  <span className="text-[#999] text-[10px]">ta odam</span>
                 </div>
               </div>
-              <div className="bg-[#141414] rounded-md p-3 flex items-center justify-between gap-2">
-                <span className="text-[#888] text-xs">Jami komissiya</span>
-                <span className="font-medium text-sm" style={{ color: item.color }}>
+              <div className="bg-[#f8f8f8] rounded-xl p-3 flex items-center justify-between gap-2">
+                <span className="text-[#999] text-xs">Jami komissiya</span>
+                <span className="font-bold text-sm" style={{ color: item.color }}>
                   {Number(item.data?.commission ?? 0).toLocaleString()} so'm
                 </span>
               </div>

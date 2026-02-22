@@ -20,8 +20,8 @@ function ProtectedRoute({ component: Component }: { component: () => JSX.Element
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#121212] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -41,8 +41,8 @@ function AuthRoute({ component: Component }: { component: () => JSX.Element }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#121212] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#c9a84c] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
