@@ -213,6 +213,7 @@ export default function TasksPage() {
   const currentPkg = vipPackages?.find((p) => p.level === user?.vipLevel);
   const perVideoReward = currentPkg ? Number(currentPkg.perVideoReward) : 0;
   const hasVip = user && user.vipLevel >= 0 && perVideoReward > 0;
+  const noPrivilege = user && user.vipLevel < 0;
   const isLimitReached = user ? user.dailyTasksCompleted >= user.dailyTasksLimit : false;
 
   const pickNextVideo = () => {
@@ -260,15 +261,15 @@ export default function TasksPage() {
           </div>
         )}
 
-        {!hasVip && (
+        {noPrivilege && (
           <div className="bg-[#FF6B35]/10 rounded-2xl p-4 border border-[#FF6B35]/20 mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-[#FF6B35]/20 rounded-xl flex items-center justify-center shrink-0">
                 <Lock className="w-5 h-5 text-[#FF6B35]" />
               </div>
               <div className="flex-1">
-                <p className="text-white text-sm font-semibold">VIP paket kerak</p>
-                <p className="text-[#888] text-xs mt-0.5">Daromad olish uchun VIP paket sotib oling</p>
+                <p className="text-white text-sm font-semibold">Imtiyoz mavjud emas</p>
+                <p className="text-[#888] text-xs mt-0.5">Vazifa bajarish uchun VIP paket sotib oling</p>
               </div>
               <Link href="/vip">
                 <Button
@@ -314,7 +315,9 @@ export default function TasksPage() {
                 className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 text-sm disabled:opacity-50"
                 data-testid="button-start-task"
               >
-                {isLimitReached ? (
+                {noPrivilege ? (
+                  "Imtiyoz mavjud emas"
+                ) : isLimitReached ? (
                   "Kunlik limit tugadi"
                 ) : !hasVip ? (
                   "VIP paket kerak"

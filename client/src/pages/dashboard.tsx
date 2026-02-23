@@ -203,9 +203,11 @@ export default function DashboardPage() {
             />
             <div className="flex items-center justify-between mt-2">
               <p className="text-[#666] text-xs">
-                {user.dailyTasksCompleted < user.dailyTasksLimit
-                  ? `Yana ${user.dailyTasksLimit - user.dailyTasksCompleted} ta video qoldi`
-                  : "Bugungi limitga yetdingiz!"}
+                {user.vipLevel < 0
+                  ? "Imtiyoz mavjud emas"
+                  : user.dailyTasksCompleted < user.dailyTasksLimit
+                    ? `Yana ${user.dailyTasksLimit - user.dailyTasksCompleted} ta video qoldi`
+                    : "Bugungi limitga yetdingiz!"}
               </p>
               <Link href="/tasks">
                 <span className="text-[#FF6B35] text-xs font-semibold flex items-center gap-0.5 cursor-pointer" data-testid="link-start-tasks">

@@ -205,7 +205,9 @@ export async function registerRoutes(
         return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
       }
 
-      const today = new Date().toISOString().split("T")[0];
+      const now = new Date();
+      const taskDay = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+      const today = taskDay.toISOString().split("T")[0];
       if (user.lastTaskDate !== today) {
         await storage.updateUserDailyTasks(user.id, 0, today);
         user.dailyTasksCompleted = 0;
@@ -241,10 +243,13 @@ export async function registerRoutes(
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
 
-      const today = new Date().toISOString().split("T")[0];
+      const now = new Date();
+      const taskDay = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+      const today = taskDay.toISOString().split("T")[0];
       let dailyCompleted = user.dailyTasksCompleted;
       if (user.lastTaskDate !== today) {
         dailyCompleted = 0;
+        await storage.updateUserDailyTasks(userId, 0, today);
       }
 
       if (dailyCompleted >= user.dailyTasksLimit) {
