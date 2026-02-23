@@ -6,17 +6,17 @@ import {
   Users, ArrowDownCircle, ArrowUpCircle, Settings, Crown, GitBranch,
   Shield, Ban, Trash2, Edit, Check, X, Eye, Search, AlertTriangle,
   Trophy, ChevronDown, ChevronRight, Wallet, CreditCard, Globe, Plus,
-  RefreshCw, DollarSign, Activity, TrendingUp
+  RefreshCw, DollarSign, Activity, TrendingUp, UserPlus, MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting } from "@shared/schema";
+import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest } from "@shared/schema";
 
 const UZS_RATE = 12850;
 const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
 
-type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi";
+type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor";
 
 function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: User[]; deposits: DepositRequest[]; withdrawals: WithdrawalRequest[] }) {
   const totalBalance = allUsers.reduce((s, u) => s + Number(u.balance), 0);
@@ -727,6 +727,98 @@ function MultiAccountsTab() {
   );
 }
 
+function StajyorTab({ users: allUsers }: { users: User[] }) {
+  const { toast } = useToast();
+  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
+
+  const { data: requests = [] } = useQuery<StajyorRequest[]>({ queryKey: ["/api/admin/stajyor-requests"] });
+
+  const approveMutation = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/stajyor-requests/${id}/approve`); },
+    onSuccess: () => {
+      toast({ title: "Stajyor faollashtirildi!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stajyor-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+  });
+
+  const rejectMutation = useMutation({
+    mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/stajyor-requests/${id}/reject`); },
+    onSuccess: () => {
+      toast({ title: "So'rov rad etildi" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/stajyor-requests"] });
+    },
+    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+  });
+
+  const filtered = requests.filter(r => filter === "all" || r.status === filter);
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2 mb-2">
+        <UserPlus className="w-5 h-5 text-[#78909C]" />
+        <h3 className="text-white font-bold text-sm">Stajyor so'rovlari</h3>
+      </div>
+
+      <div className="flex gap-2">
+        {(["all", "pending", "approved", "rejected"] as const).map(f => (
+          <button key={f} onClick={() => setFilter(f)}
+            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#111] border-[#333] text-[#aaa]"}`}
+            data-testid={`button-filter-stajyor-${f}`}
+          >
+            {f === "all" ? "Barchasi" : f === "pending" ? "Kutilmoqda" : f === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
+            <span className="ml-1 opacity-60">({requests.filter(r => f === "all" || r.status === f).length})</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        {filtered.length === 0 && <p className="text-[#888] text-sm text-center py-8">Hech narsa topilmadi</p>}
+        {filtered.map(r => {
+          const user = userMap[r.userId];
+          return (
+            <div key={r.id} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]" data-testid={`stajyor-request-${r.id}`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <UserPlus className="w-4 h-4 text-[#78909C]" />
+                    <span className="text-white font-semibold text-sm">{user?.phone || r.userId.slice(0, 8)}</span>
+                    <StatusBadge status={r.status} />
+                  </div>
+                  {r.message && (
+                    <div className="flex items-start gap-1.5 mt-1.5 bg-[#111] rounded-lg p-2 border border-[#2a2a2a]">
+                      <MessageSquare className="w-3 h-3 text-[#888] mt-0.5 shrink-0" />
+                      <p className="text-[#ccc] text-xs">{r.message}</p>
+                    </div>
+                  )}
+                  <p className="text-[#888] text-xs mt-1">ID: {user?.numericId?.slice(0, 10) || "—"}</p>
+                  <p className="text-[#888] text-xs">Sana: {new Date(r.createdAt).toLocaleString()}</p>
+                </div>
+                {r.status === "pending" && (
+                  <div className="flex gap-1.5">
+                    <Button size="sm" onClick={() => approveMutation.mutate(r.id)}
+                      className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-stajyor-${r.id}`}
+                    >
+                      <Check className="w-3 h-3 mr-1" /> Yoqish
+                    </Button>
+                    <Button size="sm" onClick={() => rejectMutation.mutate(r.id)}
+                      className="bg-[#E8453C] text-white h-8 text-xs rounded-lg" data-testid={`button-reject-stajyor-${r.id}`}
+                    >
+                      <X className="w-3 h-3 mr-1" /> Rad etish
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = { pending: "#FFB300", approved: "#4ADE80", rejected: "#E8453C", completed: "#4ADE80" };
   const labels: Record<string, string> = { pending: "Kutilmoqda", approved: "Tasdiqlangan", rejected: "Rad etilgan", completed: "Bajarildi" };
@@ -746,9 +838,12 @@ export default function AdminPage() {
 
   const pendingDeposits = deposits.filter(d => d.status === "pending").length;
   const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
+  const { data: stajyorRequests = [] } = useQuery<StajyorRequest[]>({ queryKey: ["/api/admin/stajyor-requests"] });
+  const pendingStajyor = stajyorRequests.filter(r => r.status === "pending").length;
 
   const tabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
     { id: "dashboard", label: "Bosh panel", icon: Activity },
+    { id: "stajyor", label: "Stajyor", icon: UserPlus, badge: pendingStajyor || undefined },
     { id: "users", label: "Foydalanuvchilar", icon: Users, badge: allUsers.length },
     { id: "deposits", label: "Depozitlar", icon: ArrowDownCircle, badge: pendingDeposits || undefined },
     { id: "withdrawals", label: "Yechishlar", icon: ArrowUpCircle, badge: pendingWithdrawals || undefined },
@@ -798,6 +893,7 @@ export default function AdminPage() {
         </div>
 
         {tab === "dashboard" && <AdminDashboard users={allUsers} deposits={deposits} withdrawals={withdrawals} />}
+        {tab === "stajyor" && <StajyorTab users={allUsers} />}
         {tab === "users" && <UsersTab users={allUsers} />}
         {tab === "deposits" && <DepositsTab deposits={deposits} users={allUsers} />}
         {tab === "withdrawals" && <WithdrawalsTab withdrawals={withdrawals} users={allUsers} />}

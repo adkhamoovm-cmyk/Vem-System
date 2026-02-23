@@ -1,10 +1,16 @@
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp } from "lucide-react";
-import type { VipPackage, User } from "@shared/schema";
+import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal } from "lucide-react";
+import type { VipPackage, User, StajyorRequest } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+
+const levelIcons: Record<number, typeof Shield> = {
+  0: Shield, 1: Medal, 2: Star, 3: Award, 4: Gem, 5: Zap,
+  6: Flame, 7: Rocket, 8: Target, 9: Sparkles, 10: Crown,
+};
 
 const levelColors: Record<number, { primary: string; bg: string; gradient: string; border: string }> = {
   0: { primary: "#78909C", bg: "#ECEFF1", gradient: "from-[#90A4AE] to-[#607D8B]", border: "border-[#B0BEC5]" },
@@ -22,6 +28,8 @@ const levelColors: Record<number, { primary: string; bg: string; gradient: strin
 
 export default function VipPage() {
   const { toast } = useToast();
+  const [stajyorMsg, setStajyorMsg] = useState("");
+
   const { data: packages, isLoading } = useQuery<VipPackage[]>({
     queryKey: ["/api/vip-packages"],
   });
@@ -29,6 +37,11 @@ export default function VipPage() {
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
+  });
+
+  const { data: stajyorRequests = [] } = useQuery<StajyorRequest[]>({
+    queryKey: ["/api/stajyor/status"],
+    enabled: !!user && user.vipLevel < 0,
   });
 
   const purchaseMutation = useMutation({
@@ -40,6 +53,21 @@ export default function VipPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
       toast({ title: "Muvaffaqiyatli!", description: data.message });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const stajyorMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/stajyor/request", { message: stajyorMsg || "Menga Stajyor lavozimini yoqing" });
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/stajyor/status"] });
+      setStajyorMsg("");
+      toast({ title: "Yuborildi!", description: data.message });
     },
     onError: (error: Error) => {
       toast({ title: "Xatolik", description: error.message, variant: "destructive" });
@@ -76,7 +104,7 @@ export default function VipPage() {
             <div className="mt-3 bg-white/10 rounded-xl p-3 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <span className="text-white/80 text-xs">Hozirgi daraja:</span>
-                <span className="font-bold text-sm">{user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}</span>
+                <span className="font-bold text-sm">{user.vipLevel < 0 ? "Yo'q" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-white/80 text-xs">Balans:</span>
@@ -85,6 +113,86 @@ export default function VipPage() {
             </div>
           )}
         </div>
+
+        {user && user.vipLevel < 0 && (
+          <div className="bg-[#1a1a1a] rounded-2xl border border-[#78909C]/30 overflow-hidden mb-4" data-testid="stajyor-request-section">
+            <div className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Send className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-sm">Stajyor lavozimini yoqtirish</h3>
+                  <p className="text-white/70 text-[11px]">Admin orqali 3 kunlik sinov davrini faollashtiring</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4">
+              {stajyorRequests.some(r => r.status === "pending") ? (
+                <div className="bg-[#FFB300]/10 rounded-xl p-4 border border-[#FFB300]/20 text-center">
+                  <Clock className="w-8 h-8 text-[#FFB300] mx-auto mb-2" />
+                  <p className="text-[#FFB300] font-semibold text-sm">So'rov yuborilgan</p>
+                  <p className="text-[#888] text-xs mt-1">Admin tekshirmoqda. Iltimos kuting...</p>
+                </div>
+              ) : stajyorRequests.some(r => r.status === "rejected") && !stajyorRequests.some(r => r.status === "pending") ? (
+                <div className="space-y-3">
+                  <div className="bg-[#E8453C]/10 rounded-xl p-3 border border-[#E8453C]/20">
+                    <p className="text-[#E8453C] text-xs">Oldingi so'rovingiz rad etilgan. Yangi so'rov yuboring.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+                      <input
+                        value={stajyorMsg}
+                        onChange={(e) => setStajyorMsg(e.target.value)}
+                        placeholder="Xabar yozing (ixtiyoriy)..."
+                        className="w-full bg-[#111] border border-[#333] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-[#555] focus:outline-none focus:border-[#78909C]"
+                        data-testid="input-stajyor-message"
+                      />
+                    </div>
+                    <Button
+                      onClick={() => stajyorMutation.mutate()}
+                      disabled={stajyorMutation.isPending}
+                      className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl h-10 px-5 font-semibold"
+                      data-testid="button-send-stajyor"
+                    >
+                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> Yuborish</>}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="bg-[#111] rounded-xl p-3 space-y-1.5 text-xs text-[#aaa]">
+                    <p>Stajyor lavozimi - 3 kunlik bepul sinov davri.</p>
+                    <p>Kuniga 3 ta video ko'rish va daromad olish imkoniyati.</p>
+                    <p className="text-[#FF6B35]">Pul yechish uchun kamida 1 ta Fundga pul qo'ying yoki M1 xarid qiling.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+                      <input
+                        value={stajyorMsg}
+                        onChange={(e) => setStajyorMsg(e.target.value)}
+                        placeholder="Xabar yozing (ixtiyoriy)..."
+                        className="w-full bg-[#111] border border-[#333] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-[#555] focus:outline-none focus:border-[#78909C]"
+                        data-testid="input-stajyor-message"
+                      />
+                    </div>
+                    <Button
+                      onClick={() => stajyorMutation.mutate()}
+                      disabled={stajyorMutation.isPending}
+                      className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl h-10 px-5 font-semibold"
+                      data-testid="button-send-stajyor"
+                    >
+                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> Yuborish</>}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-3">
           {sortedPackages.map((pkg) => {
@@ -113,10 +221,10 @@ export default function VipPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
+                        className="w-12 h-12 rounded-xl flex items-center justify-center"
                         style={{ backgroundColor: colors.bg }}
                       >
-                        {pkg.emoji || (isLocked ? "\u{1F512}" : "\u{1F451}")}
+                        {(() => { const Icon = levelIcons[pkg.level] || (isLocked ? Lock : Crown); return <Icon className="w-6 h-6" style={{ color: colors.primary }} />; })()}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">

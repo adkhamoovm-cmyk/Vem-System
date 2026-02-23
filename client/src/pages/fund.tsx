@@ -3,15 +3,19 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Wallet, Lock, Unlock, TrendingUp, Clock, DollarSign, Infinity, ArrowRight, X, CheckCircle } from "lucide-react";
+import { Wallet, Lock, Unlock, TrendingUp, Clock, DollarSign, Infinity, ArrowRight, X, CheckCircle, Sprout, Gem, Trophy } from "lucide-react";
 import type { User, FundPlan, Investment } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
-const planColors: Record<string, { gradient: string; bg: string; accent: string; icon: string }> = {
-  F1: { gradient: "from-[#4CAF50] to-[#2E7D32]", bg: "bg-[#4CAF50]/10", accent: "#4CAF50", icon: "🌱" },
-  F2: { gradient: "from-[#2196F3] to-[#1565C0]", bg: "bg-[#2196F3]/10", accent: "#2196F3", icon: "💎" },
-  F3: { gradient: "from-[#FF9800] to-[#E65100]", bg: "bg-[#FF9800]/10", accent: "#FF9800", icon: "🏆" },
-  F4: { gradient: "from-[#9C27B0] to-[#6A1B9A]", bg: "bg-[#9C27B0]/10", accent: "#9C27B0", icon: "♾️" },
+const planIcons: Record<string, typeof Sprout> = {
+  F1: Sprout, F2: Gem, F3: Trophy, F4: Infinity,
+};
+
+const planColors: Record<string, { gradient: string; bg: string; accent: string }> = {
+  F1: { gradient: "from-[#4CAF50] to-[#2E7D32]", bg: "bg-[#4CAF50]/10", accent: "#4CAF50" },
+  F2: { gradient: "from-[#2196F3] to-[#1565C0]", bg: "bg-[#2196F3]/10", accent: "#2196F3" },
+  F3: { gradient: "from-[#FF9800] to-[#E65100]", bg: "bg-[#FF9800]/10", accent: "#FF9800" },
+  F4: { gradient: "from-[#9C27B0] to-[#6A1B9A]", bg: "bg-[#9C27B0]/10", accent: "#9C27B0" },
 };
 
 export default function FundPage() {
@@ -119,7 +123,7 @@ export default function FundPage() {
                 >
                   <div className={`bg-gradient-to-r ${colors.gradient} p-3 flex items-center justify-between`}>
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">{colors.icon}</span>
+                      {(() => { const Icon = planIcons[plan.name] || Sprout; return <Icon className="w-6 h-6 text-white" />; })()}
                       <div>
                         <h3 className="text-white font-bold text-base">{plan.name}</h3>
                         <p className="text-white/70 text-xs">
@@ -182,7 +186,7 @@ export default function FundPage() {
                   <div key={inv.id} className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-3 shadow-sm" data-testid={`investment-${inv.id}`}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-lg">{colors.icon}</span>
+                        {(() => { const Icon = planIcons[plan?.name || "F1"] || Sprout; return <Icon className="w-5 h-5" style={{ color: colors.accent }} />; })()}
                         <div>
                           <p className="font-semibold text-sm text-white">{plan?.name || "Fund"}</p>
                           <p className="text-[10px] text-[#666]">
@@ -244,8 +248,9 @@ export default function FundPage() {
           <div className="fixed inset-0 z-[100] bg-black/50 flex items-end justify-center" data-testid="modal-invest">
             <div className="bg-[#1a1a1a] w-full max-w-lg rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white">
-                  {planColors[selectedPlan.name]?.icon} {selectedPlan.name} ga investitsiya
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  {(() => { const Icon = planIcons[selectedPlan.name] || Sprout; return <Icon className="w-5 h-5" style={{ color: planColors[selectedPlan.name]?.accent }} />; })()}
+                  {selectedPlan.name} ga investitsiya
                 </h3>
                 <button onClick={() => setSelectedPlan(null)} className="text-[#666] hover:text-[#aaa]" data-testid="button-close-invest">
                   <X className="w-5 h-5" />
@@ -263,7 +268,7 @@ export default function FundPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#888]">Asosiy pul:</span>
-                  <span className="font-semibold text-white">{selectedPlan.returnPrincipal ? "Qaytadi ✓" : "Qaytmaydi ✗"}</span>
+                  <span className="font-semibold text-white">{selectedPlan.returnPrincipal ? "Qaytadi" : "Qaytmaydi"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#888]">Depozit:</span>

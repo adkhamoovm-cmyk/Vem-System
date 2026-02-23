@@ -11,11 +11,11 @@ export const users = pgTable("users", {
   balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("0"),
   totalEarnings: decimal("total_earnings", { precision: 12, scale: 2 }).notNull().default("0"),
   totalDeposit: decimal("total_deposit", { precision: 12, scale: 2 }).notNull().default("0"),
-  vipLevel: integer("vip_level").notNull().default(0),
+  vipLevel: integer("vip_level").notNull().default(-1),
   referralCode: text("referral_code").notNull().unique(),
   referredBy: text("referred_by"),
   dailyTasksCompleted: integer("daily_tasks_completed").notNull().default(0),
-  dailyTasksLimit: integer("daily_tasks_limit").notNull().default(3),
+  dailyTasksLimit: integer("daily_tasks_limit").notNull().default(0),
   lastTaskDate: text("last_task_date"),
   numericId: text("numeric_id"),
   avatar: text("avatar"),
@@ -142,6 +142,15 @@ export const depositSettings = pgTable("deposit_settings", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const stajyorRequests = pgTable("stajyor_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  message: text("message"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   phone: true,
   password: true,
@@ -196,3 +205,4 @@ export type PaymentMethod = typeof paymentMethods.$inferSelect;
 export type DepositRequest = typeof depositRequests.$inferSelect;
 export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
 export type DepositSetting = typeof depositSettings.$inferSelect;
+export type StajyorRequest = typeof stajyorRequests.$inferSelect;

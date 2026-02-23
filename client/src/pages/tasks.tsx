@@ -239,7 +239,7 @@ export default function TasksPage() {
                 <div className="flex items-center gap-2 mb-0.5">
                   <Crown className="w-4 h-4 text-white/80" />
                   <span className="text-white/80 text-xs font-medium">
-                    {user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
+                    {user.vipLevel < 0 ? "VIP yo'q" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
                   </span>
                 </div>
                 <p className="text-sm font-semibold">

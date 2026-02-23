@@ -134,6 +134,8 @@ export async function registerRoutes(
         referralCode: newReferralCode,
         referredBy: referredById,
         numericId,
+        vipLevel: -1,
+        dailyTasksLimit: 0,
       });
 
       if (referredById) {
@@ -537,6 +539,17 @@ export async function registerRoutes(
         return res.status(403).json({ message: "Sizning pul yechish huquqingiz cheklangan. Texnik yordamga murojaat qiling." });
       }
 
+      if (user.vipLevel === 0) {
+        const hasInvestments = await storage.hasUserInvestments(userId);
+        if (!hasInvestments) {
+          return res.status(400).json({ message: "Pul yechish uchun kamida bitta Fundga pul qo'yishingiz yoki M1 paketini xarid qilishingiz kerak" });
+        }
+      }
+
+      if (user.vipLevel < 0) {
+        return res.status(400).json({ message: "Pul yechish uchun avval Stajyor lavozimini yoqtiring yoki VIP paket sotib oling" });
+      }
+
       const fundPassOk = await comparePasswords(fundPassword, user.fundPassword);
       if (!fundPassOk) {
         return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
@@ -815,6 +828,78 @@ export async function registerRoutes(
     try {
       const tree = await storage.getReferralTree(req.params.userId as string);
       res.json(tree);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/stajyor/request", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const { message } = req.body;
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      if (user.vipLevel >= 0) {
+        return res.status(400).json({ message: "Sizda allaqachon VIP daraja mavjud" });
+      }
+
+      const existing = await storage.getUserStajyorRequests(userId);
+      const pending = existing.find(r => r.status === "pending");
+      if (pending) {
+        return res.status(400).json({ message: "Sizning so'rovingiz allaqachon yuborilgan. Iltimos admin javobini kuting." });
+      }
+
+      const request = await storage.createStajyorRequest(userId, message);
+      res.json({ request, message: "So'rov yuborildi! Admin tekshirgandan so'ng Stajyor lavozimi faollashtiriladi." });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/stajyor/status", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const requests = await storage.getUserStajyorRequests(req.session.userId!);
+      res.json(requests);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/stajyor-requests", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const requests = await storage.getAllStajyorRequests();
+      res.json(requests);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/stajyor-requests/:id/approve", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const requests = await storage.getAllStajyorRequests();
+      const request = requests.find(r => r.id === req.params.id);
+      if (!request) return res.status(404).json({ message: "So'rov topilmadi" });
+      if (request.status !== "pending") return res.status(400).json({ message: "Bu so'rov allaqachon ko'rib chiqilgan" });
+
+      await storage.updateStajyorRequestStatus(request.id, "approved");
+      await storage.setUserVipLevel(request.userId, 0, 3);
+      res.json({ message: "Stajyor lavozimi faollashtirildi!" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/stajyor-requests/:id/reject", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const requests = await storage.getAllStajyorRequests();
+      const request = requests.find(r => r.id === req.params.id);
+      if (!request) return res.status(404).json({ message: "So'rov topilmadi" });
+      if (request.status !== "pending") return res.status(400).json({ message: "Bu so'rov allaqachon ko'rib chiqilgan" });
+
+      await storage.updateStajyorRequestStatus(request.id, "rejected");
+      res.json({ message: "So'rov rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

@@ -1,14 +1,14 @@
 import { eq, and, sql, desc } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByPhone(phone: string): Promise<User | undefined>;
   getUserByReferralCode(code: string): Promise<User | undefined>;
-  createUser(user: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string }): Promise<User>;
+  createUser(user: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string; vipLevel?: number; dailyTasksLimit?: number }): Promise<User>;
   updateUserBalance(id: string, amount: string): Promise<void>;
   updateUserDailyTasks(id: string, completed: number, lastDate: string): Promise<void>;
   updateUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void>;
@@ -61,6 +61,11 @@ export interface IStorage {
   getUsersByIp(ip: string): Promise<User[]>;
   updateUserLoginInfo(id: string, ip: string, userAgent: string): Promise<void>;
   getMultiAccountGroups(): Promise<{ ip: string; count: number; userIds: string[] }[]>;
+  createStajyorRequest(userId: string, message?: string): Promise<StajyorRequest>;
+  getUserStajyorRequests(userId: string): Promise<StajyorRequest[]>;
+  getAllStajyorRequests(): Promise<StajyorRequest[]>;
+  updateStajyorRequestStatus(id: string, status: string): Promise<void>;
+  hasUserInvestments(userId: string): Promise<boolean>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -79,7 +84,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createUser(data: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string }): Promise<User> {
+  async createUser(data: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string; vipLevel?: number; dailyTasksLimit?: number }): Promise<User> {
     const [user] = await db.insert(users).values(data).returning();
     return user;
   }
@@ -365,6 +370,27 @@ export class DatabaseStorage implements IStorage {
       count: Number(g.count),
       userIds: g.userIds,
     }));
+  }
+  async createStajyorRequest(userId: string, message?: string): Promise<StajyorRequest> {
+    const [req] = await db.insert(stajyorRequests).values({ userId, message: message || null }).returning();
+    return req;
+  }
+
+  async getUserStajyorRequests(userId: string): Promise<StajyorRequest[]> {
+    return db.select().from(stajyorRequests).where(eq(stajyorRequests.userId, userId)).orderBy(desc(stajyorRequests.createdAt));
+  }
+
+  async getAllStajyorRequests(): Promise<StajyorRequest[]> {
+    return db.select().from(stajyorRequests).orderBy(desc(stajyorRequests.createdAt));
+  }
+
+  async updateStajyorRequestStatus(id: string, status: string): Promise<void> {
+    await db.update(stajyorRequests).set({ status, reviewedAt: new Date() }).where(eq(stajyorRequests.id, id));
+  }
+
+  async hasUserInvestments(userId: string): Promise<boolean> {
+    const result = await db.select({ count: sql<number>`count(*)` }).from(investments).where(eq(investments.userId, userId));
+    return Number(result[0]?.count || 0) > 0;
   }
 }
 
