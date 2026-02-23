@@ -69,6 +69,17 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Avtorizatsiya talab qilinadi" });
+  }
+  const user = await storage.getUser(req.session.userId);
+  if (!user || !user.isAdmin) {
+    return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
+  }
+  next();
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -140,6 +151,9 @@ export async function registerRoutes(
       }
 
       req.session.userId = user.id;
+      const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
+      const ua = req.headers["user-agent"] || "";
+      await storage.updateUserLoginInfo(user.id, ip, ua);
       res.json({ user: { ...user, password: undefined, fundPassword: undefined } });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
@@ -159,12 +173,19 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Telefon raqami yoki parol noto'g'ri" });
       }
 
+      if (user.isBanned) {
+        return res.status(403).json({ message: "Sizning hisobingiz bloklangan. Texnik yordamga murojaat qiling." });
+      }
+
       const valid = await comparePasswords(password, user.password);
       if (!valid) {
         return res.status(400).json({ message: "Telefon raqami yoki parol noto'g'ri" });
       }
 
       req.session.userId = user.id;
+      const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
+      const ua = req.headers["user-agent"] || "";
+      await storage.updateUserLoginInfo(user.id, ip, ua);
       res.json({ user: { ...user, password: undefined, fundPassword: undefined } });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
@@ -512,6 +533,10 @@ export async function registerRoutes(
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
 
+      if (user.withdrawalBanned) {
+        return res.status(403).json({ message: "Sizning pul yechish huquqingiz cheklangan. Texnik yordamga murojaat qiling." });
+      }
+
       const fundPassOk = await comparePasswords(fundPassword, user.fundPassword);
       if (!fundPassOk) {
         return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
@@ -568,6 +593,222 @@ export async function registerRoutes(
       const userId = req.session.userId!;
       const withdrawals = await storage.getUserWithdrawalRequests(userId);
       res.json(withdrawals);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // ===== ADMIN ROUTES =====
+
+  app.get("/api/admin/users", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const allUsers = await storage.getAllUsers();
+      res.json(allUsers.map(u => ({ ...u, password: undefined, fundPassword: undefined })));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/users/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser(req.params.id as string);
+      if (!user) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
+      const methods = await storage.getUserPaymentMethods(user.id);
+      const deposits = await storage.getUserDepositRequests(user.id);
+      const withdrawals = await storage.getUserWithdrawalRequests(user.id);
+      const investments = await storage.getUserInvestments(user.id);
+      const referralStats = await storage.getReferralStats(user.id);
+      const referralTree = await storage.getReferralTree(user.id);
+      res.json({
+        user: { ...user, password: undefined, fundPassword: undefined },
+        paymentMethods: methods,
+        deposits,
+        withdrawals,
+        investments,
+        referralStats,
+        referralTree,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/ban", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { isBanned } = req.body;
+      await storage.banUser(req.params.id as string, isBanned);
+      res.json({ message: isBanned ? "Foydalanuvchi bloklandi" : "Foydalanuvchi blokdan chiqarildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/withdrawal-ban", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { banned } = req.body;
+      await storage.setWithdrawalBan(req.params.id as string, banned);
+      res.json({ message: banned ? "Pul yechish taqiqlandi" : "Pul yechish ruxsat berildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/balance", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { balance } = req.body;
+      await storage.setUserBalance(req.params.id as string, String(balance));
+      res.json({ message: "Balans yangilandi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/vip", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { level, dailyLimit } = req.body;
+      await storage.setUserVipLevel(req.params.id as string, level, dailyLimit);
+      res.json({ message: "VIP daraja yangilandi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/users/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deleteUser(req.params.id as string);
+      res.json({ message: "Foydalanuvchi o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/payment-methods/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deletePaymentMethod(req.params.id as string);
+      res.json({ message: "To'lov usuli o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/deposits", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const deposits = await storage.getAllDepositRequests();
+      res.json(deposits);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/deposits/:id/approve", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.updateDepositStatus(req.params.id as string, "approved");
+      res.json({ message: "Depozit tasdiqlandi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/deposits/:id/reject", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.updateDepositStatus(req.params.id as string, "rejected");
+      res.json({ message: "Depozit rad etildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/withdrawals", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const withdrawals = await storage.getAllWithdrawalRequests();
+      res.json(withdrawals);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/withdrawals/:id/approve", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.updateWithdrawalStatus(req.params.id as string, "approved");
+      res.json({ message: "Yechish tasdiqlandi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/withdrawals/:id/reject", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.updateWithdrawalStatus(req.params.id as string, "rejected");
+      res.json({ message: "Yechish rad etildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/deposit-settings", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const settings = await storage.getDepositSettings();
+      res.json(settings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/deposit-settings", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const setting = await storage.upsertDepositSetting(req.body);
+      res.json({ setting, message: "Rekvizit saqlandi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/deposit-settings/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deleteDepositSetting(req.params.id as string);
+      res.json({ message: "Rekvizit o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/top-referrers", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const top = await storage.getTopReferrers(10);
+      const enriched = await Promise.all(
+        top.map(async (r: any) => {
+          const user = await storage.getUser(r.referrerId);
+          return { ...r, phone: user?.phone, numericId: user?.numericId, vipLevel: user?.vipLevel };
+        })
+      );
+      res.json(enriched);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/multi-accounts", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const groups = await storage.getMultiAccountGroups();
+      res.json(groups);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/referral-tree/:userId", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const tree = await storage.getReferralTree(req.params.userId as string);
+      res.json(tree);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/deposit-settings/active", requireAuth, async (_req: Request, res: Response) => {
+    try {
+      const settings = await storage.getDepositSettings();
+      res.json(settings.filter((s: any) => s.isActive));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

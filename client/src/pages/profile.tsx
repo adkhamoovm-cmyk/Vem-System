@@ -859,6 +859,17 @@ export default function ProfilePage() {
               </div>
               <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
+            {user.isAdmin && (
+              <button onClick={() => navigate("/admin")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-admin">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/20 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-[#FF6B35]" />
+                  </div>
+                  <span className="text-[#FF6B35] text-sm font-semibold">Admin panel</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#FF6B35]" />
+              </button>
+            )}
           </div>
         </div>
 

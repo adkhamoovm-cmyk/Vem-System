@@ -13,6 +13,7 @@ import VipPage from "@/pages/vip";
 import ProfilePage from "@/pages/profile";
 import TrendsPage from "@/pages/trends";
 import FundPage from "@/pages/fund";
+import AdminPage from "@/pages/admin";
 import type { User } from "@shared/schema";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
@@ -23,7 +24,7 @@ function ProtectedRoute({ component: Component }: { component: () => JSX.Element
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -31,6 +32,27 @@ function ProtectedRoute({ component: Component }: { component: () => JSX.Element
 
   if (!user) {
     return <Redirect to="/login" />;
+  }
+
+  return <Component />;
+}
+
+function AdminRoute({ component: Component }: { component: () => JSX.Element }) {
+  const { data: user, isLoading } = useQuery<User>({
+    queryKey: ["/api/auth/me"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user || !user.isAdmin) {
+    return <Redirect to="/dashboard" />;
   }
 
   return <Component />;
@@ -44,7 +66,7 @@ function AuthRoute({ component: Component }: { component: () => JSX.Element }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -89,6 +111,9 @@ function Router() {
       </Route>
       <Route path="/fund">
         {() => <ProtectedRoute component={FundPage} />}
+      </Route>
+      <Route path="/admin">
+        {() => <AdminRoute component={AdminPage} />}
       </Route>
       <Route component={NotFound} />
     </Switch>

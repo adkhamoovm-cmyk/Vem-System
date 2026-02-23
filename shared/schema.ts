@@ -19,6 +19,12 @@ export const users = pgTable("users", {
   lastTaskDate: text("last_task_date"),
   numericId: text("numeric_id"),
   avatar: text("avatar"),
+  isAdmin: boolean("is_admin").notNull().default(false),
+  isBanned: boolean("is_banned").notNull().default(false),
+  withdrawalBanned: boolean("withdrawal_banned").notNull().default(false),
+  lastLoginIp: text("last_login_ip"),
+  lastUserAgent: text("last_user_agent"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const vipPackages = pgTable("vip_packages", {
@@ -123,6 +129,19 @@ export const withdrawalRequests = pgTable("withdrawal_requests", {
   reviewedAt: timestamp("reviewed_at"),
 });
 
+export const depositSettings = pgTable("deposit_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  type: text("type").notNull(),
+  bankName: text("bank_name"),
+  cardNumber: text("card_number"),
+  holderName: text("holder_name"),
+  walletAddress: text("wallet_address"),
+  exchangeName: text("exchange_name"),
+  networkType: text("network_type"),
+  isActive: boolean("is_active").notNull().default(true),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   phone: true,
   password: true,
@@ -176,3 +195,4 @@ export type Investment = typeof investments.$inferSelect;
 export type PaymentMethod = typeof paymentMethods.$inferSelect;
 export type DepositRequest = typeof depositRequests.$inferSelect;
 export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
+export type DepositSetting = typeof depositSettings.$inferSelect;

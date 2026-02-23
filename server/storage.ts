@@ -1,7 +1,7 @@
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -39,6 +39,26 @@ export interface IStorage {
   createWithdrawalRequest(data: { userId: string; paymentMethodId: string; amount: string; commission: string; netAmount: string }): Promise<WithdrawalRequest>;
   getUserWithdrawalRequests(userId: string): Promise<WithdrawalRequest[]>;
   deductUserBalance(id: string, amount: string): Promise<void>;
+  getAllUsers(): Promise<User[]>;
+  banUser(id: string, isBanned: boolean): Promise<void>;
+  setWithdrawalBan(id: string, banned: boolean): Promise<void>;
+  setUserBalance(id: string, balance: string): Promise<void>;
+  deleteUser(id: string): Promise<void>;
+  setUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void>;
+  getAllDepositRequests(): Promise<DepositRequest[]>;
+  updateDepositStatus(id: string, status: string): Promise<void>;
+  getAllWithdrawalRequests(): Promise<WithdrawalRequest[]>;
+  updateWithdrawalStatus(id: string, status: string): Promise<void>;
+  deletePaymentMethod(id: string): Promise<void>;
+  getDepositSettings(): Promise<DepositSetting[]>;
+  upsertDepositSetting(data: Partial<DepositSetting> & { type: string }): Promise<DepositSetting>;
+  deleteDepositSetting(id: string): Promise<void>;
+  getReferralTree(userId: string): Promise<Referral[]>;
+  getAllReferrals(): Promise<Referral[]>;
+  getTopReferrers(limit: number): Promise<{ referrerId: string; count: number; totalCommission: string }[]>;
+  getUsersByIp(ip: string): Promise<User[]>;
+  updateUserLoginInfo(id: string, ip: string, userAgent: string): Promise<void>;
+  getMultiAccountGroups(): Promise<{ ip: string; count: number; userIds: string[] }[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -207,6 +227,131 @@ export class DatabaseStorage implements IStorage {
     await db.update(users)
       .set({ balance: sql`${users.balance}::numeric - ${amount}::numeric` })
       .where(eq(users.id, id));
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users);
+  }
+
+  async banUser(id: string, isBanned: boolean): Promise<void> {
+    await db.update(users).set({ isBanned }).where(eq(users.id, id));
+  }
+
+  async setWithdrawalBan(id: string, banned: boolean): Promise<void> {
+    await db.update(users).set({ withdrawalBanned: banned }).where(eq(users.id, id));
+  }
+
+  async setUserBalance(id: string, balance: string): Promise<void> {
+    await db.update(users).set({ balance }).where(eq(users.id, id));
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async setUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void> {
+    await db.update(users)
+      .set({ vipLevel: level, dailyTasksLimit: dailyLimit })
+      .where(eq(users.id, id));
+  }
+
+  async getAllDepositRequests(): Promise<DepositRequest[]> {
+    return db.select().from(depositRequests);
+  }
+
+  async updateDepositStatus(id: string, status: string): Promise<void> {
+    await db.update(depositRequests)
+      .set({ status, reviewedAt: new Date() })
+      .where(eq(depositRequests.id, id));
+  }
+
+  async getAllWithdrawalRequests(): Promise<WithdrawalRequest[]> {
+    return db.select().from(withdrawalRequests);
+  }
+
+  async updateWithdrawalStatus(id: string, status: string): Promise<void> {
+    await db.update(withdrawalRequests)
+      .set({ status, reviewedAt: new Date() })
+      .where(eq(withdrawalRequests.id, id));
+  }
+
+  async deletePaymentMethod(id: string): Promise<void> {
+    await db.delete(paymentMethods).where(eq(paymentMethods.id, id));
+  }
+
+  async getDepositSettings(): Promise<DepositSetting[]> {
+    return db.select().from(depositSettings);
+  }
+
+  async upsertDepositSetting(data: Partial<DepositSetting> & { type: string }): Promise<DepositSetting> {
+    if (data.id) {
+      const { id, ...updateData } = data;
+      const [setting] = await db.update(depositSettings)
+        .set({ ...updateData, updatedAt: new Date() })
+        .where(eq(depositSettings.id, id))
+        .returning();
+      return setting;
+    } else {
+      const [setting] = await db.insert(depositSettings).values(data).returning();
+      return setting;
+    }
+  }
+
+  async deleteDepositSetting(id: string): Promise<void> {
+    await db.delete(depositSettings).where(eq(depositSettings.id, id));
+  }
+
+  async getReferralTree(userId: string): Promise<Referral[]> {
+    return db.select().from(referrals).where(eq(referrals.referrerId, userId));
+  }
+
+  async getAllReferrals(): Promise<Referral[]> {
+    return db.select().from(referrals);
+  }
+
+  async getTopReferrers(limit: number): Promise<{ referrerId: string; count: number; totalCommission: string }[]> {
+    const result = await db.select({
+      referrerId: referrals.referrerId,
+      count: sql<number>`count(*)`,
+      totalCommission: sql<string>`COALESCE(SUM(${referrals.commission}::numeric), 0)`,
+    })
+      .from(referrals)
+      .where(eq(referrals.level, 1))
+      .groupBy(referrals.referrerId)
+      .orderBy(desc(sql`count(*)`))
+      .limit(limit);
+    return result.map(r => ({
+      referrerId: r.referrerId,
+      count: Number(r.count),
+      totalCommission: String(r.totalCommission),
+    }));
+  }
+
+  async getUsersByIp(ip: string): Promise<User[]> {
+    return db.select().from(users).where(eq(users.lastLoginIp, ip));
+  }
+
+  async updateUserLoginInfo(id: string, ip: string, userAgent: string): Promise<void> {
+    await db.update(users)
+      .set({ lastLoginIp: ip, lastUserAgent: userAgent })
+      .where(eq(users.id, id));
+  }
+
+  async getMultiAccountGroups(): Promise<{ ip: string; count: number; userIds: string[] }[]> {
+    const ipGroups = await db.select({
+      ip: users.lastLoginIp,
+      count: sql<number>`count(*)`,
+      userIds: sql<string[]>`array_agg(${users.id})`,
+    })
+      .from(users)
+      .where(sql`${users.lastLoginIp} IS NOT NULL`)
+      .groupBy(users.lastLoginIp)
+      .having(sql`count(*) > 1`);
+    return ipGroups.map(g => ({
+      ip: g.ip as string,
+      count: Number(g.count),
+      userIds: g.userIds,
+    }));
   }
 }
 

@@ -4,6 +4,10 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-23: Full admin panel (/admin) with user management, deposit/withdrawal approval, deposit requisites, multi-account detection, top referrers, referral tree, VIP management
+- 2026-02-23: Admin features: ban/unban users, withdrawal ban, balance editing, VIP level change, payment method deletion, user account deletion
+- 2026-02-23: IP/UserAgent tracking on login/register, banned user login prevention
+- 2026-02-23: deposit_settings table for admin-configurable deposit requisites
 - 2026-02-23: Profile page with deposit (crypto USDT / local UZS, receipt upload) and withdrawal (bank card/USDT wallet, fund password, $2 min, 10% commission, Mon-Sat 11:00-17:00)
 - 2026-02-23: Payment methods: bank card (name, bank, card number) and USDT wallet (TRC20 address, exchange name), immutable after creation
 - 2026-02-23: DB tables: payment_methods, deposit_requests, withdrawal_requests with insert schemas
@@ -23,12 +27,12 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - Auth: Session-based with scrypt password hashing
 
 ## Project Architecture
-- `client/src/pages/` - Login, Register, Dashboard, Tasks, Trends, Referral, VIP, Profile, Fund pages
+- `client/src/pages/` - Login, Register, Dashboard, Tasks, Trends, Referral, VIP, Profile, Fund, Admin pages
 - `client/src/components/app-layout.tsx` - Shared layout with TikTok-style bottom nav (5 tabs, raised center Vazifalar button)
 - `server/routes.ts` - API routes with session auth
 - `server/storage.ts` - Database storage layer (DatabaseStorage class)
 - `server/seed.ts` - Seed data for 11 VIP packages, 9 TV shows/trailers (real YouTube URLs), 4 fund plans
-- `shared/schema.ts` - Drizzle schemas (users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests)
+- `shared/schema.ts` - Drizzle schemas (users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings)
 
 ## Design
 - Dark Netflix-style theme: #0a0a0a background, #1a1a1a cards, #2a2a2a borders
