@@ -209,7 +209,7 @@ export async function registerRoutes(
   app.post("/api/tasks/complete", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
-      const { videoId } = req.body;
+      const { videoId, youtubeVideoId } = req.body;
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
@@ -224,8 +224,14 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Kunlik limit tugadi" });
       }
 
-      const video = await storage.getVideo(videoId);
-      if (!video) return res.status(404).json({ message: "Video topilmadi" });
+      if (!videoId && !youtubeVideoId) {
+        return res.status(400).json({ message: "Video ID kerak" });
+      }
+
+      if (videoId) {
+        const video = await storage.getVideo(videoId);
+        if (!video) return res.status(404).json({ message: "Video topilmadi" });
+      }
 
       const vipPkgs = await storage.getVipPackages();
       const userPkg = vipPkgs.find(p => p.level === user.vipLevel);
@@ -235,8 +241,9 @@ export async function registerRoutes(
         return res.status(400).json({ message: "VIP paket sotib oling" });
       }
 
+      const taskVideoId = videoId || `yt_${youtubeVideoId}`;
       const rewardStr = perVideoReward.toFixed(2);
-      await storage.createTaskHistory({ userId, videoId, reward: rewardStr });
+      await storage.createTaskHistory({ userId, videoId: taskVideoId, reward: rewardStr });
       await storage.updateUserBalance(userId, rewardStr);
       await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
 
