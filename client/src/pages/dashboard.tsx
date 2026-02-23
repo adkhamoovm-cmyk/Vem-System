@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft } from "lucide-react";
+import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
@@ -221,7 +221,7 @@ export default function DashboardPage() {
               { title: "Fund", href: "/fund", icon: Wallet, color: "#E8453C", bg: "#E8453C" },
               { title: "Taklif", href: "/referral", icon: Users, color: "#4ADE80", bg: "#4ADE80" },
               { title: "VIP", href: "/vip", icon: Crown, color: "#A855F7", bg: "#A855F7" },
-              { title: "Trendlar", href: "/trends", icon: Tv, color: "#3B82F6", bg: "#3B82F6" },
+              { title: "Yordam", href: "/help", icon: HelpCircle, color: "#3B82F6", bg: "#3B82F6" },
             ].map((item) => (
               <Link key={item.href} href={item.href}>
                 <div className="flex flex-col items-center gap-1.5 cursor-pointer" data-testid={`quick-${item.title.toLowerCase()}`}>

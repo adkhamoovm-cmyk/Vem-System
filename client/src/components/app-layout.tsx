@@ -1,7 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
-import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut, HelpCircle } from "lucide-react";
+import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut } from "lucide-react";
 import type { User } from "@shared/schema";
 
 const sideNavItems = [
@@ -10,7 +10,7 @@ const sideNavItems = [
 ];
 
 const rightNavItems = [
-  { title: "Yordam", href: "/help", icon: HelpCircle, testId: "nav-yordam" },
+  { title: "Referal", href: "/referral", icon: Users, testId: "nav-referal" },
   { title: "Profil", href: "/profile", icon: UserIcon, testId: "nav-profil" },
 ];
 
