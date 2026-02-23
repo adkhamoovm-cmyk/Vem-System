@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Phone, Lock, Eye, EyeOff, ChevronDown } from "lucide-react";
 
 const countryCodes = [
@@ -40,12 +41,22 @@ export default function LoginPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
+  const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("vem_remember") === "true");
+  const [selectedCountry, setSelectedCountry] = useState(() => {
+    const saved = localStorage.getItem("vem_country");
+    if (saved) {
+      const found = countryCodes.find(c => c.country === saved);
+      if (found) return found;
+    }
+    return countryCodes[0];
+  });
   const [showCountryList, setShowCountryList] = useState(false);
+
+  const savedPhone = rememberMe ? (localStorage.getItem("vem_phone") || "") : "";
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { phone: "", password: "" },
+    defaultValues: { phone: savedPhone, password: "" },
   });
 
   const loginMutation = useMutation({
@@ -54,7 +65,16 @@ export default function LoginPage() {
       const res = await apiRequest("POST", "/api/auth/login", { ...data, phone: fullPhone });
       return res.json();
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      if (rememberMe) {
+        localStorage.setItem("vem_remember", "true");
+        localStorage.setItem("vem_phone", variables.phone);
+        localStorage.setItem("vem_country", selectedCountry.country);
+      } else {
+        localStorage.removeItem("vem_remember");
+        localStorage.removeItem("vem_phone");
+        localStorage.removeItem("vem_country");
+      }
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       navigate("/dashboard");
     },
@@ -170,6 +190,18 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={rememberMe}
+                    onCheckedChange={(val) => setRememberMe(val === true)}
+                    className="border-[#ddd] data-[state=checked]:bg-[#FF6B35] data-[state=checked]:border-[#FF6B35]"
+                    data-testid="checkbox-remember-me"
+                  />
+                  <span className="text-[#777] text-sm">Meni eslab qol</span>
+                </label>
+              </div>
 
               <Button
                 type="submit"

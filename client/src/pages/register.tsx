@@ -320,7 +320,7 @@ export default function RegisterPage() {
                         <div className="bg-[#FFF8F5] border border-[#FFE0D0] rounded-xl p-3.5">
                           <div className="flex items-center gap-2 mb-2.5">
                             <Shield className="w-4 h-4 text-[#FF6B35]" />
-                            <span className="text-[#FF6B35] text-xs font-semibold">Click / Payme kabi xavfsiz PIN</span>
+                            <span className="text-[#FF6B35] text-xs font-semibold">Moliya fondi parolini yarating</span>
                           </div>
                           <PinInput
                             value={field.value}
