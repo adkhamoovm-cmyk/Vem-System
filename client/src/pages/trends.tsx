@@ -1,9 +1,52 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
-import { Link } from "wouter";
-import { TrendingUp, Star, Eye, Clock, Flame } from "lucide-react";
+import { TrendingUp, Star, Eye, Clock, Flame, Tv, Film, Play } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+
+function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; onClose: () => void }) {
+  return (
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
+      <DialogContent className="bg-white border-[#eee] max-w-lg rounded-2xl p-0 overflow-hidden" aria-describedby="preview-desc">
+        <div className="relative aspect-video bg-black">
+          {video.videoUrl ? (
+            <video
+              src={video.videoUrl}
+              poster={video.thumbnail}
+              className="w-full h-full object-cover"
+              controls
+              autoPlay
+              playsInline
+            />
+          ) : (
+            <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
+          )}
+        </div>
+        <div className="p-4">
+          <h3 className="text-[#1a1a2e] font-bold">{video.title}</h3>
+          <p id="preview-desc" className="text-[#999] text-xs mt-1">{video.actors}</p>
+          <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-1">
+              <Star className="w-3.5 h-3.5 fill-[#FFD700] text-[#FFD700]" />
+              <span className="text-[#666] text-xs font-medium">{video.rating}</span>
+            </div>
+            <span className="text-[#ddd]">&middot;</span>
+            <span className="text-[#999] text-xs">{video.country}</span>
+            <span className="text-[#ddd]">&middot;</span>
+            <span className="text-[#999] text-xs">{video.releaseDate}</span>
+          </div>
+          <div className="mt-3 bg-[#FFF3E0] rounded-xl p-3 border border-[#FFE082]">
+            <p className="text-[#7B6B3A] text-xs">
+              Bu yerda faqat ko'rish mumkin. Daromad olish uchun <strong>Vazifalar</strong> bo'limiga o'ting.
+            </p>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function TrendsPage() {
   const { data: videos, isLoading } = useQuery<Video[]>({
@@ -15,6 +58,9 @@ export default function TrendsPage() {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
+  const [previewVideo, setPreviewVideo] = useState<Video | null>(null);
+  const [activeFilter, setActiveFilter] = useState<string>("Barchasi");
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -25,19 +71,45 @@ export default function TrendsPage() {
     );
   }
 
-  const sortedByRating = [...(videos || [])].sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
+  const filters = ["Barchasi", "Tele-shou", "Treyler"];
+  const filteredVideos = activeFilter === "Barchasi"
+    ? videos || []
+    : (videos || []).filter(v => v.category === activeFilter);
+
+  const sortedByRating = [...filteredVideos].sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
   const topVideos = sortedByRating.slice(0, 3);
-  const otherVideos = sortedByRating.slice(3);
+
+  const teleshowCount = (videos || []).filter(v => v.category === "Tele-shou").length;
+  const treylerCount = (videos || []).filter(v => v.category === "Treyler").length;
 
   return (
     <AppLayout>
       <div className="p-4 space-y-4">
-        <div className="flex items-center gap-2">
-          <Flame className="w-5 h-5 text-[#FF6B35]" />
-          <h1 className="text-[#1a1a2e] font-bold text-lg">Trendlar</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Flame className="w-5 h-5 text-[#FF6B35]" />
+            <h1 className="text-[#1a1a2e] font-bold text-lg">Trendlar</h1>
+          </div>
         </div>
 
-        {topVideos.length > 0 && (
+        <div className="flex gap-2">
+          {filters.map(f => (
+            <button
+              key={f}
+              onClick={() => setActiveFilter(f)}
+              className={`px-4 py-2 rounded-full text-xs font-semibold transition-colors ${
+                activeFilter === f
+                  ? "bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white shadow-md"
+                  : "bg-white text-[#666] border border-[#e8e8e8]"
+              }`}
+              data-testid={`filter-${f.toLowerCase()}`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {topVideos.length > 0 && activeFilter === "Barchasi" && (
           <div>
             <div className="flex items-center gap-1.5 mb-3">
               <TrendingUp className="w-4 h-4 text-[#E8453C]" />
@@ -45,8 +117,8 @@ export default function TrendsPage() {
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {topVideos.map((video, index) => (
-                <Link key={video.id} href="/tasks">
-                  <div className="relative w-36 shrink-0 cursor-pointer" data-testid={`trend-top-${video.id}`}>
+                <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
+                  <div className="relative w-36 shrink-0" data-testid={`trend-top-${video.id}`}>
                     <div className="w-36 h-52 rounded-2xl overflow-hidden bg-[#f0f0f0] shadow-md">
                       <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-2xl" />
@@ -60,15 +132,25 @@ export default function TrendsPage() {
                         {index + 1}
                       </div>
                     </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                      <h4 className="text-white font-bold text-xs truncate">{video.title}</h4>
-                      <div className="flex items-center gap-1 mt-1">
-                        <Star className="w-3 h-3 fill-[#FFD700] text-[#FFD700]" />
-                        <span className="text-white/90 text-[10px] font-medium">{video.rating}</span>
+                    <div className="absolute top-2 right-2">
+                      <span className="bg-black/50 backdrop-blur-sm text-white text-[8px] font-bold px-2 py-0.5 rounded-full">
+                        {video.category === "Tele-shou" ? "TV" : "Film"}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
+                      <div>
+                        <h4 className="text-white font-bold text-xs truncate max-w-[90px]">{video.title}</h4>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Star className="w-3 h-3 fill-[#FFD700] text-[#FFD700]" />
+                          <span className="text-white/90 text-[10px] font-medium">{video.rating}</span>
+                        </div>
+                      </div>
+                      <div className="w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                        <Play className="w-3 h-3 text-white ml-0.5" />
                       </div>
                     </div>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -78,28 +160,28 @@ export default function TrendsPage() {
           <div className="bg-white rounded-xl p-3 text-center shadow-sm border border-[#f0f0f0]">
             <Eye className="w-5 h-5 text-[#FF6B35] mx-auto mb-1" />
             <p className="text-[#1a1a2e] font-bold text-sm">{videos?.length || 0}</p>
-            <p className="text-[#999] text-[10px]">Jami videolar</p>
+            <p className="text-[#999] text-[10px]">Jami kontent</p>
           </div>
           <div className="bg-white rounded-xl p-3 text-center shadow-sm border border-[#f0f0f0]">
-            <TrendingUp className="w-5 h-5 text-[#4CAF50] mx-auto mb-1" />
-            <p className="text-[#1a1a2e] font-bold text-sm">{user?.dailyTasksCompleted || 0}</p>
-            <p className="text-[#999] text-[10px]">Ko'rilgan</p>
+            <Tv className="w-5 h-5 text-[#4CAF50] mx-auto mb-1" />
+            <p className="text-[#1a1a2e] font-bold text-sm">{teleshowCount}</p>
+            <p className="text-[#999] text-[10px]">Tele-shoular</p>
           </div>
           <div className="bg-white rounded-xl p-3 text-center shadow-sm border border-[#f0f0f0]">
-            <Clock className="w-5 h-5 text-[#3b6db5] mx-auto mb-1" />
-            <p className="text-[#1a1a2e] font-bold text-sm">
-              {videos?.reduce((sum, v) => sum + (v.duration || 0), 0) || 0}s
-            </p>
-            <p className="text-[#999] text-[10px]">Umumiy vaqt</p>
+            <Film className="w-5 h-5 text-[#3b6db5] mx-auto mb-1" />
+            <p className="text-[#1a1a2e] font-bold text-sm">{treylerCount}</p>
+            <p className="text-[#999] text-[10px]">Treylerlar</p>
           </div>
         </div>
 
         <div>
-          <h3 className="text-[#1a1a2e] font-bold text-sm mb-3">Barcha trendlar</h3>
+          <h3 className="text-[#1a1a2e] font-bold text-sm mb-3">
+            {activeFilter === "Barchasi" ? "Barcha trendlar" : activeFilter}
+          </h3>
           <div className="grid grid-cols-2 gap-3">
-            {(otherVideos.length > 0 ? otherVideos : sortedByRating).map((video) => (
-              <Link key={video.id} href="/tasks">
-                <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#f0f0f0] cursor-pointer" data-testid={`trend-card-${video.id}`}>
+            {sortedByRating.map((video) => (
+              <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
+                <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#f0f0f0]" data-testid={`trend-card-${video.id}`}>
                   <div className="relative aspect-[3/4] bg-[#f0f0f0]">
                     <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -110,9 +192,14 @@ export default function TrendsPage() {
                       </div>
                     </div>
                     <div className="absolute top-2 right-2">
-                      <span className="bg-[#FF6B35]/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
-                        +{Number(video.reward).toLocaleString()}
+                      <span className="bg-black/50 backdrop-blur-sm text-white text-[8px] font-bold px-2 py-0.5 rounded-full">
+                        {video.category === "Tele-shou" ? "TV" : "Film"}
                       </span>
+                    </div>
+                    <div className="absolute top-2 left-2">
+                      <div className="w-7 h-7 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                        <Play className="w-3 h-3 text-white ml-0.5" />
+                      </div>
                     </div>
                   </div>
                   <div className="p-2.5">
@@ -122,19 +209,21 @@ export default function TrendsPage() {
                     )}
                     <div className="flex items-center gap-1 mt-1">
                       <span className="text-[#bbb] text-[9px]">{video.country}</span>
-                      {video.releaseDate && (
-                        <>
-                          <span className="text-[#ddd] text-[9px]">·</span>
-                          <span className="text-[#bbb] text-[9px]">{video.releaseDate}</span>
-                        </>
-                      )}
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
+
+        {previewVideo && (
+          <PreviewModal
+            video={previewVideo}
+            open={!!previewVideo}
+            onClose={() => setPreviewVideo(null)}
+          />
+        )}
       </div>
     </AppLayout>
   );

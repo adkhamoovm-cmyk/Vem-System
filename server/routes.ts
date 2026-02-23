@@ -227,27 +227,35 @@ export async function registerRoutes(
       const video = await storage.getVideo(videoId);
       if (!video) return res.status(404).json({ message: "Video topilmadi" });
 
-      await storage.createTaskHistory({ userId, videoId, reward: String(video.reward) });
-      await storage.updateUserBalance(userId, String(video.reward));
+      const vipPkgs = await storage.getVipPackages();
+      const userPkg = vipPkgs.find(p => p.level === user.vipLevel);
+      const perVideoReward = userPkg ? Number(userPkg.perVideoReward) : 0;
+
+      if (perVideoReward <= 0) {
+        return res.status(400).json({ message: "VIP paket sotib oling" });
+      }
+
+      const rewardStr = perVideoReward.toFixed(2);
+      await storage.createTaskHistory({ userId, videoId, reward: rewardStr });
+      await storage.updateUserBalance(userId, rewardStr);
       await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
 
-      const reward = Number(video.reward);
       if (user.referredBy) {
-        const l1Commission = (reward * 0.09).toFixed(2);
+        const l1Commission = (perVideoReward * 0.09).toFixed(2);
         await storage.updateUserBalance(user.referredBy, l1Commission);
         const l1Referrer = await storage.getUser(user.referredBy);
         if (l1Referrer?.referredBy) {
-          const l2Commission = (reward * 0.03).toFixed(2);
+          const l2Commission = (perVideoReward * 0.03).toFixed(2);
           await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
           const l2Referrer = await storage.getUser(l1Referrer.referredBy);
           if (l2Referrer?.referredBy) {
-            const l3Commission = (reward * 0.01).toFixed(2);
+            const l3Commission = (perVideoReward * 0.01).toFixed(2);
             await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
           }
         }
       }
 
-      res.json({ reward: video.reward, message: "Vazifa bajarildi!" });
+      res.json({ reward: rewardStr, message: "Vazifa bajarildi!" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -273,11 +281,11 @@ export async function registerRoutes(
       const pkg = await storage.getVipPackage(packageId);
       if (!pkg) return res.status(404).json({ message: "Paket topilmadi" });
 
-      if (Number(user.balance) < pkg.price) {
+      if (Number(user.balance) < Number(pkg.price)) {
         return res.status(400).json({ message: "Balans yetarli emas" });
       }
 
-      await storage.updateUserBalance(userId, String(-pkg.price));
+      await storage.updateUserBalance(userId, String(-Number(pkg.price)));
       await storage.updateUserVipLevel(userId, pkg.level, pkg.dailyTasks);
 
       res.json({ message: `${pkg.name} paketi faollashtirildi!` });

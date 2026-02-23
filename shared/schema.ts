@@ -24,10 +24,14 @@ export const users = pgTable("users", {
 export const vipPackages = pgTable("vip_packages", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
-  price: integer("price").notNull(),
+  price: decimal("price", { precision: 12, scale: 2 }).notNull().default("0"),
   dailyTasks: integer("daily_tasks").notNull(),
+  perVideoReward: decimal("per_video_reward", { precision: 10, scale: 2 }).notNull().default("0"),
   dailyEarning: decimal("daily_earning", { precision: 10, scale: 2 }).notNull(),
   level: integer("level").notNull(),
+  durationDays: integer("duration_days").notNull().default(60),
+  isLocked: boolean("is_locked").notNull().default(false),
+  emoji: text("emoji").default(""),
   description: text("description"),
 });
 
