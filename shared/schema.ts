@@ -75,8 +75,9 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   phone: z.string().min(9, "Telefon raqamini kiriting"),
   password: z.string().min(6, "Parol kamida 6 ta belgidan iborat bo'lishi kerak"),
-  fundPassword: z.string().min(4, "Moliyaviy parolni kiriting"),
+  fundPassword: z.string().length(6, "Pul yechish paroli 6 ta raqamdan iborat bo'lishi kerak").regex(/^\d{6}$/, "Faqat raqamlar kiritilishi kerak"),
   captcha: z.boolean().refine(val => val === true, "Captchani tasdiqlang"),
+  ageConfirm: z.boolean().refine(val => val === true, "Shartlarni qabul qiling"),
   referralCode: z.string().optional(),
 });
 
