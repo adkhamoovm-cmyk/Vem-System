@@ -1,0 +1,39 @@
+VEM platformasi uchun Video Vazifalar (Video Tasks) tizimini ma'lumotlar bazasi (Prisma) va Frontend (UI) bilan birga to'liq integratsiya qilish. Eng muhim talab: Har bir videoning poster rasmi (thumbnail) uning ichidagi video mazmuniga mos kelishi shart.
+
+1. Ma'lumotlar Bazasi (Prisma Schema):
+VideoTask nomli yangi model yarating. Unda quyidagi maydonlar bo'lsin:
+
+id: Int (PK, autoincrement)
+
+title: String (Kino nomi, masalan: "Avatar 2 Trailer")
+
+thumbnailUrl: String (Poster rasmining ssilkasi. Masalan: https://.../avatar-poster.jpg)
+
+videoUrl: String (Aynan shu kinoning video fayl ssilkasi. Masalan: https://.../avatar-trailer.mp4)
+
+rewardAmount: Float (Bu videoni ko'rgani uchun beriladigan pul, mas. $0.20)
+
+durationSeconds: Int (Necha soniya ko'rish kerakligi, mas. 30)
+
+isActive: Boolean (default: true)
+
+2. Boshlang'ich Ma'lumotlar (Seeding - MUHIM):
+Bazani sinash uchun prisma/seed.ts fayliga 3 ta realistik misol kiriting. Iltimos, internetdan real ishlaydigan ochiq MP4 ssilkalari va ularga mos keladigan JPG poster ssilkalarini topib qo'ying.
+Misol:
+
+Video 1: Poster="Joker rasmi", Video="Joker treyleri (mp4)".
+
+Video 2: Poster="Avengers rasmi", Video="Avengers treyleri (mp4)".
+
+Video 3: Poster="Tabiat rasmi", Video="Tabiat videosi (mp4)".
+Maqsad: Foydalanuvchi posterni ko'rib nimani kutsa, video ochilganda aynan shuni ko'rishi kerak.
+
+3. Frontend UI va Pleyer (Integratsiya):
+
+"Vazifalar" sahifasida bazadagi VideoTask larni chiroyli kartochkalar (Grid) ko'rinishida chiqaring. Kartochkada faqat thumbnailUrl (poster rasmi), title va rewardAmount ko'rinsin.
+
+Foydalanuvchi kartochkani bosganda, Video Player Modali ochilsin.
+
+PLEYER SOZLAMASI: react-player komponentiga bazadan olingan url={task.videoUrl} ni bering. Va eng muhimi, pleyer videoni yuklaguncha qora ekran ko'rsatmasligi uchun, uning light={task.thumbnailUrl} degan propusini ishlating. Shunda pleyer "Play" tugmasi bosilguncha o'sha poster rasmini ko'rsatib turadi.
+
+Iltimos, sxemani yangilang, seed ma'lumotlarini qo'shing va UI da poster bilan video bir-biriga mos kelishini ta'minlang.
