@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { User, PaymentMethod, DepositRequest, WithdrawalRequest } from "@shared/schema";
+import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
 const UZS_RATE = 12850;
@@ -27,7 +27,33 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
   const [paymentType, setPaymentType] = useState<"crypto" | "local" | null>(null);
   const [amount, setAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const { data: depositRequisites = [] } = useQuery<DepositSetting[]>({
+    queryKey: ["/api/deposit-settings/active"],
+    enabled: open,
+  });
+
+  const bankRequisites = depositRequisites.filter(r => r.type === "bank");
+  const usdtRequisites = depositRequisites.filter(r => r.type === "usdt");
+
+  const copyToClipboard = (text: string, field: string) => {
+    try {
+      navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
 
   const depositMutation = useMutation({
     mutationFn: async () => {
@@ -71,106 +97,193 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] max-w-md rounded-2xl" aria-describedby="deposit-desc">
-        <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
-            <ArrowDownCircle className="w-5 h-5 text-[#4ADE80]" />
-            Depozit qilish
-          </DialogTitle>
-          <p id="deposit-desc" className="text-[#888] text-xs">Hisobingizga pul kiritish</p>
-        </DialogHeader>
+      <DialogContent className="bg-[#111] border-[#2a2a2a] max-w-md rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto" aria-describedby="deposit-desc">
+        <div className="bg-gradient-to-r from-[#4ADE80]/20 to-[#22C55E]/10 px-5 py-4 border-b border-[#2a2a2a]">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2.5 text-base">
+              <div className="w-9 h-9 rounded-xl bg-[#4ADE80]/20 flex items-center justify-center">
+                <ArrowDownCircle className="w-5 h-5 text-[#4ADE80]" />
+              </div>
+              Depozit qilish
+            </DialogTitle>
+            <p id="deposit-desc" className="text-[#888] text-xs mt-1 ml-[46px]">Hisobingizga pul kiritish</p>
+          </DialogHeader>
+        </div>
 
-        {!paymentType ? (
-          <div className="space-y-3 pt-2">
-            <button
-              onClick={() => setPaymentType("crypto")}
-              className="w-full bg-[#111] rounded-xl p-4 border border-[#2a2a2a] flex items-center gap-3 text-left"
-              data-testid="button-deposit-crypto"
-            >
-              <div className="w-10 h-10 bg-[#FF6B35]/20 rounded-xl flex items-center justify-center">
-                <Globe className="w-5 h-5 text-[#FF6B35]" />
-              </div>
-              <div>
-                <p className="text-white font-semibold text-sm">Kripto birja</p>
-                <p className="text-[#888] text-xs">USDT orqali to'lov</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#555] ml-auto" />
-            </button>
-            <button
-              onClick={() => setPaymentType("local")}
-              className="w-full bg-[#111] rounded-xl p-4 border border-[#2a2a2a] flex items-center gap-3 text-left"
-              data-testid="button-deposit-local"
-            >
-              <div className="w-10 h-10 bg-[#4ADE80]/20 rounded-xl flex items-center justify-center">
-                <Building className="w-5 h-5 text-[#4ADE80]" />
-              </div>
-              <div>
-                <p className="text-white font-semibold text-sm">Mahalliy to'lov</p>
-                <p className="text-[#888] text-xs">UZS orqali to'lov</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#555] ml-auto" />
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4 pt-2">
-            <button onClick={() => setPaymentType(null)} className="text-[#888] text-xs flex items-center gap-1">
-              <ChevronDown className="w-3 h-3 rotate-90" /> Orqaga
-            </button>
-
-            <div className="bg-[#111] rounded-xl p-3 border border-[#2a2a2a]">
-              <p className="text-[#FF6B35] text-xs font-semibold mb-2">Depozit qoidalari:</p>
-              <ul className="text-[#aaa] text-[11px] space-y-1.5">
-                <li>• Minimal miqdor: {paymentType === "crypto" ? "10 USDT" : `${(10 * UZS_RATE).toLocaleString()} UZS`}</li>
-                <li>• To'lov chekini yuklashni unutmang</li>
-                <li>• So'rov admin tomonidan tekshiriladi</li>
-                <li>• Tekshirish 1-24 soat ichida amalga oshiriladi</li>
-                <li>• Tasdiqlangandan so'ng balansingizga qo'shiladi</li>
-              </ul>
+        <div className="px-5 pb-5">
+          {!paymentType ? (
+            <div className="space-y-3 pt-4">
+              <p className="text-[#888] text-xs font-medium uppercase tracking-wider">To'lov turini tanlang</p>
+              <button
+                onClick={() => setPaymentType("crypto")}
+                className="w-full bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a] hover:border-[#FF6B35]/50 transition-colors flex items-center gap-3 text-left group"
+                data-testid="button-deposit-crypto"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-[#FF6B35]/20 to-[#E8453C]/10 rounded-xl flex items-center justify-center">
+                  <Globe className="w-6 h-6 text-[#FF6B35]" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-semibold text-sm">Kripto (USDT)</p>
+                  <p className="text-[#666] text-xs mt-0.5">TRC20 tarmoq orqali</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#444] group-hover:text-[#FF6B35] transition-colors" />
+              </button>
+              <button
+                onClick={() => setPaymentType("local")}
+                className="w-full bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a] hover:border-[#4ADE80]/50 transition-colors flex items-center gap-3 text-left group"
+                data-testid="button-deposit-local"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-[#3B82F6]" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-semibold text-sm">Bank kartasi (UZS)</p>
+                  <p className="text-[#666] text-xs mt-0.5">Uzcard / Humo orqali</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#444] group-hover:text-[#4ADE80] transition-colors" />
+              </button>
             </div>
+          ) : (
+            <div className="space-y-4 pt-4">
+              <button onClick={() => setPaymentType(null)} className="text-[#888] text-xs flex items-center gap-1.5 hover:text-white transition-colors">
+                <ChevronDown className="w-3.5 h-3.5 rotate-90" /> Orqaga
+              </button>
 
-            <div>
-              <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">
-                Miqdor ({paymentType === "crypto" ? "USDT" : "UZS"})
-              </label>
-              <Input
-                type="number"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder={paymentType === "crypto" ? "Minimal: 10 USDT" : `Minimal: ${(10 * UZS_RATE).toLocaleString()} UZS`}
-                className="mt-1.5 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11"
-                data-testid="input-deposit-amount"
-              />
-              {paymentType === "local" && amount && Number(amount) > 0 && (
-                <p className="text-[#888] text-[10px] mt-1">
-                  ≈ {(Number(amount) / UZS_RATE).toFixed(2)} USDT
-                </p>
+              {paymentType === "crypto" && usdtRequisites.length > 0 && (
+                <div className="space-y-2.5">
+                  <p className="text-[#aaa] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                    <Wallet className="w-3.5 h-3.5" /> To'lov rekvizitlari
+                  </p>
+                  {usdtRequisites.map((req) => (
+                    <div key={req.id} className="bg-[#0a0a0a] rounded-xl border border-[#FF6B35]/20 overflow-hidden">
+                      <div className="bg-[#FF6B35]/5 px-3.5 py-2 border-b border-[#FF6B35]/10 flex items-center gap-2">
+                        <Globe className="w-3.5 h-3.5 text-[#FF6B35]" />
+                        <span className="text-[#FF6B35] text-xs font-semibold">{req.exchangeName || "USDT"}</span>
+                        <span className="text-[#555] text-[10px] ml-auto">{req.networkType || "TRC20"}</span>
+                      </div>
+                      <div className="px-3.5 py-3">
+                        <p className="text-[#666] text-[10px] uppercase tracking-wider mb-1">Hamyon manzili</p>
+                        <div className="flex items-center gap-2">
+                          <code className="text-[#4ADE80] text-xs font-mono flex-1 break-all leading-relaxed">{req.walletAddress}</code>
+                          <button
+                            onClick={() => copyToClipboard(req.walletAddress || "", `wallet-${req.id}`)}
+                            className="shrink-0 w-8 h-8 rounded-lg bg-[#1a1a1a] border border-[#333] flex items-center justify-center hover:border-[#4ADE80] transition-colors"
+                            data-testid={`button-copy-wallet-${req.id}`}
+                          >
+                            {copiedField === `wallet-${req.id}` ? (
+                              <CheckCircle className="w-3.5 h-3.5 text-[#4ADE80]" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5 text-[#888]" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-              {paymentType === "crypto" && amount && Number(amount) > 0 && (
-                <p className="text-[#888] text-[10px] mt-1">
-                  ≈ {formatUZS(Number(amount))} UZS
-                </p>
-              )}
-            </div>
 
-            <div>
-              <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">To'lov cheki</label>
-              <div className="mt-1.5">
+              {paymentType === "local" && bankRequisites.length > 0 && (
+                <div className="space-y-2.5">
+                  <p className="text-[#aaa] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                    <CreditCard className="w-3.5 h-3.5" /> To'lov rekvizitlari
+                  </p>
+                  {bankRequisites.map((req) => (
+                    <div key={req.id} className="bg-[#0a0a0a] rounded-xl border border-[#3B82F6]/20 overflow-hidden">
+                      <div className="bg-[#3B82F6]/5 px-3.5 py-2 border-b border-[#3B82F6]/10 flex items-center gap-2">
+                        <Building className="w-3.5 h-3.5 text-[#3B82F6]" />
+                        <span className="text-[#3B82F6] text-xs font-semibold">{req.bankName}</span>
+                      </div>
+                      <div className="px-3.5 py-3 space-y-2.5">
+                        <div>
+                          <p className="text-[#666] text-[10px] uppercase tracking-wider mb-0.5">Karta egasi</p>
+                          <p className="text-white text-sm font-medium">{req.holderName}</p>
+                        </div>
+                        <div>
+                          <p className="text-[#666] text-[10px] uppercase tracking-wider mb-0.5">Karta raqami</p>
+                          <div className="flex items-center gap-2">
+                            <code className="text-white text-sm font-mono tracking-wider">{req.cardNumber}</code>
+                            <button
+                              onClick={() => copyToClipboard(req.cardNumber || "", `card-${req.id}`)}
+                              className="shrink-0 w-8 h-8 rounded-lg bg-[#1a1a1a] border border-[#333] flex items-center justify-center hover:border-[#3B82F6] transition-colors"
+                              data-testid={`button-copy-card-${req.id}`}
+                            >
+                              {copiedField === `card-${req.id}` ? (
+                                <CheckCircle className="w-3.5 h-3.5 text-[#4ADE80]" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5 text-[#888]" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {((paymentType === "crypto" && usdtRequisites.length === 0) || (paymentType === "local" && bankRequisites.length === 0)) && (
+                <div className="bg-[#E8453C]/5 rounded-xl p-4 border border-[#E8453C]/20 text-center">
+                  <Clock className="w-6 h-6 text-[#E8453C] mx-auto mb-2" />
+                  <p className="text-white text-sm font-semibold">Rekvizitlar hali kiritilmagan</p>
+                  <p className="text-[#888] text-xs mt-0.5">Admin rekvizitlarni qo'shgandan so'ng bu yerda ko'rinadi</p>
+                </div>
+              )}
+
+              <div className="bg-[#1a1a1a] rounded-xl p-3.5 border border-[#2a2a2a]">
+                <p className="text-[#FF6B35] text-xs font-semibold mb-2 flex items-center gap-1.5">
+                  <ScrollText className="w-3.5 h-3.5" /> Depozit qoidalari
+                </p>
+                <ul className="text-[#888] text-[11px] space-y-1.5 leading-relaxed">
+                  <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> Minimal: {paymentType === "crypto" ? "10 USDT" : `${(10 * UZS_RATE).toLocaleString()} UZS`}</li>
+                  <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> To'lov chekini yuklashni unutmang</li>
+                  <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> Admin tomonidan 1-24 soat ichida tekshiriladi</li>
+                  <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> Tasdiqlangandan so'ng balansingizga qo'shiladi</li>
+                </ul>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">
+                  Miqdor ({paymentType === "crypto" ? "USDT" : "UZS"})
+                </label>
+                <Input
+                  type="number"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder={paymentType === "crypto" ? "Minimal: 10 USDT" : `Minimal: ${(10 * UZS_RATE).toLocaleString()} UZS`}
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-[#444] rounded-xl h-12 text-base focus:border-[#FF6B35]"
+                  data-testid="input-deposit-amount"
+                />
+                {paymentType === "local" && amount && Number(amount) > 0 && (
+                  <p className="text-[#4ADE80] text-xs">≈ {(Number(amount) / UZS_RATE).toFixed(2)} USDT</p>
+                )}
+                {paymentType === "crypto" && amount && Number(amount) > 0 && (
+                  <p className="text-[#4ADE80] text-xs">≈ {formatUZS(Number(amount))} UZS</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">To'lov cheki (skrinshot)</label>
                 {receiptFile ? (
-                  <div className="bg-[#111] rounded-xl p-3 border border-[#4ADE80]/30 flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4 text-[#4ADE80]" />
-                    <span className="text-[#4ADE80] text-xs flex-1 truncate">{receiptFile.name}</span>
-                    <button onClick={() => setReceiptFile(null)} className="text-[#888]">
+                  <div className="bg-[#0a0a0a] rounded-xl p-3 border border-[#4ADE80]/30 flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#4ADE80]/20 flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-[#4ADE80]" />
+                    </div>
+                    <span className="text-[#4ADE80] text-xs flex-1 truncate font-medium">{receiptFile.name}</span>
+                    <button onClick={() => setReceiptFile(null)} className="text-[#888] hover:text-white transition-colors">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => fileRef.current?.click()}
-                    className="w-full bg-[#111] rounded-xl p-4 border border-dashed border-[#333] flex flex-col items-center gap-2"
+                    className="w-full bg-[#0a0a0a] rounded-xl p-5 border-2 border-dashed border-[#2a2a2a] hover:border-[#FF6B35]/40 transition-colors flex flex-col items-center gap-2"
                     data-testid="button-upload-receipt"
                   >
-                    <Upload className="w-6 h-6 text-[#555]" />
-                    <span className="text-[#888] text-xs">Chekni yuklash</span>
+                    <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
+                      <Upload className="w-5 h-5 text-[#555]" />
+                    </div>
+                    <span className="text-[#888] text-xs">Chekni yuklash uchun bosing</span>
                   </button>
                 )}
                 <input
@@ -182,18 +295,18 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                   data-testid="input-receipt-file"
                 />
               </div>
-            </div>
 
-            <Button
-              onClick={() => depositMutation.mutate()}
-              disabled={!amount || Number(amount) <= 0 || !receiptFile || depositMutation.isPending}
-              className="w-full bg-gradient-to-r from-[#4ADE80] to-[#22C55E] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
-              data-testid="button-submit-deposit"
-            >
-              {depositMutation.isPending ? "Yuborilmoqda..." : "So'rov yuborish"}
-            </Button>
-          </div>
-        )}
+              <Button
+                onClick={() => depositMutation.mutate()}
+                disabled={!amount || Number(amount) <= 0 || !receiptFile || depositMutation.isPending}
+                className="w-full bg-gradient-to-r from-[#4ADE80] to-[#22C55E] text-white font-bold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-[#4ADE80]/10"
+                data-testid="button-submit-deposit"
+              >
+                {depositMutation.isPending ? "Yuborilmoqda..." : "Depozit so'rovini yuborish"}
+              </Button>
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -445,113 +558,149 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] max-w-md rounded-2xl" aria-describedby="withdraw-desc">
-        <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
-            <ArrowUpCircle className="w-5 h-5 text-[#E8453C]" />
-            Pul yechish
-          </DialogTitle>
-          <p id="withdraw-desc" className="text-[#888] text-xs">Hisobingizdan pul yechish</p>
-        </DialogHeader>
+      <DialogContent className="bg-[#111] border-[#2a2a2a] max-w-md rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto" aria-describedby="withdraw-desc">
+        <div className="bg-gradient-to-r from-[#E8453C]/20 to-[#FF6B35]/10 px-5 py-4 border-b border-[#2a2a2a]">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2.5 text-base">
+              <div className="w-9 h-9 rounded-xl bg-[#E8453C]/20 flex items-center justify-center">
+                <ArrowUpCircle className="w-5 h-5 text-[#E8453C]" />
+              </div>
+              Pul yechish
+            </DialogTitle>
+            <p id="withdraw-desc" className="text-[#888] text-xs mt-1 ml-[46px]">Hisobingizdan pul yechish</p>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-4 pt-2">
+        <div className="px-5 pb-5 space-y-4 pt-4">
           {!isWithdrawTime && (
-            <div className="bg-[#E8453C]/10 rounded-xl p-3 border border-[#E8453C]/20">
-              <p className="text-[#E8453C] text-xs font-semibold">Pul yechish vaqti emas!</p>
-              <p className="text-[#E8453C]/70 text-[10px] mt-0.5">Dushanba-Shanba, 11:00-17:00 orasida qaytadan urinib ko'ring</p>
+            <div className="bg-[#E8453C]/5 rounded-xl p-3.5 border border-[#E8453C]/20 flex items-start gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#E8453C]/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Clock className="w-4 h-4 text-[#E8453C]" />
+              </div>
+              <div>
+                <p className="text-[#E8453C] text-xs font-semibold">Pul yechish vaqti emas!</p>
+                <p className="text-[#E8453C]/60 text-[11px] mt-0.5">Dush-Shan, 11:00-17:00 orasida qayta urinib ko'ring</p>
+              </div>
             </div>
           )}
 
-          <div className="bg-[#111] rounded-xl p-3 border border-[#2a2a2a]">
-            <div className="flex justify-between mb-1">
-              <span className="text-[#888] text-xs">Mavjud balans</span>
-              <span className="text-[#4ADE80] text-xs font-bold">{balance.toFixed(2)} USDT</span>
+          <div className="bg-[#0a0a0a] rounded-xl border border-[#2a2a2a] overflow-hidden">
+            <div className="bg-[#4ADE80]/5 px-3.5 py-2.5 border-b border-[#2a2a2a]">
+              <div className="flex items-center justify-between">
+                <span className="text-[#888] text-xs">Mavjud balans</span>
+                <span className="text-[#4ADE80] text-sm font-bold">{balance.toFixed(2)} USDT</span>
+              </div>
+              <p className="text-[#555] text-[10px] mt-0.5">≈ {formatUZS(balance)} UZS</p>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[#888] text-xs">Minimal yechish</span>
-              <span className="text-[#aaa] text-xs">2.00 USDT</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-[#888] text-xs">Komissiya</span>
-              <span className="text-[#E8453C] text-xs">10%</span>
+            <div className="px-3.5 py-2.5 space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-[#666] text-[11px]">Minimal yechish</span>
+                <span className="text-[#aaa] text-[11px] font-medium">2.00 USDT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#666] text-[11px]">Komissiya</span>
+                <span className="text-[#E8453C] text-[11px] font-medium">10%</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#666] text-[11px]">Yechish vaqti</span>
+                <span className="text-[#aaa] text-[11px] font-medium">Dush-Shan 11:00-17:00</span>
+              </div>
             </div>
           </div>
 
           {paymentMethods.length === 0 ? (
-            <div className="bg-[#FF6B35]/10 rounded-xl p-4 border border-[#FF6B35]/20 text-center">
-              <Lock className="w-6 h-6 text-[#FF6B35] mx-auto mb-2" />
+            <div className="bg-[#FF6B35]/5 rounded-xl p-5 border border-[#FF6B35]/20 text-center">
+              <div className="w-12 h-12 rounded-xl bg-[#FF6B35]/10 flex items-center justify-center mx-auto mb-3">
+                <Lock className="w-6 h-6 text-[#FF6B35]" />
+              </div>
               <p className="text-white text-sm font-semibold">Avval to'lov usulini qo'shing</p>
-              <p className="text-[#888] text-xs mt-0.5">Bank kartasi yoki USDT hamyon kiritishingiz kerak</p>
+              <p className="text-[#888] text-xs mt-1">Bank kartasi yoki USDT hamyon kiritishingiz kerak</p>
             </div>
           ) : (
             <>
-              <div>
+              <div className="space-y-1.5">
                 <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">To'lov usuli</label>
-                <div className="space-y-2 mt-1.5">
+                <div className="space-y-2">
                   {paymentMethods.map((m) => (
                     <button
                       key={m.id}
                       onClick={() => setSelectedMethodId(m.id)}
-                      className={`w-full bg-[#111] rounded-xl p-3 border text-left flex items-center gap-3 ${
-                        selectedMethodId === m.id ? "border-[#FF6B35]" : "border-[#2a2a2a]"
+                      className={`w-full bg-[#0a0a0a] rounded-xl p-3.5 border text-left flex items-center gap-3 transition-colors ${
+                        selectedMethodId === m.id ? "border-[#FF6B35] bg-[#FF6B35]/5" : "border-[#2a2a2a] hover:border-[#333]"
                       }`}
                       data-testid={`button-method-${m.id}`}
                     >
-                      {m.type === "bank" ? (
-                        <CreditCard className="w-4 h-4 text-[#3B82F6]" />
-                      ) : (
-                        <Wallet className="w-4 h-4 text-[#FF6B35]" />
-                      )}
+                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                        m.type === "bank" ? "bg-[#3B82F6]/15" : "bg-[#FF6B35]/15"
+                      }`}>
+                        {m.type === "bank" ? (
+                          <CreditCard className="w-4 h-4 text-[#3B82F6]" />
+                        ) : (
+                          <Wallet className="w-4 h-4 text-[#FF6B35]" />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-white text-xs font-medium">
-                          {m.type === "bank" ? `${m.bankName} - ${m.cardNumber?.slice(-4)}` : `${m.exchangeName} - TRC20`}
+                          {m.type === "bank" ? `${m.bankName} •••• ${m.cardNumber?.slice(-4)}` : `${m.exchangeName} • TRC20`}
                         </p>
-                        <p className="text-[#888] text-[10px] truncate">
+                        <p className="text-[#666] text-[10px] truncate mt-0.5">
                           {m.type === "bank" ? m.holderName : m.walletAddress}
                         </p>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedMethodId === m.id ? "border-[#FF6B35] bg-[#FF6B35]" : "border-[#444]"
+                      }`}>
+                        {selectedMethodId === m.id && <CheckCircle className="w-3 h-3 text-white" />}
                       </div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div>
+              <div className="space-y-1.5">
                 <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Miqdor (USDT)</label>
                 <Input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="Minimal: 2 USDT"
-                  className="mt-1.5 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11"
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-[#444] rounded-xl h-12 text-base focus:border-[#FF6B35]"
                   data-testid="input-withdraw-amount"
                 />
                 {numAmount >= 2 && (
-                  <div className="mt-1.5 bg-[#111] rounded-lg p-2 space-y-1">
-                    <div className="flex justify-between">
-                      <span className="text-[#888] text-[10px]">Komissiya (10%)</span>
-                      <span className="text-[#E8453C] text-[10px]">-{commission.toFixed(2)} USDT</span>
+                  <div className="bg-[#0a0a0a] rounded-xl p-3 border border-[#2a2a2a] space-y-1.5">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#666] text-[11px]">Yechish miqdori</span>
+                      <span className="text-white text-[11px] font-medium">{numAmount.toFixed(2)} USDT</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#888] text-[10px]">Siz olasiz</span>
-                      <span className="text-[#4ADE80] text-[10px] font-bold">{netAmount.toFixed(2)} USDT</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#666] text-[11px]">Komissiya (10%)</span>
+                      <span className="text-[#E8453C] text-[11px] font-medium">-{commission.toFixed(2)} USDT</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-[#888] text-[10px]">UZS da</span>
-                      <span className="text-[#aaa] text-[10px]">{formatUZS(netAmount)} UZS</span>
+                    <div className="border-t border-[#1a1a1a] pt-1.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[#aaa] text-xs font-semibold">Siz olasiz</span>
+                        <div className="text-right">
+                          <span className="text-[#4ADE80] text-sm font-bold">{netAmount.toFixed(2)} USDT</span>
+                          <p className="text-[#555] text-[10px]">≈ {formatUZS(netAmount)} UZS</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div>
-                <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Moliya paroli</label>
+              <div className="space-y-1.5">
+                <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                  <Lock className="w-3 h-3" /> Moliya paroli
+                </label>
                 <Input
                   type="password"
                   value={fundPassword}
                   onChange={(e) => setFundPassword(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="6 xonali PIN"
+                  placeholder="• • • • • •"
                   maxLength={6}
-                  className="mt-1.5 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11 text-center font-mono tracking-[0.5em]"
+                  className="bg-[#0a0a0a] border-[#2a2a2a] text-white placeholder:text-[#333] rounded-xl h-12 text-center font-mono tracking-[0.5em] text-lg focus:border-[#FF6B35]"
                   data-testid="input-withdraw-fund-password"
                 />
               </div>
@@ -559,7 +708,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               <Button
                 onClick={() => withdrawMutation.mutate()}
                 disabled={!selectedMethodId || numAmount < 2 || numAmount > balance || fundPassword.length !== 6 || !isWithdrawTime || withdrawMutation.isPending}
-                className="w-full bg-gradient-to-r from-[#E8453C] to-[#FF6B35] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-[#E8453C] to-[#FF6B35] text-white font-bold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-[#E8453C]/10"
                 data-testid="button-submit-withdraw"
               >
                 {withdrawMutation.isPending ? "Yuborilmoqda..." : "Yechish so'rovini yuborish"}
