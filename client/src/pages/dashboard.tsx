@@ -139,9 +139,10 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-5 gap-2">
           {[
             { title: "Vazifalar", href: "/tasks", icon: PlayCircle, color: "#FF6B35", bg: "#FFF0EB" },
+            { title: "Fund", href: "/fund", icon: Wallet, color: "#E8453C", bg: "#FFEBEE" },
             { title: "Taklif", href: "/referral", icon: Users, color: "#4CAF50", bg: "#E8F5E9" },
             { title: "VIP", href: "/vip", icon: Crown, color: "#9C27B0", bg: "#F3E5F5" },
             { title: "Trendlar", href: "/trends", icon: Tv, color: "#2196F3", bg: "#E3F2FD" },

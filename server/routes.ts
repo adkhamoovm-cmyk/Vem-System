@@ -318,5 +318,101 @@ export async function registerRoutes(
 
   app.use("/uploads", (await import("express")).default.static(uploadsDir.replace("/avatars", "")));
 
+  app.get("/api/fund-plans", requireAuth, async (_req: Request, res: Response) => {
+    try {
+      const plans = await storage.getFundPlans();
+      res.json(plans);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/investments", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userInvestments = await storage.getUserInvestments(req.session.userId!);
+      res.json(userInvestments);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/fund/invest", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const { fundPlanId, amount } = req.body;
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      const plan = await storage.getFundPlan(fundPlanId);
+      if (!plan) return res.status(404).json({ message: "Tarif topilmadi" });
+
+      const investAmount = Number(amount);
+      if (isNaN(investAmount) || investAmount <= 0) {
+        return res.status(400).json({ message: "Noto'g'ri summa" });
+      }
+
+      if (investAmount < Number(plan.minDeposit)) {
+        return res.status(400).json({ message: `Minimal depozit: $${plan.minDeposit}` });
+      }
+
+      if (plan.maxDeposit && investAmount > Number(plan.maxDeposit)) {
+        return res.status(400).json({ message: `Maksimal depozit: $${plan.maxDeposit}` });
+      }
+
+      if (Number(user.balance) < investAmount) {
+        return res.status(400).json({ message: "Balans yetarli emas" });
+      }
+
+      const dailyProfit = (investAmount * Number(plan.dailyRoi) / 100).toFixed(2);
+      let endDate: Date | null = null;
+      if (plan.lockDays) {
+        endDate = new Date();
+        endDate.setDate(endDate.getDate() + plan.lockDays);
+      }
+
+      await storage.updateUserBalance(userId, String(-investAmount));
+      const investment = await storage.createInvestment({
+        userId,
+        fundPlanId,
+        investedAmount: investAmount.toFixed(2),
+        dailyProfit,
+        endDate,
+      });
+
+      res.json({ investment, message: "Investitsiya muvaffaqiyatli amalga oshirildi!" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  async function processDailyProfits() {
+    try {
+      const activeInvestments = await storage.getActiveInvestments();
+      const today = new Date().toISOString().split("T")[0];
+
+      for (const inv of activeInvestments) {
+        if (inv.lastProfitDate === today) continue;
+
+        await storage.updateUserBalance(inv.userId, inv.dailyProfit);
+        await storage.updateInvestmentLastProfitDate(inv.id, today);
+
+        if (inv.endDate && new Date(inv.endDate) <= new Date()) {
+          await storage.updateInvestmentStatus(inv.id, "completed");
+          const plan = await storage.getFundPlan(inv.fundPlanId);
+          if (plan?.returnPrincipal) {
+            await storage.updateUserBalance(inv.userId, inv.investedAmount);
+          }
+        }
+      }
+      console.log(`[Cron] Daily profits processed for ${activeInvestments.length} investments`);
+    } catch (error) {
+      console.error("[Cron] Error processing daily profits:", error);
+    }
+  }
+
+  setInterval(processDailyProfits, 24 * 60 * 60 * 1000);
+  setTimeout(processDailyProfits, 5000);
+
   return httpServer;
 }

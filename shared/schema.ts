@@ -65,6 +65,28 @@ export const referrals = pgTable("referrals", {
   commission: decimal("commission", { precision: 10, scale: 2 }).notNull().default("0"),
 });
 
+export const fundPlans = pgTable("fund_plans", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  lockDays: integer("lock_days"),
+  dailyRoi: decimal("daily_roi", { precision: 5, scale: 2 }).notNull(),
+  minDeposit: decimal("min_deposit", { precision: 12, scale: 2 }).notNull(),
+  maxDeposit: decimal("max_deposit", { precision: 12, scale: 2 }),
+  returnPrincipal: boolean("return_principal").notNull().default(true),
+});
+
+export const investments = pgTable("investments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  fundPlanId: text("fund_plan_id").notNull(),
+  investedAmount: decimal("invested_amount", { precision: 12, scale: 2 }).notNull(),
+  dailyProfit: decimal("daily_profit", { precision: 12, scale: 2 }).notNull(),
+  startDate: timestamp("start_date").notNull().defaultNow(),
+  endDate: timestamp("end_date"),
+  status: text("status").notNull().default("active"),
+  lastProfitDate: text("last_profit_date"),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   phone: true,
   password: true,
@@ -91,3 +113,5 @@ export type VipPackage = typeof vipPackages.$inferSelect;
 export type Video = typeof videos.$inferSelect;
 export type TaskHistory = typeof taskHistory.$inferSelect;
 export type Referral = typeof referrals.$inferSelect;
+export type FundPlan = typeof fundPlans.$inferSelect;
+export type Investment = typeof investments.$inferSelect;

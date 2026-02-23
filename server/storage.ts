@@ -1,7 +1,7 @@
 import { eq, and, sql } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -25,6 +25,13 @@ export interface IStorage {
     level3: { count: number; commission: string };
   }>;
   createReferral(entry: { referrerId: string; referredId: string; level: number; commission?: string }): Promise<void>;
+  getFundPlans(): Promise<FundPlan[]>;
+  getFundPlan(id: string): Promise<FundPlan | undefined>;
+  createInvestment(data: { userId: string; fundPlanId: string; investedAmount: string; dailyProfit: string; endDate: Date | null }): Promise<Investment>;
+  getUserInvestments(userId: string): Promise<Investment[]>;
+  getActiveInvestments(): Promise<Investment[]>;
+  updateInvestmentStatus(id: string, status: string): Promise<void>;
+  updateInvestmentLastProfitDate(id: string, date: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -126,6 +133,40 @@ export class DatabaseStorage implements IStorage {
 
   async createReferral(entry: { referrerId: string; referredId: string; level: number; commission?: string }): Promise<void> {
     await db.insert(referrals).values({ ...entry, commission: entry.commission || "0" });
+  }
+
+  async getFundPlans(): Promise<FundPlan[]> {
+    return db.select().from(fundPlans);
+  }
+
+  async getFundPlan(id: string): Promise<FundPlan | undefined> {
+    const [plan] = await db.select().from(fundPlans).where(eq(fundPlans.id, id));
+    return plan;
+  }
+
+  async createInvestment(data: { userId: string; fundPlanId: string; investedAmount: string; dailyProfit: string; endDate: Date | null }): Promise<Investment> {
+    const [inv] = await db.insert(investments).values({
+      ...data,
+      status: "active",
+      lastProfitDate: new Date().toISOString().split("T")[0],
+    }).returning();
+    return inv;
+  }
+
+  async getUserInvestments(userId: string): Promise<Investment[]> {
+    return db.select().from(investments).where(eq(investments.userId, userId));
+  }
+
+  async getActiveInvestments(): Promise<Investment[]> {
+    return db.select().from(investments).where(eq(investments.status, "active"));
+  }
+
+  async updateInvestmentStatus(id: string, status: string): Promise<void> {
+    await db.update(investments).set({ status }).where(eq(investments.id, id));
+  }
+
+  async updateInvestmentLastProfitDate(id: string, date: string): Promise<void> {
+    await db.update(investments).set({ lastProfitDate: date }).where(eq(investments.id, id));
   }
 }
 

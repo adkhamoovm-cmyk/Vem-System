@@ -12,6 +12,7 @@ import ReferralPage from "@/pages/referral";
 import VipPage from "@/pages/vip";
 import ProfilePage from "@/pages/profile";
 import TrendsPage from "@/pages/trends";
+import FundPage from "@/pages/fund";
 import type { User } from "@shared/schema";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
@@ -85,6 +86,9 @@ function Router() {
       </Route>
       <Route path="/profile">
         {() => <ProtectedRoute component={ProfilePage} />}
+      </Route>
+      <Route path="/fund">
+        {() => <ProtectedRoute component={FundPage} />}
       </Route>
       <Route component={NotFound} />
     </Switch>
