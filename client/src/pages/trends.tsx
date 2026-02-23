@@ -1,41 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
-import { TrendingUp, Star, Eye, Clock, Flame, Tv, Film, Play } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import ReactPlayer from "react-player";
+import { TrendingUp, Star, Eye, Flame, Tv, Film, Play } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
+function getYouTubeId(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
 function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; onClose: () => void }) {
+  const [playing, setPlaying] = useState(false);
+  const videoId = video.videoUrl ? getYouTubeId(video.videoUrl) : null;
+
+  useEffect(() => {
+    if (!open) setPlaying(false);
+  }, [open]);
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
       <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] max-w-lg rounded-2xl p-0 overflow-hidden" aria-describedby="preview-desc">
+        <DialogTitle className="sr-only">{video.title}</DialogTitle>
         <div className="relative aspect-video bg-black">
-          <ReactPlayer
-            url={video.videoUrl || undefined}
-            light={video.thumbnail}
-            playing={false}
-            controls={true}
-            width="100%"
-            height="100%"
-            style={{ position: 'absolute', top: 0, left: 0 }}
-            playIcon={
-              <div className="flex flex-col items-center">
-                <div className="w-14 h-14 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center shadow-xl shadow-[#FF6B35]/30">
-                  <Play className="w-6 h-6 text-white ml-0.5" />
-                </div>
+          {!playing ? (
+            <div className="relative w-full h-full">
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center">
+                <button
+                  onClick={() => setPlaying(true)}
+                  className="w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center shadow-xl shadow-[#FF6B35]/30"
+                  data-testid="button-play-trend"
+                >
+                  <Play className="w-7 h-7 text-white ml-1" />
+                </button>
               </div>
-            }
-            config={{
-              youtube: {
-                playerVars: {
-                  modestbranding: 1,
-                  rel: 0,
-                },
-              },
-            }}
-          />
+            </div>
+          ) : videoId ? (
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+              className="w-full h-full"
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <p className="text-[#888] text-sm">Video yuklanmadi</p>
+            </div>
+          )}
         </div>
         <div className="p-4">
           <h3 className="text-white font-bold">{video.title}</h3>

@@ -205,6 +205,9 @@ export default function TasksPage() {
     queryKey: ["/api/vip-packages"],
   });
 
+  const [nextVideoId, setNextVideoId] = useState(() =>
+    youtubeVideos[Math.floor(Math.random() * youtubeVideos.length)]
+  );
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
   const currentPkg = vipPackages?.find((p) => p.level === user?.vipLevel);
@@ -212,10 +215,18 @@ export default function TasksPage() {
   const hasVip = user && user.vipLevel >= 0 && perVideoReward > 0;
   const isLimitReached = user ? user.dailyTasksCompleted >= user.dailyTasksLimit : false;
 
+  const pickNextVideo = () => {
+    setNextVideoId(youtubeVideos[Math.floor(Math.random() * youtubeVideos.length)]);
+  };
+
   const handleStartTask = () => {
     if (!hasVip || isLimitReached) return;
-    const randomId = youtubeVideos[Math.floor(Math.random() * youtubeVideos.length)];
-    setActiveVideoId(randomId);
+    setActiveVideoId(nextVideoId);
+  };
+
+  const handleCloseVideo = () => {
+    setActiveVideoId(null);
+    pickNextVideo();
   };
 
   return (
@@ -277,7 +288,7 @@ export default function TasksPage() {
           <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-[#2a2a2a]">
             <div className="relative aspect-video">
               <img
-                src={`https://img.youtube.com/vi/${youtubeVideos[0]}/maxresdefault.jpg`}
+                src={`https://img.youtube.com/vi/${nextVideoId}/maxresdefault.jpg`}
                 alt="Video preview"
                 className="w-full h-full object-cover"
               />
@@ -329,7 +340,7 @@ export default function TasksPage() {
             videoId={activeVideoId}
             perVideoReward={perVideoReward}
             open={!!activeVideoId}
-            onClose={() => setActiveVideoId(null)}
+            onClose={handleCloseVideo}
           />
         )}
       </div>
