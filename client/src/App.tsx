@@ -14,6 +14,7 @@ import ProfilePage from "@/pages/profile";
 import TrendsPage from "@/pages/trends";
 import FundPage from "@/pages/fund";
 import AdminPage from "@/pages/admin";
+import HelpPage from "@/pages/help";
 import type { User } from "@shared/schema";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
@@ -111,6 +112,9 @@ function Router() {
       </Route>
       <Route path="/fund">
         {() => <ProtectedRoute component={FundPage} />}
+      </Route>
+      <Route path="/help">
+        {() => <ProtectedRoute component={HelpPage} />}
       </Route>
       <Route path="/admin">
         {() => <AdminRoute component={AdminPage} />}

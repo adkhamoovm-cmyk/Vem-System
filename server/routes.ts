@@ -373,6 +373,57 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/profile/change-password", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || typeof currentPassword !== "string" || !newPassword || typeof newPassword !== "string") {
+        return res.status(400).json({ message: "Joriy va yangi parol kiritilishi shart" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak" });
+      }
+      if (currentPassword === newPassword) {
+        return res.status(400).json({ message: "Yangi parol joriy paroldan farqli bo'lishi kerak" });
+      }
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
+      if (!user.password) return res.status(400).json({ message: "Parol sozlanmagan" });
+      const isValid = await comparePasswords(currentPassword, user.password);
+      if (!isValid) {
+        return res.status(400).json({ message: "Joriy parol noto'g'ri" });
+      }
+      const hashedNew = await hashPassword(newPassword);
+      await storage.updateUserPassword(req.session.userId!, hashedNew);
+      res.json({ message: "Parol muvaffaqiyatli o'zgartirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/profile/change-fund-password", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { currentFundPassword, newFundPassword } = req.body;
+      if (!currentFundPassword || typeof currentFundPassword !== "string" || !newFundPassword || typeof newFundPassword !== "string") {
+        return res.status(400).json({ message: "Joriy va yangi moliya parolini kiritilishi shart" });
+      }
+      if (!/^\d{6}$/.test(newFundPassword)) {
+        return res.status(400).json({ message: "Yangi moliya paroli 6 xonali raqam bo'lishi kerak" });
+      }
+      const user = await storage.getUser(req.session.userId!);
+      if (!user) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
+      if (!user.fundPassword) return res.status(400).json({ message: "Moliya paroli sozlanmagan" });
+      const isValid = await comparePasswords(currentFundPassword, user.fundPassword);
+      if (!isValid) {
+        return res.status(400).json({ message: "Joriy moliya paroli noto'g'ri" });
+      }
+      const hashedNew = await hashPassword(newFundPassword);
+      await storage.updateUserFundPassword(req.session.userId!, hashedNew);
+      res.json({ message: "Moliya paroli muvaffaqiyatli o'zgartirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/profile/avatar", requireAuth, uploadAvatar.single("avatar"), async (req: Request, res: Response) => {
     try {
       if (!req.file) {

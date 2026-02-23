@@ -752,6 +752,12 @@ export default function ProfilePage() {
   const [showFinanceService, setShowFinanceService] = useState(false);
   const [showCardNumber, setShowCardNumber] = useState(false);
   const [showWalletAddress, setShowWalletAddress] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPwd, setCurrentPwd] = useState("");
+  const [newPwd, setNewPwd] = useState("");
+  const [showChangeFundPwd, setShowChangeFundPwd] = useState(false);
+  const [currentFundPwd, setCurrentFundPwd] = useState("");
+  const [newFundPwd, setNewFundPwd] = useState("");
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -810,6 +816,44 @@ export default function ProfilePage() {
     },
     onError: () => {
       toast({ title: "Xatolik", description: "Rasm yuklab bo'lmadi", variant: "destructive" });
+    },
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/profile/change-password", {
+        currentPassword: currentPwd,
+        newPassword: newPwd,
+      });
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      setShowChangePassword(false);
+      setCurrentPwd("");
+      setNewPwd("");
+    },
+    onError: (error: Error) => {
+      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const changeFundPwdMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/profile/change-fund-password", {
+        currentFundPassword: currentFundPwd,
+        newFundPassword: newFundPwd,
+      });
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      setShowChangeFundPwd(false);
+      setCurrentFundPwd("");
+      setNewFundPwd("");
+    },
+    onError: (error: Error) => {
+      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
     },
   });
 
@@ -1131,7 +1175,102 @@ export default function ProfilePage() {
               </div>
               <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
-            <button className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-support">
+
+            <div>
+              <button onClick={() => setShowChangePassword(!showChangePassword)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-password">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/20 flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-[#FF6B35]" />
+                  </div>
+                  <span className="text-[#ddd] text-sm">Kirish parolini o'zgartirish</span>
+                </div>
+                {showChangePassword ? <ChevronDown className="w-4 h-4 text-[#555]" /> : <ChevronRight className="w-4 h-4 text-[#555]" />}
+              </button>
+              {showChangePassword && (
+                <div className="px-4 pb-4 space-y-3">
+                  <div>
+                    <label className="text-[#888] text-xs">Joriy parol</label>
+                    <Input
+                      type="password"
+                      value={currentPwd}
+                      onChange={(e) => setCurrentPwd(e.target.value)}
+                      placeholder="Hozirgi parolingiz"
+                      className="mt-1 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11"
+                      data-testid="input-current-password"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[#888] text-xs">Yangi parol</label>
+                    <Input
+                      type="password"
+                      value={newPwd}
+                      onChange={(e) => setNewPwd(e.target.value)}
+                      placeholder="Yangi parol (min 6 ta belgi)"
+                      className="mt-1 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11"
+                      data-testid="input-new-password"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => changePasswordMutation.mutate()}
+                    disabled={!currentPwd || newPwd.length < 6 || changePasswordMutation.isPending}
+                    className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
+                    data-testid="button-save-password"
+                  >
+                    {changePasswordMutation.isPending ? "Saqlanmoqda..." : "Parolni o'zgartirish"}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <button onClick={() => setShowChangeFundPwd(!showChangeFundPwd)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-fund-password">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/20 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-[#A78BFA]" />
+                  </div>
+                  <span className="text-[#ddd] text-sm">Moliya parolini o'zgartirish</span>
+                </div>
+                {showChangeFundPwd ? <ChevronDown className="w-4 h-4 text-[#555]" /> : <ChevronRight className="w-4 h-4 text-[#555]" />}
+              </button>
+              {showChangeFundPwd && (
+                <div className="px-4 pb-4 space-y-3">
+                  <div>
+                    <label className="text-[#888] text-xs">Joriy moliya paroli</label>
+                    <Input
+                      type="password"
+                      value={currentFundPwd}
+                      onChange={(e) => setCurrentFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="Hozirgi 6 xonali PIN"
+                      maxLength={6}
+                      className="mt-1 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11 text-center font-mono tracking-[0.5em]"
+                      data-testid="input-current-fund-password"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[#888] text-xs">Yangi moliya paroli</label>
+                    <Input
+                      type="password"
+                      value={newFundPwd}
+                      onChange={(e) => setNewFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      placeholder="Yangi 6 xonali PIN"
+                      maxLength={6}
+                      className="mt-1 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11 text-center font-mono tracking-[0.5em]"
+                      data-testid="input-new-fund-password"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => changeFundPwdMutation.mutate()}
+                    disabled={currentFundPwd.length !== 6 || newFundPwd.length !== 6 || changeFundPwdMutation.isPending}
+                    className="w-full bg-gradient-to-r from-[#A78BFA] to-[#8B5CF6] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
+                    data-testid="button-save-fund-password"
+                  >
+                    {changeFundPwdMutation.isPending ? "Saqlanmoqda..." : "Moliya parolini o'zgartirish"}
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <button onClick={() => navigate("/help")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-support">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
                   <Headphones className="w-4 h-4 text-[#3b6db5]" />

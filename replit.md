@@ -4,6 +4,11 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-23: Dashboard hero banner auto-rotating carousel (5s interval, fade transitions, dot indicators)
+- 2026-02-23: Dashboard shows user ID instead of phone number
+- 2026-02-23: Help page (/help) with manager contacts, Telegram groups, FAQ - accessible via bottom nav "Yordam" tab
+- 2026-02-23: Password change (login + fund password) in profile with expandable sections, backend API /api/profile/change-password and /api/profile/change-fund-password
+- 2026-02-23: Bottom nav updated: Referal replaced with Yordam (Help)
 - 2026-02-23: VIP expiration system with vipExpiresAt field, same-level extension adds days to existing expiry
 - 2026-02-23: Balance history table (balanceHistory) for comprehensive financial tracking - earnings, deposits, withdrawals, VIP purchases, fund investments, commissions, admin adjustments
 - 2026-02-23: Financial History (Moliya tarixi) UI on profile with filter buttons (all, earning, deposit, withdrawal, VIP, fund, commission, admin)

@@ -13,6 +13,8 @@ export interface IStorage {
   updateUserDailyTasks(id: string, completed: number, lastDate: string): Promise<void>;
   updateUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void>;
   updateUserAvatar(id: string, avatar: string): Promise<void>;
+  updateUserPassword(id: string, hashedPassword: string): Promise<void>;
+  updateUserFundPassword(id: string, hashedFundPassword: string): Promise<void>;
   getVipPackages(): Promise<VipPackage[]>;
   getVipPackage(id: string): Promise<VipPackage | undefined>;
   getVideos(): Promise<Video[]>;
@@ -97,6 +99,14 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserAvatar(id: string, avatar: string): Promise<void> {
     await db.update(users).set({ avatar }).where(eq(users.id, id));
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string): Promise<void> {
+    await db.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
+  }
+
+  async updateUserFundPassword(id: string, hashedFundPassword: string): Promise<void> {
+    await db.update(users).set({ fundPassword: hashedFundPassword }).where(eq(users.id, id));
   }
 
   async updateUserBalance(id: string, amount: string): Promise<void> {

@@ -3,6 +3,7 @@ import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
 import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
@@ -56,7 +57,27 @@ export default function DashboardPage() {
 
   const tvShows = videos?.filter(v => v.category === "Tele-shou") || [];
   const trailers = videos?.filter(v => v.category === "Treyler") || [];
-  const heroVideo = videos?.[0];
+  const allVideos = videos || [];
+
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const nextSlide = useCallback(() => {
+    if (allVideos.length <= 1) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setHeroIndex((prev) => (prev + 1) % allVideos.length);
+      setIsTransitioning(false);
+    }, 500);
+  }, [allVideos.length]);
+
+  useEffect(() => {
+    if (allVideos.length <= 1) return;
+    const interval = setInterval(nextSlide, 5000);
+    return () => clearInterval(interval);
+  }, [allVideos.length, nextSlide]);
+
+  const heroVideo = allVideos[heroIndex];
 
   return (
     <AppLayout>
@@ -66,12 +87,12 @@ export default function DashboardPage() {
             <img
               src={heroVideo.thumbnail}
               alt={heroVideo.title}
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover transition-all duration-500 ${isTransitioning ? "opacity-0 scale-105" : "opacity-100 scale-100"}`}
               data-testid="hero-poster"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/70 to-transparent" />
-            <div className="absolute bottom-6 left-4 right-4 z-10">
+            <div className={`absolute bottom-6 left-4 right-4 z-10 transition-all duration-500 ${isTransitioning ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
               <div className="flex items-center gap-2 mb-1">
                 <span className="bg-[#FF6B35] text-white text-[9px] font-bold px-2 py-0.5 rounded">{heroVideo.category}</span>
                 <div className="flex items-center gap-0.5">
@@ -95,6 +116,18 @@ export default function DashboardPage() {
                 </Link>
               </div>
             </div>
+            {allVideos.length > 1 && (
+              <div className="absolute bottom-2 right-4 z-10 flex gap-1">
+                {allVideos.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => { setIsTransitioning(true); setTimeout(() => { setHeroIndex(i); setIsTransitioning(false); }, 300); }}
+                    className={`h-1 rounded-full transition-all duration-300 ${i === heroIndex ? "w-5 bg-[#FF6B35]" : "w-1.5 bg-white/30"}`}
+                    data-testid={`hero-dot-${i}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -107,7 +140,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <span className="text-[#888] text-[9px] uppercase tracking-wider">{vipNames[user.vipLevel] || `VIP ${user.vipLevel}`}</span>
-                  <p className="text-white text-xs font-medium">{user.phone}</p>
+                  <p className="text-white text-xs font-medium">ID: {user.numericId || "—"}</p>
                 </div>
               </div>
               <Link href="/vip">
