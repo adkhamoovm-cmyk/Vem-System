@@ -62,7 +62,7 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: async (data: LoginForm) => {
       const fullPhone = selectedCountry.code + data.phone;
-      const res = await apiRequest("POST", "/api/auth/login", { ...data, phone: fullPhone });
+      const res = await apiRequest("POST", "/api/auth/login", { ...data, phone: fullPhone, rememberMe });
       return res.json();
     },
     onSuccess: (_data, variables) => {

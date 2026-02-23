@@ -164,7 +164,7 @@ export async function registerRoutes(
 
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
-      const { phone, password } = req.body;
+      const { phone, password, rememberMe } = req.body;
 
       if (!phone || !password) {
         return res.status(400).json({ message: "Telefon va parolni kiriting" });
@@ -182,6 +182,10 @@ export async function registerRoutes(
       const valid = await comparePasswords(password, user.password);
       if (!valid) {
         return res.status(400).json({ message: "Telefon raqami yoki parol noto'g'ri" });
+      }
+
+      if (rememberMe) {
+        req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
       }
 
       req.session.userId = user.id;
