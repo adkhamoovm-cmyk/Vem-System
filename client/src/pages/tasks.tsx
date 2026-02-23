@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Play, Clock, CheckCircle, Star, Calendar, MapPin, Crown, Lock, Volume2, VolumeX, Maximize2 } from "lucide-react";
+import ReactPlayer from "react-player";
 import type { Video, User, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 import { Link } from "wouter";
@@ -15,10 +16,9 @@ function VideoModal({ video, perVideoReward, open, onClose }: { video: Video; pe
   const [timeLeft, setTimeLeft] = useState(0);
   const [started, setStarted] = useState(false);
   const [completed, setCompleted] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
   const durationRef = useRef(25);
   const completedRef = useRef(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const playerContainerRef = useRef<HTMLDivElement>(null);
 
   const completeMutation = useMutation({
     mutationFn: async () => {
@@ -47,7 +47,6 @@ function VideoModal({ video, perVideoReward, open, onClose }: { video: Video; pe
       setTimeLeft(d);
       setStarted(false);
       setCompleted(false);
-      setIsMuted(true);
     }
   }, [open]);
 
@@ -68,25 +67,9 @@ function VideoModal({ video, perVideoReward, open, onClose }: { video: Video; pe
     return () => clearInterval(timer);
   }, [started, completed]);
 
-  const handleStart = () => {
-    setStarted(true);
-    if (videoRef.current) {
-      videoRef.current.play().catch(() => {});
-    }
-  };
-
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    if (videoRef.current) {
-      videoRef.current.muted = !isMuted;
-    }
-  };
-
-  const toggleFullscreen = () => {
-    if (videoRef.current) {
-      if (videoRef.current.requestFullscreen) {
-        videoRef.current.requestFullscreen();
-      }
+  const handleVideoPlay = () => {
+    if (!started) {
+      setStarted(true);
     }
   };
 
@@ -98,63 +81,60 @@ function VideoModal({ video, perVideoReward, open, onClose }: { video: Video; pe
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen && (completed || !started)) onClose(); }}>
       <DialogContent className="bg-white border-[#eee] max-w-lg rounded-2xl p-0 overflow-hidden" data-testid="modal-video" aria-describedby="video-modal-desc">
-        <div className="relative aspect-video bg-black">
-          {video.videoUrl ? (
-            <video
-              ref={videoRef}
-              src={video.videoUrl}
-              poster={video.thumbnail}
-              className="w-full h-full object-cover"
-              muted={isMuted}
-              playsInline
-              data-testid="video-player"
-            />
-          ) : (
-            <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
-          )}
+        <div className="relative aspect-video bg-black" ref={playerContainerRef}>
+          <ReactPlayer
+            url={video.videoUrl || undefined}
+            light={video.thumbnail}
+            playing={started}
+            controls={true}
+            width="100%"
+            height="100%"
+            style={{ position: 'absolute', top: 0, left: 0 }}
+            onPlay={handleVideoPlay}
+            onClickPreview={handleVideoPlay}
+            playIcon={
+              <div className="flex flex-col items-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center shadow-xl shadow-[#FF6B35]/30">
+                  <Play className="w-7 h-7 text-white ml-1" />
+                </div>
+                <span className="text-white/90 text-xs mt-3 font-medium drop-shadow-lg">Boshlash uchun bosing</span>
+              </div>
+            }
+            config={{
+              youtube: {
+                playerVars: {
+                  modestbranding: 1,
+                  rel: 0,
+                },
+              },
+            }}
+            data-testid="video-player"
+          />
 
           {started && !completed && (
-            <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+            <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
               <div className="bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 <span className="text-white text-xs font-mono font-bold" data-testid="text-timer">
                   {minutes}:{seconds.toString().padStart(2, '0')}
                 </span>
               </div>
-              <div className="flex gap-2">
-                <button onClick={toggleMute} className="bg-black/60 backdrop-blur-sm rounded-full p-2 text-white">
-                  {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                </button>
-                <button onClick={toggleFullscreen} className="bg-black/60 backdrop-blur-sm rounded-full p-2 text-white">
-                  <Maximize2 className="w-4 h-4" />
-                </button>
+              <div className="bg-black/60 backdrop-blur-sm rounded-full px-3 py-1.5">
+                <span className="text-[#FF6B35] font-bold text-xs">+${perVideoReward.toFixed(2)}</span>
               </div>
             </div>
           )}
 
           {started && !completed && (
-            <div className="absolute bottom-0 left-0 right-0">
+            <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
               <div className="h-1 bg-white/20">
                 <div className="h-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] transition-all duration-1000" style={{ width: `${progress}%` }} />
               </div>
             </div>
           )}
 
-          {!started && !completed && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
-              <button
-                onClick={handleStart}
-                className="w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center shadow-xl shadow-[#FF6B35]/30 active:scale-95 transition-transform"
-                data-testid="button-start-video"
-              >
-                <Play className="w-7 h-7 text-white ml-1" />
-              </button>
-              <span className="text-white/80 text-xs mt-3 font-medium">Boshlash uchun bosing</span>
-            </div>
-          )}
-
           {completed && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 gap-2">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 gap-2 z-10">
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>

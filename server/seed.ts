@@ -146,7 +146,7 @@ export async function seedDatabase() {
       {
         title: "Squid Game: Season 2",
         thumbnail: "https://image.tmdb.org/t/p/w500/bQXAqRx2Fgc46uCVWgoPz2bOeby.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=Ed1sGgHUo88",
         actors: "Lee Jung-jae, Wi Ha-jun, Gong Yoo",
         rating: "4.9",
         releaseDate: "2025-12-26",
@@ -158,7 +158,7 @@ export async function seedDatabase() {
       {
         title: "The Last of Us: Season 2",
         thumbnail: "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=_zHPsmXCjB0",
         actors: "Pedro Pascal, Bella Ramsey",
         rating: "4.8",
         releaseDate: "2026-04-13",
@@ -170,7 +170,7 @@ export async function seedDatabase() {
       {
         title: "Wednesday: Season 2",
         thumbnail: "https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=ueCc-AYUMRs",
         actors: "Jenna Ortega, Catherine Zeta-Jones",
         rating: "4.7",
         releaseDate: "2026-08-06",
@@ -182,7 +182,7 @@ export async function seedDatabase() {
       {
         title: "Thunderbolts*",
         thumbnail: "https://image.tmdb.org/t/p/w500/m0lqSkZFCnCIxHhlOGmvQiH5gIo.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=-sAOWhvheK8",
         actors: "Florence Pugh, Sebastian Stan",
         rating: "4.6",
         releaseDate: "2025-05-02",
@@ -192,9 +192,9 @@ export async function seedDatabase() {
         category: "Treyler",
       },
       {
-        title: "Mission Impossible 8",
+        title: "Mission Impossible: Final Reckoning",
         thumbnail: "https://image.tmdb.org/t/p/w500/z1p34vh7dEOnLDaSZpNtfmUmjS0.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=fsQgc9pCyDU",
         actors: "Tom Cruise, Hayley Atwell",
         rating: "4.9",
         releaseDate: "2025-05-23",
@@ -206,7 +206,7 @@ export async function seedDatabase() {
       {
         title: "Stranger Things: Final Season",
         thumbnail: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=XwQRkOK5KC4",
         actors: "Millie Bobby Brown, Finn Wolfhard",
         rating: "4.8",
         releaseDate: "2025-11-27",
@@ -216,24 +216,12 @@ export async function seedDatabase() {
         category: "Tele-shou",
       },
       {
-        title: "Supergirl: Woman of Tomorrow",
-        thumbnail: "https://image.tmdb.org/t/p/w500/q1GmrEHDVEhPCvm1k7bEkScwETm.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-        actors: "Milly Alcock, Eve Ridley",
-        rating: "4.5",
-        releaseDate: "2026-06-26",
-        country: "AQSH",
-        duration: 22,
-        reward: "0",
-        category: "Treyler",
-      },
-      {
-        title: "House of the Dragon: Season 3",
+        title: "House of the Dragon: Season 2",
         thumbnail: "https://image.tmdb.org/t/p/w500/628Dep6AxEtDxjZoGP78TsOxYbK.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=YN2H_sKcmGw",
         actors: "Matt Smith, Emma D'Arcy",
         rating: "4.7",
-        releaseDate: "2026-06-15",
+        releaseDate: "2024-06-16",
         country: "AQSH",
         duration: 25,
         reward: "0",
@@ -242,7 +230,7 @@ export async function seedDatabase() {
       {
         title: "Money Heist: Berlin",
         thumbnail: "https://image.tmdb.org/t/p/w500/jnE1GA0hlOOz0iJVkjCBhFNbMijt.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=XD_MLvGrGCY",
         actors: "Pedro Alonso, Michelle Jenner",
         rating: "4.3",
         releaseDate: "2025-12-08",
@@ -254,7 +242,7 @@ export async function seedDatabase() {
       {
         title: "Avatar 3: Fire and Ash",
         thumbnail: "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+        videoUrl: "https://www.youtube.com/watch?v=xxEt9fnILgQ",
         actors: "Sam Worthington, Zoe Saldana",
         rating: "4.8",
         releaseDate: "2025-12-19",
@@ -263,32 +251,8 @@ export async function seedDatabase() {
         reward: "0",
         category: "Treyler",
       },
-      {
-        title: "Peaky Blinders: The Movie",
-        thumbnail: "https://image.tmdb.org/t/p/w500/t5GEa9wSM7gp5DhRiMnPF5KuVjN.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4",
-        actors: "Cillian Murphy, Tom Hardy",
-        rating: "4.6",
-        releaseDate: "2026-09-12",
-        country: "Buyuk Britaniya",
-        duration: 24,
-        reward: "0",
-        category: "Treyler",
-      },
-      {
-        title: "The White Lotus: Season 3",
-        thumbnail: "https://image.tmdb.org/t/p/w500/jOFnq2EGKb1hYnNfBuQRn3kO6Bi.jpg",
-        videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4",
-        actors: "Walton Goggins, Patrick Schwarzenegger",
-        rating: "4.4",
-        releaseDate: "2025-02-16",
-        country: "AQSH",
-        duration: 20,
-        reward: "0",
-        category: "Tele-shou",
-      },
     ]);
-    console.log("Videos seeded (12 TV shows & trailers)");
+    console.log("Videos seeded (9 TV shows & trailers with real YouTube URLs)");
   }
 
   await db.execute(sql`DELETE FROM ${fundPlans}`);

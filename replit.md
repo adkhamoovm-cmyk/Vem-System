@@ -4,6 +4,7 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-23: Video system upgraded to react-player with real YouTube trailers matching TMDB posters, light prop for poster preview
 - 2026-02-23: VEM Fund module - passive investment/staking with 4 F-Series plans, daily ROI, cron profit distribution
 - 2026-02-23: Complete VIP system overhaul with 11 tiers ($0-$55,000), reward based on VIP level
 - 2026-02-23: Redesigned dashboard, VIP page, tasks page with professional video player
@@ -22,7 +23,7 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - `client/src/components/app-layout.tsx` - Shared layout with TikTok-style bottom nav (5 tabs, raised center Vazifalar button)
 - `server/routes.ts` - API routes with session auth
 - `server/storage.ts` - Database storage layer (DatabaseStorage class)
-- `server/seed.ts` - Seed data for 11 VIP packages, 12 TV shows/trailers, 4 fund plans
+- `server/seed.ts` - Seed data for 11 VIP packages, 9 TV shows/trailers (real YouTube URLs), 4 fund plans
 - `shared/schema.ts` - Drizzle schemas (users, vipPackages, videos, taskHistory, referrals, fundPlans, investments)
 
 ## Design

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { TrendingUp, Star, Eye, Clock, Flame, Tv, Film, Play } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import ReactPlayer from "react-player";
 import type { Video, User } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
@@ -11,18 +12,30 @@ function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; o
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
       <DialogContent className="bg-white border-[#eee] max-w-lg rounded-2xl p-0 overflow-hidden" aria-describedby="preview-desc">
         <div className="relative aspect-video bg-black">
-          {video.videoUrl ? (
-            <video
-              src={video.videoUrl}
-              poster={video.thumbnail}
-              className="w-full h-full object-cover"
-              controls
-              autoPlay
-              playsInline
-            />
-          ) : (
-            <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
-          )}
+          <ReactPlayer
+            url={video.videoUrl || undefined}
+            light={video.thumbnail}
+            playing={false}
+            controls={true}
+            width="100%"
+            height="100%"
+            style={{ position: 'absolute', top: 0, left: 0 }}
+            playIcon={
+              <div className="flex flex-col items-center">
+                <div className="w-14 h-14 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center shadow-xl shadow-[#FF6B35]/30">
+                  <Play className="w-6 h-6 text-white ml-0.5" />
+                </div>
+              </div>
+            }
+            config={{
+              youtube: {
+                playerVars: {
+                  modestbranding: 1,
+                  rel: 0,
+                },
+              },
+            }}
+          />
         </div>
         <div className="p-4">
           <h3 className="text-[#1a1a2e] font-bold">{video.title}</h3>
