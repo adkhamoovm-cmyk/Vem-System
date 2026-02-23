@@ -35,25 +35,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isTasksActive = location === "/tasks";
 
   return (
-    <div className="min-h-screen bg-[#f5f5f5] pb-20">
-      <header className="sticky top-0 z-50 bg-white border-b border-[#eee] shadow-sm">
+    <div className="min-h-screen bg-[#0a0a0a] pb-20">
+      <header className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#222]">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-lg flex items-center justify-center">
               <span className="text-white text-xs font-bold">V</span>
             </div>
-            <span className="text-lg font-bold text-[#1a1a2e] tracking-tight">VEM</span>
+            <span className="text-lg font-bold text-white tracking-tight">VEM</span>
           </div>
 
           <div className="flex items-center gap-3">
-            {user && (
-              <span className="text-[#FF6B35] text-sm font-semibold" data-testid="text-header-balance">
-                {Number(user.balance).toLocaleString()} so'm
-              </span>
-            )}
             <button
               onClick={() => logoutMutation.mutate()}
-              className="text-[#999] hover:text-[#666] transition-colors p-1"
+              className="text-[#888] hover:text-white transition-colors p-1"
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />
@@ -64,7 +59,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <main className="max-w-lg mx-auto">{children}</main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#eee] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#111]/95 backdrop-blur-md border-t border-[#222]">
         <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2 relative">
           {sideNavItems.map((item) => {
             const active = location === item.href;
@@ -72,7 +67,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Link key={item.href} href={item.href}>
                 <button
                   className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px] ${
-                    active ? "text-[#FF6B35]" : "text-[#999]"
+                    active ? "text-[#FF6B35]" : "text-[#666]"
                   }`}
                   data-testid={item.testId}
                 >
@@ -95,7 +90,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               }`}>
                 <PlayCircle className="w-7 h-7 text-white stroke-[2]" />
               </div>
-              <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-[#FF6B35]" : "text-[#999]"}`}>
+              <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-[#FF6B35]" : "text-[#666]"}`}>
                 Vazifalar
               </span>
             </button>
@@ -107,7 +102,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Link key={item.href} href={item.href}>
                 <button
                   className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px] ${
-                    active ? "text-[#FF6B35]" : "text-[#999]"
+                    active ? "text-[#FF6B35]" : "text-[#666]"
                   }`}
                   data-testid={item.testId}
                 >

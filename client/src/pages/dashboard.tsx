@@ -2,15 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight } from "lucide-react";
+import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft } from "lucide-react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+
+const UZS_RATE = 12850;
 
 const vipNames: Record<number, string> = {
   0: "Stajyor",
   1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5",
   6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10",
 };
+
+function formatUZS(usd: number): string {
+  const uzs = usd * UZS_RATE;
+  if (uzs >= 1_000_000) return (uzs / 1_000_000).toFixed(2) + "M";
+  if (uzs >= 1_000) return (uzs / 1_000).toFixed(1) + "K";
+  return uzs.toFixed(0);
+}
 
 export default function DashboardPage() {
   const { data: user, isLoading } = useQuery<User>({
@@ -45,179 +54,254 @@ export default function DashboardPage() {
   const currentPkg = vipPackages?.find(p => p.level === user.vipLevel);
   const perVideo = currentPkg ? Number(currentPkg.perVideoReward) : 0;
   const dailyPotential = currentPkg ? Number(currentPkg.dailyEarning) : 0;
+  const balance = Number(user.balance);
+
+  const tvShows = videos?.filter(v => v.category === "Tele-shou") || [];
+  const trailers = videos?.filter(v => v.category === "Treyler") || [];
+  const heroVideo = videos?.[0];
 
   return (
     <AppLayout>
-      <div className="p-4 space-y-4">
-        <div className="bg-gradient-to-br from-[#FF6B35] via-[#E8553C] to-[#D63A3A] rounded-2xl p-5 text-white shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-10 translate-x-10" />
-          <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-8 -translate-x-8" />
-          <div className="relative z-10">
+      <div className="bg-[#0a0a0a] min-h-screen -mt-0">
+        {heroVideo && (
+          <div className="relative w-full h-[280px] overflow-hidden">
+            <img
+              src={heroVideo.thumbnail}
+              alt={heroVideo.title}
+              className="w-full h-full object-cover"
+              data-testid="hero-poster"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/70 to-transparent" />
+            <div className="absolute bottom-6 left-4 right-4 z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="bg-[#FF6B35] text-white text-[9px] font-bold px-2 py-0.5 rounded">{heroVideo.category}</span>
+                <div className="flex items-center gap-0.5">
+                  <Star className="w-3 h-3 fill-[#FFD700] text-[#FFD700]" />
+                  <span className="text-white/90 text-xs">{heroVideo.rating}</span>
+                </div>
+              </div>
+              <h2 className="text-white font-bold text-xl leading-tight mb-2">{heroVideo.title}</h2>
+              <p className="text-white/60 text-xs mb-3">{heroVideo.actors}</p>
+              <div className="flex gap-2">
+                <Link href="/tasks">
+                  <button className="flex items-center gap-1.5 bg-white text-black font-bold text-xs px-5 py-2.5 rounded-md cursor-pointer" data-testid="button-hero-play">
+                    <Play className="w-4 h-4 fill-black" />
+                    Ko'rish
+                  </button>
+                </Link>
+                <Link href="/trends">
+                  <button className="flex items-center gap-1.5 bg-white/20 text-white font-medium text-xs px-4 py-2.5 rounded-md backdrop-blur-sm cursor-pointer" data-testid="button-hero-info">
+                    Batafsil
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="px-4 -mt-1 space-y-5 pb-6">
+          <div className="bg-[#1a1a1a] rounded-2xl p-4 border border-[#2a2a2a]">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                  <Crown className="w-5 h-5" />
+                <div className="w-8 h-8 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-lg flex items-center justify-center">
+                  <Crown className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <span className="text-white/70 text-[10px] font-medium uppercase tracking-wider">Joriy daraja</span>
-                  <p className="font-bold text-sm leading-tight">{vipNames[user.vipLevel] || `VIP ${user.vipLevel}`}</p>
+                  <span className="text-[#888] text-[9px] uppercase tracking-wider">{vipNames[user.vipLevel] || `VIP ${user.vipLevel}`}</span>
+                  <p className="text-white text-xs font-medium">{user.phone}</p>
                 </div>
               </div>
               <Link href="/vip">
-                <span className="bg-white/20 text-[10px] px-3 py-1.5 rounded-full backdrop-blur-sm font-medium cursor-pointer">
+                <span className="bg-[#FF6B35]/20 text-[#FF6B35] text-[10px] px-3 py-1 rounded-full font-semibold cursor-pointer" data-testid="link-upgrade-vip">
                   Yangilash
                 </span>
               </Link>
             </div>
-            <div className="text-3xl font-bold tracking-tight" data-testid="text-balance">
-              ${Number(user.balance).toFixed(2)}
-            </div>
-            <div className="flex items-center gap-4 mt-2">
-              <div className="flex items-center gap-1 text-white/70 text-xs">
-                <TrendingUp className="w-3 h-3" />
-                <span>Kunlik: ${dailyPotential.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center gap-1 text-white/70 text-xs">
-                <Film className="w-3 h-3" />
-                <span>${perVideo.toFixed(2)} / video</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#FF6B35]" />
-              <span className="text-[#1a1a2e] text-sm font-semibold">Bugungi vazifalar</span>
-            </div>
-            <span className="text-[#FF6B35] text-sm font-bold" data-testid="text-tasks-progress">
-              {user.dailyTasksCompleted} / {user.dailyTasksLimit}
-            </span>
-          </div>
-          <Progress
-            value={tasksProgress}
-            className="h-2.5 bg-[#f0f0f0] rounded-full"
-            data-testid="progress-tasks"
-          />
-          <div className="flex items-center justify-between mt-2">
-            <p className="text-[#999] text-xs">
-              {user.dailyTasksCompleted < user.dailyTasksLimit
-                ? `Yana ${user.dailyTasksLimit - user.dailyTasksCompleted} ta video qoldi`
-                : "Bugungi limitga yetdingiz!"}
-            </p>
-            <Link href="/tasks">
-              <span className="text-[#FF6B35] text-xs font-semibold flex items-center gap-0.5 cursor-pointer">
-                Boshlash <ChevronRight className="w-3 h-3" />
-              </span>
-            </Link>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-[#E8F5E9] rounded-xl flex items-center justify-center">
-                <DollarSign className="w-4 h-4 text-[#4CAF50]" />
+            <div className="bg-[#111] rounded-xl p-3 mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[#888] text-[10px] uppercase tracking-wider flex items-center gap-1">
+                  <ArrowRightLeft className="w-3 h-3" />
+                  Balans
+                </span>
+                <span className="text-[#888] text-[9px]">1 USDT = {UZS_RATE.toLocaleString()} UZS</span>
               </div>
-              <span className="text-[#999] text-[10px] uppercase tracking-wider font-medium">Umumiy daromad</span>
-            </div>
-            <p className="text-[#1a1a2e] font-bold text-lg" data-testid="text-total-earnings">
-              ${Number(user.totalEarnings).toFixed(2)}
-            </p>
-          </div>
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-[#E3F2FD] rounded-xl flex items-center justify-center">
-                <Wallet className="w-4 h-4 text-[#2196F3]" />
-              </div>
-              <span className="text-[#999] text-[10px] uppercase tracking-wider font-medium">Depozit</span>
-            </div>
-            <p className="text-[#1a1a2e] font-bold text-lg" data-testid="text-total-deposit">
-              ${Number(user.totalDeposit).toFixed(2)}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-5 gap-2">
-          {[
-            { title: "Vazifalar", href: "/tasks", icon: PlayCircle, color: "#FF6B35", bg: "#FFF0EB" },
-            { title: "Fund", href: "/fund", icon: Wallet, color: "#E8453C", bg: "#FFEBEE" },
-            { title: "Taklif", href: "/referral", icon: Users, color: "#4CAF50", bg: "#E8F5E9" },
-            { title: "VIP", href: "/vip", icon: Crown, color: "#9C27B0", bg: "#F3E5F5" },
-            { title: "Trendlar", href: "/trends", icon: Tv, color: "#2196F3", bg: "#E3F2FD" },
-          ].map((item) => (
-            <Link key={item.href} href={item.href}>
-              <div className="flex flex-col items-center gap-1.5 cursor-pointer" data-testid={`quick-${item.title.toLowerCase()}`}>
-                <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm"
-                  style={{ backgroundColor: item.bg }}
-                >
-                  <item.icon className="w-5 h-5" style={{ color: item.color }} />
+              <div className="flex items-end justify-between" data-testid="text-balance">
+                <div>
+                  <p className="text-white font-bold text-2xl tracking-tight">{balance.toFixed(2)} <span className="text-[#4ADE80] text-sm font-semibold">USDT</span></p>
+                  <p className="text-[#888] text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
                 </div>
-                <span className="text-[#555] text-[10px] font-medium text-center leading-tight">{item.title}</span>
+                <div className="text-right">
+                  <div className="flex items-center gap-1 text-[#4ADE80] text-xs">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>+{dailyPotential.toFixed(2)}/kun</span>
+                  </div>
+                </div>
               </div>
-            </Link>
-          ))}
-        </div>
-
-        {currentPkg && (
-          <div className="bg-gradient-to-r from-[#FFF8E1] to-[#FFF3E0] rounded-2xl p-4 border border-[#FFE082]">
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="w-4 h-4 text-[#FF8F00]" />
-              <span className="text-[#7B6B3A] text-xs font-bold">Sizning VIP imkoniyatlaringiz</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="text-center">
-                <p className="text-[#FF6B35] font-bold text-sm">{currentPkg.dailyTasks}</p>
-                <p className="text-[#999] text-[9px]">Kunlik video</p>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-[#111] rounded-xl p-3">
+                <span className="text-[#888] text-[9px] uppercase tracking-wider">Daromad</span>
+                <p className="text-white font-bold text-sm mt-1" data-testid="text-total-earnings">{Number(user.totalEarnings).toFixed(2)} USDT</p>
+                <p className="text-[#666] text-[10px]">{formatUZS(Number(user.totalEarnings))} UZS</p>
               </div>
-              <div className="text-center">
-                <p className="text-[#FF6B35] font-bold text-sm">${Number(currentPkg.perVideoReward).toFixed(2)}</p>
-                <p className="text-[#999] text-[9px]">Har video</p>
-              </div>
-              <div className="text-center">
-                <p className="text-[#FF6B35] font-bold text-sm">${Number(currentPkg.dailyEarning).toFixed(2)}</p>
-                <p className="text-[#999] text-[9px]">Kunlik daromad</p>
+              <div className="bg-[#111] rounded-xl p-3">
+                <span className="text-[#888] text-[9px] uppercase tracking-wider">Depozit</span>
+                <p className="text-white font-bold text-sm mt-1" data-testid="text-total-deposit">{Number(user.totalDeposit).toFixed(2)} USDT</p>
+                <p className="text-[#666] text-[10px]">{formatUZS(Number(user.totalDeposit))} UZS</p>
               </div>
             </div>
           </div>
-        )}
 
-        {videos && videos.length > 0 && (
-          <div>
+          <div className="bg-[#1a1a1a] rounded-2xl p-4 border border-[#2a2a2a]">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[#1a1a2e] font-bold text-sm">Yangi kontentlar</h3>
-              <Link href="/trends" className="text-[#FF6B35] text-xs font-semibold">
-                Barchasi &rarr;
+              <div className="flex items-center gap-2">
+                <Zap className="w-4 h-4 text-[#FF6B35]" />
+                <span className="text-white text-sm font-semibold">Bugungi vazifalar</span>
+              </div>
+              <span className="text-[#FF6B35] text-sm font-bold" data-testid="text-tasks-progress">
+                {user.dailyTasksCompleted} / {user.dailyTasksLimit}
+              </span>
+            </div>
+            <Progress
+              value={tasksProgress}
+              className="h-2 bg-[#2a2a2a] rounded-full"
+              data-testid="progress-tasks"
+            />
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-[#666] text-xs">
+                {user.dailyTasksCompleted < user.dailyTasksLimit
+                  ? `Yana ${user.dailyTasksLimit - user.dailyTasksCompleted} ta video qoldi`
+                  : "Bugungi limitga yetdingiz!"}
+              </p>
+              <Link href="/tasks">
+                <span className="text-[#FF6B35] text-xs font-semibold flex items-center gap-0.5 cursor-pointer" data-testid="link-start-tasks">
+                  Boshlash <ChevronRight className="w-3 h-3" />
+                </span>
               </Link>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-              {videos.slice(0, 5).map((video) => (
-                <Link key={video.id} href="/tasks">
-                  <div className="relative w-28 shrink-0 cursor-pointer" data-testid={`rec-video-${video.id}`}>
-                    <div className="w-28 h-40 rounded-xl overflow-hidden bg-[#f0f0f0] shadow-md">
-                      <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-xl" />
-                    </div>
-                    <div className="absolute top-1.5 right-1.5">
-                      <span className="bg-[#FF6B35]/90 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
-                        {video.category}
-                      </span>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-2">
-                      <h4 className="text-white font-bold text-[10px] leading-tight line-clamp-2">{video.title}</h4>
-                      <div className="flex items-center gap-0.5 mt-0.5">
-                        <Star className="w-2.5 h-2.5 fill-[#FFD700] text-[#FFD700]" />
-                        <span className="text-white/80 text-[9px]">{video.rating}</span>
+          </div>
+
+          <div className="grid grid-cols-5 gap-2">
+            {[
+              { title: "Vazifalar", href: "/tasks", icon: PlayCircle, color: "#FF6B35", bg: "#FF6B35" },
+              { title: "Fund", href: "/fund", icon: Wallet, color: "#E8453C", bg: "#E8453C" },
+              { title: "Taklif", href: "/referral", icon: Users, color: "#4ADE80", bg: "#4ADE80" },
+              { title: "VIP", href: "/vip", icon: Crown, color: "#A855F7", bg: "#A855F7" },
+              { title: "Trendlar", href: "/trends", icon: Tv, color: "#3B82F6", bg: "#3B82F6" },
+            ].map((item) => (
+              <Link key={item.href} href={item.href}>
+                <div className="flex flex-col items-center gap-1.5 cursor-pointer" data-testid={`quick-${item.title.toLowerCase()}`}>
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                    style={{ backgroundColor: item.bg + "20" }}
+                  >
+                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                  </div>
+                  <span className="text-[#aaa] text-[10px] font-medium text-center leading-tight">{item.title}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {tvShows.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-bold text-sm flex items-center gap-2">
+                  <Tv className="w-4 h-4 text-[#FF6B35]" />
+                  TV Showlar
+                </h3>
+                <Link href="/trends" className="text-[#888] text-xs">
+                  Barchasi <ChevronRight className="w-3 h-3 inline" />
+                </Link>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                {tvShows.map((video) => (
+                  <Link key={video.id} href="/tasks">
+                    <div className="relative w-32 shrink-0 cursor-pointer group" data-testid={`tv-show-${video.id}`}>
+                      <div className="w-32 h-48 rounded-lg overflow-hidden bg-[#1a1a1a] shadow-lg">
+                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-lg" />
+                      </div>
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-[#E50914] text-white text-[8px] font-bold px-1.5 py-0.5 rounded">
+                          TOP
+                        </span>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <h4 className="text-white font-bold text-[11px] leading-tight line-clamp-2">{video.title}</h4>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Star className="w-2.5 h-2.5 fill-[#FFD700] text-[#FFD700]" />
+                          <span className="text-white/70 text-[9px]">{video.rating}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {trailers.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-bold text-sm flex items-center gap-2">
+                  <Film className="w-4 h-4 text-[#FF6B35]" />
+                  Traylerlar
+                </h3>
+                <Link href="/trends" className="text-[#888] text-xs">
+                  Barchasi <ChevronRight className="w-3 h-3 inline" />
+                </Link>
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+                {trailers.map((video) => (
+                  <Link key={video.id} href="/tasks">
+                    <div className="relative w-56 shrink-0 cursor-pointer group" data-testid={`trailer-${video.id}`}>
+                      <div className="w-56 h-32 rounded-lg overflow-hidden bg-[#1a1a1a] shadow-lg">
+                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-lg" />
+                      </div>
+                      <div className="absolute top-2 right-2">
+                        <div className="bg-black/60 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
+                          <Play className="w-4 h-4 text-white fill-white" />
+                        </div>
+                      </div>
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <h4 className="text-white font-bold text-xs leading-tight">{video.title}</h4>
+                        <p className="text-white/50 text-[9px] mt-0.5">{video.actors?.split(",")[0]}</p>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {currentPkg && (
+            <div className="bg-gradient-to-r from-[#FF6B35]/10 to-[#E8453C]/10 rounded-2xl p-4 border border-[#FF6B35]/20">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="w-4 h-4 text-[#FF6B35]" />
+                <span className="text-white/80 text-xs font-bold">VIP imkoniyatlaringiz</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="text-center">
+                  <p className="text-[#FF6B35] font-bold text-sm">{currentPkg.dailyTasks}</p>
+                  <p className="text-[#666] text-[9px]">Kunlik video</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#FF6B35] font-bold text-sm">${Number(currentPkg.perVideoReward).toFixed(2)}</p>
+                  <p className="text-[#666] text-[9px]">Har video</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[#FF6B35] font-bold text-sm">${Number(currentPkg.dailyEarning).toFixed(2)}</p>
+                  <p className="text-[#666] text-[9px]">Kunlik daromad</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </AppLayout>
   );

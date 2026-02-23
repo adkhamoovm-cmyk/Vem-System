@@ -40,9 +40,9 @@ export default function ReferralPage() {
   };
 
   const levels = [
-    { level: 1, percent: "9%", color: "#FF6B35", bg: "#FFF0EB", data: stats?.level1 },
-    { level: 2, percent: "3%", color: "#4CAF50", bg: "#E8F5E9", data: stats?.level2 },
-    { level: 3, percent: "1%", color: "#2196F3", bg: "#E3F2FD", data: stats?.level3 },
+    { level: 1, percent: "9%", color: "#FF6B35", bg: "rgba(255, 107, 53, 0.15)", data: stats?.level1 },
+    { level: 2, percent: "3%", color: "#4CAF50", bg: "rgba(76, 175, 80, 0.15)", data: stats?.level2 },
+    { level: 3, percent: "1%", color: "#2196F3", bg: "rgba(33, 150, 243, 0.15)", data: stats?.level3 },
   ];
 
   return (
@@ -63,10 +63,10 @@ export default function ReferralPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]">
-          <label className="text-[#999] text-xs font-medium uppercase tracking-wider">Sizning referal ssilkangiz</label>
+        <div className="bg-[#1a1a1a] rounded-2xl p-4 shadow-sm border border-[#2a2a2a]">
+          <label className="text-[#888] text-xs font-medium uppercase tracking-wider">Sizning referal ssilkangiz</label>
           <div className="flex gap-2 mt-2">
-            <div className="flex-1 bg-[#f5f5f5] border border-[#e8e8e8] rounded-xl px-3 py-2.5 text-[#1a1a2e] text-xs truncate font-mono" data-testid="text-referral-link">
+            <div className="flex-1 bg-[#111] border border-[#2a2a2a] rounded-xl px-3 py-2.5 text-white text-xs truncate font-mono" data-testid="text-referral-link">
               {referralLink}
             </div>
             <Button
@@ -80,12 +80,12 @@ export default function ReferralPage() {
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-[#1a1a2e] font-bold text-sm">Referal darajalari</h3>
+          <h3 className="text-white font-bold text-sm">Referal darajalari</h3>
 
           {levels.map((item) => (
             <div
               key={item.level}
-              className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]"
+              className="bg-[#1a1a1a] rounded-2xl p-4 shadow-sm border border-[#2a2a2a]"
               data-testid={`card-referral-level-${item.level}`}
             >
               <div className="flex items-center justify-between gap-4 mb-3">
@@ -97,24 +97,24 @@ export default function ReferralPage() {
                     {item.level}
                   </div>
                   <div>
-                    <h4 className="text-[#1a1a2e] font-semibold text-sm">{item.level}-daraja</h4>
+                    <h4 className="text-white font-semibold text-sm">{item.level}-daraja</h4>
                     <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} komissiya</span>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-1">
-                    <UserPlus className="w-3.5 h-3.5 text-[#999]" />
-                    <span className="text-[#1a1a2e] text-sm font-bold">
+                    <UserPlus className="w-3.5 h-3.5 text-[#888]" />
+                    <span className="text-white text-sm font-bold">
                       {item.data?.count ?? 0}
                     </span>
                   </div>
-                  <span className="text-[#999] text-[10px]">ta odam</span>
+                  <span className="text-[#888] text-[10px]">ta odam</span>
                 </div>
               </div>
-              <div className="bg-[#f8f8f8] rounded-xl p-3 flex items-center justify-between gap-2">
-                <span className="text-[#999] text-xs">Jami komissiya</span>
+              <div className="bg-[#111] rounded-xl p-3 flex items-center justify-between gap-2">
+                <span className="text-[#888] text-xs">Jami komissiya</span>
                 <span className="font-bold text-sm" style={{ color: item.color }}>
-                  {Number(item.data?.commission ?? 0).toLocaleString()} so'm
+                  {Number(item.data?.commission ?? 0).toLocaleString()} USDT
                 </span>
               </div>
             </div>

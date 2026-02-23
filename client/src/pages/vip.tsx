@@ -96,8 +96,8 @@ export default function VipPage() {
             return (
               <div
                 key={pkg.id}
-                className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all ${
-                  isCurrentLevel ? "ring-2 ring-[#FF6B35]/30 border-[#FF6B35]/20" : isLocked ? "border-[#e8e8e8] opacity-75" : "border-[#f0f0f0]"
+                className={`bg-[#1a1a1a] rounded-2xl border shadow-sm overflow-hidden transition-all ${
+                  isCurrentLevel ? "ring-2 ring-[#FF6B35]/30 border-[#FF6B35]/20" : isLocked ? "border-[#222] opacity-75" : "border-[#2a2a2a]"
                 }`}
                 data-testid={`card-vip-${pkg.level}`}
               >
@@ -120,42 +120,42 @@ export default function VipPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-[#1a1a2e] font-bold">{pkg.name}</h3>
-                          {isLocked && <Lock className="w-3.5 h-3.5 text-[#bbb]" />}
+                          <h3 className="text-white font-bold">{pkg.name}</h3>
+                          {isLocked && <Lock className="w-3.5 h-3.5 text-[#666]" />}
                         </div>
-                        <p className="text-[#999] text-xs mt-0.5">{pkg.description}</p>
+                        <p className="text-[#888] text-xs mt-0.5">{pkg.description}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-lg font-bold" style={{ color: colors.primary }}>
                         {Number(pkg.price) === 0 ? "Bepul" : `$${Number(pkg.price).toLocaleString()}`}
                       </div>
-                      {Number(pkg.price) > 0 && <span className="text-[#999] text-[10px]">garov</span>}
+                      {Number(pkg.price) > 0 && <span className="text-[#888] text-[10px]">garov</span>}
                     </div>
                   </div>
 
                   <div className="mt-3 grid grid-cols-3 gap-2">
-                    <div className="bg-[#f8f8f8] rounded-xl p-2.5 text-center">
-                      <Film className="w-3.5 h-3.5 text-[#999] mx-auto mb-0.5" />
-                      <p className="text-[#1a1a2e] font-bold text-xs">{pkg.dailyTasks} ta</p>
-                      <p className="text-[#bbb] text-[9px]">Kunlik video</p>
+                    <div className="bg-[#111] rounded-xl p-2.5 text-center">
+                      <Film className="w-3.5 h-3.5 text-[#888] mx-auto mb-0.5" />
+                      <p className="text-white font-bold text-xs">{pkg.dailyTasks} ta</p>
+                      <p className="text-[#666] text-[9px]">Kunlik video</p>
                     </div>
-                    <div className="bg-[#f8f8f8] rounded-xl p-2.5 text-center">
-                      <DollarSign className="w-3.5 h-3.5 text-[#999] mx-auto mb-0.5" />
+                    <div className="bg-[#111] rounded-xl p-2.5 text-center">
+                      <DollarSign className="w-3.5 h-3.5 text-[#888] mx-auto mb-0.5" />
                       <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.perVideoReward).toFixed(2)}</p>
-                      <p className="text-[#bbb] text-[9px]">Har video</p>
+                      <p className="text-[#666] text-[9px]">Har video</p>
                     </div>
-                    <div className="bg-[#f8f8f8] rounded-xl p-2.5 text-center">
-                      <TrendingUp className="w-3.5 h-3.5 text-[#999] mx-auto mb-0.5" />
+                    <div className="bg-[#111] rounded-xl p-2.5 text-center">
+                      <TrendingUp className="w-3.5 h-3.5 text-[#888] mx-auto mb-0.5" />
                       <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.dailyEarning).toFixed(2)}</p>
-                      <p className="text-[#bbb] text-[9px]">Kunlik</p>
+                      <p className="text-[#666] text-[9px]">Kunlik</p>
                     </div>
                   </div>
 
-                  <div className="mt-2 flex items-center justify-between bg-[#f8f8f8] rounded-lg px-3 py-1.5">
+                  <div className="mt-2 flex items-center justify-between bg-[#111] rounded-lg px-3 py-1.5">
                     <div className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-[#999]" />
-                      <span className="text-[#999] text-[10px]">Muddat: {pkg.durationDays} kun</span>
+                      <Calendar className="w-3 h-3 text-[#888]" />
+                      <span className="text-[#888] text-[10px]">Muddat: {pkg.durationDays} kun</span>
                     </div>
                     <span className="text-[10px] font-semibold" style={{ color: isLocked ? "#bbb" : colors.primary }}>
                       {isLocked ? "Qulflangan" : "Ochiq"}
@@ -174,14 +174,14 @@ export default function VipPage() {
                   )}
 
                   {isLocked && (
-                    <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-[#f5f5f5] rounded-xl">
-                      <Lock className="w-4 h-4 text-[#ccc]" />
-                      <span className="text-[#bbb] text-sm font-medium">Qulflangan</span>
+                    <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-[#111] rounded-xl">
+                      <Lock className="w-4 h-4 text-[#555]" />
+                      <span className="text-[#666] text-sm font-medium">Qulflangan</span>
                     </div>
                   )}
 
                   {isCurrentLevel && (
-                    <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-[#E8F5E9] rounded-xl">
+                    <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-[#4CAF50]/10 rounded-xl">
                       <CheckCircle className="w-4 h-4 text-[#4CAF50]" />
                       <span className="text-[#4CAF50] text-sm font-semibold">Faol</span>
                     </div>
@@ -192,8 +192,8 @@ export default function VipPage() {
           })}
         </div>
 
-        <div className="mt-4 bg-[#FFF8E1] rounded-2xl p-4 border border-[#FFE082]">
-          <p className="text-[#7B6B3A] text-xs leading-relaxed">
+        <div className="mt-4 bg-[#FF6B35]/10 rounded-2xl p-4 border border-[#FF6B35]/20">
+          <p className="text-[#FF6B35] text-xs leading-relaxed">
             <strong>Muhim:</strong> Garov summasi paket muddati tugagandan so'ng qaytariladi. 10% komissiya daromaddan ushlanadi. Qulflangan paketlar ma'lum shartlar bajarilgandan so'ng ochiladi.
           </p>
         </div>

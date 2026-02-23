@@ -27,9 +27,11 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - `shared/schema.ts` - Drizzle schemas (users, vipPackages, videos, taskHistory, referrals, fundPlans, investments)
 
 ## Design
-- Light theme: #f5f5f5 background, white cards
+- Dark Netflix-style theme: #0a0a0a background, #1a1a1a cards, #2a2a2a borders
 - Accent: Warm orange gradient (#FF6B35 to #E8453C)
-- TikTok-style bottom nav with raised center button
+- TikTok-style bottom nav with raised center button (dark translucent)
+- Netflix-style hero poster banner on dashboard with movie posters
+- USDT/UZS dual currency display (1 USDT = 12,850 UZS)
 - Mobile-first responsive design
 - Font: Inter (sans)
 

@@ -104,14 +104,14 @@ export default function ProfilePage() {
       <div className="p-4 space-y-4">
         <div className="flex items-center gap-4 pt-2">
           <div className="relative" onClick={handleAvatarClick} data-testid="button-avatar-upload">
-            <div className="w-[72px] h-[72px] rounded-full border-2 border-[#FF6B35] overflow-hidden bg-[#f5f5f5] flex items-center justify-center cursor-pointer">
+            <div className="w-[72px] h-[72px] rounded-full border-2 border-[#FF6B35] overflow-hidden bg-[#111] flex items-center justify-center cursor-pointer">
               {user.avatar ? (
                 <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" data-testid="img-avatar" />
               ) : (
-                <UserIcon className="w-9 h-9 text-[#ccc]" />
+                <UserIcon className="w-9 h-9 text-[#555]" />
               )}
             </div>
-            <div className="absolute bottom-0 right-0 w-6 h-6 bg-gradient-to-r from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center border-2 border-white">
+            <div className="absolute bottom-0 right-0 w-6 h-6 bg-gradient-to-r from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center border-2 border-[#0a0a0a]">
               <Camera className="w-3 h-3 text-white" />
             </div>
             <input
@@ -125,7 +125,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h2 className="text-[#1a1a2e] font-bold text-lg" data-testid="text-profile-name">{displayName}</h2>
+              <h2 className="text-white font-bold text-lg" data-testid="text-profile-name">{displayName}</h2>
               {user.vipLevel > 0 && (
                 <span
                   className="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -136,44 +136,44 @@ export default function ProfilePage() {
               )}
             </div>
             <button onClick={copyId} className="flex items-center gap-1 mt-0.5 group" data-testid="button-copy-id">
-              <span className="text-[#999] text-xs">ID: {user.numericId || "—"}</span>
-              <Copy className="w-3 h-3 text-[#ccc] group-hover:text-[#FF6B35]" />
+              <span className="text-[#888] text-xs">ID: {user.numericId || "—"}</span>
+              <Copy className="w-3 h-3 text-[#555] group-hover:text-[#FF6B35]" />
             </button>
           </div>
           <button onClick={() => navigate("/vip")} data-testid="button-settings">
-            <Settings className="w-5 h-5 text-[#999]" />
+            <Settings className="w-5 h-5 text-[#888]" />
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#f0f0f0]">
-          <div className="grid grid-cols-3 divide-x divide-[#f0f0f0]">
+        <div className="bg-[#1a1a1a] rounded-2xl p-4 shadow-sm border border-[#2a2a2a]">
+          <div className="grid grid-cols-3 divide-x divide-[#222]">
             <div className="text-center px-2">
               <p className="text-[#FF6B35] font-bold text-base" data-testid="text-balance-deposit">
-                UZS {Number(user.totalDeposit || 0).toLocaleString()}
+                {Number(user.totalDeposit || 0).toFixed(2)} USDT
               </p>
-              <p className="text-[#bbb] text-[10px] mt-0.5">Kiritilgan</p>
+              <p className="text-[#666] text-[10px] mt-0.5">Kiritilgan</p>
             </div>
             <div className="text-center px-2">
               <p className="text-[#4CAF50] font-bold text-base" data-testid="text-balance-work">
-                UZS {Number(user.balance).toLocaleString()}
+                {Number(user.balance).toFixed(2)} USDT
               </p>
-              <p className="text-[#bbb] text-[10px] mt-0.5">Balans</p>
+              <p className="text-[#666] text-[10px] mt-0.5">Balans</p>
             </div>
             <div className="text-center px-2">
               <p className="text-[#E8453C] font-bold text-base" data-testid="text-balance-income">
-                UZS {Number(user.totalEarnings || 0).toLocaleString()}
+                {Number(user.totalEarnings || 0).toFixed(2)} USDT
               </p>
-              <p className="text-[#bbb] text-[10px] mt-0.5">Daromad</p>
+              <p className="text-[#666] text-[10px] mt-0.5">Daromad</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-[#FFF3E0] to-[#FFE0B2] rounded-2xl p-3.5 flex items-center justify-between border border-[#FFE0B2]">
+        <div className="bg-gradient-to-r from-[#FF6B35]/10 to-[#FF6B35]/20 rounded-2xl p-3.5 flex items-center justify-between border border-[#FF6B35]/20">
           <div className="flex items-center gap-2.5">
             <div className="bg-gradient-to-br from-[#FFD700] to-[#FFA000] rounded-lg px-2 py-1">
               <span className="text-white text-xs font-bold">VIP</span>
             </div>
-            <span className="text-[#666] text-sm" data-testid="text-vip-status">
+            <span className="text-[#aaa] text-sm" data-testid="text-vip-status">
               {user.vipLevel > 0
                 ? `${vipNames[user.vipLevel]} a'zo`
                 : "VIP a'zo emassiz"}
@@ -189,65 +189,65 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-[#f0f0f0] overflow-hidden">
-          <h3 className="text-[#1a1a2e] font-bold text-sm px-4 pt-4 pb-2">Mening xizmatlarim</h3>
-          <div className="divide-y divide-[#f5f5f5]">
+        <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-[#2a2a2a] overflow-hidden">
+          <h3 className="text-white font-bold text-sm px-4 pt-4 pb-2">Mening xizmatlarim</h3>
+          <div className="divide-y divide-[#222]">
             <button onClick={() => navigate("/tasks")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-tasks">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FFF3E0] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/20 flex items-center justify-center">
                   <ListChecks className="w-4 h-4 text-[#FF6B35]" />
                 </div>
-                <span className="text-[#333] text-sm">Mening vazifalarim</span>
+                <span className="text-[#ddd] text-sm">Mening vazifalarim</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#ccc]" />
+              <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
             <button onClick={() => navigate("/referral")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-referrals">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#E8F5E9] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#4ADE80]/20 flex items-center justify-center">
                   <Users className="w-4 h-4 text-[#4CAF50]" />
                 </div>
                 <div>
-                  <span className="text-[#333] text-sm">Mening referallarim</span>
-                  <span className="ml-2 text-[10px] text-[#999]">{totalReferrals} ta</span>
+                  <span className="text-[#ddd] text-sm">Mening referallarim</span>
+                  <span className="ml-2 text-[10px] text-[#888]">{totalReferrals} ta</span>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#ccc]" />
+              <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
             <button onClick={() => navigate("/vip")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-vip">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FFF8E1] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#FFB300]/20 flex items-center justify-center">
                   <Crown className="w-4 h-4 text-[#FFB300]" />
                 </div>
-                <span className="text-[#333] text-sm">VIP obunalarim</span>
+                <span className="text-[#ddd] text-sm">VIP obunalarim</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#ccc]" />
+              <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
             <button onClick={() => setShowSecretInfo(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-secret-info">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FCE4EC] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#E8453C]/20 flex items-center justify-center">
                   <Lock className="w-4 h-4 text-[#E8453C]" />
                 </div>
-                <span className="text-[#333] text-sm">Mahfiy ma'lumotlar</span>
+                <span className="text-[#ddd] text-sm">Mahfiy ma'lumotlar</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#ccc]" />
+              <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
             <button className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-support">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#E3F2FD] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
                   <Headphones className="w-4 h-4 text-[#3b6db5]" />
                 </div>
-                <span className="text-[#333] text-sm">Mijozlarni qo'llab-quvvatlash</span>
+                <span className="text-[#ddd] text-sm">Mijozlarni qo'llab-quvvatlash</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#ccc]" />
+              <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
             <button className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-history">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#F3E5F5] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-[#9C27B0]/20 flex items-center justify-center">
                   <ScrollText className="w-4 h-4 text-[#9C27B0]" />
                 </div>
-                <span className="text-[#333] text-sm">To'lov tarixi</span>
+                <span className="text-[#ddd] text-sm">To'lov tarixi</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-[#ccc]" />
+              <ChevronRight className="w-4 h-4 text-[#555]" />
             </button>
           </div>
         </div>
@@ -256,7 +256,7 @@ export default function ProfilePage() {
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
           variant="outline"
-          className="w-full border-red-200 text-red-500 hover:bg-red-50 rounded-xl h-12 font-semibold gap-2"
+          className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 rounded-xl h-12 font-semibold gap-2"
           data-testid="button-profile-logout"
         >
           <LogOut className="w-4 h-4" />
@@ -264,29 +264,29 @@ export default function ProfilePage() {
         </Button>
 
         <Dialog open={showSecretInfo} onOpenChange={setShowSecretInfo}>
-          <DialogContent className="bg-white border-[#eee] max-w-lg rounded-2xl" aria-describedby="secret-info-desc">
+          <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] max-w-lg rounded-2xl" aria-describedby="secret-info-desc">
             <DialogHeader>
-              <DialogTitle className="text-[#1a1a2e] flex items-center gap-2">
+              <DialogTitle className="text-white flex items-center gap-2">
                 <Shield className="w-5 h-5 text-[#E8453C]" />
                 Mahfiy ma'lumotlar
               </DialogTitle>
-              <p id="secret-info-desc" className="text-[#999] text-sm">Sizning shaxsiy va xavfsizlik ma'lumotlaringiz</p>
+              <p id="secret-info-desc" className="text-[#888] text-sm">Sizning shaxsiy va xavfsizlik ma'lumotlaringiz</p>
             </DialogHeader>
             <div className="space-y-3 pt-2">
-              <div className="bg-[#f9f9f9] rounded-xl p-3.5">
+              <div className="bg-[#111] rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Phone className="w-3.5 h-3.5 text-[#FF6B35]" />
-                  <span className="text-[#999] text-xs">Telefon raqam</span>
+                  <span className="text-[#888] text-xs">Telefon raqam</span>
                 </div>
-                <p className="text-[#1a1a2e] font-medium text-sm" data-testid="text-secret-phone">{user.phone}</p>
+                <p className="text-white font-medium text-sm" data-testid="text-secret-phone">{user.phone}</p>
               </div>
-              <div className="bg-[#f9f9f9] rounded-xl p-3.5">
+              <div className="bg-[#111] rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Shield className="w-3.5 h-3.5 text-[#4CAF50]" />
-                  <span className="text-[#999] text-xs">Referal kod</span>
+                  <span className="text-[#888] text-xs">Referal kod</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-[#1a1a2e] font-medium text-sm font-mono" data-testid="text-secret-referral">{user.referralCode}</p>
+                  <p className="text-white font-medium text-sm font-mono" data-testid="text-secret-referral">{user.referralCode}</p>
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(user.referralCode);
@@ -299,13 +299,13 @@ export default function ProfilePage() {
                   </button>
                 </div>
               </div>
-              <div className="bg-[#f9f9f9] rounded-xl p-3.5">
+              <div className="bg-[#111] rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <CreditCard className="w-3.5 h-3.5 text-[#3b6db5]" />
-                  <span className="text-[#999] text-xs">ID raqam</span>
+                  <span className="text-[#888] text-xs">ID raqam</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <p className="text-[#1a1a2e] font-medium text-sm font-mono" data-testid="text-secret-id">{user.numericId || "—"}</p>
+                  <p className="text-white font-medium text-sm font-mono" data-testid="text-secret-id">{user.numericId || "—"}</p>
                   <button
                     onClick={copyId}
                     className="text-[#FF6B35]"
@@ -315,20 +315,20 @@ export default function ProfilePage() {
                   </button>
                 </div>
               </div>
-              <div className="bg-[#f9f9f9] rounded-xl p-3.5">
+              <div className="bg-[#111] rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Lock className="w-3.5 h-3.5 text-[#E8453C]" />
-                  <span className="text-[#999] text-xs">Moliyaviy parol</span>
+                  <span className="text-[#888] text-xs">Moliyaviy parol</span>
                 </div>
-                <p className="text-[#1a1a2e] font-medium text-sm" data-testid="text-secret-fund-password">••••••</p>
+                <p className="text-white font-medium text-sm" data-testid="text-secret-fund-password">••••••</p>
               </div>
-              <div className="bg-[#f9f9f9] rounded-xl p-3.5">
+              <div className="bg-[#111] rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Wallet className="w-3.5 h-3.5 text-[#FFB300]" />
-                  <span className="text-[#999] text-xs">Umumiy balans</span>
+                  <span className="text-[#888] text-xs">Umumiy balans</span>
                 </div>
-                <p className="text-[#1a1a2e] font-bold text-sm" data-testid="text-secret-balance">
-                  {Number(user.balance).toLocaleString()} so'm
+                <p className="text-white font-bold text-sm" data-testid="text-secret-balance">
+                  {Number(user.balance).toFixed(2)} USDT
                 </p>
               </div>
             </div>

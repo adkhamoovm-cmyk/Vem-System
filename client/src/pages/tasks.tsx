@@ -80,7 +80,7 @@ function VideoModal({ video, perVideoReward, open, onClose }: { video: Video; pe
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen && (completed || !started)) onClose(); }}>
-      <DialogContent className="bg-white border-[#eee] max-w-lg rounded-2xl p-0 overflow-hidden" data-testid="modal-video" aria-describedby="video-modal-desc">
+      <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] max-w-lg rounded-2xl p-0 overflow-hidden" data-testid="modal-video" aria-describedby="video-modal-desc">
         <div className="relative aspect-video bg-black" ref={playerContainerRef}>
           <ReactPlayer
             url={video.videoUrl || undefined}
@@ -145,14 +145,14 @@ function VideoModal({ video, perVideoReward, open, onClose }: { video: Video; pe
 
         <div className="p-4 space-y-3">
           <DialogHeader>
-            <DialogTitle className="text-[#1a1a2e] text-base">{video.title}</DialogTitle>
-            <p id="video-modal-desc" className="text-[#999] text-xs">{video.actors}</p>
+            <DialogTitle className="text-white text-base">{video.title}</DialogTitle>
+            <p id="video-modal-desc" className="text-[#888] text-xs">{video.actors}</p>
           </DialogHeader>
 
           {started && !completed && (
-            <div className="bg-[#FFF8F5] rounded-xl p-3 border border-[#FFE0D0]">
+            <div className="bg-[#FF6B35]/10 rounded-xl p-3 border border-[#FF6B35]/20">
               <div className="flex items-center justify-between">
-                <span className="text-[#666] text-xs">Taymer tugagunga qadar oynani yopmang</span>
+                <span className="text-[#aaa] text-xs">Taymer tugagunga qadar oynani yopmang</span>
                 <span className="text-[#FF6B35] font-bold text-sm">+${perVideoReward.toFixed(2)}</span>
               </div>
             </div>
@@ -160,9 +160,9 @@ function VideoModal({ video, perVideoReward, open, onClose }: { video: Video; pe
 
           {completed && (
             <>
-              <div className="bg-[#E8F5E9] rounded-xl p-4 border border-[#C8E6C9] text-center">
-                <p className="text-[#2E7D32] font-bold text-lg">+${perVideoReward.toFixed(2)}</p>
-                <p className="text-[#4CAF50] text-xs mt-0.5">hisobingizga tushdi</p>
+              <div className="bg-[#4ADE80]/10 rounded-xl p-4 border border-[#4ADE80]/20 text-center">
+                <p className="text-[#4ADE80] font-bold text-lg">+${perVideoReward.toFixed(2)}</p>
+                <p className="text-[#4ADE80]/70 text-xs mt-0.5">hisobingizga tushdi</p>
               </div>
               <Button
                 onClick={onClose}
@@ -241,14 +241,14 @@ export default function TasksPage() {
         )}
 
         {!hasVip && (
-          <div className="bg-[#FFF3E0] rounded-2xl p-4 border border-[#FFE082] mb-4">
+          <div className="bg-[#FF6B35]/10 rounded-2xl p-4 border border-[#FF6B35]/20 mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#FF6B35]/10 rounded-xl flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 bg-[#FF6B35]/20 rounded-xl flex items-center justify-center shrink-0">
                 <Lock className="w-5 h-5 text-[#FF6B35]" />
               </div>
               <div className="flex-1">
-                <p className="text-[#7B6B3A] text-sm font-semibold">VIP paket kerak</p>
-                <p className="text-[#999] text-xs mt-0.5">Daromad olish uchun VIP paket sotib oling</p>
+                <p className="text-white text-sm font-semibold">VIP paket kerak</p>
+                <p className="text-[#888] text-xs mt-0.5">Daromad olish uchun VIP paket sotib oling</p>
               </div>
               <Link href="/vip">
                 <Button className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white text-xs no-default-hover-elevate no-default-active-elevate rounded-xl h-8 px-4" data-testid="button-go-vip">
@@ -259,7 +259,7 @@ export default function TasksPage() {
           </div>
         )}
 
-        <h2 className="text-[#1a1a2e] font-bold text-sm mb-3">Bugungi vazifalar</h2>
+        <h2 className="text-white font-bold text-sm mb-3">Bugungi vazifalar</h2>
 
         <div className="space-y-3">
           {videos?.map((video) => {
@@ -271,42 +271,42 @@ export default function TasksPage() {
                 onClick={() => {
                   if (!isLimitReached && hasVip) setSelectedVideo(video);
                 }}
-                className={`bg-white rounded-2xl p-3 flex gap-3 shadow-sm border border-[#f0f0f0] transition-transform ${
+                className={`bg-[#1a1a1a] rounded-2xl p-3 flex gap-3 border border-[#2a2a2a] transition-transform ${
                   !isLimitReached && hasVip ? "cursor-pointer active:scale-[0.99]" : "opacity-70"
                 }`}
                 data-testid={`card-video-${video.id}`}
               >
-                <div className="w-24 h-32 rounded-xl overflow-hidden shrink-0 bg-[#f0f0f0] relative">
+                <div className="w-24 h-32 rounded-xl overflow-hidden shrink-0 bg-[#111] relative">
                   <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                   <div className="absolute top-1.5 left-1.5">
-                    <span className="bg-black/60 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+                    <span className="bg-[#E50914] text-white text-[8px] font-bold px-1.5 py-0.5 rounded backdrop-blur-sm">
                       {video.category}
                     </span>
                   </div>
                 </div>
                 <div className="flex-1 min-w-0 py-1">
-                  <h3 className="text-[#1a1a2e] font-bold text-sm">{video.title}</h3>
+                  <h3 className="text-white font-bold text-sm">{video.title}</h3>
                   {video.actors && (
-                    <p className="text-[#999] text-xs mt-1 line-clamp-1">{video.actors}</p>
+                    <p className="text-[#888] text-xs mt-1 line-clamp-1">{video.actors}</p>
                   )}
                   <div className="flex items-center gap-1 mt-1.5">
                     {[1,2,3,4,5].map(i => {
                       const rating = Number(video.rating || 5);
                       const full = i <= Math.floor(rating);
                       return (
-                        <Star key={i} className={`w-3 h-3 ${full ? "fill-[#FFB300] text-[#FFB300]" : "fill-[#e0e0e0] text-[#e0e0e0]"}`} />
+                        <Star key={i} className={`w-3 h-3 ${full ? "fill-[#FFB300] text-[#FFB300]" : "fill-[#333] text-[#333]"}`} />
                       );
                     })}
-                    <span className="text-[#999] text-[10px] ml-1">{video.rating}</span>
+                    <span className="text-[#888] text-[10px] ml-1">{video.rating}</span>
                   </div>
                   {video.releaseDate && (
                     <div className="flex items-center gap-1 mt-1">
-                      <Calendar className="w-3 h-3 text-[#ccc]" />
-                      <span className="text-[#ccc] text-[10px]">{video.releaseDate}</span>
+                      <Calendar className="w-3 h-3 text-[#555]" />
+                      <span className="text-[#555] text-[10px]">{video.releaseDate}</span>
                       {video.country && (
                         <>
-                          <span className="text-[#ddd] text-[10px]">&middot;</span>
-                          <span className="text-[#ccc] text-[10px]">{video.country}</span>
+                          <span className="text-[#444] text-[10px]">&middot;</span>
+                          <span className="text-[#555] text-[10px]">{video.country}</span>
                         </>
                       )}
                     </div>
@@ -320,7 +320,7 @@ export default function TasksPage() {
                         Boshlash
                       </span>
                     ) : (
-                      <span className="bg-[#e0e0e0] text-[#999] text-[10px] font-semibold px-3 py-1 rounded-full">
+                      <span className="bg-[#333] text-[#888] text-[10px] font-semibold px-3 py-1 rounded-full">
                         {isLimitReached ? "Limit tugadi" : "VIP kerak"}
                       </span>
                     )}

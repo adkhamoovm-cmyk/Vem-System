@@ -79,8 +79,8 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
       ref={trackRef}
       className={`relative h-11 rounded-xl border-2 select-none transition-colors ${
         verified
-          ? "bg-green-50 border-green-400"
-          : "bg-[#f5f5f5] border-[#e0e0e0]"
+          ? "bg-green-500/10 border-green-400/50"
+          : "bg-[#111] border-[#333]"
       }`}
       onMouseMove={(e) => handleMove(e.clientX)}
       onMouseUp={handleEnd}
@@ -90,18 +90,18 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
       data-testid="captcha-slider-track"
     >
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span className={`text-sm font-medium ${verified ? "text-green-600" : "text-[#bbb]"}`}>
+        <span className={`text-sm font-medium ${verified ? "text-green-400" : "text-[#666]"}`}>
           {verified ? "Tasdiqlandi!" : "Suring \u2192 Tasdiqlash"}
         </span>
       </div>
       {verified && (
-        <div className="absolute inset-0 rounded-xl bg-green-100/60" style={{ width: "100%" }} />
+        <div className="absolute inset-0 rounded-xl bg-green-500/10" style={{ width: "100%" }} />
       )}
       <div
         className={`absolute top-0.5 w-10 h-9 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing shadow-md transition-colors ${
           verified
             ? "bg-green-500 text-white"
-            : "bg-white text-[#FF6B35] border border-[#e0e0e0]"
+            : "bg-[#222] text-[#FF6B35] border border-[#444]"
         }`}
         style={{ left: `${sliderPos + 2}px` }}
         onMouseDown={(e) => handleStart(e.clientX)}
@@ -159,8 +159,8 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
           onChange={(e) => handleDigitChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}
-          className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 bg-[#f9f9f9] outline-none transition-all
-            ${error ? "border-red-400 text-red-500" : digits[i]?.trim() ? "border-[#FF6B35] text-[#1a1a2e]" : "border-[#e0e0e0] text-[#1a1a2e]"}
+          className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 bg-[#111] outline-none transition-all
+            ${error ? "border-red-400 text-red-500" : digits[i]?.trim() ? "border-[#FF6B35] text-white" : "border-[#333] text-white"}
             focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20`}
           data-testid={`input-pin-${i}`}
         />
@@ -200,20 +200,20 @@ export default function RegisterPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FFF5F0] to-[#f5f5f5] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-5">
           <div className="w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-[#FF6B35]/20">
             <span className="text-white text-2xl font-bold">V</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#1a1a2e]">VEM</h1>
+          <h1 className="text-2xl font-bold text-white">VEM</h1>
           <p className="text-[#999] text-sm mt-0.5">Video Earning Platform</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-[#f0f0f0]">
+        <div className="bg-[#1a1a1a] rounded-2xl p-6 shadow-lg border border-[#2a2a2a]">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1 h-5 bg-gradient-to-b from-[#FF6B35] to-[#E8453C] rounded-full" />
-            <h2 className="text-lg font-bold text-[#1a1a2e]">Ro'yxatdan o'tish</h2>
+            <h2 className="text-lg font-bold text-white">Ro'yxatdan o'tish</h2>
           </div>
 
           <Form {...form}>
@@ -223,14 +223,14 @@ export default function RegisterPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#555] text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
+                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
                         <div className="relative">
                           <button
                             type="button"
                             onClick={() => setShowCountryList(!showCountryList)}
-                            className="flex items-center gap-1.5 h-11 px-3 bg-[#f9f9f9] border border-[#e0e0e0] rounded-xl text-sm font-medium text-[#1a1a2e] whitespace-nowrap hover:border-[#FF6B35]/40 transition-colors"
+                            className="flex items-center gap-1.5 h-11 px-3 bg-[#111] border border-[#333] rounded-xl text-sm font-medium text-white whitespace-nowrap hover:border-[#FF6B35]/40 transition-colors"
                             data-testid="button-country-code"
                           >
                             <span className="text-lg">{selectedCountry.flag}</span>
@@ -240,19 +240,19 @@ export default function RegisterPage() {
                           {showCountryList && (
                             <>
                               <div className="fixed inset-0 z-40" onClick={() => setShowCountryList(false)} />
-                              <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-white border border-[#eee] rounded-xl shadow-xl z-50">
+                              <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-xl z-50">
                                 {countryCodes.map((c) => (
                                   <button
                                     key={c.country + c.code}
                                     type="button"
                                     onClick={() => { setSelectedCountry(c); setShowCountryList(false); }}
-                                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-[#FFF5F0] transition-colors ${
-                                      selectedCountry.country === c.country ? "bg-[#FFF5F0]" : ""
+                                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-[#222] transition-colors ${
+                                      selectedCountry.country === c.country ? "bg-[#222]" : ""
                                     }`}
                                     data-testid={`option-country-${c.country}`}
                                   >
                                     <span className="text-lg">{c.flag}</span>
-                                    <span className="text-[#1a1a2e] font-medium flex-1">{c.name}</span>
+                                    <span className="text-white font-medium flex-1">{c.name}</span>
                                     <span className="text-[#999] text-xs">{c.code}</span>
                                   </button>
                                 ))}
@@ -261,11 +261,11 @@ export default function RegisterPage() {
                           )}
                         </div>
                         <div className="relative flex-1">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
                           <Input
                             {...field}
                             placeholder="90 123 45 67"
-                            className="pl-10 h-11 bg-[#f9f9f9] border-[#e0e0e0] text-[#1a1a2e] placeholder:text-[#ccc] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                            className="pl-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
                             data-testid="input-phone"
                           />
                         </div>
@@ -281,21 +281,21 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#555] text-xs font-semibold uppercase tracking-wider">Kirish paroli</FormLabel>
+                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Kirish paroli</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
                           placeholder="Kamida 6 ta belgi"
-                          className="pl-10 pr-10 h-11 bg-[#f9f9f9] border-[#e0e0e0] text-[#1a1a2e] placeholder:text-[#ccc] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                          className="pl-10 pr-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
                           data-testid="input-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#bbb] hover:text-[#888] transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#555] hover:text-[#888] transition-colors"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -312,12 +312,12 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel className="text-[#555] text-xs font-semibold uppercase tracking-wider">Pul yechish paroli</FormLabel>
+                      <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Pul yechish paroli</FormLabel>
                       <span className="text-[10px] text-[#999]">6 xonali PIN</span>
                     </div>
                     <FormControl>
                       <div>
-                        <div className="bg-[#FFF8F5] border border-[#FFE0D0] rounded-xl p-3.5">
+                        <div className="bg-[#FF6B35]/10 border border-[#FF6B35]/20 rounded-xl p-3.5">
                           <div className="flex items-center gap-2 mb-2.5">
                             <Shield className="w-4 h-4 text-[#FF6B35]" />
                             <span className="text-[#FF6B35] text-xs font-semibold">Moliya fondi parolini yarating</span>
@@ -340,14 +340,14 @@ export default function RegisterPage() {
                 name="referralCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#555] text-xs font-semibold uppercase tracking-wider">Referal kodi <span className="text-[#ccc] normal-case">(ixtiyoriy)</span></FormLabel>
+                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Referal kodi <span className="text-[#666] normal-case">(ixtiyoriy)</span></FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+                        <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
                         <Input
                           {...field}
                           placeholder="Taklif kodini kiriting"
-                          className="pl-10 h-11 bg-[#f9f9f9] border-[#e0e0e0] text-[#1a1a2e] placeholder:text-[#ccc] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                          className="pl-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
                           data-testid="input-referral"
                         />
                       </div>
@@ -376,15 +376,15 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="bg-[#f9f9f9] rounded-xl p-3 border border-[#e8e8e8]">
+                      <div className="bg-[#111] rounded-xl p-3 border border-[#333]">
                         <label className="flex items-start gap-3 cursor-pointer">
                           <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            className="mt-0.5 border-[#ddd] data-[state=checked]:bg-[#FF6B35] data-[state=checked]:border-[#FF6B35]"
+                            className="mt-0.5 border-[#444] data-[state=checked]:bg-[#FF6B35] data-[state=checked]:border-[#FF6B35]"
                             data-testid="checkbox-age-confirm"
                           />
-                          <span className="text-[#666] text-xs leading-relaxed">
+                          <span className="text-[#888] text-xs leading-relaxed">
                             Men <strong>18 yoshdan oshganman</strong>. Moliyaviy mas'uliyatni o'z bo'ynimga olaman.
                             <Link href="#" className="text-[#FF6B35] font-semibold ml-1">Foydalanish shartlari</Link> va{" "}
                             <Link href="#" className="text-[#FF6B35] font-semibold">Maxfiylik siyosati</Link>ni o'qib chiqdim va qabul qilaman.
@@ -418,7 +418,7 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        <p className="text-center text-[#ccc] text-[10px] mt-4">
+        <p className="text-center text-[#555] text-[10px] mt-4">
           VEM Platform &copy; 2026. Barcha huquqlar himoyalangan.
         </p>
       </div>

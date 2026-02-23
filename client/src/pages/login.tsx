@@ -84,20 +84,20 @@ export default function LoginPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FFF5F0] to-[#f5f5f5] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-[#FF6B35]/20">
             <span className="text-white text-3xl font-bold">V</span>
           </div>
-          <h1 className="text-3xl font-bold text-[#1a1a2e] tracking-tight">VEM</h1>
+          <h1 className="text-3xl font-bold text-white tracking-tight">VEM</h1>
           <p className="text-[#999] mt-1 text-sm">Video Earning Platform</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-[#f0f0f0]">
+        <div className="bg-[#1a1a1a] rounded-2xl p-6 shadow-lg border border-[#2a2a2a]">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-1 h-5 bg-gradient-to-b from-[#FF6B35] to-[#E8453C] rounded-full" />
-            <h2 className="text-lg font-bold text-[#1a1a2e]">Tizimga kirish</h2>
+            <h2 className="text-lg font-bold text-white">Tizimga kirish</h2>
           </div>
 
           <Form {...form}>
@@ -107,14 +107,14 @@ export default function LoginPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#555] text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
+                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
                         <div className="relative">
                           <button
                             type="button"
                             onClick={() => setShowCountryList(!showCountryList)}
-                            className="flex items-center gap-1.5 h-11 px-3 bg-[#f9f9f9] border border-[#e0e0e0] rounded-xl text-sm font-medium text-[#1a1a2e] whitespace-nowrap hover:border-[#FF6B35]/40 transition-colors"
+                            className="flex items-center gap-1.5 h-11 px-3 bg-[#111] border border-[#333] rounded-xl text-sm font-medium text-white whitespace-nowrap hover:border-[#FF6B35]/40 transition-colors"
                             data-testid="button-country-code"
                           >
                             <span className="text-lg">{selectedCountry.flag}</span>
@@ -124,19 +124,19 @@ export default function LoginPage() {
                           {showCountryList && (
                             <>
                               <div className="fixed inset-0 z-40" onClick={() => setShowCountryList(false)} />
-                              <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-white border border-[#eee] rounded-xl shadow-xl z-50">
+                              <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-xl z-50">
                                 {countryCodes.map((c) => (
                                   <button
                                     key={c.country + c.code}
                                     type="button"
                                     onClick={() => { setSelectedCountry(c); setShowCountryList(false); }}
-                                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-[#FFF5F0] transition-colors ${
-                                      selectedCountry.country === c.country ? "bg-[#FFF5F0]" : ""
+                                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-[#222] transition-colors ${
+                                      selectedCountry.country === c.country ? "bg-[#222]" : ""
                                     }`}
                                     data-testid={`option-country-${c.country}`}
                                   >
                                     <span className="text-lg">{c.flag}</span>
-                                    <span className="text-[#1a1a2e] font-medium flex-1">{c.name}</span>
+                                    <span className="text-white font-medium flex-1">{c.name}</span>
                                     <span className="text-[#999] text-xs">{c.code}</span>
                                   </button>
                                 ))}
@@ -145,11 +145,11 @@ export default function LoginPage() {
                           )}
                         </div>
                         <div className="relative flex-1">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
                           <Input
                             {...field}
                             placeholder="90 123 45 67"
-                            className="pl-10 h-11 bg-[#f9f9f9] border-[#e0e0e0] text-[#1a1a2e] placeholder:text-[#ccc] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                            className="pl-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
                             data-testid="input-phone"
                           />
                         </div>
@@ -165,21 +165,21 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#555] text-xs font-semibold uppercase tracking-wider">Parol</FormLabel>
+                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Parol</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#bbb]" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
                           placeholder="Parolingizni kiriting"
-                          className="pl-10 pr-10 h-11 bg-[#f9f9f9] border-[#e0e0e0] text-[#1a1a2e] placeholder:text-[#ccc] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                          className="pl-10 pr-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
                           data-testid="input-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#bbb] hover:text-[#888] transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#555] hover:text-[#888] transition-colors"
                           data-testid="button-toggle-password"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -196,10 +196,10 @@ export default function LoginPage() {
                   <Checkbox
                     checked={rememberMe}
                     onCheckedChange={(val) => setRememberMe(val === true)}
-                    className="border-[#ddd] data-[state=checked]:bg-[#FF6B35] data-[state=checked]:border-[#FF6B35]"
+                    className="border-[#444] data-[state=checked]:bg-[#FF6B35] data-[state=checked]:border-[#FF6B35]"
                     data-testid="checkbox-remember-me"
                   />
-                  <span className="text-[#777] text-sm">Meni eslab qol</span>
+                  <span className="text-[#888] text-sm">Meni eslab qol</span>
                 </label>
               </div>
 
@@ -224,7 +224,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="text-center text-[#ccc] text-[10px] mt-4">
+        <p className="text-center text-[#555] text-[10px] mt-4">
           VEM Platform &copy; 2026. Barcha huquqlar himoyalangan.
         </p>
       </div>
