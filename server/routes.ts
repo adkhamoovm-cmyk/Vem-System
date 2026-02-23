@@ -702,8 +702,19 @@ export async function registerRoutes(
 
   app.post("/api/admin/deposits/:id/approve", requireAdmin, async (req: Request, res: Response) => {
     try {
-      await storage.updateDepositStatus(req.params.id as string, "approved");
-      res.json({ message: "Depozit tasdiqlandi" });
+      const deposit = await storage.getDepositById(req.params.id as string);
+      if (!deposit) return res.status(404).json({ message: "Depozit topilmadi" });
+      if (deposit.status === "approved") return res.status(400).json({ message: "Depozit allaqachon tasdiqlangan" });
+
+      let amountInUSDT = deposit.amount;
+      if (deposit.currency === "UZS") {
+        amountInUSDT = (Number(deposit.amount) / 12850).toFixed(2);
+      }
+
+      await storage.updateDepositStatus(deposit.id, "approved");
+      await storage.updateUserBalance(deposit.userId, amountInUSDT);
+      await storage.updateUserTotalDeposit(deposit.userId, amountInUSDT);
+      res.json({ message: "Depozit tasdiqlandi va balansga qo'shildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -711,7 +722,11 @@ export async function registerRoutes(
 
   app.post("/api/admin/deposits/:id/reject", requireAdmin, async (req: Request, res: Response) => {
     try {
-      await storage.updateDepositStatus(req.params.id as string, "rejected");
+      const deposit = await storage.getDepositById(req.params.id as string);
+      if (!deposit) return res.status(404).json({ message: "Depozit topilmadi" });
+      if (deposit.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan depozitlar rad etilishi mumkin" });
+
+      await storage.updateDepositStatus(deposit.id, "rejected");
       res.json({ message: "Depozit rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

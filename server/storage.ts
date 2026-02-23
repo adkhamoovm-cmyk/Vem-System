@@ -46,7 +46,9 @@ export interface IStorage {
   deleteUser(id: string): Promise<void>;
   setUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void>;
   getAllDepositRequests(): Promise<DepositRequest[]>;
+  getDepositById(id: string): Promise<DepositRequest | undefined>;
   updateDepositStatus(id: string, status: string): Promise<void>;
+  updateUserTotalDeposit(id: string, amount: string): Promise<void>;
   getAllWithdrawalRequests(): Promise<WithdrawalRequest[]>;
   updateWithdrawalStatus(id: string, status: string): Promise<void>;
   deletePaymentMethod(id: string): Promise<void>;
@@ -259,10 +261,21 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(depositRequests);
   }
 
+  async getDepositById(id: string): Promise<DepositRequest | undefined> {
+    const [deposit] = await db.select().from(depositRequests).where(eq(depositRequests.id, id));
+    return deposit;
+  }
+
   async updateDepositStatus(id: string, status: string): Promise<void> {
     await db.update(depositRequests)
       .set({ status, reviewedAt: new Date() })
       .where(eq(depositRequests.id, id));
+  }
+
+  async updateUserTotalDeposit(id: string, amount: string): Promise<void> {
+    await db.update(users)
+      .set({ totalDeposit: sql`${users.totalDeposit}::numeric + ${amount}::numeric` })
+      .where(eq(users.id, id));
   }
 
   async getAllWithdrawalRequests(): Promise<WithdrawalRequest[]> {
