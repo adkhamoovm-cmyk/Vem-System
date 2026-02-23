@@ -280,7 +280,7 @@ export async function registerRoutes(
       await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
       await storage.addBalanceHistory({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
 
-      if (user.referredBy) {
+      if (user.referredBy && user.vipLevel > 0) {
         const l1Commission = (perVideoReward * 0.09).toFixed(2);
         await storage.updateUserBalance(user.referredBy, l1Commission);
         await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi (${user.phone})` });
@@ -359,6 +359,15 @@ export async function registerRoutes(
     try {
       const stats = await storage.getReferralStats(req.session.userId!);
       res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/referrals/users", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const referred = await storage.getReferredUsers(req.session.userId!);
+      res.json(referred);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

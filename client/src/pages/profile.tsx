@@ -8,7 +8,7 @@ import {
   Wallet, ListChecks, Users, Camera, Shield, Lock,
   Phone, CreditCard, Headphones, ScrollText, Settings,
   ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle, Clock, X, Building, Globe,
-  History, Filter, TrendingUp, TrendingDown, Banknote
+  History, TrendingUp, Banknote, Eye, EyeOff, Landmark
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -748,6 +748,10 @@ export default function ProfilePage() {
   const [showAddBankCard, setShowAddBankCard] = useState(false);
   const [showAddUsdtWallet, setShowAddUsdtWallet] = useState(false);
   const [historyFilter, setHistoryFilter] = useState<"all" | "deposit" | "withdrawal" | "earning" | "fund_invest" | "vip_purchase" | "admin_adjust" | "commission">("all");
+  const [showFinanceHistory, setShowFinanceHistory] = useState(false);
+  const [showFinanceService, setShowFinanceService] = useState(false);
+  const [showCardNumber, setShowCardNumber] = useState(false);
+  const [showWalletAddress, setShowWalletAddress] = useState(false);
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -932,56 +936,162 @@ export default function ProfilePage() {
         <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-[#2a2a2a] overflow-hidden">
           <h3 className="text-white font-bold text-sm px-4 pt-4 pb-2">Mening xizmatlarim</h3>
           <div className="divide-y divide-[#222]">
-            {bankCard ? (
-              <div className="px-4 py-3.5 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4 text-[#3B82F6]" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[#ddd] text-sm">{bankCard.bankName}</p>
-                  <p className="text-[#888] text-xs font-mono">•••• {bankCard.cardNumber?.slice(-4)}</p>
-                </div>
-                <CheckCircle className="w-4 h-4 text-[#4ADE80]" />
-              </div>
-            ) : (
-              <button onClick={() => setShowAddBankCard(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="button-add-bank-card">
+            <div>
+              <button onClick={() => setShowFinanceService(!showFinanceService)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-service">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
-                    <CreditCard className="w-4 h-4 text-[#3B82F6]" />
+                    <Landmark className="w-4 h-4 text-[#3B82F6]" />
                   </div>
-                  <span className="text-[#ddd] text-sm">Bank kartasi qo'shish</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-[#555]" />
-              </button>
-            )}
-            {usdtWallet ? (
-              <div className="px-4 py-3.5 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/20 flex items-center justify-center">
-                  <Wallet className="w-4 h-4 text-[#FF6B35]" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[#ddd] text-sm">{usdtWallet.exchangeName} - TRC20</p>
-                  <p className="text-[#888] text-xs font-mono truncate">{usdtWallet.walletAddress}</p>
-                </div>
-                <CheckCircle className="w-4 h-4 text-[#4ADE80]" />
-              </div>
-            ) : (
-              <button onClick={() => setShowAddUsdtWallet(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="button-add-usdt-wallet">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/20 flex items-center justify-center">
-                    <Wallet className="w-4 h-4 text-[#FF6B35]" />
+                  <div>
+                    <span className="text-[#ddd] text-sm">Moliya xizmati</span>
+                    <p className="text-[#666] text-[10px]">{bankCard ? "Karta bog'langan" : "Karta bog'lanmagan"} · {usdtWallet ? "Hamyon bog'langan" : "Hamyon bog'lanmagan"}</p>
                   </div>
-                  <span className="text-[#ddd] text-sm">USDT hamyon qo'shish</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#555]" />
+                {showFinanceService ? <ChevronDown className="w-4 h-4 text-[#555]" /> : <ChevronRight className="w-4 h-4 text-[#555]" />}
               </button>
-            )}
-          </div>
-        </div>
+              {showFinanceService && (
+                <div className="px-4 pb-4 space-y-3">
+                  {bankCard ? (
+                    <div className="bg-gradient-to-br from-[#1e3a5f] to-[#0f2440] rounded-xl p-4 border border-[#2a4a6f] relative overflow-hidden" data-testid="card-bank-linked">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4 text-[#60A5FA]" />
+                          <span className="text-[#60A5FA] text-xs font-semibold uppercase tracking-wider">{bankCard.bankName}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5 text-[#4ADE80]" />
+                          <span className="text-[#4ADE80] text-[10px]">Faol</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-white font-mono text-sm tracking-widest" data-testid="text-card-number">
+                          {showCardNumber
+                            ? bankCard.cardNumber
+                            : `${bankCard.cardNumber?.slice(0, 4)} •••• •••• ${bankCard.cardNumber?.slice(-4)}`}
+                        </p>
+                        <button onClick={() => setShowCardNumber(!showCardNumber)} className="text-[#60A5FA] hover:text-white transition-colors" data-testid="button-toggle-card">
+                          {showCardNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                      <p className="text-[#8ab4f8] text-xs mt-2">{bankCard.holderName}</p>
+                    </div>
+                  ) : (
+                    <button onClick={() => setShowAddBankCard(true)} className="w-full bg-[#111] border border-dashed border-[#333] rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#3B82F6] transition-colors" data-testid="button-add-bank-card">
+                      <CreditCard className="w-4 h-4 text-[#3B82F6]" />
+                      <span className="text-[#888] text-sm">Bank kartasini bog'lash</span>
+                    </button>
+                  )}
+                  {usdtWallet ? (
+                    <div className="bg-gradient-to-br from-[#1a2e1a] to-[#0f1f0f] rounded-xl p-4 border border-[#2a4a2a] relative overflow-hidden" data-testid="card-usdt-linked">
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-[#4ADE80]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Wallet className="w-4 h-4 text-[#4ADE80]" />
+                          <span className="text-[#4ADE80] text-xs font-semibold uppercase tracking-wider">{usdtWallet.exchangeName} · TRC20</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckCircle className="w-3.5 h-3.5 text-[#4ADE80]" />
+                          <span className="text-[#4ADE80] text-[10px]">Faol</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-white font-mono text-xs tracking-wider" data-testid="text-wallet-address">
+                          {showWalletAddress
+                            ? usdtWallet.walletAddress
+                            : `${usdtWallet.walletAddress?.slice(0, 6)}••••••${usdtWallet.walletAddress?.slice(-6)}`}
+                        </p>
+                        <button onClick={() => setShowWalletAddress(!showWalletAddress)} className="text-[#4ADE80] hover:text-white transition-colors" data-testid="button-toggle-wallet">
+                          {showWalletAddress ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button onClick={() => setShowAddUsdtWallet(true)} className="w-full bg-[#111] border border-dashed border-[#333] rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#4ADE80] transition-colors" data-testid="button-add-usdt-wallet">
+                      <Wallet className="w-4 h-4 text-[#4ADE80]" />
+                      <span className="text-[#888] text-sm">USDT hamyon qo'shish</span>
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
 
-        <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-[#2a2a2a] overflow-hidden">
-          <h3 className="text-white font-bold text-sm px-4 pt-4 pb-2">Mening xizmatlarim</h3>
-          <div className="divide-y divide-[#222]">
+            <div>
+              <button onClick={() => setShowFinanceHistory(!showFinanceHistory)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-history">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/20 flex items-center justify-center">
+                    <History className="w-4 h-4 text-[#A78BFA]" />
+                  </div>
+                  <div>
+                    <span className="text-[#ddd] text-sm">Moliya tarixi</span>
+                    <p className="text-[#666] text-[10px]">{balHistory.length} ta operatsiya</p>
+                  </div>
+                </div>
+                {showFinanceHistory ? <ChevronDown className="w-4 h-4 text-[#555]" /> : <ChevronRight className="w-4 h-4 text-[#555]" />}
+              </button>
+              {showFinanceHistory && (
+                <div className="pb-2">
+                  <div className="px-4 pb-2 flex gap-1.5 flex-wrap">
+                    {([
+                      { key: "all", label: "Barchasi" },
+                      { key: "earning", label: "Daromad" },
+                      { key: "deposit", label: "Depozit" },
+                      { key: "withdrawal", label: "Yechish" },
+                      { key: "vip_purchase", label: "VIP" },
+                      { key: "fund_invest", label: "Fond" },
+                      { key: "commission", label: "Komissiya" },
+                      { key: "admin_adjust", label: "Texnik" },
+                    ] as const).map(f => (
+                      <button
+                        key={f.key}
+                        onClick={() => setHistoryFilter(f.key)}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors ${historyFilter === f.key ? "bg-[#FF6B35] text-white" : "bg-[#222] text-[#888] hover:bg-[#333]"}`}
+                        data-testid={`filter-history-${f.key}`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="divide-y divide-[#222] max-h-80 overflow-y-auto">
+                    {balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).length === 0 ? (
+                      <div className="px-4 py-8 text-center text-[#666] text-xs">Operatsiyalar topilmadi</div>
+                    ) : (
+                      balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).map((h) => {
+                        const isPositive = Number(h.amount) >= 0;
+                        const typeIcons: Record<string, { icon: typeof TrendingUp; color: string }> = {
+                          earning: { icon: TrendingUp, color: "#4ADE80" },
+                          deposit: { icon: ArrowDownCircle, color: "#4ADE80" },
+                          withdrawal: { icon: ArrowUpCircle, color: "#E8453C" },
+                          vip_purchase: { icon: Crown, color: "#FFD700" },
+                          fund_invest: { icon: Banknote, color: "#60A5FA" },
+                          commission: { icon: Users, color: "#A78BFA" },
+                          admin_adjust: { icon: Settings, color: "#888" },
+                        };
+                        const config = typeIcons[h.type] || { icon: ScrollText, color: "#888" };
+                        const IconComp = config.icon;
+                        return (
+                          <div key={h.id} className="px-4 py-3 flex items-center justify-between" data-testid={`history-item-${h.id}`}>
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: config.color + "15" }}>
+                                <IconComp className="w-3.5 h-3.5" style={{ color: config.color }} />
+                              </div>
+                              <div>
+                                <p className="text-white text-xs font-medium">{h.description}</p>
+                                <p className="text-[#666] text-[10px]">{new Date(h.createdAt).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                              </div>
+                            </div>
+                            <p className={`text-xs font-bold ${isPositive ? "text-[#4ADE80]" : "text-[#E8453C]"}`}>
+                              {isPositive ? "+" : ""}{Number(h.amount).toFixed(2)} USDT
+                            </p>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button onClick={() => navigate("/tasks")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-tasks">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-[#FF6B35]/20 flex items-center justify-center">
@@ -1040,72 +1150,6 @@ export default function ProfilePage() {
                 </div>
                 <ChevronRight className="w-4 h-4 text-[#FF6B35]" />
               </button>
-            )}
-          </div>
-        </div>
-
-        <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-[#2a2a2a] overflow-hidden">
-          <div className="px-4 pt-4 pb-2 flex items-center justify-between">
-            <h3 className="text-white font-bold text-sm flex items-center gap-2">
-              <History className="w-4 h-4 text-[#FF6B35]" />
-              Moliya tarixi
-            </h3>
-          </div>
-          <div className="px-4 pb-2 flex gap-1.5 flex-wrap">
-            {([
-              { key: "all", label: "Barchasi" },
-              { key: "earning", label: "Daromad" },
-              { key: "deposit", label: "Depozit" },
-              { key: "withdrawal", label: "Yechish" },
-              { key: "vip_purchase", label: "VIP" },
-              { key: "fund_invest", label: "Fond" },
-              { key: "commission", label: "Komissiya" },
-              { key: "admin_adjust", label: "Texnik" },
-            ] as const).map(f => (
-              <button
-                key={f.key}
-                onClick={() => setHistoryFilter(f.key)}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors ${historyFilter === f.key ? "bg-[#FF6B35] text-white" : "bg-[#222] text-[#888] hover:bg-[#333]"}`}
-                data-testid={`filter-history-${f.key}`}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-          <div className="divide-y divide-[#222] max-h-80 overflow-y-auto">
-            {balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).length === 0 ? (
-              <div className="px-4 py-8 text-center text-[#666] text-xs">Operatsiyalar topilmadi</div>
-            ) : (
-              balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).map((h) => {
-                const isPositive = Number(h.amount) >= 0;
-                const typeIcons: Record<string, { icon: typeof TrendingUp; color: string }> = {
-                  earning: { icon: TrendingUp, color: "#4ADE80" },
-                  deposit: { icon: ArrowDownCircle, color: "#4ADE80" },
-                  withdrawal: { icon: ArrowUpCircle, color: "#E8453C" },
-                  vip_purchase: { icon: Crown, color: "#FFD700" },
-                  fund_invest: { icon: Banknote, color: "#60A5FA" },
-                  commission: { icon: Users, color: "#A78BFA" },
-                  admin_adjust: { icon: Settings, color: "#888" },
-                };
-                const config = typeIcons[h.type] || { icon: ScrollText, color: "#888" };
-                const IconComp = config.icon;
-                return (
-                  <div key={h.id} className="px-4 py-3 flex items-center justify-between" data-testid={`history-item-${h.id}`}>
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: config.color + "15" }}>
-                        <IconComp className="w-3.5 h-3.5" style={{ color: config.color }} />
-                      </div>
-                      <div>
-                        <p className="text-white text-xs font-medium">{h.description}</p>
-                        <p className="text-[#666] text-[10px]">{new Date(h.createdAt).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
-                      </div>
-                    </div>
-                    <p className={`text-xs font-bold ${isPositive ? "text-[#4ADE80]" : "text-[#E8453C]"}`}>
-                      {isPositive ? "+" : ""}{Number(h.amount).toFixed(2)} USDT
-                    </p>
-                  </div>
-                );
-              })
             )}
           </div>
         </div>

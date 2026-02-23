@@ -25,6 +25,7 @@ export interface IStorage {
     level3: { count: number; commission: string };
   }>;
   createReferral(entry: { referrerId: string; referredId: string; level: number; commission?: string }): Promise<void>;
+  getReferredUsers(userId: string): Promise<{ phone: string; vipLevel: number; level: number }[]>;
   getFundPlans(): Promise<FundPlan[]>;
   getFundPlan(id: string): Promise<FundPlan | undefined>;
   createInvestment(data: { userId: string; fundPlanId: string; investedAmount: string; dailyProfit: string; endDate: Date | null }): Promise<Investment>;
@@ -172,6 +173,19 @@ export class DatabaseStorage implements IStorage {
 
   async createReferral(entry: { referrerId: string; referredId: string; level: number; commission?: string }): Promise<void> {
     await db.insert(referrals).values({ ...entry, commission: entry.commission || "0" });
+  }
+
+  async getReferredUsers(userId: string): Promise<{ phone: string; vipLevel: number; level: number }[]> {
+    const result = await db.select({
+      phone: users.phone,
+      vipLevel: users.vipLevel,
+      level: referrals.level,
+    })
+      .from(referrals)
+      .innerJoin(users, eq(referrals.referredId, users.id))
+      .where(eq(referrals.referrerId, userId))
+      .orderBy(referrals.level);
+    return result;
   }
 
   async getFundPlans(): Promise<FundPlan[]> {

@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Copy, Users, UserPlus, Check, Share2 } from "lucide-react";
+import { Copy, Users, UserPlus, Check, Share2, Crown, Shield, User, ChevronDown, ChevronRight, Phone } from "lucide-react";
 import { useState } from "react";
-import type { User } from "@shared/schema";
+import type { User as UserType } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
 interface ReferralStats {
@@ -13,17 +13,45 @@ interface ReferralStats {
   level3: { count: number; commission: string };
 }
 
+interface ReferredUser {
+  phone: string;
+  vipLevel: number;
+  level: number;
+}
+
+const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
+
+function maskPhone(phone: string) {
+  if (phone.length <= 6) return phone;
+  return phone.slice(0, 3) + "••••" + phone.slice(-3);
+}
+
+function getVipBadge(vipLevel: number) {
+  if (vipLevel > 0) {
+    return { label: vipNames[vipLevel] || `M${vipLevel}`, color: "#FFB300", bg: "rgba(255, 179, 0, 0.15)" };
+  }
+  if (vipLevel === 0) {
+    return { label: "Stajyor", color: "#4ADE80", bg: "rgba(74, 222, 128, 0.15)" };
+  }
+  return { label: "Oddiy a'zo", color: "#666", bg: "rgba(102, 102, 102, 0.15)" };
+}
+
 export default function ReferralPage() {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const [expandedLevel, setExpandedLevel] = useState<number | null>(1);
 
-  const { data: user } = useQuery<User>({
+  const { data: user } = useQuery<UserType>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   const { data: stats } = useQuery<ReferralStats>({
     queryKey: ["/api/referrals/stats"],
+  });
+
+  const { data: referredUsers = [] } = useQuery<ReferredUser[]>({
+    queryKey: ["/api/referrals/users"],
   });
 
   const referralLink = user ? `${window.location.origin}/register?ref=${user.referralCode}` : "";
@@ -40,26 +68,41 @@ export default function ReferralPage() {
   };
 
   const levels = [
-    { level: 1, percent: "9%", color: "#FF6B35", bg: "rgba(255, 107, 53, 0.15)", data: stats?.level1 },
-    { level: 2, percent: "3%", color: "#4CAF50", bg: "rgba(76, 175, 80, 0.15)", data: stats?.level2 },
-    { level: 3, percent: "1%", color: "#2196F3", bg: "rgba(33, 150, 243, 0.15)", data: stats?.level3 },
+    { level: 1, percent: "9%", color: "#FF6B35", bg: "rgba(255, 107, 53, 0.15)", borderColor: "#FF6B35", data: stats?.level1 },
+    { level: 2, percent: "3%", color: "#4CAF50", bg: "rgba(76, 175, 80, 0.15)", borderColor: "#4CAF50", data: stats?.level2 },
+    { level: 3, percent: "1%", color: "#2196F3", bg: "rgba(33, 150, 243, 0.15)", borderColor: "#2196F3", data: stats?.level3 },
   ];
+
+  const totalEarnings = levels.reduce((sum, l) => sum + Number(l.data?.commission || 0), 0);
+  const totalCount = levels.reduce((sum, l) => sum + (l.data?.count || 0), 0);
 
   return (
     <AppLayout>
       <div className="p-4 space-y-4">
-        <div className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] rounded-2xl p-5 text-white shadow-lg">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
-              <Share2 className="w-5 h-5" />
+        <div className="bg-gradient-to-br from-[#FF6B35] via-[#E8453C] to-[#c73030] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm">
+              <Share2 className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-bold text-lg">Referal tizimi</h2>
-              <p className="text-white/70 text-xs">Do'stlaringizni taklif qiling</p>
+              <h2 className="font-bold text-lg">Referal dasturi</h2>
+              <p className="text-white/70 text-xs">3 bosqichli komissiya tizimi</p>
             </div>
           </div>
-          <p className="text-white/80 text-xs leading-relaxed">
-            Do'stlaringizni taklif qiling va ularning har bir vazifa daromadidan foiz oling!
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
+              <p className="text-white/60 text-[10px] uppercase tracking-wider">Jami referallar</p>
+              <p className="text-white font-bold text-xl" data-testid="text-total-referrals">{totalCount}</p>
+            </div>
+            <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
+              <p className="text-white/60 text-[10px] uppercase tracking-wider">Jami daromad</p>
+              <p className="text-white font-bold text-xl" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
+            </div>
+          </div>
+          <p className="text-white/70 text-[11px] leading-relaxed">
+            Do'stlaringizni taklif qiling va ularning har bir vazifa daromadidan foiz oling. Stajyor darajadagi foydalanuvchilardan komissiya olinmaydi.
           </p>
         </div>
 
@@ -80,45 +123,107 @@ export default function ReferralPage() {
         </div>
 
         <div className="space-y-3">
-          <h3 className="text-white font-bold text-sm">Referal darajalari</h3>
+          {levels.map((item) => {
+            const levelUsers = referredUsers.filter(u => u.level === item.level);
+            const isExpanded = expandedLevel === item.level;
+            return (
+              <div
+                key={item.level}
+                className="bg-[#1a1a1a] rounded-2xl shadow-sm border overflow-hidden transition-colors"
+                style={{ borderColor: isExpanded ? item.borderColor + "40" : "#2a2a2a" }}
+                data-testid={`card-referral-level-${item.level}`}
+              >
+                <button
+                  onClick={() => setExpandedLevel(isExpanded ? null : item.level)}
+                  className="flex items-center justify-between w-full px-4 py-4 text-left"
+                  data-testid={`button-expand-level-${item.level}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold"
+                      style={{ backgroundColor: item.bg, color: item.color }}
+                    >
+                      {item.level}
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold text-sm">{item.level}-daraja referallar</h4>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} komissiya</span>
+                        <span className="text-[#555]">·</span>
+                        <span className="text-[#888] text-xs">{item.data?.count ?? 0} ta odam</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="font-bold text-sm" style={{ color: item.color }}>
+                        {Number(item.data?.commission ?? 0).toFixed(2)}
+                      </p>
+                      <p className="text-[#666] text-[10px]">USDT</p>
+                    </div>
+                    {isExpanded ? <ChevronDown className="w-4 h-4 text-[#555]" /> : <ChevronRight className="w-4 h-4 text-[#555]" />}
+                  </div>
+                </button>
 
-          {levels.map((item) => (
-            <div
-              key={item.level}
-              className="bg-[#1a1a1a] rounded-2xl p-4 shadow-sm border border-[#2a2a2a]"
-              data-testid={`card-referral-level-${item.level}`}
-            >
-              <div className="flex items-center justify-between gap-4 mb-3">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold"
-                    style={{ backgroundColor: item.bg, color: item.color }}
-                  >
-                    {item.level}
+                {isExpanded && (
+                  <div className="border-t border-[#222]">
+                    {levelUsers.length === 0 ? (
+                      <div className="px-4 py-6 text-center">
+                        <UserPlus className="w-8 h-8 text-[#333] mx-auto mb-2" />
+                        <p className="text-[#555] text-xs">Hali referallar yo'q</p>
+                      </div>
+                    ) : (
+                      <div className="divide-y divide-[#222]">
+                        {levelUsers.map((u, i) => {
+                          const badge = getVipBadge(u.vipLevel);
+                          return (
+                            <div key={i} className="px-4 py-3 flex items-center justify-between" data-testid={`referral-user-${item.level}-${i}`}>
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-[#222] flex items-center justify-center">
+                                  <User className="w-4 h-4 text-[#666]" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <Phone className="w-3 h-3 text-[#555]" />
+                                    <p className="text-white text-sm font-mono">{maskPhone(u.phone)}</p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div
+                                className="px-2.5 py-1 rounded-full text-[10px] font-semibold"
+                                style={{ backgroundColor: badge.bg, color: badge.color }}
+                              >
+                                {u.vipLevel > 0 && <Crown className="w-2.5 h-2.5 inline mr-1" />}
+                                {badge.label}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <h4 className="text-white font-semibold text-sm">{item.level}-daraja</h4>
-                    <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} komissiya</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1">
-                    <UserPlus className="w-3.5 h-3.5 text-[#888]" />
-                    <span className="text-white text-sm font-bold">
-                      {item.data?.count ?? 0}
-                    </span>
-                  </div>
-                  <span className="text-[#888] text-[10px]">ta odam</span>
-                </div>
+                )}
               </div>
-              <div className="bg-[#111] rounded-xl p-3 flex items-center justify-between gap-2">
-                <span className="text-[#888] text-xs">Jami komissiya</span>
-                <span className="font-bold text-sm" style={{ color: item.color }}>
-                  {Number(item.data?.commission ?? 0).toLocaleString()} USDT
-                </span>
+            );
+          })}
+        </div>
+
+        <div className="bg-[#1a1a1a] rounded-2xl p-4 border border-[#2a2a2a]">
+          <h3 className="text-white font-bold text-sm mb-3">Qanday ishlaydi?</h3>
+          <div className="space-y-2.5">
+            {[
+              { step: "1", text: "Referal ssilkangizni do'stlaringizga yuboring", color: "#FF6B35" },
+              { step: "2", text: "Ular ro'yxatdan o'tishadi va VIP paket olishadi", color: "#4CAF50" },
+              { step: "3", text: "Har bir vazifa uchun avtomatik komissiya oling", color: "#2196F3" },
+            ].map((s) => (
+              <div key={s.step} className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: s.color + "20", color: s.color }}>
+                  {s.step}
+                </div>
+                <p className="text-[#aaa] text-xs">{s.text}</p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </AppLayout>
