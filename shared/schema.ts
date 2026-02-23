@@ -9,12 +9,16 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   fundPassword: text("fund_password").notNull(),
   balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("0"),
+  totalEarnings: decimal("total_earnings", { precision: 12, scale: 2 }).notNull().default("0"),
+  totalDeposit: decimal("total_deposit", { precision: 12, scale: 2 }).notNull().default("0"),
   vipLevel: integer("vip_level").notNull().default(0),
   referralCode: text("referral_code").notNull().unique(),
   referredBy: text("referred_by"),
   dailyTasksCompleted: integer("daily_tasks_completed").notNull().default(0),
   dailyTasksLimit: integer("daily_tasks_limit").notNull().default(3),
   lastTaskDate: text("last_task_date"),
+  numericId: text("numeric_id"),
+  avatar: text("avatar"),
 });
 
 export const vipPackages = pgTable("vip_packages", {

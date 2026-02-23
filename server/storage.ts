@@ -8,10 +8,11 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByPhone(phone: string): Promise<User | undefined>;
   getUserByReferralCode(code: string): Promise<User | undefined>;
-  createUser(user: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string }): Promise<User>;
+  createUser(user: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string }): Promise<User>;
   updateUserBalance(id: string, amount: string): Promise<void>;
   updateUserDailyTasks(id: string, completed: number, lastDate: string): Promise<void>;
   updateUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void>;
+  updateUserAvatar(id: string, avatar: string): Promise<void>;
   getVipPackages(): Promise<VipPackage[]>;
   getVipPackage(id: string): Promise<VipPackage | undefined>;
   getVideos(): Promise<Video[]>;
@@ -42,9 +43,13 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createUser(data: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string }): Promise<User> {
+  async createUser(data: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string }): Promise<User> {
     const [user] = await db.insert(users).values(data).returning();
     return user;
+  }
+
+  async updateUserAvatar(id: string, avatar: string): Promise<void> {
+    await db.update(users).set({ avatar }).where(eq(users.id, id));
   }
 
   async updateUserBalance(id: string, amount: string): Promise<void> {

@@ -4,6 +4,9 @@ import { storage } from "./storage";
 import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
 const scryptAsync = promisify(scrypt);
 
@@ -22,6 +25,36 @@ async function comparePasswords(supplied: string, stored: string): Promise<boole
 function generateReferralCode(): string {
   return randomBytes(4).toString("hex").toUpperCase();
 }
+
+function generateNumericId(): string {
+  const digits = [];
+  for (let i = 0; i < 18; i++) {
+    digits.push(Math.floor(Math.random() * 10));
+  }
+  return digits.join("");
+}
+
+const uploadsDir = path.join(process.cwd(), "uploads", "avatars");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const avatarStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadsDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".jpg";
+    cb(null, `${Date.now()}-${randomBytes(4).toString("hex")}${ext}`);
+  },
+});
+
+const uploadAvatar = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    cb(null, allowed.includes(file.mimetype));
+  },
+});
 
 declare module "express-session" {
   interface SessionData {
@@ -82,12 +115,14 @@ export async function registerRoutes(
         }
       }
 
+      const numericId = generateNumericId();
       const user = await storage.createUser({
         phone,
         password: hashedPassword,
         fundPassword: hashedFundPassword,
         referralCode: newReferralCode,
         referredBy: referredById,
+        numericId,
       });
 
       if (referredById) {
@@ -259,6 +294,21 @@ export async function registerRoutes(
       res.status(500).json({ message: error.message });
     }
   });
+
+  app.post("/api/profile/avatar", requireAuth, uploadAvatar.single("avatar"), async (req: Request, res: Response) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "Rasm yuklanmadi" });
+      }
+      const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+      await storage.updateUserAvatar(req.session.userId!, avatarUrl);
+      res.json({ avatar: avatarUrl });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.use("/uploads", (await import("express")).default.static(uploadsDir.replace("/avatars", "")));
 
   return httpServer;
 }
