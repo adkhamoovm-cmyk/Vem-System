@@ -16,9 +16,7 @@ const vipNames: Record<number, string> = {
 
 function formatUZS(usd: number): string {
   const uzs = usd * UZS_RATE;
-  if (uzs >= 1_000_000) return (uzs / 1_000_000).toFixed(2) + "M";
-  if (uzs >= 1_000) return (uzs / 1_000).toFixed(1) + "K";
-  return uzs.toFixed(0);
+  return uzs.toLocaleString("uz-UZ", { maximumFractionDigits: 0 });
 }
 
 export default function DashboardPage() {

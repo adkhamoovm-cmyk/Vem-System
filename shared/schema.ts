@@ -87,6 +87,42 @@ export const investments = pgTable("investments", {
   lastProfitDate: text("last_profit_date"),
 });
 
+export const paymentMethods = pgTable("payment_methods", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  type: text("type").notNull(),
+  bankName: text("bank_name"),
+  exchangeName: text("exchange_name"),
+  cardNumber: text("card_number"),
+  walletAddress: text("wallet_address"),
+  holderName: text("holder_name"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const depositRequests = pgTable("deposit_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  currency: text("currency").notNull(),
+  paymentType: text("payment_type").notNull(),
+  receiptUrl: text("receipt_url"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+});
+
+export const withdrawalRequests = pgTable("withdrawal_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  paymentMethodId: text("payment_method_id").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  commission: decimal("commission", { precision: 12, scale: 2 }).notNull(),
+  netAmount: decimal("net_amount", { precision: 12, scale: 2 }).notNull(),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  reviewedAt: timestamp("reviewed_at"),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   phone: true,
   password: true,
@@ -107,7 +143,29 @@ export const registerSchema = z.object({
   referralCode: z.string().optional(),
 });
 
+export const insertPaymentMethodSchema = createInsertSchema(paymentMethods).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertDepositRequestSchema = createInsertSchema(depositRequests).omit({
+  id: true,
+  status: true,
+  createdAt: true,
+  reviewedAt: true,
+});
+
+export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalRequests).omit({
+  id: true,
+  status: true,
+  createdAt: true,
+  reviewedAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
+export type InsertDepositRequest = z.infer<typeof insertDepositRequestSchema>;
+export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
 export type User = typeof users.$inferSelect;
 export type VipPackage = typeof vipPackages.$inferSelect;
 export type Video = typeof videos.$inferSelect;
@@ -115,3 +173,6 @@ export type TaskHistory = typeof taskHistory.$inferSelect;
 export type Referral = typeof referrals.$inferSelect;
 export type FundPlan = typeof fundPlans.$inferSelect;
 export type Investment = typeof investments.$inferSelect;
+export type PaymentMethod = typeof paymentMethods.$inferSelect;
+export type DepositRequest = typeof depositRequests.$inferSelect;
+export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;

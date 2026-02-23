@@ -4,6 +4,9 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-23: Profile page with deposit (crypto USDT / local UZS, receipt upload) and withdrawal (bank card/USDT wallet, fund password, $2 min, 10% commission, Mon-Sat 11:00-17:00)
+- 2026-02-23: Payment methods: bank card (name, bank, card number) and USDT wallet (TRC20 address, exchange name), immutable after creation
+- 2026-02-23: DB tables: payment_methods, deposit_requests, withdrawal_requests with insert schemas
 - 2026-02-23: Tasks page rewritten: hardcoded YouTube video IDs array, native iframe with anti-cheat params (controls=0, disablekb=1), 30s timer, auto-thumbnail from YouTube
 - 2026-02-23: Video system upgraded to react-player with real YouTube trailers matching TMDB posters, light prop for poster preview
 - 2026-02-23: VEM Fund module - passive investment/staking with 4 F-Series plans, daily ROI, cron profit distribution
@@ -25,7 +28,7 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - `server/routes.ts` - API routes with session auth
 - `server/storage.ts` - Database storage layer (DatabaseStorage class)
 - `server/seed.ts` - Seed data for 11 VIP packages, 9 TV shows/trailers (real YouTube URLs), 4 fund plans
-- `shared/schema.ts` - Drizzle schemas (users, vipPackages, videos, taskHistory, referrals, fundPlans, investments)
+- `shared/schema.ts` - Drizzle schemas (users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests)
 
 ## Design
 - Dark Netflix-style theme: #0a0a0a background, #1a1a1a cards, #2a2a2a borders
@@ -57,6 +60,12 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - GET /api/fund-plans - Get all fund plans (requires auth)
 - GET /api/investments - Get user's investments (requires auth)
 - POST /api/fund/invest - Create investment (requires auth)
+- GET /api/payment-methods - Get user payment methods (requires auth)
+- POST /api/payment-methods - Add payment method with fund password (requires auth)
+- POST /api/deposit - Create deposit request with receipt upload (requires auth)
+- GET /api/deposits - Get user deposit requests (requires auth)
+- POST /api/withdraw - Create withdrawal request (requires auth)
+- GET /api/withdrawals - Get user withdrawal requests (requires auth)
 
 ## VEM Fund System
 - 4 plans: F1 (13d, 2.3%), F2 (27d, 2.6%), F3 (45d, 3.0%), F4 (Infinity, 4.0%)

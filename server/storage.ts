@@ -1,7 +1,7 @@
 import { eq, and, sql } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -32,6 +32,13 @@ export interface IStorage {
   getActiveInvestments(): Promise<Investment[]>;
   updateInvestmentStatus(id: string, status: string): Promise<void>;
   updateInvestmentLastProfitDate(id: string, date: string): Promise<void>;
+  getUserPaymentMethods(userId: string): Promise<PaymentMethod[]>;
+  createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string }): Promise<PaymentMethod>;
+  createDepositRequest(data: { userId: string; amount: string; currency: string; paymentType: string; receiptUrl?: string }): Promise<DepositRequest>;
+  getUserDepositRequests(userId: string): Promise<DepositRequest[]>;
+  createWithdrawalRequest(data: { userId: string; paymentMethodId: string; amount: string; commission: string; netAmount: string }): Promise<WithdrawalRequest>;
+  getUserWithdrawalRequests(userId: string): Promise<WithdrawalRequest[]>;
+  deductUserBalance(id: string, amount: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -167,6 +174,39 @@ export class DatabaseStorage implements IStorage {
 
   async updateInvestmentLastProfitDate(id: string, date: string): Promise<void> {
     await db.update(investments).set({ lastProfitDate: date }).where(eq(investments.id, id));
+  }
+
+  async getUserPaymentMethods(userId: string): Promise<PaymentMethod[]> {
+    return db.select().from(paymentMethods).where(eq(paymentMethods.userId, userId));
+  }
+
+  async createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string }): Promise<PaymentMethod> {
+    const [method] = await db.insert(paymentMethods).values(data).returning();
+    return method;
+  }
+
+  async createDepositRequest(data: { userId: string; amount: string; currency: string; paymentType: string; receiptUrl?: string }): Promise<DepositRequest> {
+    const [deposit] = await db.insert(depositRequests).values(data).returning();
+    return deposit;
+  }
+
+  async getUserDepositRequests(userId: string): Promise<DepositRequest[]> {
+    return db.select().from(depositRequests).where(eq(depositRequests.userId, userId));
+  }
+
+  async createWithdrawalRequest(data: { userId: string; paymentMethodId: string; amount: string; commission: string; netAmount: string }): Promise<WithdrawalRequest> {
+    const [withdrawal] = await db.insert(withdrawalRequests).values(data).returning();
+    return withdrawal;
+  }
+
+  async getUserWithdrawalRequests(userId: string): Promise<WithdrawalRequest[]> {
+    return db.select().from(withdrawalRequests).where(eq(withdrawalRequests.userId, userId));
+  }
+
+  async deductUserBalance(id: string, amount: string): Promise<void> {
+    await db.update(users)
+      .set({ balance: sql`${users.balance}::numeric - ${amount}::numeric` })
+      .where(eq(users.id, id));
   }
 }
 

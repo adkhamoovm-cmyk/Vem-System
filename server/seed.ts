@@ -145,7 +145,7 @@ export async function seedDatabase() {
     await db.insert(videos).values([
       {
         title: "Squid Game: Season 2",
-        thumbnail: "https://image.tmdb.org/t/p/w500/bQXAqRx2Fgc46uCVWgoPz2bOeby.jpg",
+        thumbnail: "https://img.youtube.com/vi/Ed1sGgHUo88/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=Ed1sGgHUo88",
         actors: "Lee Jung-jae, Wi Ha-jun, Gong Yoo",
         rating: "4.9",
@@ -157,7 +157,7 @@ export async function seedDatabase() {
       },
       {
         title: "The Last of Us: Season 2",
-        thumbnail: "https://image.tmdb.org/t/p/w500/uKvVjHNqB5VmOrdxqAt2F7J78ED.jpg",
+        thumbnail: "https://img.youtube.com/vi/_zHPsmXCjB0/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=_zHPsmXCjB0",
         actors: "Pedro Pascal, Bella Ramsey",
         rating: "4.8",
@@ -169,7 +169,7 @@ export async function seedDatabase() {
       },
       {
         title: "Wednesday: Season 2",
-        thumbnail: "https://image.tmdb.org/t/p/w500/9PFonBhy4cQy7Jz20NpMygczOkv.jpg",
+        thumbnail: "https://img.youtube.com/vi/ueCc-AYUMRs/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=ueCc-AYUMRs",
         actors: "Jenna Ortega, Catherine Zeta-Jones",
         rating: "4.7",
@@ -181,7 +181,7 @@ export async function seedDatabase() {
       },
       {
         title: "Thunderbolts*",
-        thumbnail: "https://image.tmdb.org/t/p/w500/m0lqSkZFCnCIxHhlOGmvQiH5gIo.jpg",
+        thumbnail: "https://img.youtube.com/vi/-sAOWhvheK8/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=-sAOWhvheK8",
         actors: "Florence Pugh, Sebastian Stan",
         rating: "4.6",
@@ -193,7 +193,7 @@ export async function seedDatabase() {
       },
       {
         title: "Mission Impossible: Final Reckoning",
-        thumbnail: "https://image.tmdb.org/t/p/w500/z1p34vh7dEOnLDaSZpNtfmUmjS0.jpg",
+        thumbnail: "https://img.youtube.com/vi/fsQgc9pCyDU/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=fsQgc9pCyDU",
         actors: "Tom Cruise, Hayley Atwell",
         rating: "4.9",
@@ -205,7 +205,7 @@ export async function seedDatabase() {
       },
       {
         title: "Stranger Things: Final Season",
-        thumbnail: "https://image.tmdb.org/t/p/w500/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
+        thumbnail: "https://img.youtube.com/vi/XwQRkOK5KC4/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=XwQRkOK5KC4",
         actors: "Millie Bobby Brown, Finn Wolfhard",
         rating: "4.8",
@@ -217,7 +217,7 @@ export async function seedDatabase() {
       },
       {
         title: "House of the Dragon: Season 2",
-        thumbnail: "https://image.tmdb.org/t/p/w500/628Dep6AxEtDxjZoGP78TsOxYbK.jpg",
+        thumbnail: "https://img.youtube.com/vi/YN2H_sKcmGw/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=YN2H_sKcmGw",
         actors: "Matt Smith, Emma D'Arcy",
         rating: "4.7",
@@ -229,7 +229,7 @@ export async function seedDatabase() {
       },
       {
         title: "Money Heist: Berlin",
-        thumbnail: "https://image.tmdb.org/t/p/w500/jnE1GA0hlOOz0iJVkjCBhFNbMijt.jpg",
+        thumbnail: "https://img.youtube.com/vi/XD_MLvGrGCY/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=XD_MLvGrGCY",
         actors: "Pedro Alonso, Michelle Jenner",
         rating: "4.3",
@@ -241,7 +241,7 @@ export async function seedDatabase() {
       },
       {
         title: "Avatar 3: Fire and Ash",
-        thumbnail: "https://image.tmdb.org/t/p/w500/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg",
+        thumbnail: "https://img.youtube.com/vi/xxEt9fnILgQ/maxresdefault.jpg",
         videoUrl: "https://www.youtube.com/watch?v=xxEt9fnILgQ",
         actors: "Sam Worthington, Zoe Saldana",
         rating: "4.8",

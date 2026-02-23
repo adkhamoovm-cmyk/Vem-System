@@ -393,6 +393,186 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/payment-methods", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const methods = await storage.getUserPaymentMethods(userId);
+      res.json(methods);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/payment-methods", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const { type, bankName, exchangeName, cardNumber, walletAddress, holderName, fundPassword } = req.body;
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      const fundPassValid = await comparePasswords(fundPassword, user.fundPassword);
+      if (!fundPassValid) {
+        return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
+      }
+
+      const existing = await storage.getUserPaymentMethods(userId);
+      const sameType = existing.filter(m => m.type === type);
+      if (sameType.length > 0) {
+        return res.status(400).json({ message: "Siz allaqachon " + (type === "bank" ? "bank kartasi" : "USDT hamyon") + " qo'shgansiz. O'zgartirish uchun texnik yordamga murojaat qiling." });
+      }
+
+      const method = await storage.createPaymentMethod({
+        userId,
+        type,
+        bankName: type === "bank" ? bankName : undefined,
+        exchangeName: type === "usdt" ? exchangeName : undefined,
+        cardNumber: type === "bank" ? cardNumber : undefined,
+        walletAddress: type === "usdt" ? walletAddress : undefined,
+        holderName: type === "bank" ? holderName : undefined,
+      });
+
+      res.json({ method, message: "To'lov usuli saqlandi!" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  const receiptsDir = path.join(process.cwd(), "uploads", "receipts");
+  if (!fs.existsSync(receiptsDir)) {
+    fs.mkdirSync(receiptsDir, { recursive: true });
+  }
+
+  const receiptStorage = multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, receiptsDir),
+    filename: (_req, file, cb) => {
+      const ext = path.extname(file.originalname) || ".jpg";
+      cb(null, `receipt-${Date.now()}-${randomBytes(4).toString("hex")}${ext}`);
+    },
+  });
+
+  const uploadReceipt = multer({
+    storage: receiptStorage,
+    limits: { fileSize: 5 * 1024 * 1024 },
+  });
+
+  app.post("/api/deposit", requireAuth, uploadReceipt.single("receipt"), async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const { amount, currency, paymentType } = req.body;
+
+      if (!amount || !currency || !paymentType) {
+        return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
+      }
+
+      const numAmount = Number(amount);
+      if (isNaN(numAmount) || numAmount <= 0) {
+        return res.status(400).json({ message: "Miqdor noto'g'ri" });
+      }
+
+      const minUsd = 10;
+      if (currency === "USDT" && numAmount < minUsd) {
+        return res.status(400).json({ message: `Minimal miqdor: ${minUsd} USDT` });
+      }
+      if (currency === "UZS" && numAmount < minUsd * 12850) {
+        return res.status(400).json({ message: `Minimal miqdor: ${(minUsd * 12850).toLocaleString()} UZS` });
+      }
+
+      const receiptUrl = req.file ? `/uploads/receipts/${req.file.filename}` : undefined;
+
+      const deposit = await storage.createDepositRequest({
+        userId,
+        amount: numAmount.toFixed(2),
+        currency,
+        paymentType,
+        receiptUrl,
+      });
+
+      res.json({ deposit, message: "So'rov yuborildi! Admin tekshirgandan so'ng balansingizga qo'shiladi." });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/deposits", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const deposits = await storage.getUserDepositRequests(userId);
+      res.json(deposits);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/withdraw", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const { paymentMethodId, amount, fundPassword } = req.body;
+
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      const fundPassOk = await comparePasswords(fundPassword, user.fundPassword);
+      if (!fundPassOk) {
+        return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
+      }
+
+      const now = new Date();
+      const day = now.getDay();
+      const hour = now.getHours();
+
+      if (day === 0 || (day === 6 && hour >= 17)) {
+        return res.status(400).json({ message: "Pul yechish faqat Dushanba-Shanba, 11:00-17:00 orasida mumkin" });
+      }
+      if (hour < 11 || hour >= 17) {
+        return res.status(400).json({ message: "Pul yechish faqat 11:00 dan 17:00 gacha mumkin" });
+      }
+
+      const numAmount = Number(amount);
+      if (isNaN(numAmount) || numAmount < 2) {
+        return res.status(400).json({ message: "Minimal yechish miqdori: 2 USDT" });
+      }
+
+      const balance = Number(user.balance);
+      if (balance < numAmount) {
+        return res.status(400).json({ message: "Balansingiz yetarli emas" });
+      }
+
+      const methods = await storage.getUserPaymentMethods(userId);
+      const method = methods.find(m => m.id === paymentMethodId);
+      if (!method) {
+        return res.status(400).json({ message: "To'lov usuli topilmadi" });
+      }
+
+      const commission = numAmount * 0.10;
+      const netAmount = numAmount - commission;
+
+      await storage.deductUserBalance(userId, numAmount.toFixed(2));
+
+      const withdrawal = await storage.createWithdrawalRequest({
+        userId,
+        paymentMethodId,
+        amount: numAmount.toFixed(2),
+        commission: commission.toFixed(2),
+        netAmount: netAmount.toFixed(2),
+      });
+
+      res.json({ withdrawal, message: "Yechish so'rovi yuborildi! Admin tekshirgandan so'ng amalga oshiriladi." });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/withdrawals", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const withdrawals = await storage.getUserWithdrawalRequests(userId);
+      res.json(withdrawals);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   async function processDailyProfits() {
     try {
       const activeInvestments = await storage.getActiveInvestments();
