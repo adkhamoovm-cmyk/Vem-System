@@ -11,6 +11,7 @@ import TasksPage from "@/pages/tasks";
 import ReferralPage from "@/pages/referral";
 import VipPage from "@/pages/vip";
 import ProfilePage from "@/pages/profile";
+import TrendsPage from "@/pages/trends";
 import type { User } from "@shared/schema";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
@@ -69,6 +70,9 @@ function Router() {
       </Route>
       <Route path="/dashboard">
         {() => <ProtectedRoute component={DashboardPage} />}
+      </Route>
+      <Route path="/trends">
+        {() => <ProtectedRoute component={TrendsPage} />}
       </Route>
       <Route path="/tasks">
         {() => <ProtectedRoute component={TasksPage} />}

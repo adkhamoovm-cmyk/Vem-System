@@ -1,15 +1,17 @@
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
-import { Home, PlayCircle, Users, Crown, User as UserIcon, LogOut } from "lucide-react";
+import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut } from "lucide-react";
 import type { User } from "@shared/schema";
 
-const navItems = [
-  { title: "Bosh sahifa", href: "/dashboard", icon: Home },
-  { title: "Vazifalar", href: "/tasks", icon: PlayCircle },
-  { title: "Referal", href: "/referral", icon: Users },
-  { title: "VIP", href: "/vip", icon: Crown },
-  { title: "Profil", href: "/profile", icon: UserIcon },
+const sideNavItems = [
+  { title: "Asosiy", href: "/dashboard", icon: Home, testId: "nav-asosiy" },
+  { title: "Trendlar", href: "/trends", icon: Flame, testId: "nav-trendlar" },
+];
+
+const rightNavItems = [
+  { title: "Referal", href: "/referral", icon: Users, testId: "nav-referal" },
+  { title: "Profil", href: "/profile", icon: UserIcon, testId: "nav-profil" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -29,6 +31,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       window.location.href = "/login";
     },
   });
+
+  const isTasksActive = location === "/tasks";
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] pb-20">
@@ -61,18 +65,51 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="max-w-lg mx-auto">{children}</main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#eee] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
-        <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2">
-          {navItems.map((item) => {
+        <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2 relative">
+          {sideNavItems.map((item) => {
             const active = location === item.href;
             return (
               <Link key={item.href} href={item.href}>
                 <button
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors min-w-[56px] ${
-                    active
-                      ? "text-[#FF6B35]"
-                      : "text-[#999]"
+                  className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px] ${
+                    active ? "text-[#FF6B35]" : "text-[#999]"
                   }`}
-                  data-testid={`nav-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  data-testid={item.testId}
+                >
+                  <item.icon className={`w-5 h-5 ${active ? "stroke-[2.5]" : ""}`} />
+                  <span className="text-[10px] font-medium">{item.title}</span>
+                </button>
+              </Link>
+            );
+          })}
+
+          <Link href="/tasks">
+            <button
+              className="flex flex-col items-center -mt-7 relative"
+              data-testid="nav-vazifalar"
+            >
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 ${
+                isTasksActive
+                  ? "bg-gradient-to-br from-[#FF6B35] to-[#E8453C] shadow-[0_4px_15px_rgba(255,107,53,0.4)]"
+                  : "bg-gradient-to-br from-[#FF6B35] to-[#E8453C] shadow-[0_4px_15px_rgba(255,107,53,0.25)]"
+              }`}>
+                <PlayCircle className="w-7 h-7 text-white stroke-[2]" />
+              </div>
+              <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-[#FF6B35]" : "text-[#999]"}`}>
+                Vazifalar
+              </span>
+            </button>
+          </Link>
+
+          {rightNavItems.map((item) => {
+            const active = location === item.href;
+            return (
+              <Link key={item.href} href={item.href}>
+                <button
+                  className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px] ${
+                    active ? "text-[#FF6B35]" : "text-[#999]"
+                  }`}
+                  data-testid={item.testId}
                 >
                   <item.icon className={`w-5 h-5 ${active ? "stroke-[2.5]" : ""}`} />
                   <span className="text-[10px] font-medium">{item.title}</span>
