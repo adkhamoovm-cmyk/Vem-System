@@ -22,6 +22,8 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").notNull().default(false),
   isBanned: boolean("is_banned").notNull().default(false),
   withdrawalBanned: boolean("withdrawal_banned").notNull().default(false),
+  vipExpiresAt: timestamp("vip_expires_at"),
+  stajyorUsed: boolean("stajyor_used").notNull().default(false),
   lastLoginIp: text("last_login_ip"),
   lastUserAgent: text("last_user_agent"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -151,6 +153,15 @@ export const stajyorRequests = pgTable("stajyor_requests", {
   reviewedAt: timestamp("reviewed_at"),
 });
 
+export const balanceHistory = pgTable("balance_history", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  type: text("type").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   phone: true,
   password: true,
@@ -206,3 +217,4 @@ export type DepositRequest = typeof depositRequests.$inferSelect;
 export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
 export type DepositSetting = typeof depositSettings.$inferSelect;
 export type StajyorRequest = typeof stajyorRequests.$inferSelect;
+export type BalanceHistory = typeof balanceHistory.$inferSelect;

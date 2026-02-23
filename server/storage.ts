@@ -1,7 +1,7 @@
 import { eq, and, sql, desc } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -66,6 +66,11 @@ export interface IStorage {
   getAllStajyorRequests(): Promise<StajyorRequest[]>;
   updateStajyorRequestStatus(id: string, status: string): Promise<void>;
   hasUserInvestments(userId: string): Promise<boolean>;
+  updateUserTotalEarnings(id: string, amount: string): Promise<void>;
+  setUserVipExpiry(id: string, expiresAt: Date | null): Promise<void>;
+  setStajyorUsed(id: string): Promise<void>;
+  addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
+  getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -391,6 +396,33 @@ export class DatabaseStorage implements IStorage {
   async hasUserInvestments(userId: string): Promise<boolean> {
     const result = await db.select({ count: sql<number>`count(*)` }).from(investments).where(eq(investments.userId, userId));
     return Number(result[0]?.count || 0) > 0;
+  }
+
+  async updateUserTotalEarnings(id: string, amount: string): Promise<void> {
+    await db.update(users)
+      .set({ totalEarnings: sql`${users.totalEarnings}::numeric + ${amount}::numeric` })
+      .where(eq(users.id, id));
+  }
+
+  async setUserVipExpiry(id: string, expiresAt: Date | null): Promise<void> {
+    await db.update(users)
+      .set({ vipExpiresAt: expiresAt })
+      .where(eq(users.id, id));
+  }
+
+  async setStajyorUsed(id: string): Promise<void> {
+    await db.update(users)
+      .set({ stajyorUsed: true })
+      .where(eq(users.id, id));
+  }
+
+  async addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory> {
+    const [entry] = await db.insert(balanceHistory).values(data).returning();
+    return entry;
+  }
+
+  async getUserBalanceHistory(userId: string): Promise<BalanceHistory[]> {
+    return db.select().from(balanceHistory).where(eq(balanceHistory.userId, userId)).orderBy(desc(balanceHistory.createdAt));
   }
 }
 

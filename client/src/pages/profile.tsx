@@ -7,12 +7,13 @@ import {
   User as UserIcon, Crown, Copy, LogOut, ChevronRight, ChevronDown,
   Wallet, ListChecks, Users, Camera, Shield, Lock,
   Phone, CreditCard, Headphones, ScrollText, Settings,
-  ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle, Clock, X, Building, Globe
+  ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle, Clock, X, Building, Globe,
+  History, Filter, TrendingUp, TrendingDown, Banknote
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting } from "@shared/schema";
+import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
 const UZS_RATE = 12850;
@@ -322,6 +323,13 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
   const [fundPassword, setFundPassword] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const uzbekBanks = [
+    "Uzcard", "Humo", "Kapitalbank", "Hamkorbank", "Ipoteka-bank",
+    "Milliy bank", "Agrobank", "Asaka bank", "Xalq banki", "Davr bank",
+    "Infinbank", "Orient Finans", "Trastbank", "Aloqa bank", "Turon bank",
+    "Universalbank", "Ravnaq-bank", "Ziraat bank", "TBC bank", "Anor bank",
+    "Uzum bank", "Apelsin", "Click", "Payme",
+  ];
   const exchanges = ["Binance", "Bybit", "Bitget", "OKX", "Huobi", "KuCoin", "Gate.io", "MEXC", "Boshqa"];
 
   const mutation = useMutation({
@@ -395,13 +403,22 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                 </div>
                 <div>
                   <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Bank nomi</label>
-                  <Input
-                    value={bankName}
-                    onChange={(e) => setBankName(e.target.value)}
-                    placeholder="Masalan: Uzcard, Humo, Visa"
-                    className="mt-1.5 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-11"
-                    data-testid="input-bank-name"
-                  />
+                  <div className="grid grid-cols-3 gap-2 mt-1.5 max-h-40 overflow-y-auto pr-1">
+                    {uzbekBanks.map((bank) => (
+                      <button
+                        key={bank}
+                        onClick={() => setBankName(bank)}
+                        className={`text-xs py-2 px-2 rounded-lg border transition-colors ${
+                          bankName === bank
+                            ? "bg-[#3B82F6]/20 border-[#3B82F6] text-[#3B82F6]"
+                            : "bg-[#111] border-[#333] text-[#aaa]"
+                        }`}
+                        data-testid={`button-bank-${bank}`}
+                      >
+                        {bank}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div>
                   <label className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Karta raqami</label>
@@ -730,6 +747,7 @@ export default function ProfilePage() {
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showAddBankCard, setShowAddBankCard] = useState(false);
   const [showAddUsdtWallet, setShowAddUsdtWallet] = useState(false);
+  const [historyFilter, setHistoryFilter] = useState<"all" | "deposit" | "withdrawal" | "earning" | "fund_invest" | "vip_purchase" | "admin_adjust" | "commission">("all");
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -754,6 +772,10 @@ export default function ProfilePage() {
 
   const { data: withdrawals = [] } = useQuery<WithdrawalRequest[]>({
     queryKey: ["/api/withdrawals"],
+  });
+
+  const { data: balHistory = [] } = useQuery<BalanceHistory[]>({
+    queryKey: ["/api/balance-history"],
   });
 
   const logoutMutation = useMutation({
@@ -908,7 +930,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-[#2a2a2a] overflow-hidden">
-          <h3 className="text-white font-bold text-sm px-4 pt-4 pb-2">To'lov usullari</h3>
+          <h3 className="text-white font-bold text-sm px-4 pt-4 pb-2">Mening xizmatlarim</h3>
           <div className="divide-y divide-[#222]">
             {bankCard ? (
               <div className="px-4 py-3.5 flex items-center gap-3">
@@ -1022,46 +1044,71 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {(deposits.length > 0 || withdrawals.length > 0) && (
-          <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-[#2a2a2a] overflow-hidden">
-            <h3 className="text-white font-bold text-sm px-4 pt-4 pb-2">So'nggi operatsiyalar</h3>
-            <div className="divide-y divide-[#222] max-h-60 overflow-y-auto">
-              {[...deposits.map(d => ({
-                id: d.id,
-                type: "deposit" as const,
-                amount: `+${Number(d.amount).toFixed(2)} ${d.currency}`,
-                status: d.status,
-                date: d.createdAt,
-              })), ...withdrawals.map(w => ({
-                id: w.id,
-                type: "withdrawal" as const,
-                amount: `-${Number(w.amount).toFixed(2)} USDT`,
-                status: w.status,
-                date: w.createdAt,
-              }))].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 10).map((op) => (
-                <div key={op.id} className="px-4 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {op.type === "deposit" ? (
-                      <ArrowDownCircle className="w-4 h-4 text-[#4ADE80]" />
-                    ) : (
-                      <ArrowUpCircle className="w-4 h-4 text-[#E8453C]" />
-                    )}
-                    <div>
-                      <p className="text-white text-xs font-medium">{op.type === "deposit" ? "Depozit" : "Yechish"}</p>
-                      <p className="text-[#888] text-[10px]">{new Date(op.date).toLocaleDateString()}</p>
+        <div className="bg-[#1a1a1a] rounded-2xl shadow-sm border border-[#2a2a2a] overflow-hidden">
+          <div className="px-4 pt-4 pb-2 flex items-center justify-between">
+            <h3 className="text-white font-bold text-sm flex items-center gap-2">
+              <History className="w-4 h-4 text-[#FF6B35]" />
+              Moliya tarixi
+            </h3>
+          </div>
+          <div className="px-4 pb-2 flex gap-1.5 flex-wrap">
+            {([
+              { key: "all", label: "Barchasi" },
+              { key: "earning", label: "Daromad" },
+              { key: "deposit", label: "Depozit" },
+              { key: "withdrawal", label: "Yechish" },
+              { key: "vip_purchase", label: "VIP" },
+              { key: "fund_invest", label: "Fond" },
+              { key: "commission", label: "Komissiya" },
+              { key: "admin_adjust", label: "Texnik" },
+            ] as const).map(f => (
+              <button
+                key={f.key}
+                onClick={() => setHistoryFilter(f.key)}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors ${historyFilter === f.key ? "bg-[#FF6B35] text-white" : "bg-[#222] text-[#888] hover:bg-[#333]"}`}
+                data-testid={`filter-history-${f.key}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <div className="divide-y divide-[#222] max-h-80 overflow-y-auto">
+            {balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).length === 0 ? (
+              <div className="px-4 py-8 text-center text-[#666] text-xs">Operatsiyalar topilmadi</div>
+            ) : (
+              balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).map((h) => {
+                const isPositive = Number(h.amount) >= 0;
+                const typeIcons: Record<string, { icon: typeof TrendingUp; color: string }> = {
+                  earning: { icon: TrendingUp, color: "#4ADE80" },
+                  deposit: { icon: ArrowDownCircle, color: "#4ADE80" },
+                  withdrawal: { icon: ArrowUpCircle, color: "#E8453C" },
+                  vip_purchase: { icon: Crown, color: "#FFD700" },
+                  fund_invest: { icon: Banknote, color: "#60A5FA" },
+                  commission: { icon: Users, color: "#A78BFA" },
+                  admin_adjust: { icon: Settings, color: "#888" },
+                };
+                const config = typeIcons[h.type] || { icon: ScrollText, color: "#888" };
+                const IconComp = config.icon;
+                return (
+                  <div key={h.id} className="px-4 py-3 flex items-center justify-between" data-testid={`history-item-${h.id}`}>
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: config.color + "15" }}>
+                        <IconComp className="w-3.5 h-3.5" style={{ color: config.color }} />
+                      </div>
+                      <div>
+                        <p className="text-white text-xs font-medium">{h.description}</p>
+                        <p className="text-[#666] text-[10px]">{new Date(h.createdAt).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-xs font-bold ${op.type === "deposit" ? "text-[#4ADE80]" : "text-[#E8453C]"}`}>{op.amount}</p>
-                    <p className="text-[10px]" style={{ color: statusColors[op.status] || "#888" }}>
-                      {statusLabels[op.status] || op.status}
+                    <p className={`text-xs font-bold ${isPositive ? "text-[#4ADE80]" : "text-[#E8453C]"}`}>
+                      {isPositive ? "+" : ""}{Number(h.amount).toFixed(2)} USDT
                     </p>
                   </div>
-                </div>
-              ))}
-            </div>
+                );
+              })
+            )}
           </div>
-        )}
+        </div>
 
         <Button
           onClick={() => logoutMutation.mutate()}

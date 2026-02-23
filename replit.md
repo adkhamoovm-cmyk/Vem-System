@@ -4,6 +4,16 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-23: VIP expiration system with vipExpiresAt field, same-level extension adds days to existing expiry
+- 2026-02-23: Balance history table (balanceHistory) for comprehensive financial tracking - earnings, deposits, withdrawals, VIP purchases, fund investments, commissions, admin adjustments
+- 2026-02-23: Financial History (Moliya tarixi) UI on profile with filter buttons (all, earning, deposit, withdrawal, VIP, fund, commission, admin)
+- 2026-02-23: Stajyor one-time activation with stajyorUsed flag, admin approval sets 3-day expiry
+- 2026-02-23: VIP purchase rules: no downgrade, same-level repurchase extends expiry, auto-sets duration
+- 2026-02-23: 3-level referral commission logging to balance history
+- 2026-02-23: Admin panel tabs split into "Texnik bo'lim" and "Moliya departament" sections
+- 2026-02-23: Payment methods section renamed to "Mening xizmatlarim"
+- 2026-02-23: Uzbek bank dropdown list (24 banks) for bank card creation
+- 2026-02-23: Fund cron daily profit and principal return logged to balance history
 - 2026-02-23: Full admin panel (/admin) with user management, deposit/withdrawal approval, deposit requisites, multi-account detection, top referrers, referral tree, VIP management
 - 2026-02-23: Admin features: ban/unban users, withdrawal ban, balance editing, VIP level change, payment method deletion, user account deletion
 - 2026-02-23: IP/UserAgent tracking on login/register, banned user login prevention

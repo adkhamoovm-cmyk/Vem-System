@@ -841,15 +841,17 @@ export default function AdminPage() {
   const { data: stajyorRequests = [] } = useQuery<StajyorRequest[]>({ queryKey: ["/api/admin/stajyor-requests"] });
   const pendingStajyor = stajyorRequests.filter(r => r.status === "pending").length;
 
-  const tabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
+  const techTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
     { id: "dashboard", label: "Bosh panel", icon: Activity },
     { id: "stajyor", label: "Stajyor", icon: UserPlus, badge: pendingStajyor || undefined },
     { id: "users", label: "Foydalanuvchilar", icon: Users, badge: allUsers.length },
-    { id: "deposits", label: "Depozitlar", icon: ArrowDownCircle, badge: pendingDeposits || undefined },
-    { id: "withdrawals", label: "Yechishlar", icon: ArrowUpCircle, badge: pendingWithdrawals || undefined },
     { id: "referrals", label: "Top referallar", icon: Trophy },
     { id: "multi", label: "Multi-akkaunt", icon: AlertTriangle },
     { id: "settings", label: "Sozlamalar", icon: Settings },
+  ];
+  const financeTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
+    { id: "deposits", label: "Depozitlar", icon: ArrowDownCircle, badge: pendingDeposits || undefined },
+    { id: "withdrawals", label: "Yechishlar", icon: ArrowUpCircle, badge: pendingWithdrawals || undefined },
   ];
 
   if (usersLoading || depositsLoading || withdrawalsLoading) {
@@ -875,21 +877,45 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-6xl mx-auto p-4">
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
-          {tabs.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
-                tab === t.id ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#1a1a1a] border-[#2a2a2a] text-[#aaa] hover:text-white"
-              }`}
-              data-testid={`tab-${t.id}`}
-            >
-              <t.icon className="w-3.5 h-3.5" />
-              {t.label}
-              {t.badge !== undefined && t.badge > 0 && (
-                <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-[#E8453C] text-white font-bold">{t.badge}</span>
-              )}
-            </button>
-          ))}
+        <div className="space-y-2 pb-3 mb-4">
+          <div>
+            <p className="text-[#666] text-[10px] uppercase tracking-widest mb-1.5 px-1">Texnik bo'lim</p>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {techTabs.map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
+                    tab === t.id ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#1a1a1a] border-[#2a2a2a] text-[#aaa] hover:text-white"
+                  }`}
+                  data-testid={`tab-${t.id}`}
+                >
+                  <t.icon className="w-3.5 h-3.5" />
+                  {t.label}
+                  {t.badge !== undefined && t.badge > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-[#E8453C] text-white font-bold">{t.badge}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-[#666] text-[10px] uppercase tracking-widest mb-1.5 px-1">Moliya departament</p>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {financeTabs.map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
+                    tab === t.id ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#1a1a1a] border-[#2a2a2a] text-[#aaa] hover:text-white"
+                  }`}
+                  data-testid={`tab-${t.id}`}
+                >
+                  <t.icon className="w-3.5 h-3.5" />
+                  {t.label}
+                  {t.badge !== undefined && t.badge > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-[#E8453C] text-white font-bold">{t.badge}</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {tab === "dashboard" && <AdminDashboard users={allUsers} deposits={deposits} withdrawals={withdrawals} />}

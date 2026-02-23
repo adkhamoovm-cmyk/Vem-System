@@ -256,6 +256,14 @@ export async function registerRoutes(
         if (!video) return res.status(404).json({ message: "Video topilmadi" });
       }
 
+      if (user.vipLevel < 0) {
+        return res.status(400).json({ message: "Avval VIP paket sotib oling" });
+      }
+
+      if (user.vipExpiresAt && new Date(user.vipExpiresAt) < new Date()) {
+        return res.status(400).json({ message: "VIP paketingiz muddati tugagan. Yangi paket sotib oling." });
+      }
+
       const vipPkgs = await storage.getVipPackages();
       const userPkg = vipPkgs.find(p => p.level === user.vipLevel);
       const perVideoReward = userPkg ? Number(userPkg.perVideoReward) : 0;
@@ -268,19 +276,24 @@ export async function registerRoutes(
       const rewardStr = perVideoReward.toFixed(2);
       await storage.createTaskHistory({ userId, videoId: taskVideoId, reward: rewardStr });
       await storage.updateUserBalance(userId, rewardStr);
+      await storage.updateUserTotalEarnings(userId, rewardStr);
       await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
+      await storage.addBalanceHistory({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
 
       if (user.referredBy) {
         const l1Commission = (perVideoReward * 0.09).toFixed(2);
         await storage.updateUserBalance(user.referredBy, l1Commission);
+        await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi (${user.phone})` });
         const l1Referrer = await storage.getUser(user.referredBy);
         if (l1Referrer?.referredBy) {
           const l2Commission = (perVideoReward * 0.03).toFixed(2);
           await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
+          await storage.addBalanceHistory({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi` });
           const l2Referrer = await storage.getUser(l1Referrer.referredBy);
           if (l2Referrer?.referredBy) {
             const l3Commission = (perVideoReward * 0.01).toFixed(2);
             await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
+            await storage.addBalanceHistory({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi` });
           }
         }
       }
@@ -311,14 +324,32 @@ export async function registerRoutes(
       const pkg = await storage.getVipPackage(packageId);
       if (!pkg) return res.status(404).json({ message: "Paket topilmadi" });
 
+      if (pkg.level === 0) {
+        return res.status(400).json({ message: "Stajyor paketini admin orqali so'rang" });
+      }
+
+      if (user.vipLevel > 0 && pkg.level < user.vipLevel) {
+        return res.status(400).json({ message: "Pastroq darajaga tushish mumkin emas" });
+      }
+
       if (Number(user.balance) < Number(pkg.price)) {
         return res.status(400).json({ message: "Balans yetarli emas" });
       }
 
+      let baseDate = new Date();
+      if (user.vipLevel === pkg.level && user.vipExpiresAt && new Date(user.vipExpiresAt) > baseDate) {
+        baseDate = new Date(user.vipExpiresAt);
+      }
+      const expiresAt = new Date(baseDate);
+      expiresAt.setDate(expiresAt.getDate() + pkg.durationDays);
+
       await storage.updateUserBalance(userId, String(-Number(pkg.price)));
       await storage.updateUserVipLevel(userId, pkg.level, pkg.dailyTasks);
+      await storage.setUserVipExpiry(userId, expiresAt);
+      const isExtension = user.vipLevel === pkg.level;
+      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-Number(pkg.price)), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)` });
 
-      res.json({ message: `${pkg.name} paketi faollashtirildi!` });
+      res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} kun ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.` });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -409,6 +440,7 @@ export async function registerRoutes(
         dailyProfit,
         endDate,
       });
+      await storage.addBalanceHistory({ userId, type: "fund_invest", amount: String(-investAmount), description: `${plan.name} fondiga investitsiya` });
 
       res.json({ investment, message: "Investitsiya muvaffaqiyatli amalga oshirildi!" });
     } catch (error: any) {
@@ -594,8 +626,9 @@ export async function registerRoutes(
         commission: commission.toFixed(2),
         netAmount: netAmount.toFixed(2),
       });
+      await storage.addBalanceHistory({ userId, type: "withdrawal", amount: String(-numAmount), description: `Pul yechish so'rovi (komissiya: ${commission.toFixed(2)})` });
 
-      res.json({ withdrawal, message: "Yechish so'rovi yuborildi! Admin tekshirgandan so'ng amalga oshiriladi." });
+      res.json({ withdrawal, message: "Yechish so'rovi yuborildi! Tekshirgandan so'ng amalga oshiriladi." });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -606,6 +639,16 @@ export async function registerRoutes(
       const userId = req.session.userId!;
       const withdrawals = await storage.getUserWithdrawalRequests(userId);
       res.json(withdrawals);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/balance-history", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const history = await storage.getUserBalanceHistory(userId);
+      res.json(history);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -669,7 +712,11 @@ export async function registerRoutes(
   app.post("/api/admin/users/:id/balance", requireAdmin, async (req: Request, res: Response) => {
     try {
       const { balance } = req.body;
+      const targetUser = await storage.getUser(req.params.id as string);
+      const oldBalance = targetUser ? Number(targetUser.balance) : 0;
+      const diff = Number(balance) - oldBalance;
       await storage.setUserBalance(req.params.id as string, String(balance));
+      await storage.addBalanceHistory({ userId: req.params.id as string, type: "admin_adjust", amount: String(diff), description: `Texnik bo'lim tomonidan balans o'zgartirildi` });
       res.json({ message: "Balans yangilandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -727,6 +774,7 @@ export async function registerRoutes(
       await storage.updateDepositStatus(deposit.id, "approved");
       await storage.updateUserBalance(deposit.userId, amountInUSDT);
       await storage.updateUserTotalDeposit(deposit.userId, amountInUSDT);
+      await storage.addBalanceHistory({ userId: deposit.userId, type: "deposit", amount: amountInUSDT, description: `Depozit tasdiqlandi (${deposit.currency})` });
       res.json({ message: "Depozit tasdiqlandi va balansga qo'shildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -845,14 +893,23 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Sizda allaqachon VIP daraja mavjud" });
       }
 
+      if (user.stajyorUsed) {
+        return res.status(400).json({ message: "Stajyor faqat bir marta faollashtiriladi. VIP paket sotib oling." });
+      }
+
       const existing = await storage.getUserStajyorRequests(userId);
+      const hasApproved = existing.some(r => r.status === "approved");
+      if (hasApproved) {
+        return res.status(400).json({ message: "Stajyor allaqachon faollashtirilgan. VIP paket sotib oling." });
+      }
+
       const pending = existing.find(r => r.status === "pending");
       if (pending) {
-        return res.status(400).json({ message: "Sizning so'rovingiz allaqachon yuborilgan. Iltimos admin javobini kuting." });
+        return res.status(400).json({ message: "Sizning so'rovingiz allaqachon yuborilgan. Iltimos javobini kuting." });
       }
 
       const request = await storage.createStajyorRequest(userId, message);
-      res.json({ request, message: "So'rov yuborildi! Admin tekshirgandan so'ng Stajyor lavozimi faollashtiriladi." });
+      res.json({ request, message: "So'rov yuborildi! Tekshirgandan so'ng Stajyor lavozimi faollashtiriladi." });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -885,7 +942,11 @@ export async function registerRoutes(
 
       await storage.updateStajyorRequestStatus(request.id, "approved");
       await storage.setUserVipLevel(request.userId, 0, 3);
-      res.json({ message: "Stajyor lavozimi faollashtirildi!" });
+      const stajyorExpiry = new Date();
+      stajyorExpiry.setDate(stajyorExpiry.getDate() + 3);
+      await storage.setUserVipExpiry(request.userId, stajyorExpiry);
+      await storage.setStajyorUsed(request.userId);
+      res.json({ message: "Stajyor lavozimi faollashtirildi! (3 kun)" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -924,12 +985,14 @@ export async function registerRoutes(
 
         await storage.updateUserBalance(inv.userId, inv.dailyProfit);
         await storage.updateInvestmentLastProfitDate(inv.id, today);
+        await storage.addBalanceHistory({ userId: inv.userId, type: "earning", amount: inv.dailyProfit, description: `Fond kunlik daromadi` });
 
         if (inv.endDate && new Date(inv.endDate) <= new Date()) {
           await storage.updateInvestmentStatus(inv.id, "completed");
           const plan = await storage.getFundPlan(inv.fundPlanId);
           if (plan?.returnPrincipal) {
             await storage.updateUserBalance(inv.userId, inv.investedAmount);
+            await storage.addBalanceHistory({ userId: inv.userId, type: "deposit", amount: inv.investedAmount, description: `${plan.name} fond investitsiyasi qaytarildi` });
           }
         }
       }
