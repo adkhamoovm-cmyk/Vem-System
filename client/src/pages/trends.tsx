@@ -4,7 +4,6 @@ import { getQueryFn } from "@/lib/queryClient";
 import { TrendingUp, Star, Eye, Flame, Tv, Film, Play } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 function getYouTubeId(url: string): string | null {
@@ -97,11 +96,9 @@ export default function TrendsPage() {
 
   if (isLoading) {
     return (
-      <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60vh]">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
     );
   }
 
@@ -123,8 +120,7 @@ export default function TrendsPage() {
   const treylerCount = (videos || []).filter(v => v.category === "Treyler").length;
 
   return (
-    <AppLayout>
-      <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Flame className="w-5 h-5 text-primary" />
@@ -265,6 +261,5 @@ export default function TrendsPage() {
           />
         )}
       </div>
-    </AppLayout>
   );
 }

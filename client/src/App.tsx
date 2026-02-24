@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/lib/i18n";
+import AppLayout from "@/components/app-layout";
 import NotFound from "@/pages/not-found";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
@@ -38,7 +39,7 @@ function ProtectedRoute({ component: Component }: { component: () => JSX.Element
     return <Redirect to="/login" />;
   }
 
-  return <Component />;
+  return <AppLayout><Component /></AppLayout>;
 }
 
 function AdminRoute({ component: Component }: { component: () => JSX.Element }) {
@@ -59,7 +60,7 @@ function AdminRoute({ component: Component }: { component: () => JSX.Element }) 
     return <Redirect to="/dashboard" />;
   }
 
-  return <Component />;
+  return <AppLayout><Component /></AppLayout>;
 }
 
 function AuthRoute({ component: Component }: { component: () => JSX.Element }) {

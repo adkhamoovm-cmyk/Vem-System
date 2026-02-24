@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 const levelIcons: Record<number, typeof Shield> = {
@@ -78,19 +77,16 @@ export default function VipPage() {
 
   if (isLoading) {
     return (
-      <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60vh]">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
     );
   }
 
   const sortedPackages = [...(packages || [])].sort((a, b) => a.level - b.level);
 
   return (
-    <AppLayout>
-      <div className="p-4">
+    <div className="p-4">
         <div className="bg-primary rounded-2xl p-5 text-primary-foreground shadow-xl mb-4 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-8 translate-x-8" />
           <div className="relative z-10 flex items-center gap-3">
@@ -308,6 +304,5 @@ export default function VipPage() {
           </p>
         </div>
       </div>
-    </AppLayout>
   );
 }

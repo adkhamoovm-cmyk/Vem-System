@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Play, Clock, CheckCircle, Crown, Lock, X, Coffee } from "lucide-react";
 import type { User, VipPackage } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
 
@@ -239,8 +238,7 @@ export default function TasksPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-4">
+    <div className="p-4">
         {user && (
           <div className="bg-primary rounded-2xl p-4 text-primary-foreground shadow-lg mb-4">
             <div className="flex items-center justify-between">
@@ -368,6 +366,5 @@ export default function TasksPage() {
           />
         )}
       </div>
-    </AppLayout>
   );
 }

@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import type { User } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 export default function PromoPage() {
@@ -50,8 +49,7 @@ export default function PromoPage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-4 space-y-5">
+    <div className="p-4 space-y-5">
         <div className="flex items-center gap-3">
           <Link href="/dashboard">
             <button className="text-muted-foreground hover:text-foreground transition-colors" data-testid="button-back-promo">
@@ -166,6 +164,5 @@ export default function PromoPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

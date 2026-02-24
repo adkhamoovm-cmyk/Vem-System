@@ -1,5 +1,4 @@
 import { MessageCircle, Users, Headphones, Shield, ExternalLink, Send, Phone, HelpCircle, ChevronRight } from "lucide-react";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 export default function HelpPage() {
@@ -46,8 +45,7 @@ export default function HelpPage() {
   ];
 
   return (
-    <AppLayout>
-      <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4">
         <div className="bg-gradient-to-br from-[#3B82F6] via-[#2563EB] to-[#1d4ed8] rounded-2xl p-5 text-foreground shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -120,6 +118,5 @@ export default function HelpPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

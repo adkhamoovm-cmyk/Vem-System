@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Wallet, Lock, Unlock, TrendingUp, Clock, DollarSign, Infinity, ArrowRight, X, CheckCircle, Sprout, Gem, Trophy } from "lucide-react";
 import type { User, FundPlan, Investment } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 const planIcons: Record<string, typeof Sprout> = {
@@ -72,17 +71,14 @@ export default function FundPage() {
 
   if (plansLoading) {
     return (
-      <AppLayout>
-        <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
     );
   }
 
   return (
-    <AppLayout>
-      <div className="px-4 py-4 space-y-4">
+    <div className="px-4 py-4 space-y-4">
         <div className="bg-primary rounded-2xl p-4 text-primary-foreground shadow-lg" data-testid="fund-header">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
@@ -326,6 +322,5 @@ export default function FundPage() {
           </div>
         )}
       </div>
-    </AppLayout>
   );
 }

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Copy, Users, UserPlus, Check, Share2, Crown, Shield, User, ChevronDown, ChevronRight, Phone } from "lucide-react";
 import { useState } from "react";
 import type { User as UserType } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 interface ReferralStats {
@@ -79,8 +78,7 @@ export default function ReferralPage() {
   const totalCount = levels.reduce((sum, l) => sum + (l.data?.count || 0), 0);
 
   return (
-    <AppLayout>
-      <div className="p-4 space-y-4">
+    <div className="p-4 space-y-4">
         <div className="bg-primary rounded-2xl p-5 text-foreground shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
@@ -228,6 +226,5 @@ export default function ReferralPage() {
           </div>
         </div>
       </div>
-    </AppLayout>
   );
 }

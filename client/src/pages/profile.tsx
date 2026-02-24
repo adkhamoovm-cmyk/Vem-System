@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
@@ -901,11 +900,9 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60vh]">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
     );
   }
 
@@ -931,8 +928,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <AppLayout>
-      <div className="p-4 space-y-4 pb-24">
+    <div className="p-4 space-y-4 pb-24">
         <div className="flex items-center gap-4 pt-2">
           <div className="relative" onClick={handleAvatarClick} data-testid="button-avatar-upload">
             <div className="w-[72px] h-[72px] rounded-full border-2 border-primary overflow-hidden bg-card flex items-center justify-center cursor-pointer">
@@ -1435,6 +1431,5 @@ export default function ProfilePage() {
         <AddPaymentMethodModal open={showAddBankCard} onClose={() => setShowAddBankCard(false)} type="bank" />
         <AddPaymentMethodModal open={showAddUsdtWallet} onClose={() => setShowAddUsdtWallet(false)} type="usdt" />
       </div>
-    </AppLayout>
   );
 }

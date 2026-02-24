@@ -5,7 +5,6 @@ import { Progress } from "@/components/ui/progress";
 import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
-import AppLayout from "@/components/app-layout";
 import { useI18n } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
@@ -99,11 +98,9 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <AppLayout>
-        <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60vh]">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-      </AppLayout>
     );
   }
 
@@ -153,8 +150,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <AppLayout>
-      <div className="bg-background min-h-screen -mt-0">
+    <div className="bg-background min-h-screen -mt-0">
         {heroVideo && (
           <div className="relative w-full h-[280px] overflow-hidden">
             <img
@@ -419,6 +415,5 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
-    </AppLayout>
   );
 }
