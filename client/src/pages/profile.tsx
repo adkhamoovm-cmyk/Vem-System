@@ -1154,18 +1154,35 @@ export default function ProfilePage() {
                               </div>
                               <div>
                                 <p className="text-foreground text-xs font-medium">{(() => {
-                                  const typeMap: Record<string, string> = {
-                                    earning: t("vip.historyEarning", { name: "VIP" }),
-                                    deposit: t("vip.historyDeposit"),
-                                    withdrawal: t("vip.historyWithdrawal", { commission: "10%" }),
-                                    vip_purchase: t("vip.historyVipPurchase", { name: "VIP" }),
-                                    fund_invest: t("vip.historyFundInvest"),
-                                    commission: t("vip.historyCommission"),
-                                    admin_adjust: t("vip.historyAdminAdjust"),
-                                    fund_profit: t("vip.historyFundProfit"),
-                                    fund_return: t("vip.historyFundReturn"),
+                                  const desc = h.description || "";
+                                  const extractName = (d: string) => {
+                                    const m = d.match(/^(\w+)\s/);
+                                    return m ? m[1] : "VIP";
                                   };
-                                  return typeMap[h.type] || h.description;
+                                  const typeMap: Record<string, () => string> = {
+                                    earning: () => {
+                                      if (desc.includes("Fond") || desc.includes("fond")) return t("vip.historyFundProfit");
+                                      if (desc.includes("Promokod") || desc.includes("promokod")) return desc;
+                                      return t("vip.historyEarning", { name: extractName(desc) || "VIP" });
+                                    },
+                                    deposit: () => {
+                                      if (desc.includes("qaytarildi") || desc.includes("fond")) return t("vip.historyFundReturn");
+                                      return t("vip.historyDeposit");
+                                    },
+                                    withdrawal: () => t("vip.historyWithdrawal", { commission: "10%" }),
+                                    vip_purchase: () => {
+                                      const name = extractName(desc);
+                                      if (desc.includes("uzaytirildi")) return t("vip.historyVipExtend", { name });
+                                      return t("vip.historyVipPurchase", { name });
+                                    },
+                                    fund_invest: () => t("vip.historyFundInvest"),
+                                    commission: () => t("vip.historyCommission"),
+                                    admin_adjust: () => t("vip.historyAdminAdjust"),
+                                    fund_profit: () => t("vip.historyFundProfit"),
+                                    fund_return: () => t("vip.historyFundReturn"),
+                                  };
+                                  const fn = typeMap[h.type];
+                                  return fn ? fn() : h.description;
                                 })()}</p>
                                 <p className="text-muted-foreground text-[10px]">{new Date(h.createdAt).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                               </div>
