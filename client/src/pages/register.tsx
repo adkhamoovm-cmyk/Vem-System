@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone } from "lucide-react";
+import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
 
 const countryCodes = [
   { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}", name: "O'zbekiston" },
@@ -234,8 +235,17 @@ export default function RegisterPage() {
     },
   });
 
+  const { theme, toggleTheme } = useTheme();
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+      <button
+        onClick={toggleTheme}
+        className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
+        data-testid="button-theme-toggle-register"
+      >
+        {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
+      </button>
       <div className="w-full max-w-md">
         <div className="text-center mb-5">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
