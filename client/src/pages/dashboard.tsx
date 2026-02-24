@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download } from "lucide-react";
+import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
@@ -96,6 +96,11 @@ export default function DashboardPage() {
     queryKey: ["/api/vip-packages"],
   });
 
+  const [showInstallModal, setShowInstallModal] = useState(false);
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -150,6 +155,7 @@ export default function DashboardPage() {
   ];
 
   return (
+    <>
     <div className="bg-background min-h-screen -mt-0">
         {heroVideo && (
           <div className="relative w-full h-[280px] overflow-hidden">
@@ -297,7 +303,7 @@ export default function DashboardPage() {
                     window.deferredPrompt.prompt();
                     window.deferredPrompt.userChoice.then(() => { window.deferredPrompt = null; });
                   } else {
-                    window.open('/api/download-app', '_blank');
+                    setShowInstallModal(true);
                   }
                 }} className="flex flex-col items-center gap-1.5 shrink-0" data-testid={`quick-${item.title.toLowerCase()}`}>
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: item.bg + "20" }}>
@@ -415,5 +421,88 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {showInstallModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" data-testid="install-modal">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowInstallModal(false)} />
+          <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 pb-8 animate-in slide-in-from-bottom duration-300">
+            <button
+              onClick={() => setShowInstallModal(false)}
+              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
+              data-testid="button-close-install"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="text-center mb-5">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
+                <Download className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-bold text-foreground">VEM ilovasini o'rnatish</h3>
+              <p className="text-muted-foreground text-sm mt-1">Telefoningizga o'rnatib, tez kirish imkoniyatiga ega bo'ling</p>
+            </div>
+
+            {isIOS ? (
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
+                  <p className="text-sm text-foreground/80">
+                    Safari brauzerida pastki panelda <Share className="w-4 h-4 inline text-primary" /> <strong>Share</strong> tugmasini bosing
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
+                  <p className="text-sm text-foreground/80">
+                    <PlusSquare className="w-4 h-4 inline text-primary" /> <strong>"Add to Home Screen"</strong> ni tanlang
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">3</div>
+                  <p className="text-sm text-foreground/80">
+                    <strong>"Add"</strong> tugmasini bosing — VEM ilovasi bosh ekranda paydo bo'ladi
+                  </p>
+                </div>
+              </div>
+            ) : isAndroid ? (
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
+                  <p className="text-sm text-foreground/80">
+                    Chrome brauzerida yuqori o'ng burchakda <MoreVertical className="w-4 h-4 inline text-primary" /> tugmasini bosing
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
+                  <p className="text-sm text-foreground/80">
+                    <strong>"Bosh ekranga qo'shish"</strong> yoki <strong>"Install app"</strong> ni tanlang
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">3</div>
+                  <p className="text-sm text-foreground/80">
+                    <strong>"O'rnatish"</strong> tugmasini bosing — VEM ilovasi bosh ekranda paydo bo'ladi
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
+                  <p className="text-sm text-foreground/80">
+                    Brauzer manzil satrida <Download className="w-4 h-4 inline text-primary" /> o'rnatish ikonkasini bosing
+                  </p>
+                </div>
+                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
+                  <p className="text-sm text-foreground/80">
+                    <strong>"Install"</strong> tugmasini bosing — VEM ilovasi kompyuteringizda paydo bo'ladi
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
