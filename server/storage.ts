@@ -1,4 +1,4 @@
-import { eq, and, sql, desc } from "drizzle-orm";
+import { eq, and, sql, desc, gte, sum } from "drizzle-orm";
 import { db } from "./db";
 import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages } from "@shared/schema";
 import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage } from "@shared/schema";
@@ -73,6 +73,7 @@ export interface IStorage {
   updateUserTotalEarnings(id: string, amount: string): Promise<void>;
   setUserVipExpiry(id: string, expiresAt: Date | null): Promise<void>;
   setUserVipPurchaseInfo(id: string, purchasedAt: Date, price: string): Promise<void>;
+  getTaskEarningsSince(userId: string, sinceDate: Date): Promise<number>;
   setStajyorUsed(id: string): Promise<void>;
   addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
   getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
@@ -458,6 +459,16 @@ export class DatabaseStorage implements IStorage {
     await db.update(users)
       .set({ vipPurchasedAt: purchasedAt, vipPurchasePrice: price })
       .where(eq(users.id, id));
+  }
+
+  async getTaskEarningsSince(userId: string, sinceDate: Date): Promise<number> {
+    const result = await db.select({ total: sum(taskHistory.reward) })
+      .from(taskHistory)
+      .where(and(
+        eq(taskHistory.userId, userId),
+        gte(taskHistory.completedAt, sinceDate)
+      ));
+    return Number(result[0]?.total || 0);
   }
 
   async setStajyorUsed(id: string): Promise<void> {

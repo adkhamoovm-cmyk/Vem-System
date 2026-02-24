@@ -388,17 +388,11 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
       const isUpgrade = user.vipLevel > 0 && pkg.level > user.vipLevel;
 
       let refundAmount = 0;
-      let refundRemainingDays = 0;
-      if (isUpgrade && user.vipPurchasedAt && user.vipExpiresAt && user.vipPurchasePrice) {
-        const purchaseDate = new Date(user.vipPurchasedAt);
-        const expiryDate = new Date(user.vipExpiresAt);
-        const now = new Date();
-        const totalMs = expiryDate.getTime() - purchaseDate.getTime();
-        const remainingMs = Math.max(0, expiryDate.getTime() - now.getTime());
-        if (totalMs > 0 && remainingMs > 0) {
-          const originalPrice = Number(user.vipPurchasePrice);
-          refundAmount = Math.floor((originalPrice * remainingMs / totalMs) * 100) / 100;
-          refundRemainingDays = Math.floor(remainingMs / (1000 * 60 * 60 * 24));
+      if (isUpgrade && user.vipPurchasedAt && user.vipPurchasePrice) {
+        const originalPrice = Number(user.vipPurchasePrice);
+        const earnedSinceVip = await storage.getTaskEarningsSince(userId, new Date(user.vipPurchasedAt));
+        if (earnedSinceVip < originalPrice) {
+          refundAmount = Math.floor((originalPrice - earnedSinceVip) * 100) / 100;
         }
       }
 
@@ -415,7 +409,7 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
       expiresAt.setDate(expiresAt.getDate() + pkg.durationDays);
 
       if (refundAmount > 0) {
-        await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(refundAmount), description: `Oldingi VIP qaytim: ${refundAmount.toFixed(2)} USDT (${refundRemainingDays} kun qolgan edi)` });
+        await storage.addBalanceHistory({ userId, type: "commission", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (depozitning oqlanmagan qismi)` });
       }
 
       await storage.updateUserBalance(userId, String(-effectiveCost));
