@@ -28,7 +28,7 @@ const levelColors: Record<number, { primary: string; bg: string; gradient: strin
 };
 
 export default function VipPage() {
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [stajyorMsg, setStajyorMsg] = useState("");
 
@@ -54,10 +54,10 @@ export default function VipPage() {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 
@@ -69,10 +69,10 @@ export default function VipPage() {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/stajyor/status"] });
       setStajyorMsg("");
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 

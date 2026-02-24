@@ -199,7 +199,7 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
 export default function RegisterPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
   const [showCountryList, setShowCountryList] = useState(false);
@@ -234,7 +234,7 @@ export default function RegisterPage() {
       navigate("/dashboard");
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 

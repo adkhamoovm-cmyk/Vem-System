@@ -27,7 +27,7 @@ function formatUZS(usd: number): string {
 
 function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User }) {
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [paymentType, setPaymentType] = useState<"crypto" | "local" | null>(null);
   const [amount, setAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -78,7 +78,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
       onClose();
       setPaymentType(null);
@@ -86,7 +86,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
       setReceiptFile(null);
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 
@@ -318,7 +318,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
 
 function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose: () => void; type: "bank" | "usdt" }) {
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [holderName, setHolderName] = useState("");
   const [bankName, setBankName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -346,13 +346,13 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       queryClient.invalidateQueries({ queryKey: ["/api/payment-methods"] });
       onClose();
       resetForm();
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 
@@ -538,7 +538,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
 
 function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean; onClose: () => void; user: User; paymentMethods: PaymentMethod[] }) {
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [selectedMethodId, setSelectedMethodId] = useState("");
   const [amount, setAmount] = useState("");
   const [fundPassword, setFundPassword] = useState("");
@@ -564,7 +564,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals"] });
       onClose();
@@ -573,7 +573,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
       setSelectedMethodId("");
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 
@@ -761,7 +761,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [, navigate] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSecretInfo, setShowSecretInfo] = useState(false);
@@ -850,13 +850,13 @@ export default function ProfilePage() {
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       setShowChangePassword(false);
       setCurrentPwd("");
       setNewPwd("");
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 
@@ -869,13 +869,13 @@ export default function ProfilePage() {
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       setShowChangeFundPwd(false);
       setCurrentFundPwd("");
       setNewFundPwd("");
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 

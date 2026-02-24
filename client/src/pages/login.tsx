@@ -36,7 +36,7 @@ const countryCodes = [
 export default function LoginPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("vem_remember") === "true");
   const [selectedCountry, setSelectedCountry] = useState(() => {
@@ -83,7 +83,7 @@ export default function LoginPage() {
       navigate("/dashboard");
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 

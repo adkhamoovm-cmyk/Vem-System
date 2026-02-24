@@ -20,7 +20,7 @@ const planColors: Record<string, { gradient: string; bg: string; accent: string 
 };
 
 export default function FundPage() {
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState<FundPlan | null>(null);
   const [amount, setAmount] = useState("");
@@ -48,10 +48,10 @@ export default function FundPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/investments"] });
       setSelectedPlan(null);
       setAmount("");
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 

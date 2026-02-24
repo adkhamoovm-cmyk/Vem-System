@@ -12,7 +12,7 @@ import { useI18n } from "@/lib/i18n";
 
 export default function PromoPage() {
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [code, setCode] = useState("");
   const [lastResult, setLastResult] = useState<{ success: boolean; message: string; amount?: string } | null>(null);
 
@@ -31,15 +31,15 @@ export default function PromoPage() {
       return res.json();
     },
     onSuccess: (data: any) => {
-      setLastResult({ success: true, message: data.message, amount: data.amount });
+      setLastResult({ success: true, message: translateServerMessage(data.message), amount: data.amount });
       setCode("");
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/promo/history"] });
-      toast({ title: t("common.success"), description: data.message });
+      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
     },
     onError: (error: any) => {
-      setLastResult({ success: false, message: error.message });
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      setLastResult({ success: false, message: translateServerMessage(error.message) });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 

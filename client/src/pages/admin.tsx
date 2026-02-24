@@ -56,7 +56,7 @@ function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: Use
 }
 
 function UserDetailModal({ userId, open, onClose }: { userId: string | null; open: boolean; onClose: () => void }) {
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [editBalance, setEditBalance] = useState(false);
   const [newBalance, setNewBalance] = useState("");
@@ -82,7 +82,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       setEditBalance(false);
     },
-    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const vipMutation = useMutation({
@@ -95,7 +95,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       setEditVip(false);
     },
-    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const banMutation = useMutation({
@@ -132,7 +132,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       setNewPassword("");
       setNewFundPassword("");
     },
-    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const deleteMethodMutation = useMutation({
@@ -915,7 +915,7 @@ function MultiAccountsTab() {
 }
 
 function StajyorTab({ users: allUsers }: { users: User[] }) {
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
@@ -929,7 +929,7 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stajyor-requests"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
-    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const rejectMutation = useMutation({
@@ -938,7 +938,7 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
       toast({ title: t("admin.requestRejected") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stajyor-requests"] });
     },
-    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const filtered = requests.filter(r => filter === "all" || r.status === filter);
@@ -1015,7 +1015,7 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
 }
 
 function VipManageTab() {
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const { data: packages = [] } = useQuery<VipPackage[]>({ queryKey: ["/api/vip-packages"] });
 
@@ -1027,7 +1027,7 @@ function VipManageTab() {
       toast({ title: t("admin.vipLevelUpdated") });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
     },
-    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const sorted = [...packages].sort((a, b) => a.level - b.level);
@@ -1071,7 +1071,7 @@ function VipManageTab() {
 }
 
 function PromoCodesTab() {
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [newCode, setNewCode] = useState("");
   const [newAmount, setNewAmount] = useState("");
@@ -1105,7 +1105,7 @@ function PromoCodesTab() {
       setNewCode(""); setNewAmount(""); setMaxUses("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/promo-codes"] });
     },
-    onError: (e: any) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: any) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const deactivateMutation = useMutation({

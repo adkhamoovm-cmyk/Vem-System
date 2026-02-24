@@ -41,7 +41,7 @@ function VideoPlayerModal({
   onClose: () => void;
 }) {
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, translateServerMessage } = useI18n();
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [completed, setCompleted] = useState(false);
@@ -63,7 +63,7 @@ function VideoPlayerModal({
       });
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 
