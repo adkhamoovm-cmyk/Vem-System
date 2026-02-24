@@ -384,24 +384,48 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
         return res.status(400).json({ message: "Pastroq darajaga tushish mumkin emas" });
       }
 
-      if (Number(user.balance) < Number(pkg.price)) {
+      const isExtension = user.vipLevel === pkg.level;
+      const isUpgrade = user.vipLevel > 0 && pkg.level > user.vipLevel;
+
+      let refundAmount = 0;
+      let refundRemainingDays = 0;
+      if (isUpgrade && user.vipPurchasedAt && user.vipExpiresAt && user.vipPurchasePrice) {
+        const purchaseDate = new Date(user.vipPurchasedAt);
+        const expiryDate = new Date(user.vipExpiresAt);
+        const now = new Date();
+        const totalMs = expiryDate.getTime() - purchaseDate.getTime();
+        const remainingMs = Math.max(0, expiryDate.getTime() - now.getTime());
+        if (totalMs > 0 && remainingMs > 0) {
+          const originalPrice = Number(user.vipPurchasePrice);
+          refundAmount = Math.floor((originalPrice * remainingMs / totalMs) * 100) / 100;
+          refundRemainingDays = Math.floor(remainingMs / (1000 * 60 * 60 * 24));
+        }
+      }
+
+      const effectiveCost = Number(pkg.price) - refundAmount;
+      if (Number(user.balance) < effectiveCost) {
         return res.status(400).json({ message: "Balans yetarli emas" });
       }
 
       let baseDate = new Date();
-      if (user.vipLevel === pkg.level && user.vipExpiresAt && new Date(user.vipExpiresAt) > baseDate) {
+      if (isExtension && user.vipExpiresAt && new Date(user.vipExpiresAt) > baseDate) {
         baseDate = new Date(user.vipExpiresAt);
       }
       const expiresAt = new Date(baseDate);
       expiresAt.setDate(expiresAt.getDate() + pkg.durationDays);
 
-      await storage.updateUserBalance(userId, String(-Number(pkg.price)));
+      if (refundAmount > 0) {
+        await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(refundAmount), description: `Oldingi VIP qaytim: ${refundAmount.toFixed(2)} USDT (${refundRemainingDays} kun qolgan edi)` });
+      }
+
+      await storage.updateUserBalance(userId, String(-effectiveCost));
       await storage.updateUserVipLevel(userId, pkg.level, pkg.dailyTasks);
       await storage.setUserVipExpiry(userId, expiresAt);
-      const isExtension = user.vipLevel === pkg.level;
-      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-Number(pkg.price)), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)` });
+      await storage.setUserVipPurchaseInfo(userId, new Date(), String(pkg.price));
+      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-Number(pkg.price)), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)${refundAmount > 0 ? ` | Qaytim: ${refundAmount.toFixed(2)} USDT` : ""}` });
 
-      res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} kun ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.` });
+      const refundMsg = refundAmount > 0 ? ` Oldingi VIP dan ${refundAmount.toFixed(2)} USDT qaytarildi.` : "";
+      res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} kun ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}` });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

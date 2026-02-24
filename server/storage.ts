@@ -72,6 +72,7 @@ export interface IStorage {
   hasUserInvestments(userId: string): Promise<boolean>;
   updateUserTotalEarnings(id: string, amount: string): Promise<void>;
   setUserVipExpiry(id: string, expiresAt: Date | null): Promise<void>;
+  setUserVipPurchaseInfo(id: string, purchasedAt: Date, price: string): Promise<void>;
   setStajyorUsed(id: string): Promise<void>;
   addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
   getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
@@ -450,6 +451,12 @@ export class DatabaseStorage implements IStorage {
   async setUserVipExpiry(id: string, expiresAt: Date | null): Promise<void> {
     await db.update(users)
       .set({ vipExpiresAt: expiresAt })
+      .where(eq(users.id, id));
+  }
+
+  async setUserVipPurchaseInfo(id: string, purchasedAt: Date, price: string): Promise<void> {
+    await db.update(users)
+      .set({ vipPurchasedAt: purchasedAt, vipPurchasePrice: price })
       .where(eq(users.id, id));
   }
 

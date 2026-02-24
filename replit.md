@@ -4,6 +4,10 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-24: VIP upgrade refund system: unused days proportionally refunded when upgrading (ms-based precision)
+- 2026-02-24: vipPurchasedAt and vipPurchasePrice fields track VIP purchase history
+- 2026-02-24: Admin user detail shows VIP purchase/expiry dates and fund investment start/end dates
+- 2026-02-24: translateServerMessage system with pattern matching for dynamic server messages
 - 2026-02-24: Complete multi-language support (Uzbek, Russian, English) across ALL pages
 - 2026-02-24: Custom i18n system with I18nProvider, useI18n hook, localStorage persistence
 - 2026-02-24: Language switcher component in auth pages header and app-layout header

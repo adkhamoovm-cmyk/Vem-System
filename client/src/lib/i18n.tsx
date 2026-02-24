@@ -59,6 +59,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       if (match) {
         let translated = t(k);
         if (match[1]) translated = translated.replace("{value}", match[1]);
+        if (match[2]) translated = translated.replace("{value2}", match[2]);
+        if (match[3]) translated = translated.replace("{value3}", match[3]);
         return translated;
       }
     }
@@ -167,6 +169,7 @@ const serverMessageMap: Record<string, string> = {
 };
 
 const serverMessagePatterns: [RegExp, string][] = [
+  [/^(\w+) paketi (uzaytirildi|faollashtirildi)!.* Oldingi VIP dan ([\d.]+) USDT qaytarildi\.$/, "server.vipActivatedWithRefund"],
   [/^(\w+) paketi (uzaytirildi|faollashtirildi)/, "server.vipActivated"],
   [/^(\d+(?:\.\d+)?) USDT hisobingizga qo'shildi/, "server.promoAmountAdded"],
   [/^Minimal depozit: \$(.+)$/, "server.minDeposit"],
@@ -651,6 +654,13 @@ const translations: Record<Locale, any> = {
       fundPasswordLabel: "Moliya paroli:",
       newFundPin: "Yangi 6 xonali PIN",
       paymentMethods: "To'lov usullari",
+      fundInvestments: "Fond investitsiyalari",
+      dailyProfit: "Kunlik foyda",
+      startDate: "Boshlanish",
+      endDate: "Tugash",
+      completed: "Tugallangan",
+      vipPurchasedAt: "VIP sotib olingan",
+      vipExpiresAt: "VIP tugaydi",
       referralStats: "Referal statistika",
       level: "{level}-daraja",
       allReferrals: "Barcha referallar ({count} ta)",
@@ -816,6 +826,7 @@ const translations: Record<Locale, any> = {
       requisiteDeleted: "Rekvizit o'chirildi",
       logoutSuccess: "Chiqish muvaffaqiyatli",
       vipActivated: "VIP paket muvaffaqiyatli faollashtirildi!",
+      vipActivatedWithRefund: "{value} paketi faollashtirildi! Oldingi VIP dan {value3} USDT qaytarildi.",
       promoAmountAdded: "{value} USDT hisobingizga qo'shildi!",
       minDeposit: "Minimal depozit: ${value}",
       unknownError: "Xatolik yuz berdi. Qaytadan urinib ko'ring.",
@@ -1300,6 +1311,13 @@ const translations: Record<Locale, any> = {
       fundPasswordLabel: "Финансовый пароль:",
       newFundPin: "Новый 6-значный PIN",
       paymentMethods: "Способы оплаты",
+      fundInvestments: "Инвестиции в фонд",
+      dailyProfit: "Ежедневная прибыль",
+      startDate: "Начало",
+      endDate: "Окончание",
+      completed: "Завершено",
+      vipPurchasedAt: "VIP куплен",
+      vipExpiresAt: "VIP истекает",
       referralStats: "Статистика рефералов",
       level: "{level}-уровень",
       allReferrals: "Все рефералы ({count} чел.)",
@@ -1465,6 +1483,7 @@ const translations: Record<Locale, any> = {
       requisiteDeleted: "Реквизиты удалены",
       logoutSuccess: "Выход выполнен успешно",
       vipActivated: "VIP пакет успешно активирован!",
+      vipActivatedWithRefund: "Пакет {value} активирован! Возврат от предыдущего VIP: {value3} USDT.",
       promoAmountAdded: "{value} USDT зачислено на ваш счёт!",
       minDeposit: "Минимальный депозит: ${value}",
       unknownError: "Произошла ошибка. Попробуйте снова.",
@@ -1949,6 +1968,13 @@ const translations: Record<Locale, any> = {
       fundPasswordLabel: "Fund password:",
       newFundPin: "New 6-digit PIN",
       paymentMethods: "Payment methods",
+      fundInvestments: "Fund investments",
+      dailyProfit: "Daily profit",
+      startDate: "Start",
+      endDate: "End",
+      completed: "Completed",
+      vipPurchasedAt: "VIP purchased",
+      vipExpiresAt: "VIP expires",
       referralStats: "Referral statistics",
       level: "Level {level}",
       allReferrals: "All referrals ({count})",
@@ -2114,6 +2140,7 @@ const translations: Record<Locale, any> = {
       requisiteDeleted: "Requisites deleted",
       logoutSuccess: "Logged out successfully",
       vipActivated: "VIP package activated successfully!",
+      vipActivatedWithRefund: "{value} package activated! Refund from previous VIP: {value3} USDT.",
       promoAmountAdded: "{value} USDT has been credited to your account!",
       minDeposit: "Minimum deposit: ${value}",
       unknownError: "An error occurred. Please try again.",

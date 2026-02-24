@@ -176,6 +176,8 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <InfoRow label={t("admin.phone")} value={user.phone} />
             <InfoRow label="ID" value={user.numericId || "—"} />
             <InfoRow label="VIP" value={vipNames[user.vipLevel] || `M${user.vipLevel}`} />
+            <InfoRow label={t("admin.vipPurchasedAt")} value={user.vipPurchasedAt ? new Date(user.vipPurchasedAt).toLocaleDateString() : "—"} />
+            <InfoRow label={t("admin.vipExpiresAt")} value={user.vipExpiresAt ? new Date(user.vipExpiresAt).toLocaleDateString() : "—"} />
             <InfoRow label={t("common.balance")} value={`${Number(user.balance).toFixed(2)} USDT`} />
             <InfoRow label={t("admin.earnings")} value={`${Number(user.totalEarnings).toFixed(2)} USDT`} />
             <InfoRow label={t("common.deposit")} value={`${Number(user.totalDeposit).toFixed(2)} USDT`} />
@@ -309,6 +311,32 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                 </Button>
                 <Button size="sm" onClick={() => setEditPassword(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">{t("common.cancel")}</Button>
               </div>
+            </div>
+          )}
+
+          {detail.investments?.length > 0 && (
+            <div>
+              <p className="text-muted-foreground text-xs font-semibold mb-2">{t("admin.fundInvestments")}</p>
+              {detail.investments.map((inv: any) => (
+                <div key={inv.id} className="bg-card rounded-lg p-2.5 border border-border mb-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                      <div>
+                        <p className="text-foreground text-xs font-semibold">{Number(inv.investedAmount).toFixed(2)} USDT</p>
+                        <p className="text-muted-foreground text-[10px]">{t("admin.dailyProfit")}: {Number(inv.dailyProfit).toFixed(2)} USDT</p>
+                      </div>
+                    </div>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${inv.status === "active" ? "bg-emerald-500/20 text-emerald-500 dark:text-emerald-400" : "bg-muted text-muted-foreground"}`}>
+                      {inv.status === "active" ? t("common.active") : t("admin.completed")}
+                    </span>
+                  </div>
+                  <div className="flex gap-4 mt-1.5 text-[10px] text-muted-foreground">
+                    <span>{t("admin.startDate")}: {inv.startDate ? new Date(inv.startDate).toLocaleDateString() : "—"}</span>
+                    <span>{t("admin.endDate")}: {inv.endDate ? new Date(inv.endDate).toLocaleDateString() : "∞"}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
 
