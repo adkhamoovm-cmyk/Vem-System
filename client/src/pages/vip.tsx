@@ -233,7 +233,7 @@ export default function VipPage() {
                           <h3 className="text-foreground font-bold">{pkg.name}</h3>
                           {isLocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                         </div>
-                        <p className="text-muted-foreground text-xs mt-0.5">{pkg.description}</p>
+                        <p className="text-muted-foreground text-xs mt-0.5">{pkg.level === 0 ? t("vip.descStajyor") : t("vip.descDaily", { count: pkg.dailyTasks })}</p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">

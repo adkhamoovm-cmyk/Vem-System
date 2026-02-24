@@ -1153,7 +1153,20 @@ export default function ProfilePage() {
                                 <IconComp className="w-3.5 h-3.5" style={{ color: config.color }} />
                               </div>
                               <div>
-                                <p className="text-foreground text-xs font-medium">{h.description}</p>
+                                <p className="text-foreground text-xs font-medium">{(() => {
+                                  const typeMap: Record<string, string> = {
+                                    earning: t("vip.historyEarning", { name: "VIP" }),
+                                    deposit: t("vip.historyDeposit"),
+                                    withdrawal: t("vip.historyWithdrawal", { commission: "10%" }),
+                                    vip_purchase: t("vip.historyVipPurchase", { name: "VIP" }),
+                                    fund_invest: t("vip.historyFundInvest"),
+                                    commission: t("vip.historyCommission"),
+                                    admin_adjust: t("vip.historyAdminAdjust"),
+                                    fund_profit: t("vip.historyFundProfit"),
+                                    fund_return: t("vip.historyFundReturn"),
+                                  };
+                                  return typeMap[h.type] || h.description;
+                                })()}</p>
                                 <p className="text-muted-foreground text-[10px]">{new Date(h.createdAt).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                               </div>
                             </div>
