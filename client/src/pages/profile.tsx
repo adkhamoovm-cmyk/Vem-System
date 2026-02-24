@@ -238,7 +238,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                 <ul className="text-[#888] text-[11px] space-y-1.5 leading-relaxed">
                   <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> Minimal: {paymentType === "crypto" ? "10 USDT" : `${(10 * UZS_RATE).toLocaleString()} UZS`}</li>
                   <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> To'lov chekini yuklashni unutmang</li>
-                  <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> Admin tomonidan 1-24 soat ichida tekshiriladi</li>
+                  <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> Moliya departamenti tomonidan 24 soatgacha tekshiriladi</li>
                   <li className="flex items-start gap-1.5"><span className="text-[#FF6B35] mt-0.5">•</span> Tasdiqlangandan so'ng balansingizga qo'shiladi</li>
                 </ul>
               </div>
