@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Phone, Lock, Eye, EyeOff, ChevronDown, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
+import vemLogo from "@assets/photo_2026-02-24_19-03-39_1771941846491.jpg";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 const countryCodes = [
@@ -103,10 +104,9 @@ export default function LoginPage() {
       </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-            <span className="text-white text-3xl font-bold">V</span>
+          <div className="inline-block rounded-2xl overflow-hidden bg-[#0d1033] px-4 py-2">
+            <img src={vemLogo} alt="VEM" className="h-14 object-contain" />
           </div>
-          <h1 className="text-3xl font-bold text-foreground tracking-tight">VEM</h1>
           <p className="text-muted-foreground mt-1 text-sm">Video Earning Platform</p>
         </div>
 
