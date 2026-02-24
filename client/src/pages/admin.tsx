@@ -497,6 +497,7 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
   const { t } = useI18n();
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
+  const [viewReceipt, setViewReceipt] = useState<string | null>(null);
   const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
 
   const approveMutation = useMutation({
@@ -549,9 +550,14 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
                   <p className="text-muted-foreground text-xs">{t("admin.paymentType")}: {d.paymentType === "crypto" ? t("admin.crypto") : t("admin.local")}</p>
                   <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(d.createdAt).toLocaleString()}</p>
                   {d.receiptUrl && (
-                    <a href={d.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] text-xs underline mt-1 inline-block">
-                      {t("admin.viewReceipt")}
-                    </a>
+                    <div className="mt-2 cursor-pointer" onClick={() => setViewReceipt(d.receiptUrl)} data-testid={`receipt-thumbnail-${d.id}`}>
+                      <img
+                        src={d.receiptUrl}
+                        alt={t("admin.viewReceipt")}
+                        className="w-full max-w-[200px] h-auto rounded-lg border border-border object-cover hover:opacity-80 transition-opacity"
+                      />
+                      <p className="text-primary text-[10px] mt-1">{t("admin.viewReceipt")}</p>
+                    </div>
                   )}
                 </div>
                 {d.status === "pending" && (
@@ -569,6 +575,23 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
           );
         })}
       </div>
+
+      <Dialog open={!!viewReceipt} onOpenChange={() => setViewReceipt(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-2 sm:p-4">
+          <DialogHeader>
+            <DialogTitle>{t("admin.viewReceipt")}</DialogTitle>
+          </DialogHeader>
+          {viewReceipt && (
+            <div className="flex items-center justify-center overflow-auto max-h-[80vh]">
+              <img
+                src={viewReceipt}
+                alt={t("admin.viewReceipt")}
+                className="max-w-full max-h-[75vh] object-contain rounded-lg"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
