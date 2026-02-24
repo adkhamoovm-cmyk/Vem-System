@@ -45,7 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">
           <div className="flex items-center gap-1">
-            <img src={vemLogo} alt="VEM" className="pro-logo h-8" />
+            <img src={vemLogo} alt="VEM" className="h-7 object-contain" style={{filter: "drop-shadow(0px 2px 6px rgba(79, 107, 255, 0.3))"}} />
           </div>
 
           <div className="flex items-center gap-2">
