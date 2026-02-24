@@ -247,9 +247,9 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
         return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
       }
 
-      const now = new Date();
-      const taskDay = new Date(now.getTime() - 6 * 60 * 60 * 1000);
-      const today = taskDay.toISOString().split("T")[0];
+      const uzbOffset = 5 * 60 * 60 * 1000;
+      const uzbNow = new Date(Date.now() + uzbOffset);
+      const today = uzbNow.toISOString().split("T")[0];
       if (user.lastTaskDate !== today) {
         await storage.updateUserDailyTasks(user.id, 0, today);
         user.dailyTasksCompleted = 0;
@@ -282,17 +282,16 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
       const userId = req.session.userId!;
       const { videoId, youtubeVideoId } = req.body;
 
-      const nowTask = new Date();
-      if (nowTask.getDay() === 0) {
+      const uzbOffset = 5 * 60 * 60 * 1000;
+      const uzbNow = new Date(Date.now() + uzbOffset);
+      if (uzbNow.getUTCDay() === 0) {
         return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Vazifalar Dushanba-Shanba kunlari bajariladi." });
       }
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
 
-      const now = new Date();
-      const taskDay = new Date(now.getTime() - 6 * 60 * 60 * 1000);
-      const today = taskDay.toISOString().split("T")[0];
+      const today = uzbNow.toISOString().split("T")[0];
       let dailyCompleted = user.dailyTasksCompleted;
       if (user.lastTaskDate !== today) {
         dailyCompleted = 0;
@@ -339,16 +338,19 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
       if (user.referredBy && user.vipLevel > 0) {
         const l1Commission = (perVideoReward * 0.09).toFixed(2);
         await storage.updateUserBalance(user.referredBy, l1Commission);
+        await storage.addReferralCommission(user.referredBy, userId, 1, l1Commission);
         await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi (${user.phone})` });
         const l1Referrer = await storage.getUser(user.referredBy);
         if (l1Referrer?.referredBy) {
           const l2Commission = (perVideoReward * 0.03).toFixed(2);
           await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
+          await storage.addReferralCommission(l1Referrer.referredBy, userId, 2, l2Commission);
           await storage.addBalanceHistory({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi` });
           const l2Referrer = await storage.getUser(l1Referrer.referredBy);
           if (l2Referrer?.referredBy) {
             const l3Commission = (perVideoReward * 0.01).toFixed(2);
             await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
+            await storage.addReferralCommission(l2Referrer.referredBy, userId, 3, l3Commission);
             await storage.addBalanceHistory({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi` });
           }
         }
@@ -404,7 +406,7 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
         }
       }
 
-      const effectiveCost = Number(pkg.price) - refundAmount;
+      const effectiveCost = Math.max(0, Number(pkg.price) - refundAmount);
       if (Number(user.balance) < effectiveCost) {
         return res.status(400).json({ message: "Balans yetarli emas" });
       }
@@ -424,7 +426,7 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
       await storage.updateUserVipLevel(userId, pkg.level, pkg.dailyTasks);
       await storage.setUserVipExpiry(userId, expiresAt);
       await storage.setUserVipPurchaseInfo(userId, new Date(), String(pkg.price));
-      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-Number(pkg.price)), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)${refundAmount > 0 ? ` | Qaytim: ${refundAmount.toFixed(2)} USDT` : ""}` });
+      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-effectiveCost), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)${refundAmount > 0 ? ` | Qaytim: ${refundAmount.toFixed(2)} USDT` : ""}` });
 
       const refundMsg = refundAmount > 0 ? ` Oldingi VIP dan ${refundAmount.toFixed(2)} USDT qaytarildi.` : "";
       res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} kun ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}` });
@@ -731,19 +733,17 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
         await storage.updateUserFundPassword(user.id, user.fundPassword, fundPassword);
       }
 
-      const now = new Date();
-      const day = now.getDay();
-      const hour = now.getHours();
+      const uzbOffset = 5 * 60 * 60 * 1000;
+      const uzbNow = new Date(Date.now() + uzbOffset);
+      const uzbDay = uzbNow.getUTCDay();
+      const uzbHour = uzbNow.getUTCHours();
 
-      if (day === 0) {
+      if (uzbDay === 0) {
         return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Pul yechish faqat Dushanba-Shanba kunlari mumkin." });
       }
-      if (hour < 11 || hour >= 17) {
+      if (uzbHour < 11 || uzbHour >= 17) {
         return res.status(400).json({ message: "Pul yechish faqat 11:00 dan 17:00 gacha mumkin" });
       }
-
-      const uzbOffset = 5 * 60 * 60 * 1000;
-      const uzbNow = new Date(now.getTime() + uzbOffset);
       const todayStr = uzbNow.toISOString().split("T")[0];
       const todayWithdrawals = await storage.getUserWithdrawalRequests(userId);
       const withdrawalsToday = todayWithdrawals.filter(w => {
@@ -890,11 +890,16 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
   app.post("/api/admin/users/:id/balance", requireAdmin, async (req: Request, res: Response) => {
     try {
       const { balance } = req.body;
+      const numBalance = Number(balance);
+      if (isNaN(numBalance) || numBalance < 0) {
+        return res.status(400).json({ message: "Noto'g'ri balans qiymati" });
+      }
       const targetUser = await storage.getUser(req.params.id as string);
-      const oldBalance = targetUser ? Number(targetUser.balance) : 0;
-      const diff = Number(balance) - oldBalance;
-      await storage.setUserBalance(req.params.id as string, String(balance));
-      await storage.addBalanceHistory({ userId: req.params.id as string, type: "admin_adjust", amount: String(diff), description: `Texnik bo'lim tomonidan balans o'zgartirildi` });
+      if (!targetUser) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
+      const oldBalance = Number(targetUser.balance);
+      const diff = numBalance - oldBalance;
+      await storage.setUserBalance(req.params.id as string, numBalance.toFixed(2));
+      await storage.addBalanceHistory({ userId: req.params.id as string, type: "admin_adjust", amount: diff.toFixed(2), description: `Texnik bo'lim tomonidan balans o'zgartirildi` });
       res.json({ message: "Balans yangilandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -904,7 +909,12 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
   app.post("/api/admin/users/:id/vip", requireAdmin, async (req: Request, res: Response) => {
     try {
       const { level, dailyLimit } = req.body;
-      await storage.setUserVipLevel(req.params.id as string, level, dailyLimit);
+      const numLevel = Number(level);
+      const numLimit = Number(dailyLimit);
+      if (isNaN(numLevel) || numLevel < -1 || numLevel > 10 || isNaN(numLimit) || numLimit < 0) {
+        return res.status(400).json({ message: "Noto'g'ri VIP daraja yoki limit qiymati" });
+      }
+      await storage.setUserVipLevel(req.params.id as string, numLevel, numLimit);
       res.json({ message: "VIP daraja yangilandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -969,7 +979,7 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
     try {
       const deposit = await storage.getDepositById(req.params.id as string);
       if (!deposit) return res.status(404).json({ message: "Depozit topilmadi" });
-      if (deposit.status === "approved") return res.status(400).json({ message: "Depozit allaqachon tasdiqlangan" });
+      if (deposit.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan depozitlar tasdiqlanishi mumkin" });
 
       let amountInUSDT = deposit.amount;
       if (deposit.currency === "UZS") {
@@ -1017,7 +1027,10 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
 
   app.post("/api/admin/withdrawals/:id/approve", requireAdmin, async (req: Request, res: Response) => {
     try {
-      await storage.updateWithdrawalStatus(req.params.id as string, "approved");
+      const withdrawal = await storage.getWithdrawalById(req.params.id as string);
+      if (!withdrawal) return res.status(404).json({ message: "So'rov topilmadi" });
+      if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar tasdiqlanishi mumkin" });
+      await storage.updateWithdrawalStatus(withdrawal.id, "approved");
       res.json({ message: "Yechish tasdiqlandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1026,8 +1039,14 @@ h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;
 
   app.post("/api/admin/withdrawals/:id/reject", requireAdmin, async (req: Request, res: Response) => {
     try {
-      await storage.updateWithdrawalStatus(req.params.id as string, "rejected");
-      res.json({ message: "Yechish rad etildi" });
+      const withdrawal = await storage.getWithdrawalById(req.params.id as string);
+      if (!withdrawal) return res.status(404).json({ message: "So'rov topilmadi" });
+      if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar rad etilishi mumkin" });
+
+      await storage.updateWithdrawalStatus(withdrawal.id, "rejected");
+      await storage.updateUserBalance(withdrawal.userId, withdrawal.amount);
+      await storage.addBalanceHistory({ userId: withdrawal.userId, type: "admin_adjust", amount: withdrawal.amount, description: `Pul yechish rad etildi — balans qaytarildi` });
+      res.json({ message: "Yechish rad etildi va balans qaytarildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

@@ -54,7 +54,9 @@ export interface IStorage {
   updateDepositStatus(id: string, status: string): Promise<void>;
   updateUserTotalDeposit(id: string, amount: string): Promise<void>;
   getAllWithdrawalRequests(): Promise<WithdrawalRequest[]>;
+  getWithdrawalById(id: string): Promise<WithdrawalRequest | undefined>;
   updateWithdrawalStatus(id: string, status: string): Promise<void>;
+  addReferralCommission(referrerId: string, referredId: string, level: number, amount: string): Promise<void>;
   deletePaymentMethod(id: string): Promise<void>;
   getDepositSettings(): Promise<DepositSetting[]>;
   upsertDepositSetting(data: Partial<DepositSetting> & { type: string }): Promise<DepositSetting>;
@@ -202,6 +204,12 @@ export class DatabaseStorage implements IStorage {
     await db.insert(referrals).values({ ...entry, commission: entry.commission || "0" });
   }
 
+  async addReferralCommission(referrerId: string, referredId: string, level: number, amount: string): Promise<void> {
+    await db.update(referrals)
+      .set({ commission: sql`${referrals.commission}::numeric + ${amount}::numeric` })
+      .where(and(eq(referrals.referrerId, referrerId), eq(referrals.referredId, referredId), eq(referrals.level, level)));
+  }
+
   async getReferredUsers(userId: string): Promise<{ phone: string; vipLevel: number; level: number }[]> {
     const result = await db.select({
       phone: users.phone,
@@ -335,6 +343,11 @@ export class DatabaseStorage implements IStorage {
 
   async getAllWithdrawalRequests(): Promise<WithdrawalRequest[]> {
     return db.select().from(withdrawalRequests);
+  }
+
+  async getWithdrawalById(id: string): Promise<WithdrawalRequest | undefined> {
+    const [withdrawal] = await db.select().from(withdrawalRequests).where(eq(withdrawalRequests.id, id));
+    return withdrawal;
   }
 
   async updateWithdrawalStatus(id: string, status: string): Promise<void> {
