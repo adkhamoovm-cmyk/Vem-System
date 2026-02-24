@@ -12,12 +12,14 @@ interface I18nContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
+  translateServerMessage: (message: string) => string;
 }
 
 const I18nContext = createContext<I18nContextType>({
   locale: "uz",
   setLocale: () => {},
   t: (key) => key,
+  translateServerMessage: (msg) => msg,
 });
 
 function getNestedValue(obj: any, path: string): string | undefined {
@@ -48,30 +50,30 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return val;
   };
 
-  return (
-    <I18nContext.Provider value={{ locale, setLocale, t }}>
-      {children}
-    </I18nContext.Provider>
-  );
-}
-
-export function useI18n() {
-  const ctx = useContext(I18nContext);
   const translateServerMessage = (msg: string): string => {
     if (!msg) return msg;
     const key = serverMessageMap[msg];
-    if (key) return ctx.t(key);
+    if (key) return t(key);
     for (const [pattern, k] of serverMessagePatterns) {
       const match = msg.match(pattern);
       if (match) {
-        let translated = ctx.t(k);
+        let translated = t(k);
         if (match[1]) translated = translated.replace("{value}", match[1]);
         return translated;
       }
     }
     return msg;
   };
-  return { ...ctx, translateServerMessage };
+
+  return (
+    <I18nContext.Provider value={{ locale, setLocale, t, translateServerMessage }}>
+      {children}
+    </I18nContext.Provider>
+  );
+}
+
+export function useI18n() {
+  return useContext(I18nContext);
 }
 
 export { localeLabels };
