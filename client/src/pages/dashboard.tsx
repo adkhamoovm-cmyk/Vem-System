@@ -157,11 +157,11 @@ export default function DashboardPage() {
                 <span className="bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded">{heroVideo.category}</span>
                 <div className="flex items-center gap-0.5">
                   <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                  <span className="text-foreground/90 text-xs">{heroVideo.rating}</span>
+                  <span className="text-white/90 text-xs">{heroVideo.rating}</span>
                 </div>
               </div>
-              <h2 className="text-foreground font-bold text-xl leading-tight mb-2">{heroVideo.title}</h2>
-              <p className="text-foreground/60 text-xs mb-3">{heroVideo.actors}</p>
+              <h2 className="text-white font-bold text-xl leading-tight mb-2">{heroVideo.title}</h2>
+              <p className="text-white/60 text-xs mb-3">{heroVideo.actors}</p>
               <div className="flex gap-2">
                 <Link href="/tasks">
                   <button className="flex items-center gap-1.5 bg-white text-black font-bold text-xs px-5 py-2.5 rounded-md cursor-pointer" data-testid="button-hero-play">
@@ -170,7 +170,7 @@ export default function DashboardPage() {
                   </button>
                 </Link>
                 <Link href="/trends">
-                  <button className="flex items-center gap-1.5 bg-white/20 text-foreground font-medium text-xs px-4 py-2.5 rounded-md backdrop-blur-sm cursor-pointer" data-testid="button-hero-info">
+                  <button className="flex items-center gap-1.5 bg-white/20 text-white font-medium text-xs px-4 py-2.5 rounded-md backdrop-blur-sm cursor-pointer" data-testid="button-hero-info">
                     Batafsil
                   </button>
                 </Link>
@@ -327,10 +327,10 @@ export default function DashboardPage() {
                         </span>
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 p-2">
-                        <h4 className="text-foreground font-bold text-[11px] leading-tight line-clamp-2">{video.title}</h4>
+                        <h4 className="text-white font-bold text-[11px] leading-tight line-clamp-2">{video.title}</h4>
                         <div className="flex items-center gap-1 mt-0.5">
                           <Star className="w-2.5 h-2.5 fill-yellow-500 text-yellow-500" />
-                          <span className="text-foreground/70 text-[9px]">{video.rating}</span>
+                          <span className="text-white/70 text-[9px]">{video.rating}</span>
                         </div>
                       </div>
                     </div>
@@ -365,8 +365,8 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div className="absolute bottom-0 left-0 right-0 p-2">
-                        <h4 className="text-foreground font-bold text-xs leading-tight">{video.title}</h4>
-                        <p className="text-foreground/50 text-[9px] mt-0.5">{video.actors?.split(",")[0]}</p>
+                        <h4 className="text-white font-bold text-xs leading-tight">{video.title}</h4>
+                        <p className="text-white/50 text-[9px] mt-0.5">{video.actors?.split(",")[0]}</p>
                       </div>
                     </div>
                   </Link>
