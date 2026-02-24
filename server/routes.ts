@@ -917,7 +917,14 @@ export async function registerRoutes(
   app.get("/api/admin/withdrawals", requireAdmin, async (_req: Request, res: Response) => {
     try {
       const withdrawals = await storage.getAllWithdrawalRequests();
-      res.json(withdrawals);
+      const methods = await storage.getAllPaymentMethods();
+      const methodMap: Record<string, any> = {};
+      for (const m of methods) { methodMap[m.id] = m; }
+      const enriched = withdrawals.map(w => ({
+        ...w,
+        paymentMethod: methodMap[w.paymentMethodId] || null,
+      }));
+      res.json(enriched);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

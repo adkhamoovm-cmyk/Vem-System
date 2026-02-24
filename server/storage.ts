@@ -36,6 +36,7 @@ export interface IStorage {
   updateInvestmentStatus(id: string, status: string): Promise<void>;
   updateInvestmentLastProfitDate(id: string, date: string): Promise<void>;
   getUserPaymentMethods(userId: string): Promise<PaymentMethod[]>;
+  getAllPaymentMethods(): Promise<PaymentMethod[]>;
   createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string }): Promise<PaymentMethod>;
   createDepositRequest(data: { userId: string; amount: string; currency: string; paymentType: string; receiptUrl?: string }): Promise<DepositRequest>;
   getUserDepositRequests(userId: string): Promise<DepositRequest[]>;
@@ -239,6 +240,10 @@ export class DatabaseStorage implements IStorage {
 
   async getUserPaymentMethods(userId: string): Promise<PaymentMethod[]> {
     return db.select().from(paymentMethods).where(eq(paymentMethods.userId, userId));
+  }
+
+  async getAllPaymentMethods(): Promise<PaymentMethod[]> {
+    return db.select().from(paymentMethods);
   }
 
   async createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string }): Promise<PaymentMethod> {

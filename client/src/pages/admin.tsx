@@ -530,7 +530,7 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
   );
 }
 
-function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: WithdrawalRequest[]; users: User[] }) {
+function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (WithdrawalRequest & { paymentMethod?: PaymentMethod | null })[]; users: User[] }) {
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
@@ -565,6 +565,7 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: Withdra
         {filtered.length === 0 && <p className="text-[#888] text-sm text-center py-8">Hech narsa topilmadi</p>}
         {filtered.map(w => {
           const user = userMap[w.userId];
+          const pm = w.paymentMethod;
           return (
             <div key={w.id} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]">
               <div className="flex items-start justify-between">
@@ -576,7 +577,28 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: Withdra
                   </div>
                   <p className="text-[#888] text-xs">Foydalanuvchi: {user?.phone || w.userId.slice(0, 8)}</p>
                   <p className="text-[#888] text-xs">Komissiya: {Number(w.commission).toFixed(2)} USDT | Sof: {Number(w.netAmount).toFixed(2)} USDT</p>
-                  <p className="text-[#888] text-xs">Sana: {new Date(w.createdAt).toLocaleString()}</p>
+                  {pm && (
+                    <div className="mt-2 p-2.5 bg-[#111] rounded-lg border border-[#2a2a2a]">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        {pm.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-[#4ADE80]" />}
+                        <span className="text-white text-xs font-medium">{pm.type === "bank" ? "Bank karta" : "USDT hamyon"}</span>
+                      </div>
+                      {pm.type === "bank" ? (
+                        <>
+                          <p className="text-[#ccc] text-xs">Karta: <span className="text-white font-mono">{pm.cardNumber}</span></p>
+                          <p className="text-[#ccc] text-xs">Egasi: <span className="text-white">{pm.holderName}</span></p>
+                          <p className="text-[#ccc] text-xs">Bank: <span className="text-white">{pm.bankName}</span></p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-[#ccc] text-xs">Manzil: <span className="text-white font-mono text-[10px]">{pm.walletAddress}</span></p>
+                          <p className="text-[#ccc] text-xs">Birja: <span className="text-white">{pm.exchangeName}</span></p>
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {!pm && <p className="text-[#E8453C] text-xs mt-1">Rekvizit topilmadi</p>}
+                  <p className="text-[#888] text-xs mt-1">Sana: {new Date(w.createdAt).toLocaleString()}</p>
                 </div>
                 {w.status === "pending" && (
                   <div className="flex gap-1.5">
@@ -977,7 +999,7 @@ export default function AdminPage() {
 
   const { data: allUsers = [], isLoading: usersLoading } = useQuery<User[]>({ queryKey: ["/api/admin/users"] });
   const { data: deposits = [], isLoading: depositsLoading } = useQuery<DepositRequest[]>({ queryKey: ["/api/admin/deposits"] });
-  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<WithdrawalRequest[]>({ queryKey: ["/api/admin/withdrawals"] });
+  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<(WithdrawalRequest & { paymentMethod?: PaymentMethod | null })[]>({ queryKey: ["/api/admin/withdrawals"] });
 
   const pendingDeposits = deposits.filter(d => d.status === "pending").length;
   const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
