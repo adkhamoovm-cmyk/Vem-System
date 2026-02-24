@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle } from "lucide-react";
+import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
@@ -13,6 +13,15 @@ const vipNames: Record<number, string> = {
   0: "Stajyor",
   1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5",
   6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10",
+};
+
+const VipIcon = ({ level, className }: { level: number; className?: string }) => {
+  const iconMap: Record<number, any> = {
+    0: GraduationCap, 1: Star, 2: Star, 3: Star, 4: Flame,
+    5: Gem, 6: Crown, 7: Trophy, 8: Rocket, 9: Zap, 10: Globe,
+  };
+  const Icon = iconMap[level] || Star;
+  return <Icon className={className} />;
 };
 
 function formatUZS(usd: number): string {
@@ -139,7 +148,10 @@ export default function DashboardPage() {
                   <Crown className="w-4 h-4 text-white" />
                 </div>
                 <div>
-                  <span className="text-[#888] text-[9px] uppercase tracking-wider">{vipNames[user.vipLevel] || `VIP ${user.vipLevel}`}</span>
+                  <span className="text-[#888] text-[9px] uppercase tracking-wider flex items-center gap-1">
+                    {user.vipLevel >= 0 && <VipIcon level={user.vipLevel} className="w-3 h-3 text-[#FF6B35]" />}
+                    {user.vipLevel < 0 ? "Rasmiy xodim emas" : (vipNames[user.vipLevel] || `M${user.vipLevel}`)}
+                  </span>
                   <p className="text-white text-xs font-medium">ID: {user.numericId || "—"}</p>
                 </div>
               </div>
@@ -204,7 +216,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mt-2">
               <p className="text-[#666] text-xs">
                 {user.vipLevel < 0
-                  ? "Imtiyoz mavjud emas"
+                  ? "Rasmiy xodim emas"
                   : user.dailyTasksCompleted < user.dailyTasksLimit
                     ? `Yana ${user.dailyTasksLimit - user.dailyTasksCompleted} ta video qoldi`
                     : "Bugungi limitga yetdingiz!"}

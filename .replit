@@ -42,3 +42,6 @@ waitForPort = 5000
 
 [userenv.shared]
 TZ = "Asia/Tashkent"
+
+[agent]
+expertMode = true

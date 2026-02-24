@@ -4,10 +4,14 @@ import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Play, Clock, CheckCircle, Crown, Lock, X } from "lucide-react";
+import { Play, Clock, CheckCircle, Crown, Lock, X, Coffee } from "lucide-react";
 import type { User, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 import { Link } from "wouter";
+
+function isSunday() {
+  return new Date().getDay() === 0;
+}
 
 const youtubeVideos = [
   "8Qn_spdM5Zg",
@@ -240,7 +244,7 @@ export default function TasksPage() {
                 <div className="flex items-center gap-2 mb-0.5">
                   <Crown className="w-4 h-4 text-white/80" />
                   <span className="text-white/80 text-xs font-medium">
-                    {user.vipLevel < 0 ? "VIP yo'q" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
+                    {user.vipLevel < 0 ? "Rasmiy xodim emas" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
                   </span>
                 </div>
                 <p className="text-sm font-semibold">
@@ -285,6 +289,18 @@ export default function TasksPage() {
 
         <h2 className="text-white font-bold text-sm mb-3">Bugungi vazifalar</h2>
 
+        {isSunday() ? (
+          <div className="space-y-3">
+            <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-[#2a2a2a] text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-[#FF6B35]/20 to-[#E8453C]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Coffee className="w-8 h-8 text-[#FF6B35]" />
+              </div>
+              <h3 className="text-white font-bold text-lg mb-2">Erkin ish kuni</h3>
+              <p className="text-[#888] text-sm mb-1">Bugun yakshanba — dam olish kuni</p>
+              <p className="text-[#666] text-xs">Vazifalar Dushanba-Shanba kunlari bajariladi</p>
+            </div>
+          </div>
+        ) : (
         <div className="space-y-3">
           <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-[#2a2a2a]">
             <div className="relative aspect-video">
@@ -337,6 +353,7 @@ export default function TasksPage() {
             </p>
           </div>
         </div>
+        )}
 
         {activeVideoId && (
           <VideoPlayerModal

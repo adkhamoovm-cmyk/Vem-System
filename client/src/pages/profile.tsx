@@ -8,7 +8,8 @@ import {
   Wallet, ListChecks, Users, Camera, Shield, Lock,
   Phone, CreditCard, Headphones, ScrollText, Settings,
   ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle, Clock, X, Building, Globe,
-  History, TrendingUp, Banknote, Eye, EyeOff, Landmark
+  History, TrendingUp, Banknote, Eye, EyeOff, Landmark,
+  GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -546,6 +547,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
   const now = new Date();
   const day = now.getDay();
   const hour = now.getHours();
+  const isSundayNow = day === 0;
   const isWithdrawTime = day >= 1 && day <= 6 && hour >= 11 && hour < 17;
 
   const withdrawMutation = useMutation({
@@ -589,7 +591,18 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
         </div>
 
         <div className="px-5 pb-5 space-y-4 pt-4">
-          {!isWithdrawTime && (
+          {isSundayNow && (
+            <div className="bg-[#E8453C]/5 rounded-xl p-3.5 border border-[#E8453C]/20 flex items-start gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#E8453C]/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Clock className="w-4 h-4 text-[#E8453C]" />
+              </div>
+              <div>
+                <p className="text-[#E8453C] text-xs font-semibold">Yakshanba — dam olish kuni</p>
+                <p className="text-[#E8453C]/60 text-[11px] mt-0.5">Pul yechish faqat Dushanba-Shanba kunlari mumkin</p>
+              </div>
+            </div>
+          )}
+          {!isSundayNow && !isWithdrawTime && (
             <div className="bg-[#E8453C]/5 rounded-xl p-3.5 border border-[#E8453C]/20 flex items-start gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-[#E8453C]/20 flex items-center justify-center shrink-0 mt-0.5">
                 <Clock className="w-4 h-4 text-[#E8453C]" />
@@ -621,6 +634,10 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               <div className="flex justify-between">
                 <span className="text-[#666] text-[11px]">Yechish vaqti</span>
                 <span className="text-[#aaa] text-[11px] font-medium">Dush-Shan 11:00-17:00</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#666] text-[11px]">Kunlik limit</span>
+                <span className="text-[#aaa] text-[11px] font-medium">1 marta</span>
               </div>
             </div>
           </div>
@@ -872,6 +889,11 @@ export default function ProfilePage() {
 
   const vipTierNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
 
+  const vipIconMap: Record<number, any> = {
+    0: GraduationCap, 1: Star, 2: Star, 3: Star, 4: Flame,
+    5: Gem, 6: Crown, 7: Trophy, 8: Rocket, 9: Zap, 10: Globe,
+  };
+
   if (isLoading) {
     return (
       <AppLayout>
@@ -923,9 +945,15 @@ export default function ProfilePage() {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <h2 className="text-white font-bold text-lg" data-testid="text-profile-name">{displayName}</h2>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FF6B35]/20 text-[#FF6B35]">
-                {vipTierNames[user.vipLevel] || `M${user.vipLevel}`}
-              </span>
+              {(() => {
+                const VipLevelIcon = vipIconMap[user.vipLevel] || Star;
+                return (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FF6B35]/20 text-[#FF6B35] flex items-center gap-1">
+                    {user.vipLevel >= 0 && <VipLevelIcon className="w-3 h-3" />}
+                    {user.vipLevel < 0 ? "Rasmiy xodim emas" : (vipTierNames[user.vipLevel] || `M${user.vipLevel}`)}
+                  </span>
+                );
+              })()}
             </div>
             <button onClick={copyId} className="flex items-center gap-1 mt-0.5 group" data-testid="button-copy-id">
               <span className="text-[#888] text-xs">ID: {user.numericId || "—"}</span>

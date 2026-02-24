@@ -104,7 +104,7 @@ export default function VipPage() {
             <div className="mt-3 bg-white/10 rounded-xl p-3 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <span className="text-white/80 text-xs">Hozirgi daraja:</span>
-                <span className="font-bold text-sm">{user.vipLevel < 0 ? "Yo'q" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}</span>
+                <span className="font-bold text-sm">{user.vipLevel < 0 ? "Rasmiy xodim emas" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-white/80 text-xs">Balans:</span>

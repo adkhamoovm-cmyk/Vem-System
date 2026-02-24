@@ -246,6 +246,11 @@ export async function registerRoutes(
       const userId = req.session.userId!;
       const { videoId, youtubeVideoId } = req.body;
 
+      const nowTask = new Date();
+      if (nowTask.getDay() === 0) {
+        return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Vazifalar Dushanba-Shanba kunlari bajariladi." });
+      }
+
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
 
@@ -676,11 +681,24 @@ export async function registerRoutes(
       const day = now.getDay();
       const hour = now.getHours();
 
-      if (day === 0 || (day === 6 && hour >= 17)) {
-        return res.status(400).json({ message: "Pul yechish faqat Dushanba-Shanba, 11:00-17:00 orasida mumkin" });
+      if (day === 0) {
+        return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Pul yechish faqat Dushanba-Shanba kunlari mumkin." });
       }
       if (hour < 11 || hour >= 17) {
         return res.status(400).json({ message: "Pul yechish faqat 11:00 dan 17:00 gacha mumkin" });
+      }
+
+      const uzbOffset = 5 * 60 * 60 * 1000;
+      const uzbNow = new Date(now.getTime() + uzbOffset);
+      const todayStr = uzbNow.toISOString().split("T")[0];
+      const todayWithdrawals = await storage.getUserWithdrawalRequests(userId);
+      const withdrawalsToday = todayWithdrawals.filter(w => {
+        const wUzb = new Date(new Date(w.createdAt).getTime() + uzbOffset);
+        const wDate = wUzb.toISOString().split("T")[0];
+        return wDate === todayStr;
+      });
+      if (withdrawalsToday.length >= 1) {
+        return res.status(400).json({ message: "Kuniga faqat 1 marta pul yechish mumkin. Ertaga qayta urinib ko'ring." });
       }
 
       const numAmount = Number(amount);
