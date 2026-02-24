@@ -351,17 +351,48 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
           {detail.referralTree?.length > 0 && (
             <div>
-              <p className="text-[#aaa] text-xs font-semibold mb-2">Referal daraxti</p>
-              <div className="bg-[#111] rounded-lg p-2.5 border border-[#2a2a2a] max-h-40 overflow-y-auto">
-                {detail.referralTree.map((r: any) => (
-                  <div key={r.id} className="flex items-center justify-between py-1 border-b border-[#222] last:border-0">
-                    <span className="text-white text-xs">{r.referredId.slice(0, 8)}...</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full ${r.level === 1 ? "bg-[#4ADE80]/20 text-[#4ADE80]" : r.level === 2 ? "bg-[#3B82F6]/20 text-[#3B82F6]" : "bg-[#FF6B35]/20 text-[#FF6B35]"}`}>
-                      {r.level}-daraja
-                    </span>
+              <p className="text-[#aaa] text-xs font-semibold mb-2">Barcha referallar ({detail.referralTree.length} ta)</p>
+              {[1, 2, 3].map((lvl) => {
+                const levelRefs = detail.referralTree.filter((r: any) => r.level === lvl);
+                if (levelRefs.length === 0) return null;
+                const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
+                const levelColors = { 1: { bg: "bg-[#4ADE80]/10", border: "border-[#4ADE80]/20", text: "text-[#4ADE80]", badge: "bg-[#4ADE80]/20 text-[#4ADE80]" }, 2: { bg: "bg-[#3B82F6]/10", border: "border-[#3B82F6]/20", text: "text-[#3B82F6]", badge: "bg-[#3B82F6]/20 text-[#3B82F6]" }, 3: { bg: "bg-[#FF6B35]/10", border: "border-[#FF6B35]/20", text: "text-[#FF6B35]", badge: "bg-[#FF6B35]/20 text-[#FF6B35]" } };
+                const colors = levelColors[lvl as 1 | 2 | 3];
+                return (
+                  <div key={lvl} className="mb-3">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{lvl}-daraja</span>
+                      <span className="text-[#666] text-[10px]">{levelRefs.length} ta</span>
+                    </div>
+                    <div className={`${colors.bg} rounded-lg border ${colors.border} max-h-48 overflow-y-auto`}>
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b border-[#2a2a2a]">
+                            <th className="text-left text-[#888] font-medium py-1.5 px-2.5 text-[10px]">ID</th>
+                            <th className="text-left text-[#888] font-medium py-1.5 px-2.5 text-[10px]">Telefon</th>
+                            <th className="text-center text-[#888] font-medium py-1.5 px-2.5 text-[10px]">VIP</th>
+                            <th className="text-right text-[#888] font-medium py-1.5 px-2.5 text-[10px]">Balans</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {levelRefs.map((r: any) => (
+                            <tr key={r.id} className="border-b border-[#222]/50 last:border-0">
+                              <td className="py-1.5 px-2.5 text-white font-mono text-[11px]">{r.referredNumericId || "—"}</td>
+                              <td className="py-1.5 px-2.5 text-[#ccc] text-[11px]">{r.referredPhone}</td>
+                              <td className="py-1.5 px-2.5 text-center">
+                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${r.referredVipLevel >= 0 ? "bg-[#FF6B35]/20 text-[#FF6B35]" : "bg-[#333] text-[#888]"}`}>
+                                  {r.referredVipLevel >= 0 ? (vipNames[r.referredVipLevel] || `M${r.referredVipLevel}`) : "Yo'q"}
+                                </span>
+                              </td>
+                              <td className="py-1.5 px-2.5 text-right text-[#4ADE80] text-[11px] font-medium">${Number(r.referredBalance).toFixed(2)}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           )}
         </div>

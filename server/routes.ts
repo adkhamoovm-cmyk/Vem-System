@@ -778,6 +778,19 @@ export async function registerRoutes(
       const investments = await storage.getUserInvestments(user.id);
       const referralStats = await storage.getReferralStats(user.id);
       const referralTree = await storage.getReferralTree(user.id);
+      const enrichedReferralTree = await Promise.all(
+        referralTree.map(async (r) => {
+          const referred = await storage.getUser(r.referredId);
+          return {
+            ...r,
+            referredPhone: referred?.phone || "—",
+            referredNumericId: referred?.numericId || "—",
+            referredVipLevel: referred?.vipLevel ?? -1,
+            referredBalance: referred?.balance || "0",
+            referredCreatedAt: referred?.createdAt || null,
+          };
+        })
+      );
       let invitedBy = null;
       if (user.referredBy) {
         const referrer = await storage.getUser(user.referredBy);
@@ -793,7 +806,7 @@ export async function registerRoutes(
         withdrawals,
         investments,
         referralStats,
-        referralTree,
+        referralTree: enrichedReferralTree,
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
