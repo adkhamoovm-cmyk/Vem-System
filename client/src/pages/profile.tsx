@@ -334,7 +334,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
     "Universalbank", "Ravnaq-bank", "Ziraat bank", "TBC bank", "Anor bank",
     "Uzum bank", "Apelsin", "Click", "Payme",
   ];
-  const exchanges = ["Binance", "Bybit", "Bitget", "OKX", "Huobi", "KuCoin", "Gate.io", "MEXC", "Boshqa"];
+  const exchanges = ["Binance", "Bybit", "Bitget", "OKX", "Huobi", "KuCoin", "Gate.io", "MEXC", t("profile.otherExchange")];
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -829,7 +829,7 @@ export default function ProfilePage() {
         body: formData,
         credentials: "include",
       });
-      if (!res.ok) throw new Error("Rasm yuklanmadi");
+      if (!res.ok) throw new Error(t("profile.imageUploadFailed"));
       return res.json();
     },
     onSuccess: () => {
@@ -924,10 +924,10 @@ export default function ProfilePage() {
     completed: "#4ADE80",
   };
   const statusLabels: Record<string, string> = {
-    pending: "Kutilmoqda",
-    approved: "Tasdiqlangan",
-    rejected: "Rad etilgan",
-    completed: "Bajarildi",
+    pending: t("common.pending"),
+    approved: t("common.approved"),
+    rejected: t("common.rejected"),
+    completed: t("common.completed"),
   };
 
   return (
@@ -1185,7 +1185,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <span className="text-foreground text-sm">{t("profile.myReferrals")}</span>
-                  <span className="ml-2 text-[10px] text-muted-foreground">{totalReferrals} ta</span>
+                  <span className="ml-2 text-[10px] text-muted-foreground">{t("profile.referralCount", { count: totalReferrals })}</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />

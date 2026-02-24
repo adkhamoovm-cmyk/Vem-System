@@ -63,7 +63,7 @@ export default function VipPage() {
 
   const stajyorMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/stajyor/request", { message: stajyorMsg || "Menga Stajyor lavozimini yoqing" });
+      const res = await apiRequest("POST", "/api/stajyor/request", { message: stajyorMsg || t("vip.defaultStajyorMessage") });
       return res.json();
     },
     onSuccess: (data: any) => {
@@ -247,7 +247,7 @@ export default function VipPage() {
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     <div className="bg-card rounded-xl p-2.5 text-center">
                       <Film className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-0.5" />
-                      <p className="text-foreground font-bold text-xs">{pkg.dailyTasks} ta</p>
+                      <p className="text-foreground font-bold text-xs">{pkg.dailyTasks} {t("common.pcs")}</p>
                       <p className="text-muted-foreground text-[9px]">{t("common.dailyVideo")}</p>
                     </div>
                     <div className="bg-card rounded-xl p-2.5 text-center">

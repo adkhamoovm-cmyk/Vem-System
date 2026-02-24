@@ -101,6 +101,7 @@ const translations: Record<Locale, any> = {
       withdrawal: "Yechish",
       copyright: "VEM Platform \u00a9 2026. Barcha huquqlar himoyalangan.",
       notEmployee: "Rasmiy xodim emas",
+      pcs: "ta",
     },
     nav: {
       home: "Asosiy",
@@ -258,6 +259,7 @@ const translations: Record<Locale, any> = {
       important: "Muhim:",
       importantNote: "Garov summasi paket muddati tugagandan so'ng qaytariladi. 10% komissiya daromaddan ushlanadi. Qulflangan paketlar ma'lum shartlar bajarilgandan so'ng ochiladi.",
       guarantee: "garov",
+      defaultStajyorMessage: "Menga Stajyor lavozimini yoqing",
     },
     fund: {
       title: "VEM Fund",
@@ -460,6 +462,9 @@ const translations: Record<Locale, any> = {
       newFundPwdPlaceholder: "Yangi 6 xonali PIN",
       filterTech: "Texnik",
       notEmployee: "Rasmiy xodim emas",
+      imageUploadFailed: "Rasm yuklanmadi",
+      referralCount: "{count} ta",
+      otherExchange: "Boshqa",
     },
     admin: {
       title: "Admin panel",
@@ -644,6 +649,7 @@ const translations: Record<Locale, any> = {
       withdrawal: "Вывод",
       copyright: "VEM Platform \u00a9 2026. Все права защищены.",
       notEmployee: "Нет статуса",
+      pcs: "шт.",
     },
     nav: {
       home: "Главная",
@@ -801,6 +807,7 @@ const translations: Record<Locale, any> = {
       important: "Важно:",
       importantNote: "Залоговая сумма возвращается после окончания срока пакета. 10% комиссия удерживается с дохода. Заблокированные пакеты открываются после выполнения определённых условий.",
       guarantee: "залог",
+      defaultStajyorMessage: "Активируйте мне уровень Стажёр",
     },
     fund: {
       title: "VEM Фонд",
@@ -1003,6 +1010,9 @@ const translations: Record<Locale, any> = {
       newFundPwdPlaceholder: "Новый 6-значный PIN",
       filterTech: "Техотдел",
       notEmployee: "Нет статуса",
+      imageUploadFailed: "Не удалось загрузить фото",
+      referralCount: "{count} чел.",
+      otherExchange: "Другое",
     },
     admin: {
       title: "Админ панель",
@@ -1187,6 +1197,7 @@ const translations: Record<Locale, any> = {
       withdrawal: "Withdrawal",
       copyright: "VEM Platform \u00a9 2026. All rights reserved.",
       notEmployee: "Not a member",
+      pcs: "pcs",
     },
     nav: {
       home: "Home",
@@ -1344,6 +1355,7 @@ const translations: Record<Locale, any> = {
       important: "Important:",
       importantNote: "The deposit is returned after the package expires. 10% commission is deducted from earnings. Locked packages unlock after certain conditions are met.",
       guarantee: "deposit",
+      defaultStajyorMessage: "Please activate my Stajyor level",
     },
     fund: {
       title: "VEM Fund",
@@ -1546,6 +1558,9 @@ const translations: Record<Locale, any> = {
       newFundPwdPlaceholder: "New 6-digit PIN",
       filterTech: "Technical",
       notEmployee: "Not a member",
+      imageUploadFailed: "Failed to upload image",
+      referralCount: "{count} people",
+      otherExchange: "Other",
     },
     admin: {
       title: "Admin Panel",
