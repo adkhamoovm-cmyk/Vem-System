@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
-import vemLogo from "@assets/photo_2026-02-24_19-03-39_1771941846491.jpg";
+import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 const countryCodes = [
@@ -255,9 +255,7 @@ export default function RegisterPage() {
       </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-5">
-          <div className="inline-block rounded-2xl overflow-hidden bg-[#0d1033] px-4 py-2">
-            <img src={vemLogo} alt="VEM" className="h-12 object-contain" />
-          </div>
+          <img src={vemLogo} alt="VEM" className="pro-logo h-14 mx-auto" />
           <p className="text-muted-foreground text-sm mt-0.5">Video Earning Platform</p>
         </div>
 

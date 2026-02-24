@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+.pro-logo {
+  display: block;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0px 4px 10px rgba(79, 107, 255, 0.4));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.pro-logo:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0px 6px 15px rgba(79, 107, 255, 0.6));
+}
+
 .theme-transitioning,
 .theme-transitioning *,
 .theme-transitioning *::before,

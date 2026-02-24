@@ -6,7 +6,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { User } from "@shared/schema";
-import vemLogo from "@assets/photo_2026-02-24_19-03-39_1771941846491.jpg";
+import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -45,9 +45,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">
           <div className="flex items-center gap-1">
-            <div className="h-8 rounded-lg overflow-hidden bg-[#0d1033]">
-              <img src={vemLogo} alt="VEM" className="h-8 object-contain" />
-            </div>
+            <img src={vemLogo} alt="VEM" className="pro-logo h-8" />
           </div>
 
           <div className="flex items-center gap-2">
