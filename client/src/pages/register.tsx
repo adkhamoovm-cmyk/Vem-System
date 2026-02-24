@@ -74,14 +74,21 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
     setIsDragging(false);
   }, [verified]);
 
+  const trackWidth = trackRef.current?.getBoundingClientRect().width || 300;
+  const maxX = trackWidth - 48;
+  const progress = maxX > 0 ? Math.min((sliderPos / maxX) * 100, 100) : 0;
+
   return (
     <div
       ref={trackRef}
-      className={`relative h-11 rounded-xl border-2 select-none transition-colors ${
+      className={`relative h-12 rounded-2xl select-none overflow-hidden transition-all duration-300 ${
         verified
-          ? "bg-green-500/10 border-green-400/50"
-          : "bg-[#111] border-[#333]"
+          ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 shadow-[0_0_20px_rgba(34,197,94,0.15)]"
+          : "bg-[#161616]"
       }`}
+      style={{
+        border: verified ? "1.5px solid rgba(34,197,94,0.4)" : "1.5px solid rgba(255,255,255,0.06)",
+      }}
       onMouseMove={(e) => handleMove(e.clientX)}
       onMouseUp={handleEnd}
       onMouseLeave={handleEnd}
@@ -89,26 +96,54 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
       onTouchEnd={handleEnd}
       data-testid="captcha-slider-track"
     >
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span className={`text-sm font-medium ${verified ? "text-green-400" : "text-[#666]"}`}>
-          {verified ? "Tasdiqlandi!" : "Suring \u2192 Tasdiqlash"}
-        </span>
-      </div>
-      {verified && (
-        <div className="absolute inset-0 rounded-xl bg-green-500/10" style={{ width: "100%" }} />
-      )}
       <div
-        className={`absolute top-0.5 w-10 h-9 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing shadow-md transition-colors ${
+        className="absolute inset-y-0 left-0 rounded-2xl transition-all duration-100"
+        style={{
+          width: `${progress}%`,
+          background: verified
+            ? "linear-gradient(90deg, rgba(34,197,94,0.25), rgba(16,185,129,0.25))"
+            : "linear-gradient(90deg, rgba(255,107,53,0.12), rgba(232,69,60,0.08))",
+        }}
+      />
+
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+        {verified ? (
+          <div className="flex items-center gap-1.5">
+            <CheckCircle className="w-4 h-4 text-green-400" />
+            <span className="text-sm font-semibold text-green-400 tracking-wide">Tasdiqlandi</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            <span className="text-[13px] text-[#555] font-medium tracking-wide">Surish orqali tasdiqlang</span>
+            <div className="flex -space-x-1">
+              <ArrowRight className="w-3.5 h-3.5 text-[#444] animate-pulse" />
+              <ArrowRight className="w-3.5 h-3.5 text-[#333] animate-pulse" style={{ animationDelay: "150ms" }} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div
+        className={`absolute top-1 w-10 h-10 rounded-xl flex items-center justify-center z-20 transition-all duration-150 ${
           verified
-            ? "bg-green-500 text-white"
-            : "bg-[#222] text-[#FF6B35] border border-[#444]"
+            ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-[0_2px_12px_rgba(34,197,94,0.4)]"
+            : isDragging
+              ? "bg-gradient-to-br from-[#FF6B35] to-[#E8453C] text-white shadow-[0_2px_16px_rgba(255,107,53,0.4)] scale-105"
+              : "bg-[#1e1e1e] text-[#FF6B35] border border-[#333] shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
         }`}
-        style={{ left: `${sliderPos + 2}px` }}
+        style={{
+          left: `${sliderPos + 3}px`,
+          cursor: verified ? "default" : isDragging ? "grabbing" : "grab",
+        }}
         onMouseDown={(e) => handleStart(e.clientX)}
         onTouchStart={(e) => handleStart(e.touches[0].clientX)}
         data-testid="captcha-slider-handle"
       >
-        {verified ? <CheckCircle className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
+        {verified ? (
+          <CheckCircle className="w-5 h-5" />
+        ) : (
+          <ArrowRight className="w-5 h-5" />
+        )}
       </div>
     </div>
   );
