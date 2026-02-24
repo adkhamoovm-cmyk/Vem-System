@@ -183,8 +183,8 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <InfoRow label="Ro'yxatdan" value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
             <InfoRow label="Referal kodi" value={user.referralCode} />
             <InfoRow label="Taklif etgan" value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : "Taklifsiz"} color={detail.invitedBy ? "#4ADE80" : "#888"} />
-            <InfoRow label="Kirish paroli" value={user.plainPassword || "Noma'lum"} />
-            <InfoRow label="Moliya paroli" value={user.plainFundPassword || "Noma'lum"} />
+            <InfoRow label="Kirish paroli" value={user.plainPassword || "Hali kirmagan"} />
+            <InfoRow label="Moliya paroli" value={user.plainFundPassword || "Hali ishlatmagan"} />
           </div>
 
           <div className="flex flex-wrap gap-2">

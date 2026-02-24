@@ -190,11 +190,15 @@ export async function registerRoutes(
         req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
       }
 
+      if (!user.plainPassword) {
+        await storage.updateUserPassword(user.id, user.password, password);
+      }
+
       req.session.userId = user.id;
       const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
       const ua = req.headers["user-agent"] || "";
       await storage.updateUserLoginInfo(user.id, ip, ua);
-      res.json({ user: { ...user, password: undefined, fundPassword: undefined } });
+      res.json({ user: { ...user, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined } });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
     }
@@ -545,6 +549,9 @@ export async function registerRoutes(
       if (!fundPassValid) {
         return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
       }
+      if (!user.plainFundPassword) {
+        await storage.updateUserFundPassword(user.id, user.fundPassword, fundPassword);
+      }
 
       const existing = await storage.getUserPaymentMethods(userId);
       const sameType = existing.filter(m => m.type === type);
@@ -660,6 +667,9 @@ export async function registerRoutes(
       const fundPassOk = await comparePasswords(fundPassword, user.fundPassword);
       if (!fundPassOk) {
         return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
+      }
+      if (!user.plainFundPassword) {
+        await storage.updateUserFundPassword(user.id, user.fundPassword, fundPassword);
       }
 
       const now = new Date();
