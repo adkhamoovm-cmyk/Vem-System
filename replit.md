@@ -32,6 +32,9 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - 2026-02-23: Complete VIP system overhaul with 11 tiers ($0-$55,000), reward based on VIP level
 - 2026-02-23: Redesigned dashboard, VIP page, tasks page with professional video player
 - 2026-02-23: Trends page with TV show/trailer filters and preview modal
+- 2026-02-24: Expanded video library to 25 entries (13 TV shows + 12 trailers) with popular titles
+- 2026-02-24: Auto-scrolling carousels for TV Shows and Trailers on dashboard (pause on touch, resume after 2s)
+- 2026-02-24: Redesigned slider captcha on register page with gradient fill, animated arrows, glowing effects
 - 2026-02-23: Login page with country codes and "Remember me" functionality
 - 2026-02-23: Register page with 6-digit PIN fund password, 18+ agreement, slider captcha
 - 2026-02-22: Initial MVP build
