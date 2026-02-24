@@ -3,7 +3,7 @@ import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
 import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
@@ -23,6 +23,57 @@ const VipIcon = ({ level, className }: { level: number; className?: string }) =>
   const Icon = iconMap[level] || Star;
   return <Icon className={className} />;
 };
+
+function AutoScrollCarousel({ children, speed = 0.5 }: { children: React.ReactNode; speed?: number }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number>(0);
+  const isUserInteracting = useRef(false);
+  const resumeTimeout = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const animate = () => {
+      if (!isUserInteracting.current && el) {
+        el.scrollLeft += speed;
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) {
+          el.scrollLeft = 0;
+        }
+      }
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationRef.current);
+  }, [speed]);
+
+  const handleInteractionStart = () => {
+    isUserInteracting.current = true;
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+  };
+
+  const handleInteractionEnd = () => {
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    resumeTimeout.current = setTimeout(() => {
+      isUserInteracting.current = false;
+    }, 2000);
+  };
+
+  return (
+    <div
+      ref={scrollRef}
+      className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide"
+      onMouseDown={handleInteractionStart}
+      onMouseUp={handleInteractionEnd}
+      onMouseLeave={handleInteractionEnd}
+      onTouchStart={handleInteractionStart}
+      onTouchEnd={handleInteractionEnd}
+    >
+      {children}
+    </div>
+  );
+}
 
 function formatUZS(usd: number): string {
   const uzs = usd * UZS_RATE;
@@ -262,7 +313,7 @@ export default function DashboardPage() {
                   Barchasi <ChevronRight className="w-3 h-3 inline" />
                 </Link>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              <AutoScrollCarousel speed={0.4}>
                 {tvShows.map((video) => (
                   <Link key={video.id} href="/tasks">
                     <div className="relative w-32 shrink-0 cursor-pointer group" data-testid={`tv-show-${video.id}`}>
@@ -285,7 +336,7 @@ export default function DashboardPage() {
                     </div>
                   </Link>
                 ))}
-              </div>
+              </AutoScrollCarousel>
             </div>
           )}
 
@@ -300,7 +351,7 @@ export default function DashboardPage() {
                   Barchasi <ChevronRight className="w-3 h-3 inline" />
                 </Link>
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              <AutoScrollCarousel speed={0.3}>
                 {trailers.map((video) => (
                   <Link key={video.id} href="/tasks">
                     <div className="relative w-56 shrink-0 cursor-pointer group" data-testid={`trailer-${video.id}`}>
@@ -320,7 +371,7 @@ export default function DashboardPage() {
                     </div>
                   </Link>
                 ))}
-              </div>
+              </AutoScrollCarousel>
             </div>
           )}
 
