@@ -1166,8 +1166,8 @@ export default function ProfilePage() {
 
             <button onClick={() => navigate("/tasks")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-tasks">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <ListChecks className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
+                  <ListChecks className="w-4 h-4 text-[#3B82F6]" />
                 </div>
                 <span className="text-foreground text-sm">Mening vazifalarim</span>
               </div>
@@ -1196,8 +1196,8 @@ export default function ProfilePage() {
             </button>
             <button onClick={() => setShowSecretInfo(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-secret-info">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <Lock className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#6B7280]/20 flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-[#6B7280]" />
                 </div>
                 <span className="text-foreground text-sm">Mahfiy ma'lumotlar</span>
               </div>
@@ -1207,8 +1207,8 @@ export default function ProfilePage() {
             <div>
               <button onClick={() => setShowChangePassword(!showChangePassword)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-password">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <Lock className="w-4 h-4 text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/20 flex items-center justify-center">
+                    <Lock className="w-4 h-4 text-[#F59E0B]" />
                   </div>
                   <span className="text-foreground text-sm">Kirish parolini o'zgartirish</span>
                 </div>
@@ -1310,12 +1310,12 @@ export default function ProfilePage() {
             {user.isAdmin && (
               <button onClick={() => navigate("/admin")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-admin">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-primary" />
+                  <div className="w-8 h-8 rounded-lg bg-[#EF4444]/20 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-[#EF4444]" />
                   </div>
-                  <span className="text-primary text-sm font-semibold">Admin panel</span>
+                  <span className="text-[#EF4444] text-sm font-semibold">Admin panel</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-primary" />
+                <ChevronRight className="w-4 h-4 text-[#EF4444]" />
               </button>
             )}
           </div>
