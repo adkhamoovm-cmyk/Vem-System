@@ -203,10 +203,37 @@ export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalReques
   reviewedAt: true,
 });
 
+export const promoCodes = pgTable("promo_codes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: text("code").notNull().unique(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  isOneTime: boolean("is_one_time").notNull().default(true),
+  maxUses: integer("max_uses"),
+  currentUses: integer("current_uses").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const promoCodeUsages = pgTable("promo_code_usages", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  promoCodeId: varchar("promo_code_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  usedAt: timestamp("used_at").defaultNow(),
+});
+
+export const insertPromoCodeSchema = createInsertSchema(promoCodes).omit({
+  id: true,
+  currentUses: true,
+  isActive: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
 export type InsertDepositRequest = z.infer<typeof insertDepositRequestSchema>;
 export type InsertWithdrawalRequest = z.infer<typeof insertWithdrawalRequestSchema>;
+export type InsertPromoCode = z.infer<typeof insertPromoCodeSchema>;
 export type User = typeof users.$inferSelect;
 export type VipPackage = typeof vipPackages.$inferSelect;
 export type Video = typeof videos.$inferSelect;
@@ -220,3 +247,5 @@ export type WithdrawalRequest = typeof withdrawalRequests.$inferSelect;
 export type DepositSetting = typeof depositSettings.$inferSelect;
 export type StajyorRequest = typeof stajyorRequests.$inferSelect;
 export type BalanceHistory = typeof balanceHistory.$inferSelect;
+export type PromoCode = typeof promoCodes.$inferSelect;
+export type PromoCodeUsage = typeof promoCodeUsages.$inferSelect;
