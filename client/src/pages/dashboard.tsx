@@ -81,7 +81,7 @@ function formatUZS(usd: number): string {
 }
 
 export default function DashboardPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -422,87 +422,125 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {showInstallModal && (
+      {showInstallModal && (() => {
+        const installText: Record<string, {
+          title: string; subtitle: string; close: string;
+          ios: string[]; android: string[]; desktop: string[];
+        }> = {
+          uz: {
+            title: "VEM ilovasini o'rnatish",
+            subtitle: "Telefoningizga o'rnatib, tez kirish imkoniyatiga ega bo'ling",
+            close: "Yopish",
+            ios: [
+              "Safari brauzerini oching va VEM saytiga kiring",
+              "Pastki panelda «Ulashish» (Share) tugmasini bosing",
+              "«Bosh ekranga qo'shish» (Add to Home Screen) ni tanlang",
+              "«Qo'shish» (Add) tugmasini bosing — VEM bosh ekranda paydo bo'ladi"
+            ],
+            android: [
+              "Chrome brauzerini oching va VEM saytiga kiring",
+              "Yuqori o'ng burchakdagi ⋮ menyuni bosing",
+              "«Bosh ekranga qo'shish» yoki «Ilovani o'rnatish» ni tanlang",
+              "«O'rnatish» tugmasini bosing — VEM bosh ekranda paydo bo'ladi"
+            ],
+            desktop: [
+              "Brauzer manzil satrida o'rnatish ikonkasini bosing",
+              "«O'rnatish» tugmasini bosing — VEM kompyuteringizda paydo bo'ladi"
+            ]
+          },
+          ru: {
+            title: "Установить приложение VEM",
+            subtitle: "Установите на телефон для быстрого доступа",
+            close: "Закрыть",
+            ios: [
+              "Откройте браузер Safari и зайдите на сайт VEM",
+              "Нажмите кнопку «Поделиться» (Share) внизу экрана",
+              "Выберите «На экран Домой» (Add to Home Screen)",
+              "Нажмите «Добавить» (Add) — VEM появится на главном экране"
+            ],
+            android: [
+              "Откройте браузер Chrome и зайдите на сайт VEM",
+              "Нажмите меню ⋮ в правом верхнем углу",
+              "Выберите «Добавить на главный экран» или «Установить приложение»",
+              "Нажмите «Установить» — VEM появится на главном экране"
+            ],
+            desktop: [
+              "Нажмите на иконку установки в адресной строке браузера",
+              "Нажмите «Установить» — VEM появится на вашем компьютере"
+            ]
+          },
+          en: {
+            title: "Install VEM App",
+            subtitle: "Install on your phone for quick access",
+            close: "Close",
+            ios: [
+              "Open Safari browser and go to the VEM website",
+              "Tap the Share button at the bottom of the screen",
+              "Select \"Add to Home Screen\"",
+              "Tap \"Add\" — VEM will appear on your home screen"
+            ],
+            android: [
+              "Open Chrome browser and go to the VEM website",
+              "Tap the ⋮ menu in the top right corner",
+              "Select \"Add to Home screen\" or \"Install app\"",
+              "Tap \"Install\" — VEM will appear on your home screen"
+            ],
+            desktop: [
+              "Click the install icon in the browser address bar",
+              "Click \"Install\" — VEM will appear on your computer"
+            ]
+          }
+        };
+        const txt = installText[locale] || installText.en;
+        const steps = isIOS ? txt.ios : isAndroid ? txt.android : txt.desktop;
+
+        return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" data-testid="install-modal">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowInstallModal(false)} />
-          <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-md p-6 pb-8 animate-in slide-in-from-bottom duration-300">
-            <button
-              onClick={() => setShowInstallModal(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
-              data-testid="button-close-install"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="text-center mb-5">
-              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                <Download className="w-8 h-8 text-primary" />
+          <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+            <div className="flex items-center justify-between p-4 pb-2 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Download className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-foreground">{txt.title}</h3>
+                  <p className="text-muted-foreground text-xs">{txt.subtitle}</p>
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-foreground">VEM ilovasini o'rnatish</h3>
-              <p className="text-muted-foreground text-sm mt-1">Telefoningizga o'rnatib, tez kirish imkoniyatiga ega bo'ling</p>
+              <button
+                onClick={() => setShowInstallModal(false)}
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground shrink-0"
+                data-testid="button-close-install"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            {isIOS ? (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
-                  <p className="text-sm text-foreground/80">
-                    Safari brauzerida pastki panelda <Share className="w-4 h-4 inline text-primary" /> <strong>Share</strong> tugmasini bosing
-                  </p>
-                </div>
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
-                  <p className="text-sm text-foreground/80">
-                    <PlusSquare className="w-4 h-4 inline text-primary" /> <strong>"Add to Home Screen"</strong> ni tanlang
-                  </p>
-                </div>
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">3</div>
-                  <p className="text-sm text-foreground/80">
-                    <strong>"Add"</strong> tugmasini bosing — VEM ilovasi bosh ekranda paydo bo'ladi
-                  </p>
-                </div>
+            <div className="overflow-y-auto p-4 pt-2 flex-1">
+              <div className="space-y-2.5">
+                {steps.map((step, i) => (
+                  <div key={i} className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
+                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0">{i + 1}</div>
+                    <p className="text-[13px] text-foreground/80 leading-relaxed">{step}</p>
+                  </div>
+                ))}
               </div>
-            ) : isAndroid ? (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
-                  <p className="text-sm text-foreground/80">
-                    Chrome brauzerida yuqori o'ng burchakda <MoreVertical className="w-4 h-4 inline text-primary" /> tugmasini bosing
-                  </p>
-                </div>
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
-                  <p className="text-sm text-foreground/80">
-                    <strong>"Bosh ekranga qo'shish"</strong> yoki <strong>"Install app"</strong> ni tanlang
-                  </p>
-                </div>
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">3</div>
-                  <p className="text-sm text-foreground/80">
-                    <strong>"O'rnatish"</strong> tugmasini bosing — VEM ilovasi bosh ekranda paydo bo'ladi
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">1</div>
-                  <p className="text-sm text-foreground/80">
-                    Brauzer manzil satrida <Download className="w-4 h-4 inline text-primary" /> o'rnatish ikonkasini bosing
-                  </p>
-                </div>
-                <div className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                  <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">2</div>
-                  <p className="text-sm text-foreground/80">
-                    <strong>"Install"</strong> tugmasini bosing — VEM ilovasi kompyuteringizda paydo bo'ladi
-                  </p>
-                </div>
-              </div>
-            )}
+            </div>
+
+            <div className="p-4 pt-2 shrink-0">
+              <button
+                onClick={() => setShowInstallModal(false)}
+                className="w-full bg-primary text-white font-semibold h-11 rounded-xl text-sm"
+                data-testid="button-close-install-bottom"
+              >
+                {txt.close}
+              </button>
+            </div>
           </div>
         </div>
-      )}
+        );
+      })()}
     </>
   );
 }
