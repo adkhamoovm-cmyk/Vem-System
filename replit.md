@@ -54,7 +54,7 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - Accent: Warm orange gradient (#FF6B35 to #E8453C)
 - TikTok-style bottom nav with raised center button (dark translucent)
 - Netflix-style hero poster banner on dashboard with movie posters
-- USDT/UZS dual currency display (1 USDT = 12,850 UZS)
+- USDT/UZS dual currency display (1 USDT = 12,100 UZS)
 - Mobile-first responsive design
 - Font: Inter (sans)
 

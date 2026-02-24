@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
-const UZS_RATE = 12850;
+const UZS_RATE = 12100;
 
 const vipNames: Record<number, string> = {
   0: "Stajyor",

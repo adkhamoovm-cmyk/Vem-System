@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 
-const UZS_RATE = 12850;
+const UZS_RATE = 12100;
 
 function formatUZS(usd: number): string {
   const uzs = usd * UZS_RATE;
