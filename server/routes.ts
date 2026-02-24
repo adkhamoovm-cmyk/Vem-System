@@ -97,6 +97,34 @@ export async function registerRoutes(
     })
   );
 
+  app.get("/api/download-app", (_req: Request, res: Response) => {
+    const domain = process.env.REPLIT_DOMAINS || process.env.REPLIT_DEV_DOMAIN || "vem.app";
+    res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VEM Ilovani O'rnatish</title>
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Inter,sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:20px;padding:32px;max-width:400px;text-align:center}
+.icon{width:80px;height:80px;margin:0 auto 20px;border-radius:20px;background:#2563eb;display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:bold;color:#fff}
+h1{font-size:22px;margin-bottom:8px}p{color:#999;font-size:14px;line-height:1.6;margin-bottom:16px}
+.steps{text-align:left;background:#111;border-radius:12px;padding:16px;margin:16px 0}
+.step{display:flex;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid #222}.step:last-child{border:0}
+.num{background:#2563eb;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0}
+.step-text{font-size:13px;color:#ccc;line-height:1.5}
+.btn{display:block;background:#2563eb;color:#fff;border:none;padding:14px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;width:100%;margin-top:16px}
+</style></head><body>
+<div class="card">
+<div class="icon">V</div>
+<h1>VEM Ilovani O'rnatish</h1>
+<p>Telefoningizga VEM ilovasini o'rnating - bosh ekranda ikonka paydo bo'ladi</p>
+<div class="steps">
+<div class="step"><div class="num">1</div><div class="step-text"><b>Chrome</b> brauzerida saytni oching:<br><code style="color:#60a5fa">${domain}</code></div></div>
+<div class="step"><div class="num">2</div><div class="step-text">Brauzer menyusini oching (<b>⋮</b> 3 nuqta)</div></div>
+<div class="step"><div class="num">3</div><div class="step-text"><b>"Bosh ekranga qo'shish"</b> yoki <b>"Install app"</b> tugmasini bosing</div></div>
+<div class="step"><div class="num">4</div><div class="step-text"><b>"O'rnatish"</b> ni tasdiqlang - tayyor!</div></div>
+</div>
+<button class="btn" onclick="history.back() || (location.href='/')">Orqaga qaytish</button>
+</div></body></html>`);
+  });
+
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
       const { phone, password, fundPassword, referralCode, captcha } = req.body;

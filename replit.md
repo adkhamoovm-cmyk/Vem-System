@@ -7,6 +7,9 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - 2026-02-24: Promo code system: users enter codes to earn USDT, admin creates/manages codes (one-time/multi-use, custom amounts)
 - 2026-02-24: Promo page (/promo) with code input, history, and instructions
 - 2026-02-24: Admin "Promokodlar" tab with create, deactivate, delete, and usage tracking
+- 2026-02-24: PWA setup: manifest.json, service worker, app icons for installable web app
+- 2026-02-24: Dashboard quick actions: horizontally scrollable, "Ilova" (install) button added before "Konvert"
+- 2026-02-24: /api/download-app endpoint with install instructions in Uzbek
 - 2026-02-24: Dashboard quick actions: "Fund" renamed to "Fond", added red "Konvert" (promo) icon
 - 2026-02-24: Expanded video library to 25 entries (13 TV shows + 12 trailers) with popular titles
 - 2026-02-24: Auto-scrolling carousels for TV Shows and Trailers on dashboard (pause on touch, resume after 2s)

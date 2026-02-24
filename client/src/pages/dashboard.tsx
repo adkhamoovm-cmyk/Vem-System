@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail } from "lucide-react";
+import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
@@ -280,26 +280,40 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-6 gap-1.5">
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
             {[
               { title: "Vazifalar", href: "/tasks", icon: PlayCircle, color: "#3B82F6", bg: "#3B82F6" },
               { title: "Fond", href: "/fund", icon: Wallet, color: "#6B7280", bg: "#6B7280" },
               { title: "Taklif", href: "/referral", icon: Users, color: "#4ADE80", bg: "#4ADE80" },
               { title: "VIP", href: "/vip", icon: Crown, color: "#A855F7", bg: "#A855F7" },
               { title: "Yordam", href: "/help", icon: HelpCircle, color: "#3B82F6", bg: "#3B82F6" },
+              { title: "Ilova", href: "#install-app", icon: Download, color: "#10B981", bg: "#10B981" },
               { title: "Konvert", href: "/promo", icon: Mail, color: "#EF4444", bg: "#EF4444" },
             ].map((item) => (
-              <Link key={item.href} href={item.href}>
-                <div className="flex flex-col items-center gap-1.5 cursor-pointer" data-testid={`quick-${item.title.toLowerCase()}`}>
-                  <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                    style={{ backgroundColor: item.bg + "20" }}
-                  >
+              item.href === "#install-app" ? (
+                <button key={item.href} onClick={() => {
+                  if (window.deferredPrompt) {
+                    window.deferredPrompt.prompt();
+                    window.deferredPrompt.userChoice.then(() => { window.deferredPrompt = null; });
+                  } else {
+                    window.open('/api/download-app', '_blank');
+                  }
+                }} className="flex flex-col items-center gap-1.5 shrink-0" data-testid={`quick-${item.title.toLowerCase()}`}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: item.bg + "20" }}>
                     <item.icon className="w-5 h-5" style={{ color: item.color }} />
                   </div>
                   <span className="text-muted-foreground text-[10px] font-medium text-center leading-tight">{item.title}</span>
-                </div>
-              </Link>
+                </button>
+              ) : (
+                <Link key={item.href} href={item.href}>
+                  <div className="flex flex-col items-center gap-1.5 cursor-pointer shrink-0" data-testid={`quick-${item.title.toLowerCase()}`}>
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: item.bg + "20" }}>
+                      <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                    </div>
+                    <span className="text-muted-foreground text-[10px] font-medium text-center leading-tight">{item.title}</span>
+                  </div>
+                </Link>
+              )
             ))}
           </div>
 
