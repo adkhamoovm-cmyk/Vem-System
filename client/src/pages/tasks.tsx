@@ -8,6 +8,7 @@ import { Play, Clock, CheckCircle, Crown, Lock, X, Coffee } from "lucide-react";
 import type { User, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
 import { Link } from "wouter";
+import { useI18n } from "@/lib/i18n";
 
 function isSunday() {
   return new Date().getDay() === 0;
@@ -40,6 +41,7 @@ function VideoPlayerModal({
   onClose: () => void;
 }) {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [completed, setCompleted] = useState(false);
@@ -56,12 +58,12 @@ function VideoPlayerModal({
       setCompleted(true);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({
-        title: "Vazifa bajarildi!",
-        description: `$${data.reward} hisobingizga tushdi`,
+        title: t("tasks.taskCompleted"),
+        description: t("tasks.earnedAmount", { amount: data.reward }),
       });
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -113,7 +115,7 @@ function VideoPlayerModal({
                   <Play className="w-7 h-7 text-primary-foreground ml-1" />
                 </Button>
                 <span className="text-white/90 text-xs mt-3 font-medium drop-shadow-lg">
-                  Boshlash uchun bosing
+                  {t("tasks.pressToStart")}
                 </span>
               </div>
             </div>
@@ -130,7 +132,7 @@ function VideoPlayerModal({
                 <div className="bg-black/70 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
                   <Clock className="w-3 h-3 text-primary" />
                   <span className="text-white text-xs font-mono font-bold" data-testid="text-timer">
-                    Qolgan vaqt: {timeLeft} soniya
+                    {t("tasks.timeLeft", { time: timeLeft })}
                   </span>
                 </div>
                 <div className="bg-black/70 backdrop-blur-sm rounded-full px-3 py-1.5">
@@ -151,7 +153,7 @@ function VideoPlayerModal({
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
-              <span className="text-foreground font-bold text-lg">Bajarildi!</span>
+              <span className="text-foreground font-bold text-lg">{t("tasks.completed")}</span>
             </div>
           )}
         </div>
@@ -160,7 +162,7 @@ function VideoPlayerModal({
           {started && !completed && (
             <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-xs">Taymer tugagunga qadar oynani yopmang</span>
+                <span className="text-muted-foreground text-xs">{t("tasks.dontClose")}</span>
                 <span className="text-primary font-bold text-sm">+${perVideoReward.toFixed(2)}</span>
               </div>
             </div>
@@ -170,14 +172,14 @@ function VideoPlayerModal({
             <>
               <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/20 text-center">
                 <p className="text-emerald-500 dark:text-emerald-400 font-bold text-lg">+${perVideoReward.toFixed(2)}</p>
-                <p className="text-emerald-500/70 dark:text-emerald-400/70 text-xs mt-0.5">Vazifa bajarildi, balansingizga pul qo'shildi!</p>
+                <p className="text-emerald-500/70 dark:text-emerald-400/70 text-xs mt-0.5">{t("tasks.taskDoneBalance")}</p>
               </div>
               <Button
                 onClick={onClose}
                 className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-10"
                 data-testid="button-close-video"
               >
-                Davom etish
+                {t("tasks.continue")}
               </Button>
             </>
           )}
@@ -190,7 +192,7 @@ function VideoPlayerModal({
               data-testid="button-cancel-video"
               disabled={started && timeLeft > 0}
             >
-              {started && timeLeft > 0 ? "Taymer tugashini kuting..." : "Yopish"}
+              {started && timeLeft > 0 ? t("tasks.waitTimer") : t("common.close")}
             </Button>
           )}
         </div>
@@ -200,6 +202,8 @@ function VideoPlayerModal({
 }
 
 export default function TasksPage() {
+  const { t } = useI18n();
+
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
@@ -244,15 +248,15 @@ export default function TasksPage() {
                 <div className="flex items-center gap-2 mb-0.5">
                   <Crown className="w-4 h-4 text-primary-foreground/80" />
                   <span className="text-primary-foreground/80 text-xs font-medium">
-                    {user.vipLevel < 0 ? "Rasmiy xodim emas" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
+                    {user.vipLevel < 0 ? t("common.notEmployee") : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
                   </span>
                 </div>
                 <p className="text-sm font-semibold">
-                  Har video: <span className="text-lg font-bold">${perVideoReward.toFixed(2)}</span>
+                  {t("tasks.perVideo")}: <span className="text-lg font-bold">${perVideoReward.toFixed(2)}</span>
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-primary-foreground/80 text-xs">Vazifalar</span>
+                <span className="text-primary-foreground/80 text-xs">{t("tasks.tasksLabel")}</span>
                 <p className="text-lg font-bold" data-testid="text-task-count">
                   {user.dailyTasksCompleted} / {user.dailyTasksLimit}
                 </p>
@@ -272,22 +276,22 @@ export default function TasksPage() {
                 <Lock className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-foreground text-sm font-semibold">Imtiyoz mavjud emas</p>
-                <p className="text-muted-foreground text-xs mt-0.5">Vazifa bajarish uchun VIP paket sotib oling</p>
+                <p className="text-foreground text-sm font-semibold">{t("tasks.noPrivilege")}</p>
+                <p className="text-muted-foreground text-xs mt-0.5">{t("tasks.buyVipToWork")}</p>
               </div>
               <Link href="/vip">
                 <Button
                   className="bg-primary text-primary-foreground text-xs no-default-hover-elevate no-default-active-elevate rounded-xl h-8 px-4"
                   data-testid="button-go-vip"
                 >
-                  VIP olish
+                  {t("tasks.getVip")}
                 </Button>
               </Link>
             </div>
           </div>
         )}
 
-        <h2 className="text-foreground font-bold text-sm mb-3">Bugungi vazifalar</h2>
+        <h2 className="text-foreground font-bold text-sm mb-3">{t("tasks.todayTasks")}</h2>
 
         {isSunday() ? (
           <div className="space-y-3">
@@ -295,9 +299,9 @@ export default function TasksPage() {
               <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Coffee className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-foreground font-bold text-lg mb-2">Erkin ish kuni</h3>
-              <p className="text-muted-foreground text-sm mb-1">Bugun yakshanba — dam olish kuni</p>
-              <p className="text-muted-foreground text-xs">Vazifalar Dushanba-Shanba kunlari bajariladi</p>
+              <h3 className="text-foreground font-bold text-lg mb-2">{t("tasks.sunday")}</h3>
+              <p className="text-muted-foreground text-sm mb-1">{t("tasks.sundayDesc")}</p>
+              <p className="text-muted-foreground text-xs">{t("tasks.sundayNote")}</p>
             </div>
           </div>
         ) : (
@@ -311,8 +315,8 @@ export default function TasksPage() {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-white font-bold text-sm mb-1">Video ko'rish vazifasi</p>
-                <p className="text-white/60 text-xs">Tasodifiy trayler ko'ring va mukofot oling</p>
+                <p className="text-white font-bold text-sm mb-1">{t("tasks.videoTask")}</p>
+                <p className="text-white/60 text-xs">{t("tasks.watchTrailer")}</p>
               </div>
             </div>
 
@@ -320,7 +324,7 @@ export default function TasksPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-primary" />
-                  <span className="text-muted-foreground text-xs">{TIMER_DURATION} soniya ko'ring</span>
+                  <span className="text-muted-foreground text-xs">{t("tasks.watchSeconds", { seconds: TIMER_DURATION })}</span>
                 </div>
                 <span className="text-primary text-sm font-bold">+${perVideoReward.toFixed(2)}</span>
               </div>
@@ -332,15 +336,15 @@ export default function TasksPage() {
                 data-testid="button-start-task"
               >
                 {noPrivilege ? (
-                  "Imtiyoz mavjud emas"
+                  t("tasks.noPrivilege")
                 ) : isLimitReached ? (
-                  "Kunlik limit tugadi"
+                  t("tasks.dailyLimitDone")
                 ) : !hasVip ? (
-                  "VIP paket kerak"
+                  t("tasks.vipRequired")
                 ) : (
                   <>
                     <Play className="w-4 h-4 mr-2" />
-                    Vazifani bajarish
+                    {t("tasks.startTask")}
                   </>
                 )}
               </Button>
@@ -349,7 +353,7 @@ export default function TasksPage() {
 
           <div className="bg-card rounded-2xl p-4 border border-border">
             <p className="text-muted-foreground text-xs text-center">
-              Har safar tugma bosilganda tasodifiy trayler ochiladi. {TIMER_DURATION} soniya ko'rganingizdan so'ng mukofot beriladi.
+              {t("tasks.eachButton", { seconds: TIMER_DURATION })}
             </p>
           </div>
         </div>

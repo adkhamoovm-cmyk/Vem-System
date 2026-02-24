@@ -12,37 +12,28 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useI18n } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 const countryCodes = [
-  { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}", name: "O'zbekiston" },
-  { code: "+7", country: "RU", flag: "\u{1F1F7}\u{1F1FA}", name: "Rossiya" },
-  { code: "+1", country: "US", flag: "\u{1F1FA}\u{1F1F8}", name: "AQSH" },
-  { code: "+44", country: "GB", flag: "\u{1F1EC}\u{1F1E7}", name: "Buyuk Britaniya" },
-  { code: "+49", country: "DE", flag: "\u{1F1E9}\u{1F1EA}", name: "Germaniya" },
-  { code: "+82", country: "KR", flag: "\u{1F1F0}\u{1F1F7}", name: "Janubiy Koreya" },
-  { code: "+90", country: "TR", flag: "\u{1F1F9}\u{1F1F7}", name: "Turkiya" },
-  { code: "+86", country: "CN", flag: "\u{1F1E8}\u{1F1F3}", name: "Xitoy" },
-  { code: "+91", country: "IN", flag: "\u{1F1EE}\u{1F1F3}", name: "Hindiston" },
-  { code: "+81", country: "JP", flag: "\u{1F1EF}\u{1F1F5}", name: "Yaponiya" },
-  { code: "+971", country: "AE", flag: "\u{1F1E6}\u{1F1EA}", name: "BAA" },
-  { code: "+992", country: "TJ", flag: "\u{1F1F9}\u{1F1EF}", name: "Tojikiston" },
-  { code: "+996", country: "KG", flag: "\u{1F1F0}\u{1F1EC}", name: "Qirg'iziston" },
-  { code: "+993", country: "TM", flag: "\u{1F1F9}\u{1F1F2}", name: "Turkmaniston" },
-  { code: "+7", country: "KZ", flag: "\u{1F1F0}\u{1F1FF}", name: "Qozog'iston" },
+  { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}" },
+  { code: "+7", country: "RU", flag: "\u{1F1F7}\u{1F1FA}" },
+  { code: "+1", country: "US", flag: "\u{1F1FA}\u{1F1F8}" },
+  { code: "+44", country: "GB", flag: "\u{1F1EC}\u{1F1E7}" },
+  { code: "+49", country: "DE", flag: "\u{1F1E9}\u{1F1EA}" },
+  { code: "+82", country: "KR", flag: "\u{1F1F0}\u{1F1F7}" },
+  { code: "+90", country: "TR", flag: "\u{1F1F9}\u{1F1F7}" },
+  { code: "+86", country: "CN", flag: "\u{1F1E8}\u{1F1F3}" },
+  { code: "+91", country: "IN", flag: "\u{1F1EE}\u{1F1F3}" },
+  { code: "+81", country: "JP", flag: "\u{1F1EF}\u{1F1F5}" },
+  { code: "+971", country: "AE", flag: "\u{1F1E6}\u{1F1EA}" },
+  { code: "+992", country: "TJ", flag: "\u{1F1F9}\u{1F1EF}" },
+  { code: "+996", country: "KG", flag: "\u{1F1F0}\u{1F1EC}" },
+  { code: "+993", country: "TM", flag: "\u{1F1F9}\u{1F1F2}" },
+  { code: "+7", country: "KZ", flag: "\u{1F1F0}\u{1F1FF}" },
 ];
 
-const registerSchema = z.object({
-  phone: z.string().min(5, "Telefon raqamini kiriting"),
-  password: z.string().min(6, "Parol kamida 6 ta belgidan iborat bo'lishi kerak"),
-  fundPassword: z.string().length(6, "Pul yechish paroli 6 ta raqamdan iborat bo'lishi kerak").regex(/^\d{6}$/, "Faqat raqamlar kiritilishi kerak"),
-  captcha: z.boolean().refine(val => val === true, "Captchani tasdiqlang"),
-  ageConfirm: z.boolean().refine(val => val === true, "Shartlarni qabul qiling"),
-  referralCode: z.string().optional(),
-});
-
-type RegisterForm = z.infer<typeof registerSchema>;
-
-function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
+function SliderCaptcha({ onVerified, t }: { onVerified: () => void; t: (key: string) => string }) {
   const [sliderPos, setSliderPos] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [verified, setVerified] = useState(false);
@@ -111,11 +102,11 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
         {verified ? (
           <div className="flex items-center gap-1.5">
             <CheckCircle className="w-4 h-4 text-green-400" />
-            <span className="text-sm font-semibold text-green-400 tracking-wide">Tasdiqlandi</span>
+            <span className="text-sm font-semibold text-green-400 tracking-wide">{t("auth.captchaVerified")}</span>
           </div>
         ) : (
           <div className="flex items-center gap-1.5">
-            <span className="text-[13px] text-muted-foreground font-medium tracking-wide">Surish orqali tasdiqlang</span>
+            <span className="text-[13px] text-muted-foreground font-medium tracking-wide">{t("auth.captchaSlide")}</span>
             <div className="flex -space-x-1">
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/60 animate-pulse" />
               <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 animate-pulse" style={{ animationDelay: "150ms" }} />
@@ -208,12 +199,24 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
 export default function RegisterPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
   const [showCountryList, setShowCountryList] = useState(false);
 
   const params = new URLSearchParams(window.location.search);
   const refCode = params.get("ref") || "";
+
+  const registerSchema = z.object({
+    phone: z.string().min(5, t("auth.phoneValidation")),
+    password: z.string().min(6, t("auth.passwordValidation")),
+    fundPassword: z.string().length(6, t("auth.fundPasswordValidation")).regex(/^\d{6}$/, t("auth.onlyNumbers")),
+    captcha: z.boolean().refine(val => val === true, t("auth.captchaValidation")),
+    ageConfirm: z.boolean().refine(val => val === true, t("auth.termsValidation")),
+    referralCode: z.string().optional(),
+  });
+
+  type RegisterForm = z.infer<typeof registerSchema>;
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -231,7 +234,7 @@ export default function RegisterPage() {
       navigate("/dashboard");
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -239,13 +242,16 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
-      <button
-        onClick={toggleTheme}
-        className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
-        data-testid="button-theme-toggle-register"
-      >
-        {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
-      </button>
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher />
+        <button
+          onClick={toggleTheme}
+          className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
+          data-testid="button-theme-toggle-register"
+        >
+          {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
+        </button>
+      </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-5">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
@@ -258,7 +264,7 @@ export default function RegisterPage() {
         <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1 h-5 bg-primary rounded-full" />
-            <h2 className="text-lg font-bold text-foreground">Ro'yxatdan o'tish</h2>
+            <h2 className="text-lg font-bold text-foreground">{t("auth.register")}</h2>
           </div>
 
           <Form {...form}>
@@ -268,7 +274,7 @@ export default function RegisterPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.phone")}</FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
                         <div className="relative">
@@ -297,7 +303,7 @@ export default function RegisterPage() {
                                     data-testid={`option-country-${c.country}`}
                                   >
                                     <span className="text-lg">{c.flag}</span>
-                                    <span className="text-foreground font-medium flex-1">{c.name}</span>
+                                    <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
                                     <span className="text-muted-foreground text-xs">{c.code}</span>
                                   </button>
                                 ))}
@@ -326,14 +332,14 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Kirish paroli</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.loginPassword")}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
-                          placeholder="Kamida 6 ta belgi"
+                          placeholder={t("auth.minChars")}
                           className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                           data-testid="input-password"
                         />
@@ -357,15 +363,15 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Pul yechish paroli</FormLabel>
-                      <span className="text-[10px] text-muted-foreground">6 xonali PIN</span>
+                      <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.fundPassword")}</FormLabel>
+                      <span className="text-[10px] text-muted-foreground">{t("auth.sixDigitPin")}</span>
                     </div>
                     <FormControl>
                       <div>
                         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3.5">
                           <div className="flex items-center gap-2 mb-2.5">
                             <Shield className="w-4 h-4 text-primary" />
-                            <span className="text-primary text-xs font-semibold">Moliya fondi parolini yarating</span>
+                            <span className="text-primary text-xs font-semibold">{t("auth.createFundPin")}</span>
                           </div>
                           <PinInput
                             value={field.value}
@@ -385,13 +391,13 @@ export default function RegisterPage() {
                 name="referralCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Referal kodi <span className="text-muted-foreground normal-case">(ixtiyoriy)</span></FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.referralCode")} <span className="text-muted-foreground normal-case">({t("auth.optional")})</span></FormLabel>
                     <FormControl>
                       <div className="relative">
                         <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           {...field}
-                          placeholder="Taklif kodini kiriting"
+                          placeholder={t("auth.enterReferral")}
                           className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                           data-testid="input-referral"
                         />
@@ -408,7 +414,7 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <SliderCaptcha onVerified={() => field.onChange(true)} />
+                      <SliderCaptcha onVerified={() => field.onChange(true)} t={t} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -430,9 +436,9 @@ export default function RegisterPage() {
                             data-testid="checkbox-age-confirm"
                           />
                           <span className="text-muted-foreground text-xs leading-relaxed">
-                            Men <strong>18 yoshdan oshganman</strong>. Moliyaviy mas'uliyatni o'z bo'ynimga olaman.
-                            <Link href="#" className="text-primary font-semibold ml-1">Foydalanish shartlari</Link> va{" "}
-                            <Link href="#" className="text-primary font-semibold">Maxfiylik siyosati</Link>ni o'qib chiqdim va qabul qilaman.
+                            <strong>{t("auth.ageConfirm")}</strong>. {t("auth.ageResponsibility")}
+                            <Link href="#" className="text-primary font-semibold ml-1">{t("auth.termsOfUse")}</Link> {" "}
+                            <Link href="#" className="text-primary font-semibold">{t("auth.privacyPolicy")}</Link>{t("auth.readAndAccept")}
                           </span>
                         </label>
                       </div>
@@ -448,23 +454,23 @@ export default function RegisterPage() {
                 disabled={registerMutation.isPending}
                 data-testid="button-register"
               >
-                {registerMutation.isPending ? "Ro'yxatdan o'tilmoqda..." : "Ro'yxatdan o'tish"}
+                {registerMutation.isPending ? t("auth.registering") : t("auth.register")}
               </Button>
             </form>
           </Form>
 
           <div className="mt-5 text-center">
             <p className="text-muted-foreground text-sm">
-              Hisobingiz bormi?{" "}
+              {t("auth.hasAccount")}{" "}
               <Link href="/login" className="text-primary font-semibold" data-testid="link-login">
-                Kirish
+                {t("auth.loginLink")}
               </Link>
             </p>
           </div>
         </div>
 
         <p className="text-center text-muted-foreground text-[10px] mt-4">
-          VEM Platform &copy; 2026. Barcha huquqlar himoyalangan.
+          {t("common.copyright")}
         </p>
       </div>
     </div>

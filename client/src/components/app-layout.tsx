@@ -3,21 +3,24 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useI18n } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import type { User } from "@shared/schema";
-
-const sideNavItems = [
-  { title: "Asosiy", href: "/dashboard", icon: Home, testId: "nav-asosiy" },
-  { title: "Trendlar", href: "/trends", icon: Flame, testId: "nav-trendlar" },
-];
-
-const rightNavItems = [
-  { title: "Referal", href: "/referral", icon: Users, testId: "nav-referal" },
-  { title: "Profil", href: "/profile", icon: UserIcon, testId: "nav-profil" },
-];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useI18n();
+
+  const sideNavItems = [
+    { title: t("nav.home"), href: "/dashboard", icon: Home, testId: "nav-asosiy" },
+    { title: t("nav.trends"), href: "/trends", icon: Flame, testId: "nav-trendlar" },
+  ];
+
+  const rightNavItems = [
+    { title: t("nav.referral"), href: "/referral", icon: Users, testId: "nav-referal" },
+    { title: t("nav.profile"), href: "/profile", icon: UserIcon, testId: "nav-profil" },
+  ];
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -48,6 +51,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
+            <LanguageSwitcher compact />
             <button
               onClick={toggleTheme}
               className="text-muted-foreground hover:text-foreground transition-colors p-1"
@@ -100,7 +104,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <PlayCircle className="w-7 h-7 text-primary-foreground stroke-[2]" />
               </div>
               <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-primary" : "text-muted-foreground"}`}>
-                Vazifalar
+                {t("nav.tasks")}
               </span>
             </button>
           </Link>

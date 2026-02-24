@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Wallet, Lock, Unlock, TrendingUp, Clock, DollarSign, Infinity, ArrowRight, X, CheckCircle, Sprout, Gem, Trophy } from "lucide-react";
 import type { User, FundPlan, Investment } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+import { useI18n } from "@/lib/i18n";
 
 const planIcons: Record<string, typeof Sprout> = {
   F1: Sprout, F2: Gem, F3: Trophy, F4: Infinity,
@@ -19,6 +20,7 @@ const planColors: Record<string, { gradient: string; bg: string; accent: string 
 };
 
 export default function FundPage() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState<FundPlan | null>(null);
   const [amount, setAmount] = useState("");
@@ -46,10 +48,10 @@ export default function FundPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/investments"] });
       setSelectedPlan(null);
       setAmount("");
-      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -57,7 +59,7 @@ export default function FundPage() {
     if (!selectedPlan || !amount) return;
     const num = Number(amount);
     if (isNaN(num) || num <= 0) {
-      toast({ title: "Xatolik", description: "Noto'g'ri summa", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("fund.invalidAmount"), variant: "destructive" });
       return;
     }
     investMutation.mutate({ fundPlanId: selectedPlan.id, amount: num });
@@ -87,21 +89,21 @@ export default function FundPage() {
               <Wallet className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg font-bold">VEM Fund</h1>
-              <p className="text-primary-foreground/70 text-xs">Passiv investitsiya</p>
+              <h1 className="text-lg font-bold">{t("fund.title")}</h1>
+              <p className="text-primary-foreground/70 text-xs">{t("fund.subtitle")}</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-primary-foreground/60">Balans</p>
+              <p className="text-[10px] text-primary-foreground/60">{t("common.balance")}</p>
               <p className="text-sm font-bold" data-testid="text-fund-balance">${Number(user?.balance || 0).toFixed(2)}</p>
             </div>
             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-primary-foreground/60">Jami kiritilgan</p>
+              <p className="text-[10px] text-primary-foreground/60">{t("fund.totalInvested")}</p>
               <p className="text-sm font-bold" data-testid="text-total-invested">${totalInvested.toFixed(2)}</p>
             </div>
             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-primary-foreground/60">Kunlik foyda</p>
+              <p className="text-[10px] text-primary-foreground/60">{t("fund.dailyProfit")}</p>
               <p className="text-sm font-bold text-green-300" data-testid="text-daily-profit">+${totalDailyProfit.toFixed(2)}</p>
             </div>
           </div>
@@ -110,7 +112,7 @@ export default function FundPage() {
         <div>
           <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary" />
-            Investitsiya tariflari
+            {t("fund.plans")}
           </h2>
           <div className="space-y-3">
             {plans?.sort((a, b) => Number(a.minDeposit) - Number(b.minDeposit)).map((plan) => {
@@ -127,7 +129,7 @@ export default function FundPage() {
                       <div>
                         <h3 className="text-white font-bold text-base">{plan.name}</h3>
                         <p className="text-white/70 text-xs">
-                          {plan.lockDays ? `${plan.lockDays} kunlik muzlatish` : "Umrbod (Infinity)"}
+                          {plan.lockDays ? t("fund.lockDays", { days: plan.lockDays }) : t("fund.forever")}
                         </p>
                       </div>
                     </div>
@@ -139,20 +141,20 @@ export default function FundPage() {
                   <div className="p-3 space-y-2">
                     <div className="grid grid-cols-2 gap-2">
                       <div className={`${colors.bg} rounded-xl p-2.5 text-center`}>
-                        <p className="text-[10px] text-muted-foreground">Kunlik foyda</p>
+                        <p className="text-[10px] text-muted-foreground">{t("fund.dailyRoi")}</p>
                         <p className="text-sm font-bold" style={{ color: colors.accent }}>{plan.dailyRoi}%</p>
                       </div>
                       <div className={`${colors.bg} rounded-xl p-2.5 text-center`}>
-                        <p className="text-[10px] text-muted-foreground">Asosiy pul</p>
+                        <p className="text-[10px] text-muted-foreground">{t("fund.principal")}</p>
                         <p className="text-sm font-bold" style={{ color: colors.accent }}>
-                          {plan.returnPrincipal ? "Qaytadi" : "Qaytmaydi"}
+                          {plan.returnPrincipal ? t("fund.returns") : t("fund.noReturn")}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-                      <span>Min: <span className="font-semibold text-foreground">${Number(plan.minDeposit).toLocaleString()}</span></span>
-                      <span>Max: <span className="font-semibold text-foreground">{plan.maxDeposit ? `$${Number(plan.maxDeposit).toLocaleString()}` : "Cheksiz"}</span></span>
+                      <span>{t("fund.min")}: <span className="font-semibold text-foreground">${Number(plan.minDeposit).toLocaleString()}</span></span>
+                      <span>{t("fund.max")}: <span className="font-semibold text-foreground">{plan.maxDeposit ? `$${Number(plan.maxDeposit).toLocaleString()}` : t("fund.unlimited")}</span></span>
                     </div>
 
                     <Button
@@ -160,7 +162,7 @@ export default function FundPage() {
                       onClick={() => { setSelectedPlan(plan); setAmount(""); }}
                       data-testid={`button-invest-${plan.name}`}
                     >
-                      Investitsiya qilish <ArrowRight className="w-4 h-4 ml-1" />
+                      {t("fund.invest")} <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </div>
@@ -173,7 +175,7 @@ export default function FundPage() {
           <div>
             <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
-              Aktiv investitsiyalar
+              {t("fund.activeInvestments")}
             </h2>
             <div className="space-y-2">
               {activeInvestments.map((inv) => {
@@ -196,18 +198,18 @@ export default function FundPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold" style={{ color: colors.accent }}>${Number(inv.investedAmount).toFixed(2)}</p>
-                        <p className="text-[10px] text-green-500 font-medium">+${Number(inv.dailyProfit).toFixed(2)}/kun</p>
+                        <p className="text-[10px] text-green-500 font-medium">+${Number(inv.dailyProfit).toFixed(2)}/{t("common.days")}</p>
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-[10px] text-muted-foreground bg-card rounded-lg px-2 py-1.5">
                       <span className="flex items-center gap-1">
                         <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                        Aktiv
+                        {t("common.active")}
                       </span>
                       <span>
-                        {daysLeft !== null ? `${daysLeft} kun qoldi` : "Umrbod"}
+                        {daysLeft !== null ? t("fund.daysLeft", { days: daysLeft }) : t("fund.forever")}
                       </span>
-                      <span>{plan?.returnPrincipal ? "Pul qaytadi" : "Pul qaytmaydi"}</span>
+                      <span>{plan?.returnPrincipal ? t("fund.moneyReturns") : t("fund.moneyNoReturn")}</span>
                     </div>
                   </div>
                 );
@@ -220,7 +222,7 @@ export default function FundPage() {
           <div>
             <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-500" />
-              Yakunlangan
+              {t("fund.completedInvestments")}
             </h2>
             <div className="space-y-2">
               {completedInvestments.map((inv) => {
@@ -234,7 +236,7 @@ export default function FundPage() {
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-bold text-muted-foreground">${Number(inv.investedAmount).toFixed(2)}</p>
-                        <p className="text-[10px] text-muted-foreground">Yakunlangan</p>
+                        <p className="text-[10px] text-muted-foreground">{t("common.completed")}</p>
                       </div>
                     </div>
                   </div>
@@ -250,7 +252,7 @@ export default function FundPage() {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                   {(() => { const Icon = planIcons[selectedPlan.name] || Sprout; return <Icon className="w-5 h-5" style={{ color: planColors[selectedPlan.name]?.accent }} />; })()}
-                  {selectedPlan.name} ga investitsiya
+                  {t("fund.investIn", { plan: selectedPlan.name })}
                 </h3>
                 <button onClick={() => setSelectedPlan(null)} className="text-muted-foreground hover:text-foreground" data-testid="button-close-invest">
                   <X className="w-5 h-5" />
@@ -259,41 +261,41 @@ export default function FundPage() {
 
               <div className="bg-muted rounded-xl p-3 space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Kunlik foyda:</span>
+                  <span className="text-muted-foreground">{t("fund.dailyProfit")}:</span>
                   <span className="font-semibold text-foreground">{selectedPlan.dailyRoi}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Muzlatish:</span>
-                  <span className="font-semibold text-foreground">{selectedPlan.lockDays ? `${selectedPlan.lockDays} kun` : "Umrbod"}</span>
+                  <span className="text-muted-foreground">{t("fund.lockPeriod")}</span>
+                  <span className="font-semibold text-foreground">{selectedPlan.lockDays ? `${selectedPlan.lockDays} ${t("common.days")}` : t("fund.forever")}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Asosiy pul:</span>
-                  <span className="font-semibold text-foreground">{selectedPlan.returnPrincipal ? "Qaytadi" : "Qaytmaydi"}</span>
+                  <span className="text-muted-foreground">{t("fund.principal")}:</span>
+                  <span className="font-semibold text-foreground">{selectedPlan.returnPrincipal ? t("fund.returns") : t("fund.noReturn")}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Depozit:</span>
+                  <span className="text-muted-foreground">{t("fund.depositRange")}</span>
                   <span className="font-semibold text-foreground">
-                    ${Number(selectedPlan.minDeposit).toLocaleString()} - {selectedPlan.maxDeposit ? `$${Number(selectedPlan.maxDeposit).toLocaleString()}` : "Cheksiz"}
+                    ${Number(selectedPlan.minDeposit).toLocaleString()} - {selectedPlan.maxDeposit ? `$${Number(selectedPlan.maxDeposit).toLocaleString()}` : t("fund.unlimited")}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Summa kiriting ($)</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t("fund.enterAmount")}</label>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder={`Min: $${Number(selectedPlan.minDeposit).toLocaleString()}`}
+                  placeholder={`${t("fund.min")}: $${Number(selectedPlan.minDeposit).toLocaleString()}`}
                   className="w-full border border-border bg-transparent text-foreground rounded-xl px-4 py-3 text-base focus:outline-none focus:border-primary transition-colors"
                   data-testid="input-invest-amount"
                 />
                 {amount && Number(amount) > 0 && (
                   <p className="text-xs text-emerald-500 dark:text-emerald-400 mt-1.5 font-medium">
-                    Kunlik foyda: +${(Number(amount) * Number(selectedPlan.dailyRoi) / 100).toFixed(2)}
+                    {t("fund.dailyProfit")}: +${(Number(amount) * Number(selectedPlan.dailyRoi) / 100).toFixed(2)}
                     {selectedPlan.lockDays && (
                       <span className="text-muted-foreground ml-1">
-                        | Jami: +${(Number(amount) * Number(selectedPlan.dailyRoi) / 100 * selectedPlan.lockDays).toFixed(2)}
+                        | {t("fund.totalCalc", { amount: (Number(amount) * Number(selectedPlan.dailyRoi) / 100 * selectedPlan.lockDays).toFixed(2) })}
                       </span>
                     )}
                   </p>
@@ -301,7 +303,7 @@ export default function FundPage() {
               </div>
 
               <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted rounded-lg px-3 py-2">
-                <span>Balans:</span>
+                <span>{t("common.balance")}:</span>
                 <span className="font-semibold text-foreground">${Number(user?.balance || 0).toFixed(2)}</span>
               </div>
 
@@ -316,7 +318,7 @@ export default function FundPage() {
                 ) : (
                   <>
                     <DollarSign className="w-5 h-5 mr-1" />
-                    Investitsiya qilish
+                    {t("fund.invest")}
                   </>
                 )}
               </Button>

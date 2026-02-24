@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, VipPackage, PromoCode } from "@shared/schema";
+import { useI18n } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
 const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
@@ -19,6 +20,7 @@ const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M
 type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor" | "vip-manage" | "promo";
 
 function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: User[]; deposits: DepositRequest[]; withdrawals: WithdrawalRequest[] }) {
+  const { t } = useI18n();
   const totalBalance = allUsers.reduce((s, u) => s + Number(u.balance), 0);
   const totalDeposits = deposits.filter(d => d.status === "approved").reduce((s, d) => s + Number(d.amount), 0);
   const totalWithdrawals = withdrawals.filter(w => w.status === "approved").reduce((s, w) => s + Number(w.amount), 0);
@@ -28,14 +30,14 @@ function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: Use
   const activeUsers = allUsers.filter(u => !u.isBanned).length;
 
   const stats = [
-    { label: "Jami foydalanuvchilar", value: allUsers.length, icon: Users, color: "#3B82F6" },
-    { label: "Faol / Bloklangan", value: `${activeUsers} / ${bannedUsers}`, icon: Shield, color: "hsl(var(--emerald-500, 142 71% 45%))" },
-    { label: "Umumiy balans", value: `${totalBalance.toFixed(2)} USDT`, icon: DollarSign, color: "hsl(var(--primary))" },
-    { label: "Jami depozitlar", value: `${totalDeposits.toFixed(2)} USDT`, icon: ArrowDownCircle, color: "hsl(var(--emerald-500, 142 71% 45%))" },
-    { label: "Jami yechishlar", value: `${totalWithdrawals.toFixed(2)} USDT`, icon: ArrowUpCircle, color: "hsl(var(--primary))" },
-    { label: "Kutilayotgan depozitlar", value: pendingDeposits, icon: Activity, color: "#FFB300" },
-    { label: "Kutilayotgan yechishlar", value: pendingWithdrawals, icon: Activity, color: "#FFB300" },
-    { label: "VIP foydalanuvchilar", value: allUsers.filter(u => u.vipLevel > 0).length, icon: Crown, color: "#FFB300" },
+    { label: t("admin.totalUsers"), value: allUsers.length, icon: Users, color: "#3B82F6" },
+    { label: t("admin.activeBlocked"), value: `${activeUsers} / ${bannedUsers}`, icon: Shield, color: "hsl(var(--emerald-500, 142 71% 45%))" },
+    { label: t("admin.totalBalance"), value: `${totalBalance.toFixed(2)} USDT`, icon: DollarSign, color: "hsl(var(--primary))" },
+    { label: t("admin.totalDeposits"), value: `${totalDeposits.toFixed(2)} USDT`, icon: ArrowDownCircle, color: "hsl(var(--emerald-500, 142 71% 45%))" },
+    { label: t("admin.totalWithdrawals"), value: `${totalWithdrawals.toFixed(2)} USDT`, icon: ArrowUpCircle, color: "hsl(var(--primary))" },
+    { label: t("admin.pendingDeposits"), value: pendingDeposits, icon: Activity, color: "#FFB300" },
+    { label: t("admin.pendingWithdrawals"), value: pendingWithdrawals, icon: Activity, color: "#FFB300" },
+    { label: t("admin.vipUsers"), value: allUsers.filter(u => u.vipLevel > 0).length, icon: Crown, color: "#FFB300" },
   ];
 
   return (
@@ -54,6 +56,7 @@ function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: Use
 }
 
 function UserDetailModal({ userId, open, onClose }: { userId: string | null; open: boolean; onClose: () => void }) {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [editBalance, setEditBalance] = useState(false);
   const [newBalance, setNewBalance] = useState("");
@@ -75,11 +78,11 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       await apiRequest("POST", `/api/admin/users/${userId}/balance`, { balance: finalBalance });
     },
     onSuccess: () => {
-      toast({ title: "Balans yangilandi" });
+      toast({ title: t("admin.balanceUpdated") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       setEditBalance(false);
     },
-    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   const vipMutation = useMutation({
@@ -88,11 +91,11 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       await apiRequest("POST", `/api/admin/users/${userId}/vip`, { level: newVipLevel, dailyLimit: limits[newVipLevel] || 3 });
     },
     onSuccess: () => {
-      toast({ title: "VIP daraja yangilandi" });
+      toast({ title: t("admin.vipLevelUpdated") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       setEditVip(false);
     },
-    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   const banMutation = useMutation({
@@ -100,7 +103,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       await apiRequest("POST", `/api/admin/users/${userId}/ban`, { isBanned });
     },
     onSuccess: () => {
-      toast({ title: "Holat yangilandi" });
+      toast({ title: t("admin.statusUpdated") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
   });
@@ -110,7 +113,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       await apiRequest("POST", `/api/admin/users/${userId}/withdrawal-ban`, { banned });
     },
     onSuccess: () => {
-      toast({ title: "Yechish holati yangilandi" });
+      toast({ title: t("admin.withdrawStatusUpdated") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
   });
@@ -123,13 +126,13 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       await apiRequest("POST", `/api/admin/users/${userId}/password`, body);
     },
     onSuccess: () => {
-      toast({ title: "Parol yangilandi" });
+      toast({ title: t("admin.passwordUpdated") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users", userId] });
       setEditPassword(false);
       setNewPassword("");
       setNewFundPassword("");
     },
-    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   const deleteMethodMutation = useMutation({
@@ -137,7 +140,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       await apiRequest("DELETE", `/api/admin/payment-methods/${id}`);
     },
     onSuccess: () => {
-      toast({ title: "To'lov usuli o'chirildi" });
+      toast({ title: t("admin.paymentMethodDeleted") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users", userId] });
     },
   });
@@ -147,7 +150,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       await apiRequest("DELETE", `/api/admin/users/${userId}`);
     },
     onSuccess: () => {
-      toast({ title: "Foydalanuvchi o'chirildi" });
+      toast({ title: t("admin.userDeleted") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
       onClose();
     },
@@ -163,33 +166,33 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
         <DialogHeader>
           <DialogTitle className="text-foreground flex items-center gap-2">
             <Eye className="w-5 h-5 text-[#3B82F6]" />
-            Foydalanuvchi ma'lumotlari
+            {t("admin.userDetails")}
           </DialogTitle>
-          <p id="user-detail-desc" className="text-muted-foreground text-xs">To'liq profil ma'lumotlari</p>
+          <p id="user-detail-desc" className="text-muted-foreground text-xs">{t("admin.fullProfileInfo")}</p>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
           <div className="grid grid-cols-2 gap-3">
-            <InfoRow label="Telefon" value={user.phone} />
+            <InfoRow label={t("admin.phone")} value={user.phone} />
             <InfoRow label="ID" value={user.numericId || "—"} />
             <InfoRow label="VIP" value={vipNames[user.vipLevel] || `M${user.vipLevel}`} />
-            <InfoRow label="Balans" value={`${Number(user.balance).toFixed(2)} USDT`} />
-            <InfoRow label="Daromad" value={`${Number(user.totalEarnings).toFixed(2)} USDT`} />
-            <InfoRow label="Depozit" value={`${Number(user.totalDeposit).toFixed(2)} USDT`} />
-            <InfoRow label="IP manzil" value={user.lastLoginIp || "Noma'lum"} />
-            <InfoRow label="Qurilma" value={user.lastUserAgent ? user.lastUserAgent.slice(0, 40) + "..." : "Noma'lum"} />
-            <InfoRow label="Holat" value={user.isBanned ? "Bloklangan" : "Faol"} color={user.isBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
-            <InfoRow label="Yechish" value={user.withdrawalBanned ? "Taqiqlangan" : "Ruxsat" } color={user.withdrawalBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
-            <InfoRow label="Ro'yxatdan" value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
-            <InfoRow label="Referal kodi" value={user.referralCode} />
-            <InfoRow label="Taklif etgan" value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : "Taklifsiz"} color={detail.invitedBy ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--muted-foreground))"} />
-            <InfoRow label="Kirish paroli" value={user.plainPassword || "Hali kirmagan"} />
-            <InfoRow label="Moliya paroli" value={user.plainFundPassword || "Hali ishlatmagan"} />
+            <InfoRow label={t("common.balance")} value={`${Number(user.balance).toFixed(2)} USDT`} />
+            <InfoRow label={t("admin.earnings")} value={`${Number(user.totalEarnings).toFixed(2)} USDT`} />
+            <InfoRow label={t("common.deposit")} value={`${Number(user.totalDeposit).toFixed(2)} USDT`} />
+            <InfoRow label={t("admin.ipAddress")} value={user.lastLoginIp || t("admin.unknown")} />
+            <InfoRow label={t("admin.device")} value={user.lastUserAgent ? user.lastUserAgent.slice(0, 40) + "..." : t("admin.unknown")} />
+            <InfoRow label={t("admin.status")} value={user.isBanned ? t("admin.blocked") : t("common.active")} color={user.isBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
+            <InfoRow label={t("admin.withdrawal")} value={user.withdrawalBanned ? t("admin.banned") : t("admin.allowed") } color={user.withdrawalBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
+            <InfoRow label={t("admin.registeredAt")} value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
+            <InfoRow label={t("admin.referralCode")} value={user.referralCode} />
+            <InfoRow label={t("admin.invitedBy")} value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : t("admin.noInviter")} color={detail.invitedBy ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--muted-foreground))"} />
+            <InfoRow label={t("admin.loginPassword")} value={user.plainPassword || t("admin.notLoggedYet")} />
+            <InfoRow label={t("admin.fundPassword")} value={user.plainFundPassword || t("admin.notUsedYet")} />
           </div>
 
           <div className="flex flex-wrap gap-2">
             <Button size="sm" onClick={() => { setEditBalance(true); setBalanceAmount(""); setBalanceMode("add"); }} className="bg-primary text-foreground text-xs rounded-lg h-8" data-testid="button-edit-balance">
-              <Edit className="w-3 h-3 mr-1" /> Balans
+              <Edit className="w-3 h-3 mr-1" /> {t("common.balance")}
             </Button>
             <Button size="sm" onClick={() => { setEditVip(true); setNewVipLevel(user.vipLevel); }} className="bg-[#FFB300] text-black text-xs rounded-lg h-8" data-testid="button-edit-vip">
               <Crown className="w-3 h-3 mr-1" /> VIP
@@ -198,50 +201,50 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
               className={`text-xs rounded-lg h-8 ${user.isBanned ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
               data-testid="button-toggle-ban"
             >
-              <Ban className="w-3 h-3 mr-1" /> {user.isBanned ? "Blokdan chiqarish" : "Bloklash"}
+              <Ban className="w-3 h-3 mr-1" /> {user.isBanned ? t("admin.unban") : t("admin.ban")}
             </Button>
             <Button size="sm" onClick={() => withdrawBanMutation.mutate(!user.withdrawalBanned)}
               className={`text-xs rounded-lg h-8 ${user.withdrawalBanned ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
               data-testid="button-toggle-withdraw-ban"
             >
-              <Shield className="w-3 h-3 mr-1" /> {user.withdrawalBanned ? "Yechish ruxsat" : "Yechish taqiq"}
+              <Shield className="w-3 h-3 mr-1" /> {user.withdrawalBanned ? t("admin.allowWithdraw") : t("admin.banWithdraw")}
             </Button>
             <Button size="sm" onClick={() => { setEditPassword(true); setNewPassword(""); setNewFundPassword(""); }}
               className="bg-[#3B82F6] text-foreground text-xs rounded-lg h-8" data-testid="button-edit-password"
             >
-              <Edit className="w-3 h-3 mr-1" /> Parol
+              <Edit className="w-3 h-3 mr-1" /> {t("admin.password")}
             </Button>
-            <Button size="sm" onClick={() => { if (confirm("Rostdan ham o'chirmoqchimisiz?")) deleteUserMutation.mutate(); }}
+            <Button size="sm" onClick={() => { if (confirm(t("admin.confirmDeleteUser"))) deleteUserMutation.mutate(); }}
               className="bg-red-700 text-foreground text-xs rounded-lg h-8" data-testid="button-delete-user"
             >
-              <Trash2 className="w-3 h-3 mr-1" /> O'chirish
+              <Trash2 className="w-3 h-3 mr-1" /> {t("common.delete")}
             </Button>
           </div>
 
           {editBalance && (
             <div className="bg-card rounded-xl p-3 border border-primary/30 space-y-3">
-              <p className="text-muted-foreground text-xs">Joriy balans: <span className="text-foreground font-bold">{Number(user.balance).toFixed(2)} USDT</span></p>
+              <p className="text-muted-foreground text-xs">{t("admin.currentBalance")}: <span className="text-foreground font-bold">{Number(user.balance).toFixed(2)} USDT</span></p>
               <div className="flex gap-2">
                 <button onClick={() => setBalanceMode("add")}
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "add" ? "bg-[#4ADE80]/20 border-[#4ADE80] text-emerald-500 dark:text-emerald-400" : "bg-background border-border text-muted-foreground"}`}
                   data-testid="button-balance-add"
                 >
-                  + Qo'shish
+                  + {t("admin.addBalance")}
                 </button>
                 <button onClick={() => setBalanceMode("subtract")}
                   className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "subtract" ? "bg-primary/20 border-primary text-primary" : "bg-background border-border text-muted-foreground"}`}
                   data-testid="button-balance-subtract"
                 >
-                  − Ayirish
+                  − {t("admin.subtractBalance")}
                 </button>
               </div>
               <div className="flex items-center gap-2">
                 <Input type="number" min="0" step="0.01" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)}
-                  placeholder="Miqdor (USDT)" className="bg-background border-border text-foreground h-9 text-sm flex-1" data-testid="input-balance-amount" />
+                  placeholder={t("admin.amountUsdt")} className="bg-background border-border text-foreground h-9 text-sm flex-1" data-testid="input-balance-amount" />
               </div>
               {balanceAmount && Number(balanceAmount) > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Yangi balans: <span className="text-foreground font-bold">
+                  {t("admin.newBalance")}: <span className="text-foreground font-bold">
                     {balanceMode === "add"
                       ? (Number(user.balance) + Number(balanceAmount)).toFixed(2)
                       : Math.max(0, Number(user.balance) - Number(balanceAmount)).toFixed(2)
@@ -260,16 +263,16 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                   className={`h-8 text-xs ${balanceMode === "add" ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
                   data-testid="button-balance-confirm"
                 >
-                  <Check className="w-3 h-3 mr-1" /> {balanceMode === "add" ? "Qo'shish" : "Ayirish"}
+                  <Check className="w-3 h-3 mr-1" /> {balanceMode === "add" ? t("admin.addBalance") : t("admin.subtractBalance")}
                 </Button>
-                <Button size="sm" onClick={() => setEditBalance(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
+                <Button size="sm" onClick={() => setEditBalance(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">{t("common.cancel")}</Button>
               </div>
             </div>
           )}
 
           {editVip && (
             <div className="bg-card rounded-xl p-3 border border-[#FFB300]/30">
-              <p className="text-muted-foreground text-xs mb-2">VIP darajasini tanlang:</p>
+              <p className="text-muted-foreground text-xs mb-2">{t("admin.selectVipLevel")}</p>
               <div className="flex flex-wrap gap-1.5">
                 {Object.entries(vipNames).map(([lvl, name]) => (
                   <button key={lvl} onClick={() => setNewVipLevel(Number(lvl))}
@@ -281,37 +284,37 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                 ))}
               </div>
               <div className="flex gap-2 mt-2">
-                <Button size="sm" onClick={() => vipMutation.mutate()} className="bg-[#FFB300] text-black h-8 text-xs">Saqlash</Button>
-                <Button size="sm" onClick={() => setEditVip(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
+                <Button size="sm" onClick={() => vipMutation.mutate()} className="bg-[#FFB300] text-black h-8 text-xs">{t("common.save")}</Button>
+                <Button size="sm" onClick={() => setEditVip(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">{t("common.cancel")}</Button>
               </div>
             </div>
           )}
 
           {editPassword && (
             <div className="bg-card rounded-xl p-3 border border-[#3B82F6]/30 space-y-2">
-              <p className="text-muted-foreground text-xs mb-1">Parolni o'zgartirish</p>
+              <p className="text-muted-foreground text-xs mb-1">{t("admin.changePassword")}</p>
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-xs w-24 shrink-0">Yangi parol:</span>
+                <span className="text-muted-foreground text-xs w-24 shrink-0">{t("admin.newPasswordLabel")}</span>
                 <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Yangi login parol" className="bg-background border-border text-foreground h-8 text-sm flex-1" data-testid="input-new-admin-password" />
+                  placeholder={t("admin.newLoginPassword")} className="bg-background border-border text-foreground h-8 text-sm flex-1" data-testid="input-new-admin-password" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-xs w-24 shrink-0">Moliya paroli:</span>
+                <span className="text-muted-foreground text-xs w-24 shrink-0">{t("admin.fundPasswordLabel")}</span>
                 <Input type="text" value={newFundPassword} onChange={(e) => setNewFundPassword(e.target.value)}
-                  placeholder="Yangi 6 xonali PIN" className="bg-background border-border text-foreground h-8 text-sm flex-1" data-testid="input-new-admin-fund-password" />
+                  placeholder={t("admin.newFundPin")} className="bg-background border-border text-foreground h-8 text-sm flex-1" data-testid="input-new-admin-fund-password" />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={() => passwordMutation.mutate()} disabled={!newPassword && !newFundPassword} className="bg-[#3B82F6] text-foreground h-8 text-xs">
-                  <Check className="w-3 h-3 mr-1" /> Saqlash
+                  <Check className="w-3 h-3 mr-1" /> {t("common.save")}
                 </Button>
-                <Button size="sm" onClick={() => setEditPassword(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
+                <Button size="sm" onClick={() => setEditPassword(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">{t("common.cancel")}</Button>
               </div>
             </div>
           )}
 
           {detail.paymentMethods?.length > 0 && (
             <div>
-              <p className="text-muted-foreground text-xs font-semibold mb-2">To'lov usullari</p>
+              <p className="text-muted-foreground text-xs font-semibold mb-2">{t("admin.paymentMethods")}</p>
               {detail.paymentMethods.map((m: PaymentMethod) => (
                 <div key={m.id} className="bg-card rounded-lg p-2.5 border border-border flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
@@ -331,19 +334,19 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
           {detail.referralStats && (
             <div>
-              <p className="text-muted-foreground text-xs font-semibold mb-2">Referal statistika</p>
+              <p className="text-muted-foreground text-xs font-semibold mb-2">{t("admin.referralStats")}</p>
               <div className="grid grid-cols-3 gap-2">
                 <div className="bg-card rounded-lg p-2.5 text-center border border-border">
                   <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{detail.referralStats.level1.count}</p>
-                  <p className="text-muted-foreground text-[10px]">1-daraja</p>
+                  <p className="text-muted-foreground text-[10px]">{t("admin.level", { level: "1" })}</p>
                 </div>
                 <div className="bg-card rounded-lg p-2.5 text-center border border-border">
                   <p className="text-[#3B82F6] font-bold text-sm">{detail.referralStats.level2.count}</p>
-                  <p className="text-muted-foreground text-[10px]">2-daraja</p>
+                  <p className="text-muted-foreground text-[10px]">{t("admin.level", { level: "2" })}</p>
                 </div>
                 <div className="bg-card rounded-lg p-2.5 text-center border border-border">
                   <p className="text-primary font-bold text-sm">{detail.referralStats.level3.count}</p>
-                  <p className="text-muted-foreground text-[10px]">3-daraja</p>
+                  <p className="text-muted-foreground text-[10px]">{t("admin.level", { level: "3" })}</p>
                 </div>
               </div>
             </div>
@@ -351,7 +354,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
           {detail.referralTree?.length > 0 && (
             <div>
-              <p className="text-muted-foreground text-xs font-semibold mb-2">Barcha referallar ({detail.referralTree.length} ta)</p>
+              <p className="text-muted-foreground text-xs font-semibold mb-2">{t("admin.allReferrals", { count: String(detail.referralTree.length) })}</p>
               {[1, 2, 3].map((lvl) => {
                 const levelRefs = detail.referralTree.filter((r: any) => r.level === lvl);
                 if (levelRefs.length === 0) return null;
@@ -361,17 +364,17 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                 return (
                   <div key={lvl} className="mb-3">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{lvl}-daraja</span>
-                      <span className="text-muted-foreground text-[10px]">{levelRefs.length} ta</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{t("admin.level", { level: String(lvl) })}</span>
+                      <span className="text-muted-foreground text-[10px]">{t("admin.count", { count: String(levelRefs.length) })}</span>
                     </div>
                     <div className={`${colors.bg} rounded-lg border ${colors.border} max-h-48 overflow-y-auto`}>
                       <table className="w-full text-xs">
                         <thead>
                           <tr className="border-b border-border">
                             <th className="text-left text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">ID</th>
-                            <th className="text-left text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">Telefon</th>
+                            <th className="text-left text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">{t("admin.phone")}</th>
                             <th className="text-center text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">VIP</th>
-                            <th className="text-right text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">Balans</th>
+                            <th className="text-right text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">{t("common.balance")}</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -381,7 +384,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                               <td className="py-1.5 px-2.5 text-foreground text-[11px]">{r.referredPhone}</td>
                               <td className="py-1.5 px-2.5 text-center">
                                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${r.referredVipLevel >= 0 ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
-                                  {r.referredVipLevel >= 0 ? (vipNames[r.referredVipLevel] || `M${r.referredVipLevel}`) : "Yo'q"}
+                                  {r.referredVipLevel >= 0 ? (vipNames[r.referredVipLevel] || `M${r.referredVipLevel}`) : "—"}
                                 </span>
                               </td>
                               <td className="py-1.5 px-2.5 text-right text-emerald-500 dark:text-emerald-400 text-[11px] font-medium">${Number(r.referredBalance).toFixed(2)}</td>
@@ -411,6 +414,7 @@ function InfoRow({ label, value, color }: { label: string; value: string; color?
 }
 
 function UsersTab({ users: allUsers }: { users: User[] }) {
+  const { t } = useI18n();
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
@@ -428,12 +432,12 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Telefon, ID, IP yoki referal kodi bo'yicha qidirish..."
+            placeholder={t("admin.searchPlaceholder")}
             className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-10 text-sm"
             data-testid="input-search-users"
           />
         </div>
-        <span className="text-muted-foreground text-xs whitespace-nowrap">{filtered.length} ta</span>
+        <span className="text-muted-foreground text-xs whitespace-nowrap">{t("admin.count", { count: String(filtered.length) })}</span>
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
@@ -441,12 +445,12 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border bg-card">
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">Telefon</th>
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">{t("admin.phone")}</th>
                 <th className="text-left text-muted-foreground font-medium py-2.5 px-3">VIP</th>
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">Balans</th>
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">{t("common.balance")}</th>
                 <th className="text-left text-muted-foreground font-medium py-2.5 px-3">IP</th>
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">Holat</th>
-                <th className="text-right text-muted-foreground font-medium py-2.5 px-3">Amal</th>
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">{t("admin.status")}</th>
+                <th className="text-right text-muted-foreground font-medium py-2.5 px-3">{t("admin.actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -474,7 +478,7 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
                     <Button size="sm" onClick={() => setSelectedUserId(u.id)} variant="ghost"
                       className="text-[#3B82F6] h-7 px-2 text-xs" data-testid={`button-view-user-${u.id}`}
                     >
-                      <Eye className="w-3 h-3 mr-1" /> Ko'rish
+                      <Eye className="w-3 h-3 mr-1" /> {t("admin.view")}
                     </Button>
                   </td>
                 </tr>
@@ -490,21 +494,29 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
 }
 
 function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]; users: User[] }) {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/deposits/${id}/approve`); },
-    onSuccess: () => { toast({ title: "Tasdiqlandi" }); queryClient.invalidateQueries({ queryKey: ["/api/admin/deposits"] }); },
+    onSuccess: () => { toast({ title: t("admin.approved") }); queryClient.invalidateQueries({ queryKey: ["/api/admin/deposits"] }); },
   });
 
   const rejectMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/deposits/${id}/reject`); },
-    onSuccess: () => { toast({ title: "Rad etildi" }); queryClient.invalidateQueries({ queryKey: ["/api/admin/deposits"] }); },
+    onSuccess: () => { toast({ title: t("admin.rejected") }); queryClient.invalidateQueries({ queryKey: ["/api/admin/deposits"] }); },
   });
 
   const filtered = deposits.filter(d => filter === "all" || d.status === filter);
+
+  const filterLabels: Record<string, string> = {
+    all: t("common.all"),
+    pending: t("common.pending"),
+    approved: t("common.approved"),
+    rejected: t("common.rejected"),
+  };
 
   return (
     <div className="space-y-3">
@@ -514,14 +526,14 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
             className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
             data-testid={`button-filter-${f}`}
           >
-            {f === "all" ? "Barchasi" : f === "pending" ? "Kutilmoqda" : f === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
+            {filterLabels[f]}
             <span className="ml-1 opacity-60">({deposits.filter(d => f === "all" || d.status === f).length})</span>
           </button>
         ))}
       </div>
 
       <div className="space-y-2">
-        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Hech narsa topilmadi</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t("admin.nothingFound")}</p>}
         {filtered.map(d => {
           const user = userMap[d.userId];
           return (
@@ -533,22 +545,22 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
                     <span className="text-foreground font-semibold text-sm">{Number(d.amount).toFixed(2)} {d.currency}</span>
                     <StatusBadge status={d.status} />
                   </div>
-                  <p className="text-muted-foreground text-xs">Foydalanuvchi: {user?.phone || d.userId.slice(0, 8)}</p>
-                  <p className="text-muted-foreground text-xs">To'lov turi: {d.paymentType === "crypto" ? "Kripto" : "Mahalliy"}</p>
-                  <p className="text-muted-foreground text-xs">Sana: {new Date(d.createdAt).toLocaleString()}</p>
+                  <p className="text-muted-foreground text-xs">{t("admin.user")}: {user?.phone || d.userId.slice(0, 8)}</p>
+                  <p className="text-muted-foreground text-xs">{t("admin.paymentType")}: {d.paymentType === "crypto" ? t("admin.crypto") : t("admin.local")}</p>
+                  <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(d.createdAt).toLocaleString()}</p>
                   {d.receiptUrl && (
                     <a href={d.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] text-xs underline mt-1 inline-block">
-                      Chekni ko'rish
+                      {t("admin.viewReceipt")}
                     </a>
                   )}
                 </div>
                 {d.status === "pending" && (
                   <div className="flex gap-1.5">
                     <Button size="sm" onClick={() => approveMutation.mutate(d.id)} className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-deposit-${d.id}`}>
-                      <Check className="w-3 h-3 mr-1" /> Tasdiqlash
+                      <Check className="w-3 h-3 mr-1" /> {t("common.confirm")}
                     </Button>
                     <Button size="sm" onClick={() => rejectMutation.mutate(d.id)} className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-deposit-${d.id}`}>
-                      <X className="w-3 h-3 mr-1" /> Rad etish
+                      <X className="w-3 h-3 mr-1" /> {t("admin.reject")}
                     </Button>
                   </div>
                 )}
@@ -562,21 +574,29 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
 }
 
 function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (WithdrawalRequest & { paymentMethod?: PaymentMethod | null })[]; users: User[] }) {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/withdrawals/${id}/approve`); },
-    onSuccess: () => { toast({ title: "Tasdiqlandi" }); queryClient.invalidateQueries({ queryKey: ["/api/admin/withdrawals"] }); },
+    onSuccess: () => { toast({ title: t("admin.approved") }); queryClient.invalidateQueries({ queryKey: ["/api/admin/withdrawals"] }); },
   });
 
   const rejectMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/withdrawals/${id}/reject`); },
-    onSuccess: () => { toast({ title: "Rad etildi" }); queryClient.invalidateQueries({ queryKey: ["/api/admin/withdrawals"] }); },
+    onSuccess: () => { toast({ title: t("admin.rejected") }); queryClient.invalidateQueries({ queryKey: ["/api/admin/withdrawals"] }); },
   });
 
   const filtered = withdrawals.filter(w => filter === "all" || w.status === filter);
+
+  const filterLabels: Record<string, string> = {
+    all: t("common.all"),
+    pending: t("common.pending"),
+    approved: t("common.approved"),
+    rejected: t("common.rejected"),
+  };
 
   return (
     <div className="space-y-3">
@@ -586,14 +606,14 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
             className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
             data-testid={`button-filter-w-${f}`}
           >
-            {f === "all" ? "Barchasi" : f === "pending" ? "Kutilmoqda" : f === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
+            {filterLabels[f]}
             <span className="ml-1 opacity-60">({withdrawals.filter(w => f === "all" || w.status === f).length})</span>
           </button>
         ))}
       </div>
 
       <div className="space-y-2">
-        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Hech narsa topilmadi</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t("admin.nothingFound")}</p>}
         {filtered.map(w => {
           const user = userMap[w.userId];
           const pm = w.paymentMethod;
@@ -606,38 +626,38 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
                     <span className="text-foreground font-semibold text-sm">{Number(w.amount).toFixed(2)} USDT</span>
                     <StatusBadge status={w.status} />
                   </div>
-                  <p className="text-muted-foreground text-xs">Foydalanuvchi: {user?.phone || w.userId.slice(0, 8)}</p>
-                  <p className="text-muted-foreground text-xs">Komissiya: {Number(w.commission).toFixed(2)} USDT | Sof: {Number(w.netAmount).toFixed(2)} USDT</p>
+                  <p className="text-muted-foreground text-xs">{t("admin.user")}: {user?.phone || w.userId.slice(0, 8)}</p>
+                  <p className="text-muted-foreground text-xs">{t("admin.commission")}: {Number(w.commission).toFixed(2)} USDT | {t("admin.net")}: {Number(w.netAmount).toFixed(2)} USDT</p>
                   {pm && (
                     <div className="mt-2 p-2.5 bg-card rounded-lg border border-border">
                       <div className="flex items-center gap-1.5 mb-1">
                         {pm.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />}
-                        <span className="text-foreground text-xs font-medium">{pm.type === "bank" ? "Bank karta" : "USDT hamyon"}</span>
+                        <span className="text-foreground text-xs font-medium">{pm.type === "bank" ? t("admin.bankCard") : t("admin.usdtWallet")}</span>
                       </div>
                       {pm.type === "bank" ? (
                         <>
-                          <p className="text-foreground text-xs">Karta: <span className="text-foreground font-mono">{pm.cardNumber}</span></p>
-                          <p className="text-foreground text-xs">Egasi: <span className="text-foreground">{pm.holderName}</span></p>
-                          <p className="text-foreground text-xs">Bank: <span className="text-foreground">{pm.bankName}</span></p>
+                          <p className="text-foreground text-xs">{t("admin.card")}: <span className="text-foreground font-mono">{pm.cardNumber}</span></p>
+                          <p className="text-foreground text-xs">{t("admin.owner")}: <span className="text-foreground">{pm.holderName}</span></p>
+                          <p className="text-foreground text-xs">{t("admin.bankLabel")}: <span className="text-foreground">{pm.bankName}</span></p>
                         </>
                       ) : (
                         <>
-                          <p className="text-foreground text-xs">Manzil: <span className="text-foreground font-mono text-[10px]">{pm.walletAddress}</span></p>
-                          <p className="text-foreground text-xs">Birja: <span className="text-foreground">{pm.exchangeName}</span></p>
+                          <p className="text-foreground text-xs">{t("admin.address")}: <span className="text-foreground font-mono text-[10px]">{pm.walletAddress}</span></p>
+                          <p className="text-foreground text-xs">{t("admin.exchange")}: <span className="text-foreground">{pm.exchangeName}</span></p>
                         </>
                       )}
                     </div>
                   )}
-                  {!pm && <p className="text-primary text-xs mt-1">Rekvizit topilmadi</p>}
-                  <p className="text-muted-foreground text-xs mt-1">Sana: {new Date(w.createdAt).toLocaleString()}</p>
+                  {!pm && <p className="text-primary text-xs mt-1">{t("admin.noRequisites")}</p>}
+                  <p className="text-muted-foreground text-xs mt-1">{t("admin.date")}: {new Date(w.createdAt).toLocaleString()}</p>
                 </div>
                 {w.status === "pending" && (
                   <div className="flex gap-1.5">
                     <Button size="sm" onClick={() => approveMutation.mutate(w.id)} className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-withdrawal-${w.id}`}>
-                      <Check className="w-3 h-3 mr-1" /> Tasdiqlash
+                      <Check className="w-3 h-3 mr-1" /> {t("common.confirm")}
                     </Button>
                     <Button size="sm" onClick={() => rejectMutation.mutate(w.id)} className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-withdrawal-${w.id}`}>
-                      <X className="w-3 h-3 mr-1" /> Rad etish
+                      <X className="w-3 h-3 mr-1" /> {t("admin.reject")}
                     </Button>
                   </div>
                 )}
@@ -651,6 +671,7 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
 }
 
 function SettingsTab() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -674,7 +695,7 @@ function SettingsTab() {
       });
     },
     onSuccess: () => {
-      toast({ title: "Saqlandi" });
+      toast({ title: t("admin.saved") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/deposit-settings"] });
       resetForm();
     },
@@ -682,7 +703,7 @@ function SettingsTab() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/admin/deposit-settings/${id}`); },
-    onSuccess: () => { toast({ title: "O'chirildi" }); queryClient.invalidateQueries({ queryKey: ["/api/admin/deposit-settings"] }); },
+    onSuccess: () => { toast({ title: t("admin.deleted") }); queryClient.invalidateQueries({ queryKey: ["/api/admin/deposit-settings"] }); },
   });
 
   const resetForm = () => { setShowForm(false); setEditingId(null); setBankName(""); setCardNumber(""); setHolderName(""); setWalletAddress(""); setExchangeName(""); setNetworkType("TRC20"); };
@@ -702,9 +723,9 @@ function SettingsTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-foreground font-bold text-sm">Depozit rekvizitlari</h3>
+        <h3 className="text-foreground font-bold text-sm">{t("admin.depositRequisites")}</h3>
         <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="bg-primary text-foreground text-xs rounded-lg h-8" data-testid="button-add-deposit-setting">
-          <Plus className="w-3 h-3 mr-1" /> Qo'shish
+          <Plus className="w-3 h-3 mr-1" /> {t("admin.add")}
         </Button>
       </div>
 
@@ -714,7 +735,7 @@ function SettingsTab() {
             <button onClick={() => setFormType("bank")}
               className={`px-3 py-1.5 rounded-lg text-xs border ${formType === "bank" ? "bg-[#3B82F6]/20 border-[#3B82F6] text-[#3B82F6]" : "bg-card border-border text-muted-foreground"}`}
             >
-              <CreditCard className="w-3 h-3 inline mr-1" /> Bank karta
+              <CreditCard className="w-3 h-3 inline mr-1" /> {t("admin.bankCard")}
             </button>
             <button onClick={() => setFormType("usdt")}
               className={`px-3 py-1.5 rounded-lg text-xs border ${formType === "usdt" ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
@@ -725,35 +746,35 @@ function SettingsTab() {
 
           {formType === "bank" ? (
             <>
-              <Input value={holderName} onChange={(e) => setHolderName(e.target.value)} placeholder="Karta egasi ismi"
+              <Input value={holderName} onChange={(e) => setHolderName(e.target.value)} placeholder={t("admin.cardHolderName")}
                 className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-holder" />
-              <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank nomi (Uzcard, Humo...)"
+              <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder={t("admin.bankNamePlaceholder")}
                 className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-bank" />
-              <Input value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder="Karta raqami"
+              <Input value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder={t("admin.cardNumberPlaceholder")}
                 className="bg-card border-border text-foreground h-9 text-sm font-mono" data-testid="input-setting-card" />
             </>
           ) : (
             <>
-              <Input value={exchangeName} onChange={(e) => setExchangeName(e.target.value)} placeholder="Birja nomi (Binance, Bybit...)"
+              <Input value={exchangeName} onChange={(e) => setExchangeName(e.target.value)} placeholder={t("admin.exchangeNamePlaceholder")}
                 className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-exchange" />
-              <Input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="USDT hamyon manzili"
+              <Input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder={t("admin.walletAddressPlaceholder")}
                 className="bg-card border-border text-foreground h-9 text-sm font-mono" data-testid="input-setting-wallet" />
-              <Input value={networkType} onChange={(e) => setNetworkType(e.target.value)} placeholder="Tarmoq (TRC20)"
+              <Input value={networkType} onChange={(e) => setNetworkType(e.target.value)} placeholder={t("admin.networkPlaceholder")}
                 className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-network" />
             </>
           )}
 
           <div className="flex gap-2">
             <Button size="sm" onClick={() => saveMutation.mutate()} className="bg-[#4ADE80] text-black h-8 text-xs" data-testid="button-save-setting">
-              <Check className="w-3 h-3 mr-1" /> Saqlash
+              <Check className="w-3 h-3 mr-1" /> {t("common.save")}
             </Button>
-            <Button size="sm" onClick={resetForm} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
+            <Button size="sm" onClick={resetForm} variant="ghost" className="text-muted-foreground h-8 text-xs">{t("common.cancel")}</Button>
           </div>
         </div>
       )}
 
       <div className="space-y-2">
-        {settings.length === 0 && <p className="text-muted-foreground text-sm text-center py-4">Hech qanday rekvizit qo'shilmagan</p>}
+        {settings.length === 0 && <p className="text-muted-foreground text-sm text-center py-4">{t("admin.noRequisitesAdded")}</p>}
         {settings.map(s => (
           <div key={s.id} className="bg-card rounded-xl p-3 border border-border flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -783,17 +804,18 @@ function SettingsTab() {
 }
 
 function TopReferrersTab() {
+  const { t } = useI18n();
   const { data: topReferrers = [] } = useQuery<any[]>({ queryKey: ["/api/admin/top-referrers"] });
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-2">
         <Trophy className="w-5 h-5 text-[#FFB300]" />
-        <h3 className="text-foreground font-bold text-sm">Top 10 faol referalchilar</h3>
-        <span className="text-muted-foreground text-xs">(1-daraja taklif soni bo'yicha)</span>
+        <h3 className="text-foreground font-bold text-sm">{t("admin.topReferrers")}</h3>
+        <span className="text-muted-foreground text-xs">{t("admin.byLevel1Invites")}</span>
       </div>
 
-      {topReferrers.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Ma'lumot topilmadi</p>}
+      {topReferrers.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t("admin.noDataFound")}</p>}
 
       <div className="space-y-2">
         {topReferrers.map((r: any, i: number) => (
@@ -806,7 +828,7 @@ function TopReferrersTab() {
               <p className="text-muted-foreground text-xs">VIP: {vipNames[r.vipLevel] || "—"} | ID: {r.numericId?.slice(0, 8) || "—"}</p>
             </div>
             <div className="text-right">
-              <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{r.count} ta</p>
+              <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{t("admin.count", { count: String(r.count) })}</p>
               <p className="text-muted-foreground text-[10px]">{Number(r.totalCommission).toFixed(2)} USDT</p>
             </div>
           </div>
@@ -817,6 +839,7 @@ function TopReferrersTab() {
 }
 
 function MultiAccountsTab() {
+  const { t } = useI18n();
   const { data: groups = [] } = useQuery<any[]>({ queryKey: ["/api/admin/multi-accounts"] });
   const [expandedIp, setExpandedIp] = useState<string | null>(null);
   const { data: ipUsers } = useQuery<User[]>({
@@ -828,14 +851,14 @@ function MultiAccountsTab() {
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-2">
         <AlertTriangle className="w-5 h-5 text-primary" />
-        <h3 className="text-foreground font-bold text-sm">Bir xil IP/qurilmali akkauntlar</h3>
+        <h3 className="text-foreground font-bold text-sm">{t("admin.multiAccounts")}</h3>
       </div>
 
       {groups.length === 0 && (
         <div className="bg-card rounded-xl p-8 border border-border text-center">
           <Shield className="w-8 h-8 text-emerald-500 dark:text-emerald-400 mx-auto mb-2" />
-          <p className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">Multi-akkaunt topilmadi</p>
-          <p className="text-muted-foreground text-xs mt-1">Bir xil IP dan kirgan foydalanuvchilar yo'q</p>
+          <p className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">{t("admin.noMultiAccounts")}</p>
+          <p className="text-muted-foreground text-xs mt-1">{t("admin.noSameIpUsers")}</p>
         </div>
       )}
 
@@ -849,7 +872,7 @@ function MultiAccountsTab() {
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-primary" />
               <span className="text-foreground text-sm font-mono">{g.ip || "null"}</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/20 text-primary font-bold">{g.count} akkaunt</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/20 text-primary font-bold">{g.count} {t("admin.accounts")}</span>
             </div>
             {expandedIp === g.ip ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
           </button>
@@ -869,6 +892,7 @@ function MultiAccountsTab() {
 }
 
 function StajyorTab({ users: allUsers }: { users: User[] }) {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
@@ -878,29 +902,36 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
   const approveMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/stajyor-requests/${id}/approve`); },
     onSuccess: () => {
-      toast({ title: "Stajyor faollashtirildi!" });
+      toast({ title: t("admin.stajyorActivated") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stajyor-requests"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
-    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   const rejectMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/stajyor-requests/${id}/reject`); },
     onSuccess: () => {
-      toast({ title: "So'rov rad etildi" });
+      toast({ title: t("admin.requestRejected") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/stajyor-requests"] });
     },
-    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   const filtered = requests.filter(r => filter === "all" || r.status === filter);
+
+  const filterLabels: Record<string, string> = {
+    all: t("common.all"),
+    pending: t("common.pending"),
+    approved: t("common.approved"),
+    rejected: t("common.rejected"),
+  };
 
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-2">
         <UserPlus className="w-5 h-5 text-[#78909C]" />
-        <h3 className="text-foreground font-bold text-sm">Stajyor so'rovlari</h3>
+        <h3 className="text-foreground font-bold text-sm">{t("admin.stajyorRequests")}</h3>
       </div>
 
       <div className="flex gap-2">
@@ -909,14 +940,14 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
             className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
             data-testid={`button-filter-stajyor-${f}`}
           >
-            {f === "all" ? "Barchasi" : f === "pending" ? "Kutilmoqda" : f === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
+            {filterLabels[f]}
             <span className="ml-1 opacity-60">({requests.filter(r => f === "all" || r.status === f).length})</span>
           </button>
         ))}
       </div>
 
       <div className="space-y-2">
-        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Hech narsa topilmadi</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t("admin.nothingFound")}</p>}
         {filtered.map(r => {
           const user = userMap[r.userId];
           return (
@@ -935,19 +966,19 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
                     </div>
                   )}
                   <p className="text-muted-foreground text-xs mt-1">ID: {user?.numericId?.slice(0, 10) || "—"}</p>
-                  <p className="text-muted-foreground text-xs">Sana: {new Date(r.createdAt).toLocaleString()}</p>
+                  <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(r.createdAt).toLocaleString()}</p>
                 </div>
                 {r.status === "pending" && (
                   <div className="flex gap-1.5">
                     <Button size="sm" onClick={() => approveMutation.mutate(r.id)}
                       className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-stajyor-${r.id}`}
                     >
-                      <Check className="w-3 h-3 mr-1" /> Yoqish
+                      <Check className="w-3 h-3 mr-1" /> {t("admin.activate")}
                     </Button>
                     <Button size="sm" onClick={() => rejectMutation.mutate(r.id)}
                       className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-stajyor-${r.id}`}
                     >
-                      <X className="w-3 h-3 mr-1" /> Rad etish
+                      <X className="w-3 h-3 mr-1" /> {t("admin.reject")}
                     </Button>
                   </div>
                 )}
@@ -961,6 +992,7 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
 }
 
 function VipManageTab() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const { data: packages = [] } = useQuery<VipPackage[]>({ queryKey: ["/api/vip-packages"] });
 
@@ -969,18 +1001,18 @@ function VipManageTab() {
       await apiRequest("POST", `/api/admin/vip-packages/${id}/toggle-lock`, { locked });
     },
     onSuccess: () => {
-      toast({ title: "VIP daraja yangilandi" });
+      toast({ title: t("admin.vipLevelUpdated") });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
     },
-    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   const sorted = [...packages].sort((a, b) => a.level - b.level);
 
   return (
     <div>
-      <h3 className="text-foreground font-bold text-sm mb-3">VIP darajalarni boshqarish</h3>
-      <p className="text-muted-foreground text-xs mb-4">Darajalarni ochish yoki yopish. Yopilgan darajani foydalanuvchilar sotib ololmaydi.</p>
+      <h3 className="text-foreground font-bold text-sm mb-3">{t("admin.manageVipLevels")}</h3>
+      <p className="text-muted-foreground text-xs mb-4">{t("admin.vipManageDesc")}</p>
       <div className="space-y-2">
         {sorted.map((pkg) => (
           <div key={pkg.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between">
@@ -991,13 +1023,13 @@ function VipManageTab() {
               <div>
                 <p className="text-foreground text-sm font-semibold">{pkg.name}</p>
                 <p className="text-muted-foreground text-xs">
-                  Narx: ${Number(pkg.price).toFixed(0)} | Kunlik: {pkg.dailyTasks} vazifa | Har video: ${Number(pkg.perVideoReward).toFixed(2)}
+                  {t("admin.price")}: ${Number(pkg.price).toFixed(0)} | {t("admin.dailyLabel")}: {pkg.dailyTasks} {t("admin.tasksLabel")} | {t("admin.perVideo")}: ${Number(pkg.perVideoReward).toFixed(2)}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <span className={`text-xs font-medium ${pkg.isLocked ? "text-primary" : "text-emerald-500 dark:text-emerald-400"}`}>
-                {pkg.isLocked ? "Yopiq" : "Ochiq"}
+                {pkg.isLocked ? t("admin.closed") : t("common.open")}
               </span>
               <Button
                 size="sm"
@@ -1005,7 +1037,7 @@ function VipManageTab() {
                 className={`text-xs rounded-lg h-8 px-3 ${pkg.isLocked ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
                 data-testid={`button-toggle-vip-${pkg.level}`}
               >
-                {pkg.isLocked ? "Ochish" : "Yopish"}
+                {pkg.isLocked ? t("admin.unlock") : t("admin.lock")}
               </Button>
             </div>
           </div>
@@ -1016,6 +1048,7 @@ function VipManageTab() {
 }
 
 function PromoCodesTab() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [newCode, setNewCode] = useState("");
   const [newAmount, setNewAmount] = useState("");
@@ -1045,17 +1078,17 @@ function PromoCodesTab() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "Promokod yaratildi!" });
+      toast({ title: t("admin.promoCreated") });
       setNewCode(""); setNewAmount(""); setMaxUses("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/promo-codes"] });
     },
-    onError: (e: any) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+    onError: (e: any) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   const deactivateMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/promo-codes/${id}/deactivate`); },
     onSuccess: () => {
-      toast({ title: "O'chirildi" });
+      toast({ title: t("admin.deleted") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/promo-codes"] });
     },
   });
@@ -1063,7 +1096,7 @@ function PromoCodesTab() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("DELETE", `/api/admin/promo-codes/${id}`); },
     onSuccess: () => {
-      toast({ title: "O'chirildi" });
+      toast({ title: t("admin.deleted") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/promo-codes"] });
     },
   });
@@ -1073,20 +1106,20 @@ function PromoCodesTab() {
       <div className="bg-card rounded-2xl p-4 border border-border space-y-3">
         <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
           <Plus className="w-4 h-4 text-[#EF4444]" />
-          Yangi promokod yaratish
+          {t("admin.createPromoCode")}
         </h3>
         <div className="grid grid-cols-2 gap-2">
           <Input
             value={newCode}
             onChange={(e) => setNewCode(e.target.value.toUpperCase())}
-            placeholder="Kod (masalan: VEM100)"
+            placeholder={t("admin.codeExample")}
             className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-10 font-mono uppercase"
             data-testid="input-admin-promo-code"
           />
           <Input
             value={newAmount}
             onChange={(e) => setNewAmount(e.target.value)}
-            placeholder="Miqdor (USDT)"
+            placeholder={t("admin.amountUsdt")}
             type="number"
             step="0.01"
             className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-10"
@@ -1096,17 +1129,17 @@ function PromoCodesTab() {
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="radio" checked={isOneTime} onChange={() => setIsOneTime(true)} className="accent-[#EF4444]" />
-            <span className="text-foreground text-xs">Bir martalik</span>
+            <span className="text-foreground text-xs">{t("admin.oneTime")}</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="radio" checked={!isOneTime} onChange={() => setIsOneTime(false)} className="accent-[#EF4444]" />
-            <span className="text-foreground text-xs">Ko'p martalik</span>
+            <span className="text-foreground text-xs">{t("admin.multiUse")}</span>
           </label>
           {!isOneTime && (
             <Input
               value={maxUses}
               onChange={(e) => setMaxUses(e.target.value)}
-              placeholder="Max ishlatish"
+              placeholder={t("admin.maxUses")}
               type="number"
               className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-8 w-28 text-xs"
               data-testid="input-admin-promo-max-uses"
@@ -1119,7 +1152,7 @@ function PromoCodesTab() {
           className="w-full bg-gradient-to-r from-[#EF4444] to-[#F97316] text-white font-semibold rounded-xl h-10 disabled:opacity-50"
           data-testid="button-admin-create-promo"
         >
-          {createMutation.isPending ? "Yaratilmoqda..." : "Promokod yaratish"}
+          {createMutation.isPending ? t("admin.creating") : t("admin.createPromo")}
         </Button>
       </div>
 
@@ -1127,12 +1160,12 @@ function PromoCodesTab() {
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
             <Mail className="w-4 h-4 text-[#EF4444]" />
-            Barcha promokodlar ({promoCodes.length})
+            {t("admin.allPromoCodes")} ({promoCodes.length})
           </h3>
         </div>
         <div className="divide-y divide-border">
           {promoCodes.length === 0 && (
-            <p className="text-muted-foreground text-xs text-center py-6">Hali promokod yaratilmagan</p>
+            <p className="text-muted-foreground text-xs text-center py-6">{t("admin.noPromoCodes")}</p>
           )}
           {promoCodes.map((promo) => (
             <div key={promo.id} className="px-4 py-3">
@@ -1140,15 +1173,15 @@ function PromoCodesTab() {
                 <div className="flex items-center gap-2">
                   <span className="font-mono font-bold text-foreground text-sm">{promo.code}</span>
                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${promo.isActive ? "bg-emerald-500/20 text-emerald-500" : "bg-red-500/20 text-red-500"}`}>
-                    {promo.isActive ? "Faol" : "Nofaol"}
+                    {promo.isActive ? t("common.active") : t("admin.inactive")}
                   </span>
                 </div>
                 <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">{Number(promo.amount).toFixed(2)} USDT</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 text-muted-foreground text-[10px]">
-                  <span>{promo.isOneTime ? "Bir martalik" : `Ko'p martalik${promo.maxUses ? ` (max: ${promo.maxUses})` : ""}`}</span>
-                  <span>Ishlatilgan: {promo.currentUses}</span>
+                  <span>{promo.isOneTime ? t("admin.oneTime") : `${t("admin.multiUse")}${promo.maxUses ? ` (max: ${promo.maxUses})` : ""}`}</span>
+                  <span>{t("admin.used")}: {promo.currentUses}</span>
                   <span>{promo.createdAt ? new Date(promo.createdAt).toLocaleDateString("uz-UZ") : ""}</span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -1169,7 +1202,7 @@ function PromoCodesTab() {
                     </button>
                   )}
                   <button
-                    onClick={() => { if (confirm("Promokodni o'chirishni tasdiqlaysizmi?")) deleteMutation.mutate(promo.id); }}
+                    onClick={() => { if (confirm(t("admin.confirmDeletePromo"))) deleteMutation.mutate(promo.id); }}
                     className="text-red-500 hover:text-foreground transition-colors p-1"
                     data-testid={`button-delete-promo-${promo.id}`}
                   >
@@ -1180,10 +1213,10 @@ function PromoCodesTab() {
               {viewUsagesId === promo.id && (
                 <div className="mt-2 bg-background rounded-xl border border-border overflow-hidden">
                   <div className="px-3 py-2 border-b border-border">
-                    <span className="text-foreground text-xs font-semibold">Ishlatgan foydalanuvchilar</span>
+                    <span className="text-foreground text-xs font-semibold">{t("admin.usedByUsers")}</span>
                   </div>
                   {usages.length === 0 ? (
-                    <p className="text-muted-foreground text-xs text-center py-3">Hali hech kim ishlatmagan</p>
+                    <p className="text-muted-foreground text-xs text-center py-3">{t("admin.noUsersUsed")}</p>
                   ) : (
                     <div className="divide-y divide-border">
                       {usages.map((u: any, i: number) => (
@@ -1208,8 +1241,9 @@ function PromoCodesTab() {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useI18n();
   const colors: Record<string, string> = { pending: "#FFB300", approved: "hsl(var(--emerald-500, 142 71% 45%))", rejected: "hsl(var(--primary))", completed: "hsl(var(--emerald-500, 142 71% 45%))" };
-  const labels: Record<string, string> = { pending: "Kutilmoqda", approved: "Tasdiqlangan", rejected: "Rad etilgan", completed: "Bajarildi" };
+  const labels: Record<string, string> = { pending: t("common.pending"), approved: t("common.approved"), rejected: t("common.rejected"), completed: t("common.completed") };
   return (
     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: `${colors[status]}20`, color: colors[status] }}>
       {labels[status] || status}
@@ -1218,6 +1252,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminPage() {
+  const { t } = useI18n();
   const [tab, setTab] = useState<Tab>("dashboard");
 
   const { data: allUsers = [], isLoading: usersLoading } = useQuery<User[]>({ queryKey: ["/api/admin/users"] });
@@ -1230,18 +1265,18 @@ export default function AdminPage() {
   const pendingStajyor = stajyorRequests.filter(r => r.status === "pending").length;
 
   const techTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
-    { id: "dashboard", label: "Bosh panel", icon: Activity },
-    { id: "stajyor", label: "Stajyor", icon: UserPlus, badge: pendingStajyor || undefined },
-    { id: "users", label: "Foydalanuvchilar", icon: Users, badge: allUsers.length },
-    { id: "referrals", label: "Top referallar", icon: Trophy },
-    { id: "multi", label: "Multi-akkaunt", icon: AlertTriangle },
-    { id: "settings", label: "Sozlamalar", icon: Settings },
-    { id: "vip-manage", label: "VIP boshqaruv", icon: Crown },
-    { id: "promo", label: "Promokodlar", icon: Mail },
+    { id: "dashboard", label: t("admin.dashboard"), icon: Activity },
+    { id: "stajyor", label: t("admin.stajyor"), icon: UserPlus, badge: pendingStajyor || undefined },
+    { id: "users", label: t("admin.users"), icon: Users, badge: allUsers.length },
+    { id: "referrals", label: t("admin.topReferrals"), icon: Trophy },
+    { id: "multi", label: t("admin.multiAccount"), icon: AlertTriangle },
+    { id: "settings", label: t("admin.settings"), icon: Settings },
+    { id: "vip-manage", label: t("admin.vipManagement"), icon: Crown },
+    { id: "promo", label: t("admin.promoCodes"), icon: Mail },
   ];
   const financeTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
-    { id: "deposits", label: "Depozitlar", icon: ArrowDownCircle, badge: pendingDeposits || undefined },
-    { id: "withdrawals", label: "Yechishlar", icon: ArrowUpCircle, badge: pendingWithdrawals || undefined },
+    { id: "deposits", label: t("admin.deposits"), icon: ArrowDownCircle, badge: pendingDeposits || undefined },
+    { id: "withdrawals", label: t("admin.withdrawals"), icon: ArrowUpCircle, badge: pendingWithdrawals || undefined },
   ];
 
   if (usersLoading || depositsLoading || withdrawalsLoading) {
@@ -1258,10 +1293,10 @@ export default function AdminPage() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-primary" />
-            <h1 className="text-foreground font-bold text-lg">VEM Admin</h1>
+            <h1 className="text-foreground font-bold text-lg">{t("admin.title")}</h1>
           </div>
           <a href="/dashboard" className="text-muted-foreground text-xs hover:text-foreground transition-colors" data-testid="link-back-to-site">
-            Saytga qaytish
+            {t("admin.backToSite")}
           </a>
         </div>
       </div>
@@ -1269,38 +1304,38 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto p-4">
         <div className="space-y-2 pb-3 mb-4">
           <div>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">Texnik bo'lim</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">{t("admin.techSection")}</p>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {techTabs.map(t => (
-                <button key={t.id} onClick={() => setTab(t.id)}
+              {techTabs.map(tb => (
+                <button key={tb.id} onClick={() => setTab(tb.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
-                    tab === t.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
+                    tab === tb.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
                   }`}
-                  data-testid={`tab-${t.id}`}
+                  data-testid={`tab-${tb.id}`}
                 >
-                  <t.icon className="w-3.5 h-3.5" />
-                  {t.label}
-                  {t.badge !== undefined && t.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{t.badge}</span>
+                  <tb.icon className="w-3.5 h-3.5" />
+                  {tb.label}
+                  {tb.badge !== undefined && tb.badge > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{tb.badge}</span>
                   )}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">Moliya departament</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">{t("admin.financeSection")}</p>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {financeTabs.map(t => (
-                <button key={t.id} onClick={() => setTab(t.id)}
+              {financeTabs.map(tb => (
+                <button key={tb.id} onClick={() => setTab(tb.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
-                    tab === t.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
+                    tab === tb.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
                   }`}
-                  data-testid={`tab-${t.id}`}
+                  data-testid={`tab-${tb.id}`}
                 >
-                  <t.icon className="w-3.5 h-3.5" />
-                  {t.label}
-                  {t.badge !== undefined && t.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{t.badge}</span>
+                  <tb.icon className="w-3.5 h-3.5" />
+                  {tb.label}
+                  {tb.badge !== undefined && tb.badge > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{tb.badge}</span>
                   )}
                 </button>
               ))}

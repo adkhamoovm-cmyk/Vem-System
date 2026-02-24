@@ -8,9 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
 import type { User } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+import { useI18n } from "@/lib/i18n";
 
 export default function PromoPage() {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [code, setCode] = useState("");
   const [lastResult, setLastResult] = useState<{ success: boolean; message: string; amount?: string } | null>(null);
 
@@ -33,11 +35,11 @@ export default function PromoPage() {
       setCode("");
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/promo/history"] });
-      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
     },
     onError: (error: any) => {
       setLastResult({ success: false, message: error.message });
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -56,16 +58,16 @@ export default function PromoPage() {
               <ArrowLeft className="w-5 h-5" />
             </button>
           </Link>
-          <h1 className="text-foreground font-bold text-lg">Promokod</h1>
+          <h1 className="text-foreground font-bold text-lg">{t("promo.title")}</h1>
         </div>
 
         <div className="bg-gradient-to-br from-[#EF4444]/10 to-[#F97316]/10 dark:from-[#EF4444]/20 dark:to-[#F97316]/20 rounded-2xl p-5 border border-[#EF4444]/20 text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-[#EF4444] to-[#F97316] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
             <Mail className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-foreground font-bold text-lg mb-1">Promokod kiriting</h2>
+          <h2 className="text-foreground font-bold text-lg mb-1">{t("promo.enterCode")}</h2>
           <p className="text-muted-foreground text-xs">
-            Guruhda e'lon qilingan promokodlarni kiritib, bonus daromad oling!
+            {t("promo.codeDescription")}
           </p>
         </div>
 
@@ -74,7 +76,7 @@ export default function PromoPage() {
             <Input
               value={code}
               onChange={(e) => setCode(e.target.value.toUpperCase())}
-              placeholder="Promokodni kiriting..."
+              placeholder={t("promo.placeholder")}
               className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 text-center font-mono tracking-widest text-lg uppercase"
               data-testid="input-promo-code"
               onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
@@ -89,12 +91,12 @@ export default function PromoPage() {
             {useMutation_.isPending ? (
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Tekshirilmoqda...
+                {t("promo.checking")}
               </div>
             ) : (
               <div className="flex items-center gap-2">
                 <Send className="w-4 h-4" />
-                Promokodni faollashtirish
+                {t("promo.activate")}
               </div>
             )}
           </Button>
@@ -121,7 +123,7 @@ export default function PromoPage() {
           <div className="bg-card rounded-2xl border border-border overflow-hidden">
             <div className="px-4 py-3 border-b border-border flex items-center gap-2">
               <Gift className="w-4 h-4 text-[#EF4444]" />
-              <h3 className="text-foreground font-bold text-sm">Ishlatilgan promokodlar</h3>
+              <h3 className="text-foreground font-bold text-sm">{t("promo.usedCodes")}</h3>
             </div>
             <div className="divide-y divide-border">
               {history.map((item: any, i: number) => (
@@ -147,14 +149,14 @@ export default function PromoPage() {
         <div className="bg-card rounded-2xl p-4 border border-border">
           <h3 className="text-foreground font-bold text-sm mb-2 flex items-center gap-2">
             <Clock className="w-4 h-4 text-muted-foreground" />
-            Qanday ishlaydi?
+            {t("promo.howItWorks")}
           </h3>
           <div className="space-y-2">
             {[
-              "Telegram guruhda promokodlar e'lon qilinadi",
-              "Promokodni yuqoridagi maydonga kiriting",
-              "Bonus USDT avtomatik hisobingizga tushadi",
-              "Har bir promokodni faqat bir marta ishlatish mumkin",
+              t("promo.step1"),
+              t("promo.step2"),
+              t("promo.step3"),
+              t("promo.step4"),
             ].map((text, i) => (
               <div key={i} className="flex items-start gap-2">
                 <span className="text-[#EF4444] font-bold text-xs mt-0.5">{i + 1}.</span>

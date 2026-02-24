@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+import { useI18n } from "@/lib/i18n";
 
 const levelIcons: Record<number, typeof Shield> = {
   0: Shield, 1: Medal, 2: Star, 3: Award, 4: Gem, 5: Zap,
@@ -27,6 +28,7 @@ const levelColors: Record<number, { primary: string; bg: string; gradient: strin
 };
 
 export default function VipPage() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [stajyorMsg, setStajyorMsg] = useState("");
 
@@ -52,10 +54,10 @@ export default function VipPage() {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
-      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -67,10 +69,10 @@ export default function VipPage() {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/stajyor/status"] });
       setStajyorMsg("");
-      toast({ title: "Yuborildi!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -96,18 +98,18 @@ export default function VipPage() {
               <Crown className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-bold text-lg">VIP Darajalar</h2>
-              <p className="text-primary-foreground/70 text-xs">Yuqori daraja = Yuqori daromad</p>
+              <h2 className="font-bold text-lg">{t("vip.title")}</h2>
+              <p className="text-primary-foreground/70 text-xs">{t("vip.subtitle")}</p>
             </div>
           </div>
           {user && (
             <div className="mt-3 bg-white/10 rounded-xl p-3 backdrop-blur-sm">
               <div className="flex items-center justify-between">
-                <span className="text-primary-foreground/80 text-xs">Hozirgi daraja:</span>
-                <span className="font-bold text-sm">{user.vipLevel < 0 ? "Rasmiy xodim emas" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}</span>
+                <span className="text-primary-foreground/80 text-xs">{t("vip.currentLevel")}</span>
+                <span className="font-bold text-sm">{user.vipLevel < 0 ? t("common.notEmployee") : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-primary-foreground/80 text-xs">Balans:</span>
+                <span className="text-primary-foreground/80 text-xs">{t("common.balance")}:</span>
                 <span className="font-bold text-sm">${Number(user.balance).toFixed(2)}</span>
               </div>
             </div>
@@ -122,8 +124,8 @@ export default function VipPage() {
                   <Send className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-sm">Stajyor lavozimini yoqtirish</h3>
-                  <p className="text-white/70 text-[11px]">Admin orqali 3 kunlik sinov davrini faollashtiring</p>
+                  <h3 className="text-white font-bold text-sm">{t("vip.stajyorActivation")}</h3>
+                  <p className="text-white/70 text-[11px]">{t("vip.stajyorDesc")}</p>
                 </div>
               </div>
             </div>
@@ -132,13 +134,13 @@ export default function VipPage() {
               {stajyorRequests.some(r => r.status === "pending") ? (
                 <div className="bg-[#FFB300]/10 rounded-xl p-4 border border-[#FFB300]/20 text-center">
                   <Clock className="w-8 h-8 text-[#FFB300] mx-auto mb-2" />
-                  <p className="text-[#FFB300] font-semibold text-sm">So'rov yuborilgan</p>
-                  <p className="text-muted-foreground text-xs mt-1">Admin tekshirmoqda. Iltimos kuting...</p>
+                  <p className="text-[#FFB300] font-semibold text-sm">{t("vip.requestSent")}</p>
+                  <p className="text-muted-foreground text-xs mt-1">{t("vip.adminChecking")}</p>
                 </div>
               ) : stajyorRequests.some(r => r.status === "rejected") && !stajyorRequests.some(r => r.status === "pending") ? (
                 <div className="space-y-3">
                   <div className="bg-destructive/10 rounded-xl p-3 border border-destructive/20">
-                    <p className="text-destructive text-xs">Oldingi so'rovingiz rad etilgan. Yangi so'rov yuboring.</p>
+                    <p className="text-destructive text-xs">{t("vip.previousRejected")}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
@@ -146,7 +148,7 @@ export default function VipPage() {
                       <input
                         value={stajyorMsg}
                         onChange={(e) => setStajyorMsg(e.target.value)}
-                        placeholder="Xabar yozing (ixtiyoriy)..."
+                        placeholder={t("vip.writeMessage")}
                         className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#78909C]"
                         data-testid="input-stajyor-message"
                       />
@@ -157,16 +159,16 @@ export default function VipPage() {
                       className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl h-10 px-5 font-semibold"
                       data-testid="button-send-stajyor"
                     >
-                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> Yuborish</>}
+                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> {t("common.send")}</>}
                     </Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <div className="bg-card rounded-xl p-3 space-y-1.5 text-xs text-muted-foreground">
-                    <p>Stajyor lavozimi - 3 kunlik bepul sinov davri.</p>
-                    <p>Kuniga 3 ta video ko'rish va daromad olish imkoniyati.</p>
-                    <p className="text-primary">Pul yechish uchun kamida 1 ta Fundga pul qo'ying yoki M1 xarid qiling.</p>
+                    <p>{t("vip.stajyorInfo1")}</p>
+                    <p>{t("vip.stajyorInfo2")}</p>
+                    <p className="text-primary">{t("vip.stajyorInfo3")}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="relative flex-1">
@@ -174,7 +176,7 @@ export default function VipPage() {
                       <input
                         value={stajyorMsg}
                         onChange={(e) => setStajyorMsg(e.target.value)}
-                        placeholder="Xabar yozing (ixtiyoriy)..."
+                        placeholder={t("vip.writeMessage")}
                         className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#78909C]"
                         data-testid="input-stajyor-message"
                       />
@@ -185,7 +187,7 @@ export default function VipPage() {
                       className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl h-10 px-5 font-semibold"
                       data-testid="button-send-stajyor"
                     >
-                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> Yuborish</>}
+                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> {t("common.send")}</>}
                     </Button>
                   </div>
                 </div>
@@ -212,7 +214,7 @@ export default function VipPage() {
                 {isCurrentLevel && (
                   <div className="bg-primary px-4 py-1.5 text-center">
                     <span className="text-primary-foreground text-[10px] font-bold uppercase tracking-wider">
-                      Hozirgi paketingiz
+                      {t("vip.currentPackage")}
                     </span>
                   </div>
                 )}
@@ -236,9 +238,9 @@ export default function VipPage() {
                     </div>
                     <div className="text-right shrink-0">
                       <div className="text-lg font-bold" style={{ color: colors.primary }}>
-                        {Number(pkg.price) === 0 ? "Bepul" : `$${Number(pkg.price).toLocaleString()}`}
+                        {Number(pkg.price) === 0 ? t("common.free") : `$${Number(pkg.price).toLocaleString()}`}
                       </div>
-                      {Number(pkg.price) > 0 && <span className="text-muted-foreground text-[10px]">garov</span>}
+                      {Number(pkg.price) > 0 && <span className="text-muted-foreground text-[10px]">{t("vip.guarantee")}</span>}
                     </div>
                   </div>
 
@@ -246,27 +248,27 @@ export default function VipPage() {
                     <div className="bg-card rounded-xl p-2.5 text-center">
                       <Film className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-0.5" />
                       <p className="text-foreground font-bold text-xs">{pkg.dailyTasks} ta</p>
-                      <p className="text-muted-foreground text-[9px]">Kunlik video</p>
+                      <p className="text-muted-foreground text-[9px]">{t("common.dailyVideo")}</p>
                     </div>
                     <div className="bg-card rounded-xl p-2.5 text-center">
                       <DollarSign className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-0.5" />
                       <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.perVideoReward).toFixed(2)}</p>
-                      <p className="text-muted-foreground text-[9px]">Har video</p>
+                      <p className="text-muted-foreground text-[9px]">{t("common.perVideo")}</p>
                     </div>
                     <div className="bg-card rounded-xl p-2.5 text-center">
                       <TrendingUp className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-0.5" />
                       <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.dailyEarning).toFixed(2)}</p>
-                      <p className="text-muted-foreground text-[9px]">Kunlik</p>
+                      <p className="text-muted-foreground text-[9px]">{t("common.dailyEarning")}</p>
                     </div>
                   </div>
 
                   <div className="mt-2 flex items-center justify-between bg-card rounded-lg px-3 py-1.5">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-muted-foreground text-[10px]">Muddat: {pkg.durationDays} kun</span>
+                      <span className="text-muted-foreground text-[10px]">{t("vip.duration", { days: pkg.durationDays })}</span>
                     </div>
                     <span className="text-[10px] font-semibold" style={{ color: isLocked ? "#bbb" : colors.primary }}>
-                      {isLocked ? "Qulflangan" : "Ochiq"}
+                      {isLocked ? t("common.locked") : t("common.open")}
                     </span>
                   </div>
 
@@ -277,21 +279,21 @@ export default function VipPage() {
                       onClick={() => purchaseMutation.mutate(pkg.id)}
                       data-testid={`button-buy-vip-${pkg.level}`}
                     >
-                      {purchaseMutation.isPending ? "Sotib olinmoqda..." : canBuy ? "Sotib olish" : `$${Number(pkg.price).toLocaleString()} kerak`}
+                      {purchaseMutation.isPending ? t("vip.buying") : canBuy ? t("vip.buyNow") : t("vip.needAmount", { amount: Number(pkg.price).toLocaleString() })}
                     </Button>
                   )}
 
                   {isLocked && (
                     <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-card rounded-xl">
                       <Lock className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-muted-foreground text-sm font-medium">Qulflangan</span>
+                      <span className="text-muted-foreground text-sm font-medium">{t("common.locked")}</span>
                     </div>
                   )}
 
                   {isCurrentLevel && (
                     <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-[#4CAF50]/10 rounded-xl">
                       <CheckCircle className="w-4 h-4 text-[#4CAF50]" />
-                      <span className="text-[#4CAF50] text-sm font-semibold">Faol</span>
+                      <span className="text-[#4CAF50] text-sm font-semibold">{t("common.active")}</span>
                     </div>
                   )}
                 </div>
@@ -302,7 +304,7 @@ export default function VipPage() {
 
         <div className="mt-4 bg-primary/10 rounded-2xl p-4 border border-primary/20">
           <p className="text-primary text-xs leading-relaxed">
-            <strong>Muhim:</strong> Garov summasi paket muddati tugagandan so'ng qaytariladi. 10% komissiya daromaddan ushlanadi. Qulflangan paketlar ma'lum shartlar bajarilgandan so'ng ochiladi.
+            <strong>{t("vip.important")}</strong> {t("vip.importantNote")}
           </p>
         </div>
       </div>

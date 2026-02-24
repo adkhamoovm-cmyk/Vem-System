@@ -1,47 +1,50 @@
 import { MessageCircle, Users, Headphones, Shield, ExternalLink, Send, Phone, HelpCircle, ChevronRight } from "lucide-react";
 import AppLayout from "@/components/app-layout";
-
-const helpSections = [
-  {
-    title: "Menejer bilan bog'lanish",
-    description: "Shaxsiy menejeringiz sizga yordam beradi",
-    icon: Headphones,
-    color: "hsl(var(--primary))",
-    items: [
-      { label: "Telegram menejer", value: "@vem_manager", link: "https://t.me/vem_manager", icon: Send },
-      { label: "Telefon raqam", value: "+998 90 123 45 67", link: "tel:+998901234567", icon: Phone },
-    ],
-  },
-  {
-    title: "Telegram guruh",
-    description: "Rasmiy guruhimizga qo'shiling",
-    icon: Users,
-    color: "#4ADE80",
-    items: [
-      { label: "VEM rasmiy guruh", value: "t.me/vem_official", link: "https://t.me/vem_official", icon: Users },
-      { label: "VEM yangiliklar", value: "t.me/vem_news", link: "https://t.me/vem_news", icon: MessageCircle },
-    ],
-  },
-  {
-    title: "Texnik qo'llab-quvvatlash",
-    description: "Muammolar bo'lsa bizga murojaat qiling",
-    icon: Shield,
-    color: "#3B82F6",
-    items: [
-      { label: "Texnik yordam", value: "@vem_support", link: "https://t.me/vem_support", icon: Headphones },
-    ],
-  },
-];
-
-const faqItems = [
-  { q: "Qanday pul ishlash mumkin?", a: "VIP paket oling, video vazifalarni bajaring va har bir video uchun mukofot oling." },
-  { q: "Pul qanday yechib olaman?", a: "Profil sahifasida 'Yechish' tugmasini bosing. Min 2 USDT, 10% komissiya, Dush-Shan 11:00-17:00." },
-  { q: "Referal tizimi qanday ishlaydi?", a: "Do'stlaringizni taklif qiling: 1-daraja 9%, 2-daraja 3%, 3-daraja 1% komissiya olasiz." },
-  { q: "Stajyor nima?", a: "Bepul boshlang'ich daraja. 3 kun davomida sinab ko'ring, keyin M1 ga o'ting." },
-  { q: "VIP paket muddati tugasa nima bo'ladi?", a: "Vazifalar to'xtaydi. Qayta sotib oling yoki yangi paket tanlang." },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function HelpPage() {
+  const { t } = useI18n();
+
+  const helpSections = [
+    {
+      title: t("help.contactManager"),
+      description: t("help.managerDesc"),
+      icon: Headphones,
+      color: "hsl(var(--primary))",
+      items: [
+        { label: t("help.telegramManager"), value: "@vem_manager", link: "https://t.me/vem_manager", icon: Send },
+        { label: t("help.phoneNumber"), value: "+998 90 123 45 67", link: "tel:+998901234567", icon: Phone },
+      ],
+    },
+    {
+      title: t("help.telegramGroup"),
+      description: t("help.telegramGroupDesc"),
+      icon: Users,
+      color: "#4ADE80",
+      items: [
+        { label: t("help.officialGroup"), value: "t.me/vem_official", link: "https://t.me/vem_official", icon: Users },
+        { label: t("help.newsChannel"), value: "t.me/vem_news", link: "https://t.me/vem_news", icon: MessageCircle },
+      ],
+    },
+    {
+      title: t("help.techSupport"),
+      description: t("help.techSupportDesc"),
+      icon: Shield,
+      color: "#3B82F6",
+      items: [
+        { label: t("help.techHelp"), value: "@vem_support", link: "https://t.me/vem_support", icon: Headphones },
+      ],
+    },
+  ];
+
+  const faqItems = [
+    { q: t("help.faqQ1"), a: t("help.faqA1") },
+    { q: t("help.faqQ2"), a: t("help.faqA2") },
+    { q: t("help.faqQ3"), a: t("help.faqA3") },
+    { q: t("help.faqQ4"), a: t("help.faqA4") },
+    { q: t("help.faqQ5"), a: t("help.faqA5") },
+  ];
+
   return (
     <AppLayout>
       <div className="p-4 space-y-4">
@@ -53,12 +56,12 @@ export default function HelpPage() {
               <HelpCircle className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-bold text-lg">Yordam markazi</h2>
-              <p className="text-foreground/70 text-xs">Savollaringizga javob topamiz</p>
+              <h2 className="font-bold text-lg">{t("help.title")}</h2>
+              <p className="text-foreground/70 text-xs">{t("help.subtitle")}</p>
             </div>
           </div>
           <p className="text-foreground/60 text-[11px] leading-relaxed">
-            Quyidagi bo'limlardan o'zingizga kerakli ma'lumotni toping yoki bevosita menejer bilan bog'laning.
+            {t("help.description")}
           </p>
         </div>
 
@@ -103,7 +106,7 @@ export default function HelpPage() {
               <HelpCircle className="w-5 h-5 text-[#FFB300]" />
             </div>
             <div>
-              <h3 className="text-foreground font-semibold text-sm">Ko'p so'raladigan savollar</h3>
+              <h3 className="text-foreground font-semibold text-sm">{t("help.faq")}</h3>
               <p className="text-muted-foreground text-[10px]">FAQ</p>
             </div>
           </div>

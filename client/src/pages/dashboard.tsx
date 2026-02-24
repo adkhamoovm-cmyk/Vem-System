@@ -6,6 +6,7 @@ import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Fi
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+import { useI18n } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
 
@@ -81,6 +82,8 @@ function formatUZS(usd: number): string {
 }
 
 export default function DashboardPage() {
+  const { t } = useI18n();
+
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
@@ -139,6 +142,16 @@ export default function DashboardPage() {
 
   const heroVideo = allVideos[heroIndex];
 
+  const quickActions = [
+    { title: t("dashboard.quickTasks"), href: "/tasks", icon: PlayCircle, color: "#3B82F6", bg: "#3B82F6" },
+    { title: t("dashboard.quickFund"), href: "/fund", icon: Wallet, color: "#6B7280", bg: "#6B7280" },
+    { title: t("dashboard.quickInvite"), href: "/referral", icon: Users, color: "#4ADE80", bg: "#4ADE80" },
+    { title: t("dashboard.quickVip"), href: "/vip", icon: Crown, color: "#A855F7", bg: "#A855F7" },
+    { title: t("dashboard.quickHelp"), href: "/help", icon: HelpCircle, color: "#3B82F6", bg: "#3B82F6" },
+    { title: t("dashboard.quickApp"), href: "#install-app", icon: Download, color: "#10B981", bg: "#10B981" },
+    { title: t("dashboard.quickPromo"), href: "/promo", icon: Mail, color: "#EF4444", bg: "#EF4444" },
+  ];
+
   return (
     <AppLayout>
       <div className="bg-background min-h-screen -mt-0">
@@ -166,12 +179,12 @@ export default function DashboardPage() {
                 <Link href="/tasks">
                   <button className="flex items-center gap-1.5 bg-white text-black font-bold text-xs px-5 py-2.5 rounded-md cursor-pointer" data-testid="button-hero-play">
                     <Play className="w-4 h-4 fill-black" />
-                    Ko'rish
+                    {t("dashboard.watch")}
                   </button>
                 </Link>
                 <Link href="/trends">
                   <button className="flex items-center gap-1.5 bg-white/20 text-white font-medium text-xs px-4 py-2.5 rounded-md backdrop-blur-sm cursor-pointer" data-testid="button-hero-info">
-                    Batafsil
+                    {t("dashboard.details")}
                   </button>
                 </Link>
               </div>
@@ -201,14 +214,14 @@ export default function DashboardPage() {
                 <div>
                   <span className="text-muted-foreground text-[9px] uppercase tracking-wider flex items-center gap-1">
                     {user.vipLevel >= 0 && <VipIcon level={user.vipLevel} className="w-3 h-3 text-primary" />}
-                    {user.vipLevel < 0 ? "Rasmiy xodim emas" : (vipNames[user.vipLevel] || `M${user.vipLevel}`)}
+                    {user.vipLevel < 0 ? t("common.notEmployee") : (vipNames[user.vipLevel] || `M${user.vipLevel}`)}
                   </span>
                   <p className="text-foreground text-xs font-medium">ID: {user.numericId || "—"}</p>
                 </div>
               </div>
               <Link href="/vip">
                 <span className="bg-primary/20 text-primary text-[10px] px-3 py-1 rounded-full font-semibold cursor-pointer" data-testid="link-upgrade-vip">
-                  Yangilash
+                  {t("dashboard.upgrade")}
                 </span>
               </Link>
             </div>
@@ -217,9 +230,9 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-muted-foreground text-[10px] uppercase tracking-wider flex items-center gap-1">
                   <ArrowRightLeft className="w-3 h-3" />
-                  Balans
+                  {t("dashboard.exchange")}
                 </span>
-                <span className="text-muted-foreground text-[9px]">1 USDT = {UZS_RATE.toLocaleString()} UZS</span>
+                <span className="text-muted-foreground text-[9px]">{t("dashboard.rate", { rate: UZS_RATE.toLocaleString() })}</span>
               </div>
               <div className="flex items-end justify-between" data-testid="text-balance">
                 <div>
@@ -237,12 +250,12 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-card rounded-xl p-3">
-                <span className="text-muted-foreground text-[9px] uppercase tracking-wider">Daromad</span>
+                <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("dashboard.earnings")}</span>
                 <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-earnings">{Number(user.totalEarnings).toFixed(2)} USDT</p>
                 <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalEarnings))} UZS</p>
               </div>
               <div className="bg-card rounded-xl p-3">
-                <span className="text-muted-foreground text-[9px] uppercase tracking-wider">Depozit</span>
+                <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("common.deposit")}</span>
                 <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-deposit">{Number(user.totalDeposit).toFixed(2)} USDT</p>
                 <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalDeposit))} UZS</p>
               </div>
@@ -253,7 +266,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-primary" />
-                <span className="text-foreground text-sm font-semibold">Bugungi vazifalar</span>
+                <span className="text-foreground text-sm font-semibold">{t("dashboard.todayTasks")}</span>
               </div>
               <span className="text-primary text-sm font-bold" data-testid="text-tasks-progress">
                 {user.dailyTasksCompleted} / {user.dailyTasksLimit}
@@ -267,29 +280,21 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between mt-2">
               <p className="text-muted-foreground text-xs">
                 {user.vipLevel < 0
-                  ? "Rasmiy xodim emas"
+                  ? t("common.notEmployee")
                   : user.dailyTasksCompleted < user.dailyTasksLimit
-                    ? `Yana ${user.dailyTasksLimit - user.dailyTasksCompleted} ta video qoldi`
-                    : "Bugungi limitga yetdingiz!"}
+                    ? t("dashboard.videosLeft", { count: user.dailyTasksLimit - user.dailyTasksCompleted })
+                    : t("dashboard.limitReached")}
               </p>
               <Link href="/tasks">
                 <span className="text-primary text-xs font-semibold flex items-center gap-0.5 cursor-pointer" data-testid="link-start-tasks">
-                  Boshlash <ChevronRight className="w-3 h-3" />
+                  {t("dashboard.start")} <ChevronRight className="w-3 h-3" />
                 </span>
               </Link>
             </div>
           </div>
 
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
-            {[
-              { title: "Vazifalar", href: "/tasks", icon: PlayCircle, color: "#3B82F6", bg: "#3B82F6" },
-              { title: "Fond", href: "/fund", icon: Wallet, color: "#6B7280", bg: "#6B7280" },
-              { title: "Taklif", href: "/referral", icon: Users, color: "#4ADE80", bg: "#4ADE80" },
-              { title: "VIP", href: "/vip", icon: Crown, color: "#A855F7", bg: "#A855F7" },
-              { title: "Yordam", href: "/help", icon: HelpCircle, color: "#3B82F6", bg: "#3B82F6" },
-              { title: "Ilova", href: "#install-app", icon: Download, color: "#10B981", bg: "#10B981" },
-              { title: "Konvert", href: "/promo", icon: Mail, color: "#EF4444", bg: "#EF4444" },
-            ].map((item) => (
+            {quickActions.map((item) => (
               item.href === "#install-app" ? (
                 <button key={item.href} onClick={() => {
                   if (window.deferredPrompt) {
@@ -322,10 +327,10 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
                   <Tv className="w-4 h-4 text-primary" />
-                  TV Showlar
+                  {t("dashboard.tvShows")}
                 </h3>
                 <Link href="/trends" className="text-muted-foreground text-xs">
-                  Barchasi <ChevronRight className="w-3 h-3 inline" />
+                  {t("dashboard.viewAll")} <ChevronRight className="w-3 h-3 inline" />
                 </Link>
               </div>
               <AutoScrollCarousel speed={0.4}>
@@ -360,10 +365,10 @@ export default function DashboardPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
                   <Film className="w-4 h-4 text-primary" />
-                  Traylerlar
+                  {t("dashboard.trailers")}
                 </h3>
                 <Link href="/trends" className="text-muted-foreground text-xs">
-                  Barchasi <ChevronRight className="w-3 h-3 inline" />
+                  {t("dashboard.viewAll")} <ChevronRight className="w-3 h-3 inline" />
                 </Link>
               </div>
               <AutoScrollCarousel speed={0.3}>
@@ -394,20 +399,20 @@ export default function DashboardPage() {
             <div className="bg-primary/10 rounded-2xl p-4 border border-primary/20">
               <div className="flex items-center gap-2 mb-2">
                 <Star className="w-4 h-4 text-primary" />
-                <span className="text-foreground/80 text-xs font-bold">VIP imkoniyatlaringiz</span>
+                <span className="text-foreground/80 text-xs font-bold">{t("dashboard.vipFeatures")}</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="text-center">
                   <p className="text-primary font-bold text-sm">{currentPkg.dailyTasks}</p>
-                  <p className="text-muted-foreground text-[9px]">Kunlik video</p>
+                  <p className="text-muted-foreground text-[9px]">{t("common.dailyVideo")}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-primary font-bold text-sm">${Number(currentPkg.perVideoReward).toFixed(2)}</p>
-                  <p className="text-muted-foreground text-[9px]">Har video</p>
+                  <p className="text-muted-foreground text-[9px]">{t("common.perVideo")}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-primary font-bold text-sm">${Number(currentPkg.dailyEarning).toFixed(2)}</p>
-                  <p className="text-muted-foreground text-[9px]">Kunlik daromad</p>
+                  <p className="text-muted-foreground text-[9px]">{t("common.dailyEarning")}</p>
                 </div>
               </div>
             </div>

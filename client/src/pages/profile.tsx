@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+import { useI18n } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
 
@@ -26,6 +27,7 @@ function formatUZS(usd: number): string {
 
 function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User }) {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [paymentType, setPaymentType] = useState<"crypto" | "local" | null>(null);
   const [amount, setAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -76,7 +78,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
       queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
       onClose();
       setPaymentType(null);
@@ -84,7 +86,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
       setReceiptFile(null);
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -106,16 +108,16 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
               <div className="w-9 h-9 rounded-xl bg-[#4ADE80]/20 flex items-center justify-center">
                 <ArrowDownCircle className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
               </div>
-              Depozit qilish
+              {t("profile.depositMake")}
             </DialogTitle>
-            <p id="deposit-desc" className="text-muted-foreground text-xs mt-1 ml-[46px]">Hisobingizga pul kiritish</p>
+            <p id="deposit-desc" className="text-muted-foreground text-xs mt-1 ml-[46px]">{t("profile.depositDesc")}</p>
           </DialogHeader>
         </div>
 
         <div className="px-5 pb-5">
           {!paymentType ? (
             <div className="space-y-3 pt-4">
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">To'lov turini tanlang</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">{t("profile.selectPaymentType")}</p>
               <button
                 onClick={() => setPaymentType("crypto")}
                 className="w-full bg-card rounded-xl p-4 border border-border hover:border-primary/50 transition-colors flex items-center gap-3 text-left group"
@@ -125,8 +127,8 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                   <Globe className="w-6 h-6 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-foreground font-semibold text-sm">Kripto (USDT)</p>
-                  <p className="text-muted-foreground text-xs mt-0.5">TRC20 tarmoq orqali</p>
+                  <p className="text-foreground font-semibold text-sm">{t("profile.cryptoUsdt")}</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">{t("profile.trc20Network")}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </button>
@@ -139,8 +141,8 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                   <CreditCard className="w-6 h-6 text-[#3B82F6]" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-foreground font-semibold text-sm">Bank kartasi (UZS)</p>
-                  <p className="text-muted-foreground text-xs mt-0.5">Uzcard / Humo orqali</p>
+                  <p className="text-foreground font-semibold text-sm">{t("profile.bankCardUzs")}</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">{t("profile.uzcardHumo")}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-500 dark:text-emerald-400 transition-colors" />
               </button>
@@ -148,13 +150,13 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
           ) : (
             <div className="space-y-4 pt-4">
               <button onClick={() => setPaymentType(null)} className="text-muted-foreground text-xs flex items-center gap-1.5 hover:text-foreground transition-colors">
-                <ChevronDown className="w-3.5 h-3.5 rotate-90" /> Orqaga
+                <ChevronDown className="w-3.5 h-3.5 rotate-90" /> {t("profile.back")}
               </button>
 
               {paymentType === "crypto" && usdtRequisites.length > 0 && (
                 <div className="space-y-2.5">
                   <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                    <Wallet className="w-3.5 h-3.5" /> To'lov rekvizitlari
+                    <Wallet className="w-3.5 h-3.5" /> {t("profile.paymentRequisites")}
                   </p>
                   {usdtRequisites.map((req) => (
                     <div key={req.id} className="bg-background rounded-xl border border-primary/20 overflow-hidden">
@@ -164,7 +166,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                         <span className="text-muted-foreground text-[10px] ml-auto">{req.networkType || "TRC20"}</span>
                       </div>
                       <div className="px-3.5 py-3">
-                        <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">Hamyon manzili</p>
+                        <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">{t("profile.walletAddressLabel")}</p>
                         <div className="flex items-center gap-2">
                           <code className="text-emerald-500 dark:text-emerald-400 text-xs font-mono flex-1 break-all leading-relaxed">{req.walletAddress}</code>
                           <button
@@ -188,7 +190,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
               {paymentType === "local" && bankRequisites.length > 0 && (
                 <div className="space-y-2.5">
                   <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                    <CreditCard className="w-3.5 h-3.5" /> To'lov rekvizitlari
+                    <CreditCard className="w-3.5 h-3.5" /> {t("profile.paymentRequisites")}
                   </p>
                   {bankRequisites.map((req) => (
                     <div key={req.id} className="bg-background rounded-xl border border-[#3B82F6]/20 overflow-hidden">
@@ -198,11 +200,11 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                       </div>
                       <div className="px-3.5 py-3 space-y-2.5">
                         <div>
-                          <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-0.5">Karta egasi</p>
+                          <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-0.5">{t("profile.cardHolderLabel")}</p>
                           <p className="text-foreground text-sm font-medium">{req.holderName}</p>
                         </div>
                         <div>
-                          <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-0.5">Karta raqami</p>
+                          <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-0.5">{t("profile.cardNumberLabel")}</p>
                           <div className="flex items-center gap-2">
                             <code className="text-foreground text-sm font-mono tracking-wider">{req.cardNumber}</code>
                             <button
@@ -227,32 +229,32 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
               {((paymentType === "crypto" && usdtRequisites.length === 0) || (paymentType === "local" && bankRequisites.length === 0)) && (
                 <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 text-center">
                   <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
-                  <p className="text-foreground text-sm font-semibold">Rekvizitlar hali kiritilmagan</p>
-                  <p className="text-muted-foreground text-xs mt-0.5">Admin rekvizitlarni qo'shgandan so'ng bu yerda ko'rinadi</p>
+                  <p className="text-foreground text-sm font-semibold">{t("profile.requisitesNotAdded")}</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">{t("profile.requisitesWillAppear")}</p>
                 </div>
               )}
 
               <div className="bg-card rounded-xl p-3.5 border border-border">
                 <p className="text-primary text-xs font-semibold mb-2 flex items-center gap-1.5">
-                  <ScrollText className="w-3.5 h-3.5" /> Depozit qoidalari
+                  <ScrollText className="w-3.5 h-3.5" /> {t("profile.depositRules")}
                 </p>
                 <ul className="text-muted-foreground text-[11px] space-y-1.5 leading-relaxed">
-                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> Minimal: {paymentType === "crypto" ? "10 USDT" : `${(10 * UZS_RATE).toLocaleString()} UZS`}</li>
-                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> To'lov chekini yuklashni unutmang</li>
-                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> Moliya departamenti tomonidan 24 soatgacha tekshiriladi</li>
-                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> Tasdiqlangandan so'ng balansingizga qo'shiladi</li>
+                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> {paymentType === "crypto" ? t("profile.depositMinCrypto") : t("profile.depositMinLocal").replace("{amount}", (10 * UZS_RATE).toLocaleString())}</li>
+                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> {t("profile.dontForgetReceipt")}</li>
+                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> {t("profile.financeDeptCheck")}</li>
+                  <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> {t("profile.afterApproval")}</li>
                 </ul>
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
-                  Miqdor ({paymentType === "crypto" ? "USDT" : "UZS"})
+                  {t("profile.amountLabel")} ({paymentType === "crypto" ? "USDT" : "UZS"})
                 </label>
                 <Input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder={paymentType === "crypto" ? "Minimal: 10 USDT" : `Minimal: ${(10 * UZS_RATE).toLocaleString()} UZS`}
+                  placeholder={paymentType === "crypto" ? t("profile.depositMinCrypto") : t("profile.depositMinLocal").replace("{amount}", (10 * UZS_RATE).toLocaleString())}
                   className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 text-base focus:border-primary"
                   data-testid="input-deposit-amount"
                 />
@@ -265,7 +267,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">To'lov cheki (skrinshot)</label>
+                <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.receiptScreenshot")}</label>
                 {receiptFile ? (
                   <div className="bg-background rounded-xl p-3 border border-[#4ADE80]/30 flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-[#4ADE80]/20 flex items-center justify-center">
@@ -285,7 +287,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                     <div className="w-10 h-10 rounded-xl bg-card flex items-center justify-center">
                       <Upload className="w-5 h-5 text-muted-foreground" />
                     </div>
-                    <span className="text-muted-foreground text-xs">Chekni yuklash uchun bosing</span>
+                    <span className="text-muted-foreground text-xs">{t("profile.clickToUpload")}</span>
                   </button>
                 )}
                 <input
@@ -304,7 +306,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                 className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-primary-foreground font-bold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-emerald-500/10"
                 data-testid="button-submit-deposit"
               >
-                {depositMutation.isPending ? "Yuborilmoqda..." : "Depozit so'rovini yuborish"}
+                {depositMutation.isPending ? t("profile.sending") : t("profile.submitDepositRequest")}
               </Button>
             </div>
           )}
@@ -316,6 +318,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
 
 function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose: () => void; type: "bank" | "usdt" }) {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [holderName, setHolderName] = useState("");
   const [bankName, setBankName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -343,13 +346,13 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: "Saqlandi!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
       queryClient.invalidateQueries({ queryKey: ["/api/payment-methods"] });
       onClose();
       resetForm();
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -375,10 +378,10 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
         <DialogHeader>
           <DialogTitle className="text-foreground flex items-center gap-2">
             {type === "bank" ? <CreditCard className="w-5 h-5 text-[#3B82F6]" /> : <Wallet className="w-5 h-5 text-primary" />}
-            {type === "bank" ? "Bank kartasi qo'shish" : "USDT hamyon qo'shish"}
+            {type === "bank" ? t("profile.addBankCardTitle") : t("profile.addUsdtWalletTitle")}
           </DialogTitle>
           <p id="payment-method-desc" className="text-muted-foreground text-xs">
-            {type === "bank" ? "Pul yechish uchun bank kartangizni kiriting" : "TRC20 USDT hamyoningizni kiriting"}
+            {type === "bank" ? t("profile.addBankCardDesc") : t("profile.addUsdtWalletDesc")}
           </p>
         </DialogHeader>
 
@@ -386,24 +389,24 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
           <div className="space-y-4 pt-2">
             {type === "usdt" && (
               <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
-                <p className="text-primary text-xs font-semibold">Diqqat: Faqat TRC20 tarmog'idan foydalaning!</p>
+                <p className="text-primary text-xs font-semibold">{t("profile.attentionTrc20")}</p>
               </div>
             )}
 
             {type === "bank" ? (
               <>
                 <div>
-                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Ism Familya</label>
+                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.fullName")}</label>
                   <Input
                     value={holderName}
                     onChange={(e) => setHolderName(e.target.value)}
-                    placeholder="To'liq ismingiz"
+                    placeholder={t("profile.fullNamePlaceholder")}
                     className="mt-1.5 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11"
                     data-testid="input-holder-name"
                   />
                 </div>
                 <div>
-                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Bank nomi</label>
+                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.bankName")}</label>
                   <div className="grid grid-cols-3 gap-2 mt-1.5 max-h-40 overflow-y-auto pr-1">
                     {uzbekBanks.map((bank) => (
                       <button
@@ -422,7 +425,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                   </div>
                 </div>
                 <div>
-                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Karta raqami</label>
+                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.cardNumber")}</label>
                   <Input
                     value={cardNumber}
                     onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
@@ -435,7 +438,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
             ) : (
               <>
                 <div>
-                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Birja nomi</label>
+                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.exchangeName")}</label>
                   <div className="grid grid-cols-3 gap-2 mt-1.5">
                     {exchanges.map((ex) => (
                       <button
@@ -454,7 +457,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                   </div>
                 </div>
                 <div>
-                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">TRC20 hamyon manzili</label>
+                  <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.trc20WalletAddress")}</label>
                   <Input
                     value={walletAddress}
                     onChange={(e) => setWalletAddress(e.target.value)}
@@ -472,37 +475,37 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
               className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
               data-testid="button-confirm-method"
             >
-              Davom etish
+              {t("profile.continue")}
             </Button>
           </div>
         ) : (
           <div className="space-y-4 pt-2">
             <div className="bg-card rounded-xl p-3 border border-border space-y-2">
-              <p className="text-primary text-xs font-semibold">Tasdiqlaysizmi?</p>
+              <p className="text-primary text-xs font-semibold">{t("profile.confirmQuestion")}</p>
               {type === "bank" ? (
                 <>
-                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">Ism:</span><span className="text-foreground text-xs">{holderName}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">Bank:</span><span className="text-foreground text-xs">{bankName}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">Karta:</span><span className="text-foreground text-xs font-mono">{cardNumber.replace(/(.{4})/g, "$1 ").trim()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">{t("profile.name")}:</span><span className="text-foreground text-xs">{holderName}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">{t("profile.bank")}:</span><span className="text-foreground text-xs">{bankName}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">{t("profile.card")}:</span><span className="text-foreground text-xs font-mono">{cardNumber.replace(/(.{4})/g, "$1 ").trim()}</span></div>
                 </>
               ) : (
                 <>
-                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">Birja:</span><span className="text-foreground text-xs">{exchangeName}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">Hamyon:</span><span className="text-foreground text-xs font-mono truncate max-w-[200px]">{walletAddress}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">{t("profile.exchange")}:</span><span className="text-foreground text-xs">{exchangeName}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground text-xs">{t("profile.wallet")}:</span><span className="text-foreground text-xs font-mono truncate max-w-[200px]">{walletAddress}</span></div>
                 </>
               )}
               <div className="bg-primary/10 rounded-lg p-2 mt-2">
-                <p className="text-primary text-[10px]">Diqqat: Saqlangandan so'ng o'zgartirib bo'lmaydi. Faqat texnik yordam o'zgartira oladi.</p>
+                <p className="text-primary text-[10px]">{t("profile.attentionSaved")}</p>
               </div>
             </div>
 
             <div>
-              <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Moliya paroli</label>
+              <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.fundPassword")}</label>
               <Input
                 type="password"
                 value={fundPassword}
                 onChange={(e) => setFundPassword(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="6 xonali PIN"
+                placeholder={t("profile.sixDigitPin")}
                 maxLength={6}
                 className="mt-1.5 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]"
                 data-testid="input-fund-password"
@@ -515,7 +518,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                 variant="ghost"
                 className="flex-1 text-muted-foreground border border-border rounded-xl h-11"
               >
-                Orqaga
+                {t("profile.back")}
               </Button>
               <Button
                 onClick={() => mutation.mutate()}
@@ -523,7 +526,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                 className="flex-1 bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
                 data-testid="button-save-method"
               >
-                {mutation.isPending ? "Saqlanmoqda..." : "Saqlash"}
+                {mutation.isPending ? t("profile.saving") : t("profile.save")}
               </Button>
             </div>
           </div>
@@ -535,6 +538,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
 
 function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean; onClose: () => void; user: User; paymentMethods: PaymentMethod[] }) {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [selectedMethodId, setSelectedMethodId] = useState("");
   const [amount, setAmount] = useState("");
   const [fundPassword, setFundPassword] = useState("");
@@ -560,7 +564,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals"] });
       onClose();
@@ -569,7 +573,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
       setSelectedMethodId("");
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -584,9 +588,9 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center">
                 <ArrowUpCircle className="w-5 h-5 text-primary" />
               </div>
-              Pul yechish
+              {t("profile.withdrawTitle")}
             </DialogTitle>
-            <p id="withdraw-desc" className="text-muted-foreground text-xs mt-1 ml-[46px]">Hisobingizdan pul yechish</p>
+            <p id="withdraw-desc" className="text-muted-foreground text-xs mt-1 ml-[46px]">{t("profile.withdrawFromAccount")}</p>
           </DialogHeader>
         </div>
 
@@ -597,8 +601,8 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 <Clock className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-primary text-xs font-semibold">Yakshanba — dam olish kuni</p>
-                <p className="text-primary/60 text-[11px] mt-0.5">Pul yechish faqat Dushanba-Shanba kunlari mumkin</p>
+                <p className="text-primary text-xs font-semibold">{t("profile.sundayRestDay")}</p>
+                <p className="text-primary/60 text-[11px] mt-0.5">{t("profile.sundayWithdrawNote")}</p>
               </div>
             </div>
           )}
@@ -608,8 +612,8 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 <Clock className="w-4 h-4 text-primary" />
               </div>
               <div>
-                <p className="text-primary text-xs font-semibold">Pul yechish vaqti emas!</p>
-                <p className="text-primary/60 text-[11px] mt-0.5">Dush-Shan, 11:00-17:00 orasida qayta urinib ko'ring</p>
+                <p className="text-primary text-xs font-semibold">{t("profile.notWithdrawTime")}</p>
+                <p className="text-primary/60 text-[11px] mt-0.5">{t("profile.tryAgainTime")}</p>
               </div>
             </div>
           )}
@@ -617,27 +621,27 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
           <div className="bg-background rounded-xl border border-border overflow-hidden">
             <div className="bg-[#4ADE80]/5 px-3.5 py-2.5 border-b border-border">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-xs">Mavjud balans</span>
+                <span className="text-muted-foreground text-xs">{t("profile.availableBalance")}</span>
                 <span className="text-emerald-500 dark:text-emerald-400 text-sm font-bold">{balance.toFixed(2)} USDT</span>
               </div>
               <p className="text-muted-foreground text-[10px] mt-0.5">≈ {formatUZS(balance)} UZS</p>
             </div>
             <div className="px-3.5 py-2.5 space-y-1.5">
               <div className="flex justify-between">
-                <span className="text-muted-foreground text-[11px]">Minimal yechish</span>
+                <span className="text-muted-foreground text-[11px]">{t("profile.minWithdrawAmount")}</span>
                 <span className="text-muted-foreground text-[11px] font-medium">2.00 USDT</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground text-[11px]">Komissiya</span>
+                <span className="text-muted-foreground text-[11px]">{t("profile.commissionLabel")}</span>
                 <span className="text-primary text-[11px] font-medium">10%</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground text-[11px]">Yechish vaqti</span>
-                <span className="text-muted-foreground text-[11px] font-medium">Dush-Shan 11:00-17:00</span>
+                <span className="text-muted-foreground text-[11px]">{t("profile.withdrawTime")}</span>
+                <span className="text-muted-foreground text-[11px] font-medium">{t("profile.workingHours")}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground text-[11px]">Kunlik limit</span>
-                <span className="text-muted-foreground text-[11px] font-medium">1 marta</span>
+                <span className="text-muted-foreground text-[11px]">{t("profile.dailyLimit")}</span>
+                <span className="text-muted-foreground text-[11px] font-medium">{t("profile.dailyLimitOnce")}</span>
               </div>
             </div>
           </div>
@@ -647,13 +651,13 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                 <Lock className="w-6 h-6 text-primary" />
               </div>
-              <p className="text-foreground text-sm font-semibold">Avval to'lov usulini qo'shing</p>
-              <p className="text-muted-foreground text-xs mt-1">Bank kartasi yoki USDT hamyon kiritishingiz kerak</p>
+              <p className="text-foreground text-sm font-semibold">{t("profile.addPaymentFirst")}</p>
+              <p className="text-muted-foreground text-xs mt-1">{t("profile.addPaymentFirstDesc")}</p>
             </div>
           ) : (
             <>
               <div className="space-y-1.5">
-                <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">To'lov usuli</label>
+                <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.paymentMethod")}</label>
                 <div className="space-y-2">
                   {paymentMethods.map((m) => (
                     <button
@@ -692,28 +696,28 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Miqdor (USDT)</label>
+                <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.amountUsdt")}</label>
                 <Input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Minimal: 2 USDT"
+                  placeholder={t("profile.minWithdrawal")}
                   className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 text-base focus:border-primary"
                   data-testid="input-withdraw-amount"
                 />
                 {numAmount >= 2 && (
                   <div className="bg-background rounded-xl p-3 border border-border space-y-1.5">
                     <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground text-[11px]">Yechish miqdori</span>
+                      <span className="text-muted-foreground text-[11px]">{t("profile.withdrawAmount")}</span>
                       <span className="text-foreground text-[11px] font-medium">{numAmount.toFixed(2)} USDT</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground text-[11px]">Komissiya (10%)</span>
+                      <span className="text-muted-foreground text-[11px]">{t("profile.commissionPercent")}</span>
                       <span className="text-primary text-[11px] font-medium">-{commission.toFixed(2)} USDT</span>
                     </div>
                     <div className="border-t border-border pt-1.5">
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground text-xs font-semibold">Siz olasiz</span>
+                        <span className="text-muted-foreground text-xs font-semibold">{t("profile.youReceive")}</span>
                         <div className="text-right">
                           <span className="text-emerald-500 dark:text-emerald-400 text-sm font-bold">{netAmount.toFixed(2)} USDT</span>
                           <p className="text-muted-foreground text-[10px]">≈ {formatUZS(netAmount)} UZS</p>
@@ -726,7 +730,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
               <div className="space-y-1.5">
                 <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                  <Lock className="w-3 h-3" /> Moliya paroli
+                  <Lock className="w-3 h-3" /> {t("profile.fundPassword")}
                 </label>
                 <Input
                   type="password"
@@ -745,7 +749,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 className="w-full bg-primary text-primary-foreground font-bold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-primary/10"
                 data-testid="button-submit-withdraw"
               >
-                {withdrawMutation.isPending ? "Yuborilmoqda..." : "Yechish so'rovini yuborish"}
+                {withdrawMutation.isPending ? t("profile.sending") : t("profile.submitWithdrawRequest")}
               </Button>
             </>
           )}
@@ -757,6 +761,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
 export default function ProfilePage() {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [, navigate] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSecretInfo, setShowSecretInfo] = useState(false);
@@ -829,10 +834,10 @@ export default function ProfilePage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
-      toast({ title: "Rasm yangilandi" });
+      toast({ title: t("common.success") });
     },
     onError: () => {
-      toast({ title: "Xatolik", description: "Rasm yuklab bo'lmadi", variant: "destructive" });
+      toast({ title: t("common.error"), variant: "destructive" });
     },
   });
 
@@ -845,13 +850,13 @@ export default function ProfilePage() {
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
       setShowChangePassword(false);
       setCurrentPwd("");
       setNewPwd("");
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -864,13 +869,13 @@ export default function ProfilePage() {
       return res.json();
     },
     onSuccess: (data: any) => {
-      toast({ title: "Muvaffaqiyatli!", description: data.message });
+      toast({ title: t("common.success"), description: data.message });
       setShowChangeFundPwd(false);
       setCurrentFundPwd("");
       setNewFundPwd("");
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -883,7 +888,7 @@ export default function ProfilePage() {
   const copyId = () => {
     if (user?.numericId) {
       navigator.clipboard.writeText(user.numericId);
-      toast({ title: "Nusxalandi!", description: "ID nusxalandi" });
+      toast({ title: t("common.success") });
     }
   };
 
@@ -950,7 +955,7 @@ export default function ProfilePage() {
                 return (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary flex items-center gap-1">
                     {user.vipLevel >= 0 && <VipLevelIcon className="w-3 h-3" />}
-                    {user.vipLevel < 0 ? "Rasmiy xodim emas" : (vipTierNames[user.vipLevel] || `M${user.vipLevel}`)}
+                    {user.vipLevel < 0 ? t("profile.notEmployee") : (vipTierNames[user.vipLevel] || `M${user.vipLevel}`)}
                   </span>
                 );
               })()}
@@ -964,7 +969,7 @@ export default function ProfilePage() {
 
         <div className="bg-card rounded-2xl p-4 border border-border">
           <div className="text-center mb-3">
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wider">Umumiy balans</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-wider">{t("profile.totalBalance")}</p>
             <p className="text-foreground font-bold text-2xl mt-1" data-testid="text-balance">{balance.toFixed(2)} <span className="text-emerald-500 dark:text-emerald-400 text-sm">USDT</span></p>
             <p className="text-muted-foreground text-sm">{formatUZS(balance)} UZS</p>
           </div>
@@ -975,7 +980,7 @@ export default function ProfilePage() {
               data-testid="button-deposit"
             >
               <ArrowDownCircle className="w-4 h-4 mr-1.5" />
-              Depozit
+              {t("common.deposit")}
             </Button>
             <Button
               onClick={() => setShowWithdraw(true)}
@@ -983,7 +988,7 @@ export default function ProfilePage() {
               data-testid="button-withdraw"
             >
               <ArrowUpCircle className="w-4 h-4 mr-1.5" />
-              Yechish
+              {t("common.withdrawal")}
             </Button>
           </div>
         </div>
@@ -992,21 +997,21 @@ export default function ProfilePage() {
           <div className="grid grid-cols-3 divide-x divide-border">
             <div className="text-center px-2">
               <p className="text-primary font-bold text-sm" data-testid="text-balance-deposit">{Number(user.totalDeposit || 0).toFixed(2)}</p>
-              <p className="text-muted-foreground text-[10px] mt-0.5">Kiritilgan USDT</p>
+              <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.depositedUsdt")}</p>
             </div>
             <div className="text-center px-2">
               <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm" data-testid="text-balance-earnings">{Number(user.totalEarnings || 0).toFixed(2)}</p>
-              <p className="text-muted-foreground text-[10px] mt-0.5">Daromad USDT</p>
+              <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.earningsUsdt")}</p>
             </div>
             <div className="text-center px-2">
               <p className="text-foreground font-bold text-sm">{totalReferrals}</p>
-              <p className="text-muted-foreground text-[10px] mt-0.5">Referallar</p>
+              <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.referrals")}</p>
             </div>
           </div>
         </div>
 
         <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-          <h3 className="text-foreground font-bold text-sm px-4 pt-4 pb-2">Mening xizmatlarim</h3>
+          <h3 className="text-foreground font-bold text-sm px-4 pt-4 pb-2">{t("profile.myServices")}</h3>
           <div className="divide-y divide-border">
             <div>
               <button onClick={() => setShowFinanceService(!showFinanceService)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-service">
@@ -1015,8 +1020,8 @@ export default function ProfilePage() {
                     <Landmark className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <span className="text-foreground text-sm">Moliya xizmati</span>
-                    <p className="text-muted-foreground text-[10px]">{bankCard ? "Karta bog'langan" : "Karta bog'lanmagan"} · {usdtWallet ? "Hamyon bog'langan" : "Hamyon bog'lanmagan"}</p>
+                    <span className="text-foreground text-sm">{t("profile.financeService")}</span>
+                    <p className="text-muted-foreground text-[10px]">{bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")} · {usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
                   </div>
                 </div>
                 {showFinanceService ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
@@ -1033,7 +1038,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">Faol</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
@@ -1051,7 +1056,7 @@ export default function ProfilePage() {
                   ) : (
                     <button onClick={() => setShowAddBankCard(true)} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#3B82F6] transition-colors" data-testid="button-add-bank-card">
                       <CreditCard className="w-4 h-4 text-[#3B82F6]" />
-                      <span className="text-muted-foreground text-sm">Bank kartasini bog'lash</span>
+                      <span className="text-muted-foreground text-sm">{t("profile.linkBankCard")}</span>
                     </button>
                   )}
                   {usdtWallet ? (
@@ -1064,7 +1069,7 @@ export default function ProfilePage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">Faol</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
@@ -1081,7 +1086,7 @@ export default function ProfilePage() {
                   ) : (
                     <button onClick={() => setShowAddUsdtWallet(true)} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#4ADE80] transition-colors" data-testid="button-add-usdt-wallet">
                       <Wallet className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-                      <span className="text-muted-foreground text-sm">USDT hamyon qo'shish</span>
+                      <span className="text-muted-foreground text-sm">{t("profile.addWallet")}</span>
                     </button>
                   )}
                 </div>
@@ -1095,8 +1100,8 @@ export default function ProfilePage() {
                     <History className="w-4 h-4 text-[#A78BFA]" />
                   </div>
                   <div>
-                    <span className="text-foreground text-sm">Moliya tarixi</span>
-                    <p className="text-muted-foreground text-[10px]">{balHistory.length} ta operatsiya</p>
+                    <span className="text-foreground text-sm">{t("profile.financialHistory")}</span>
+                    <p className="text-muted-foreground text-[10px]">{balHistory.length} {t("profile.operations")}</p>
                   </div>
                 </div>
                 {showFinanceHistory ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
@@ -1105,14 +1110,14 @@ export default function ProfilePage() {
                 <div className="pb-2">
                   <div className="px-4 pb-2 flex gap-1.5 flex-wrap">
                     {([
-                      { key: "all", label: "Barchasi" },
-                      { key: "earning", label: "Daromad" },
-                      { key: "deposit", label: "Depozit" },
-                      { key: "withdrawal", label: "Yechish" },
-                      { key: "vip_purchase", label: "VIP" },
-                      { key: "fund_invest", label: "Fond" },
-                      { key: "commission", label: "Komissiya" },
-                      { key: "admin_adjust", label: "Texnik" },
+                      { key: "all", label: t("profile.filterAll") },
+                      { key: "earning", label: t("profile.filterEarning") },
+                      { key: "deposit", label: t("profile.filterDeposit") },
+                      { key: "withdrawal", label: t("profile.filterWithdrawal") },
+                      { key: "vip_purchase", label: t("profile.filterVip") },
+                      { key: "fund_invest", label: t("profile.filterFund") },
+                      { key: "commission", label: t("profile.filterCommission") },
+                      { key: "admin_adjust", label: t("profile.filterTech") },
                     ] as const).map(f => (
                       <button
                         key={f.key}
@@ -1126,7 +1131,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="divide-y divide-border max-h-80 overflow-y-auto">
                     {balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).length === 0 ? (
-                      <div className="px-4 py-8 text-center text-muted-foreground text-xs">Operatsiyalar topilmadi</div>
+                      <div className="px-4 py-8 text-center text-muted-foreground text-xs">{t("profile.noOperations")}</div>
                     ) : (
                       balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).map((h) => {
                         const isPositive = Number(h.amount) >= 0;
@@ -1169,7 +1174,7 @@ export default function ProfilePage() {
                 <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
                   <ListChecks className="w-4 h-4 text-[#3B82F6]" />
                 </div>
-                <span className="text-foreground text-sm">Mening vazifalarim</span>
+                <span className="text-foreground text-sm">{t("profile.myTasks")}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -1179,7 +1184,7 @@ export default function ProfilePage() {
                   <Users className="w-4 h-4 text-[#4CAF50]" />
                 </div>
                 <div>
-                  <span className="text-foreground text-sm">Mening referallarim</span>
+                  <span className="text-foreground text-sm">{t("profile.myReferrals")}</span>
                   <span className="ml-2 text-[10px] text-muted-foreground">{totalReferrals} ta</span>
                 </div>
               </div>
@@ -1190,7 +1195,7 @@ export default function ProfilePage() {
                 <div className="w-8 h-8 rounded-lg bg-[#FFB300]/20 flex items-center justify-center">
                   <Crown className="w-4 h-4 text-[#FFB300]" />
                 </div>
-                <span className="text-foreground text-sm">VIP obunalarim</span>
+                <span className="text-foreground text-sm">{t("profile.myVipSubs")}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -1199,7 +1204,7 @@ export default function ProfilePage() {
                 <div className="w-8 h-8 rounded-lg bg-[#6B7280]/20 flex items-center justify-center">
                   <Lock className="w-4 h-4 text-[#6B7280]" />
                 </div>
-                <span className="text-foreground text-sm">Mahfiy ma'lumotlar</span>
+                <span className="text-foreground text-sm">{t("profile.secretInfo")}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -1210,30 +1215,30 @@ export default function ProfilePage() {
                   <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/20 flex items-center justify-center">
                     <Lock className="w-4 h-4 text-[#F59E0B]" />
                   </div>
-                  <span className="text-foreground text-sm">Kirish parolini o'zgartirish</span>
+                  <span className="text-foreground text-sm">{t("profile.changeLoginPassword")}</span>
                 </div>
                 {showChangePassword ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
               </button>
               {showChangePassword && (
                 <div className="px-4 pb-4 space-y-3">
                   <div>
-                    <label className="text-muted-foreground text-xs">Joriy parol</label>
+                    <label className="text-muted-foreground text-xs">{t("profile.currentPassword")}</label>
                     <Input
                       type="password"
                       value={currentPwd}
                       onChange={(e) => setCurrentPwd(e.target.value)}
-                      placeholder="Hozirgi parolingiz"
+                      placeholder={t("profile.currentPasswordPlaceholder")}
                       className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11"
                       data-testid="input-current-password"
                     />
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-xs">Yangi parol</label>
+                    <label className="text-muted-foreground text-xs">{t("profile.newPassword")}</label>
                     <Input
                       type="password"
                       value={newPwd}
                       onChange={(e) => setNewPwd(e.target.value)}
-                      placeholder="Yangi parol (min 6 ta belgi)"
+                      placeholder={t("profile.newPasswordPlaceholder")}
                       className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11"
                       data-testid="input-new-password"
                     />
@@ -1244,7 +1249,7 @@ export default function ProfilePage() {
                     className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
                     data-testid="button-save-password"
                   >
-                    {changePasswordMutation.isPending ? "Saqlanmoqda..." : "Parolni o'zgartirish"}
+                    {changePasswordMutation.isPending ? t("profile.saving") : t("profile.changePassword")}
                   </Button>
                 </div>
               )}
@@ -1256,31 +1261,31 @@ export default function ProfilePage() {
                   <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/20 flex items-center justify-center">
                     <Shield className="w-4 h-4 text-[#A78BFA]" />
                   </div>
-                  <span className="text-foreground text-sm">Moliya parolini o'zgartirish</span>
+                  <span className="text-foreground text-sm">{t("profile.changeFundPasswordMenu")}</span>
                 </div>
                 {showChangeFundPwd ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
               </button>
               {showChangeFundPwd && (
                 <div className="px-4 pb-4 space-y-3">
                   <div>
-                    <label className="text-muted-foreground text-xs">Joriy moliya paroli</label>
+                    <label className="text-muted-foreground text-xs">{t("profile.currentFundPassword")}</label>
                     <Input
                       type="password"
                       value={currentFundPwd}
                       onChange={(e) => setCurrentFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder="Hozirgi 6 xonali PIN"
+                      placeholder={t("profile.currentFundPwdPlaceholder")}
                       maxLength={6}
                       className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]"
                       data-testid="input-current-fund-password"
                     />
                   </div>
                   <div>
-                    <label className="text-muted-foreground text-xs">Yangi moliya paroli</label>
+                    <label className="text-muted-foreground text-xs">{t("profile.newFundPassword")}</label>
                     <Input
                       type="password"
                       value={newFundPwd}
                       onChange={(e) => setNewFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder="Yangi 6 xonali PIN"
+                      placeholder={t("profile.newFundPwdPlaceholder")}
                       maxLength={6}
                       className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]"
                       data-testid="input-new-fund-password"
@@ -1292,7 +1297,7 @@ export default function ProfilePage() {
                     className="w-full bg-gradient-to-r from-violet-400 to-violet-500 text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
                     data-testid="button-save-fund-password"
                   >
-                    {changeFundPwdMutation.isPending ? "Saqlanmoqda..." : "Moliya parolini o'zgartirish"}
+                    {changeFundPwdMutation.isPending ? t("profile.saving") : t("profile.changeFundPasswordMenu")}
                   </Button>
                 </div>
               )}
@@ -1303,7 +1308,7 @@ export default function ProfilePage() {
                 <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
                   <Headphones className="w-4 h-4 text-[#3b6db5]" />
                 </div>
-                <span className="text-foreground text-sm">Mijozlarni qo'llab-quvvatlash</span>
+                <span className="text-foreground text-sm">{t("profile.customerSupport")}</span>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
@@ -1313,7 +1318,7 @@ export default function ProfilePage() {
                   <div className="w-8 h-8 rounded-lg bg-[#EF4444]/20 flex items-center justify-center">
                     <Shield className="w-4 h-4 text-[#EF4444]" />
                   </div>
-                  <span className="text-[#EF4444] text-sm font-semibold">Admin panel</span>
+                  <span className="text-[#EF4444] text-sm font-semibold">{t("admin.title")}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-[#EF4444]" />
               </button>
@@ -1329,7 +1334,7 @@ export default function ProfilePage() {
           data-testid="button-profile-logout"
         >
           <LogOut className="w-4 h-4" />
-          {logoutMutation.isPending ? "Chiqilmoqda..." : "Hisobdan chiqish"}
+          {logoutMutation.isPending ? t("profile.loggingOut") : t("profile.logout")}
         </Button>
 
         <Dialog open={showSecretInfo} onOpenChange={setShowSecretInfo}>
@@ -1337,27 +1342,27 @@ export default function ProfilePage() {
             <DialogHeader>
               <DialogTitle className="text-foreground flex items-center gap-2">
                 <Shield className="w-5 h-5 text-primary" />
-                Mahfiy ma'lumotlar
+                {t("profile.secretInfo")}
               </DialogTitle>
-              <p id="secret-info-desc" className="text-muted-foreground text-sm">Sizning shaxsiy va xavfsizlik ma'lumotlaringiz</p>
+              <p id="secret-info-desc" className="text-muted-foreground text-sm">{t("profile.secretInfoDesc")}</p>
             </DialogHeader>
             <div className="space-y-3 pt-2">
               <div className="bg-card rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Phone className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-muted-foreground text-xs">Telefon raqam</span>
+                  <span className="text-muted-foreground text-xs">{t("profile.phoneNumber")}</span>
                 </div>
                 <p className="text-foreground font-medium text-sm" data-testid="text-secret-phone">{user.phone}</p>
               </div>
               <div className="bg-card rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Shield className="w-3.5 h-3.5 text-[#4CAF50]" />
-                  <span className="text-muted-foreground text-xs">Referal kod</span>
+                  <span className="text-muted-foreground text-xs">{t("profile.referralCode")}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-foreground font-medium text-sm font-mono" data-testid="text-secret-referral">{user.referralCode}</p>
                   <button
-                    onClick={() => { navigator.clipboard.writeText(user.referralCode); toast({ title: "Nusxalandi!" }); }}
+                    onClick={() => { navigator.clipboard.writeText(user.referralCode); toast({ title: t("common.success") }); }}
                     className="text-primary"
                     data-testid="button-copy-referral-secret"
                   >
@@ -1368,7 +1373,7 @@ export default function ProfilePage() {
               <div className="bg-card rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <CreditCard className="w-3.5 h-3.5 text-[#3b6db5]" />
-                  <span className="text-muted-foreground text-xs">ID raqam</span>
+                  <span className="text-muted-foreground text-xs">{t("profile.idNumber")}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-foreground font-medium text-sm font-mono" data-testid="text-secret-id">{user.numericId || "—"}</p>
@@ -1380,14 +1385,14 @@ export default function ProfilePage() {
               <div className="bg-card rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Lock className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-muted-foreground text-xs">Moliyaviy parol</span>
+                  <span className="text-muted-foreground text-xs">{t("profile.financialPassword")}</span>
                 </div>
                 <p className="text-foreground font-medium text-sm" data-testid="text-secret-fund-password">••••••</p>
               </div>
               <div className="bg-card rounded-xl p-3.5">
                 <div className="flex items-center gap-2 mb-1">
                   <Wallet className="w-3.5 h-3.5 text-[#FFB300]" />
-                  <span className="text-muted-foreground text-xs">Umumiy balans</span>
+                  <span className="text-muted-foreground text-xs">{t("profile.totalBalance")}</span>
                 </div>
                 <p className="text-foreground font-bold text-sm" data-testid="text-secret-balance">{balance.toFixed(2)} USDT</p>
               </div>

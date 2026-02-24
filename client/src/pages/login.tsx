@@ -12,35 +12,31 @@ import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Phone, Lock, Eye, EyeOff, ChevronDown, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
+import { useI18n } from "@/lib/i18n";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 const countryCodes = [
-  { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}", name: "O'zbekiston" },
-  { code: "+7", country: "RU", flag: "\u{1F1F7}\u{1F1FA}", name: "Rossiya" },
-  { code: "+1", country: "US", flag: "\u{1F1FA}\u{1F1F8}", name: "AQSH" },
-  { code: "+44", country: "GB", flag: "\u{1F1EC}\u{1F1E7}", name: "Buyuk Britaniya" },
-  { code: "+49", country: "DE", flag: "\u{1F1E9}\u{1F1EA}", name: "Germaniya" },
-  { code: "+82", country: "KR", flag: "\u{1F1F0}\u{1F1F7}", name: "Janubiy Koreya" },
-  { code: "+90", country: "TR", flag: "\u{1F1F9}\u{1F1F7}", name: "Turkiya" },
-  { code: "+86", country: "CN", flag: "\u{1F1E8}\u{1F1F3}", name: "Xitoy" },
-  { code: "+91", country: "IN", flag: "\u{1F1EE}\u{1F1F3}", name: "Hindiston" },
-  { code: "+81", country: "JP", flag: "\u{1F1EF}\u{1F1F5}", name: "Yaponiya" },
-  { code: "+971", country: "AE", flag: "\u{1F1E6}\u{1F1EA}", name: "BAA" },
-  { code: "+992", country: "TJ", flag: "\u{1F1F9}\u{1F1EF}", name: "Tojikiston" },
-  { code: "+996", country: "KG", flag: "\u{1F1F0}\u{1F1EC}", name: "Qirg'iziston" },
-  { code: "+993", country: "TM", flag: "\u{1F1F9}\u{1F1F2}", name: "Turkmaniston" },
-  { code: "+7", country: "KZ", flag: "\u{1F1F0}\u{1F1FF}", name: "Qozog'iston" },
+  { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}" },
+  { code: "+7", country: "RU", flag: "\u{1F1F7}\u{1F1FA}" },
+  { code: "+1", country: "US", flag: "\u{1F1FA}\u{1F1F8}" },
+  { code: "+44", country: "GB", flag: "\u{1F1EC}\u{1F1E7}" },
+  { code: "+49", country: "DE", flag: "\u{1F1E9}\u{1F1EA}" },
+  { code: "+82", country: "KR", flag: "\u{1F1F0}\u{1F1F7}" },
+  { code: "+90", country: "TR", flag: "\u{1F1F9}\u{1F1F7}" },
+  { code: "+86", country: "CN", flag: "\u{1F1E8}\u{1F1F3}" },
+  { code: "+91", country: "IN", flag: "\u{1F1EE}\u{1F1F3}" },
+  { code: "+81", country: "JP", flag: "\u{1F1EF}\u{1F1F5}" },
+  { code: "+971", country: "AE", flag: "\u{1F1E6}\u{1F1EA}" },
+  { code: "+992", country: "TJ", flag: "\u{1F1F9}\u{1F1EF}" },
+  { code: "+996", country: "KG", flag: "\u{1F1F0}\u{1F1EC}" },
+  { code: "+993", country: "TM", flag: "\u{1F1F9}\u{1F1F2}" },
+  { code: "+7", country: "KZ", flag: "\u{1F1F0}\u{1F1FF}" },
 ];
-
-const loginSchema = z.object({
-  phone: z.string().min(5, "Telefon raqamini kiriting"),
-  password: z.string().min(4, "Parolni kiriting"),
-});
-
-type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("vem_remember") === "true");
   const [selectedCountry, setSelectedCountry] = useState(() => {
@@ -54,6 +50,13 @@ export default function LoginPage() {
   const [showCountryList, setShowCountryList] = useState(false);
 
   const savedPhone = rememberMe ? (localStorage.getItem("vem_phone") || "") : "";
+
+  const loginSchema = z.object({
+    phone: z.string().min(5, t("auth.phoneValidation")),
+    password: z.string().min(4, t("auth.passwordRequired")),
+  });
+
+  type LoginForm = z.infer<typeof loginSchema>;
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -80,7 +83,7 @@ export default function LoginPage() {
       navigate("/dashboard");
     },
     onError: (error: Error) => {
-      toast({ title: "Xatolik", description: error.message, variant: "destructive" });
+      toast({ title: t("common.error"), description: error.message, variant: "destructive" });
     },
   });
 
@@ -88,13 +91,16 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
-      <button
-        onClick={toggleTheme}
-        className="absolute top-4 right-4 w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
-        data-testid="button-theme-toggle-login"
-      >
-        {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
-      </button>
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher />
+        <button
+          onClick={toggleTheme}
+          className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
+          data-testid="button-theme-toggle-login"
+        >
+          {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
+        </button>
+      </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-primary rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl">
@@ -107,7 +113,7 @@ export default function LoginPage() {
         <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
           <div className="flex items-center gap-2 mb-6">
             <div className="w-1 h-5 bg-primary rounded-full" />
-            <h2 className="text-lg font-bold text-foreground">Tizimga kirish</h2>
+            <h2 className="text-lg font-bold text-foreground">{t("auth.login")}</h2>
           </div>
 
           <Form {...form}>
@@ -117,7 +123,7 @@ export default function LoginPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.phone")}</FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
                         <div className="relative">
@@ -146,7 +152,7 @@ export default function LoginPage() {
                                     data-testid={`option-country-${c.country}`}
                                   >
                                     <span className="text-lg">{c.flag}</span>
-                                    <span className="text-foreground font-medium flex-1">{c.name}</span>
+                                    <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
                                     <span className="text-muted-foreground text-xs">{c.code}</span>
                                   </button>
                                 ))}
@@ -175,14 +181,14 @@ export default function LoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Parol</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.password")}</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
-                          placeholder="Parolingizni kiriting"
+                          placeholder={t("auth.enterPassword")}
                           className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                           data-testid="input-password"
                         />
@@ -209,7 +215,7 @@ export default function LoginPage() {
                     className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                     data-testid="checkbox-remember-me"
                   />
-                  <span className="text-muted-foreground text-sm">Meni eslab qol</span>
+                  <span className="text-muted-foreground text-sm">{t("auth.rememberMe")}</span>
                 </label>
               </div>
 
@@ -219,23 +225,23 @@ export default function LoginPage() {
                 disabled={loginMutation.isPending}
                 data-testid="button-login"
               >
-                {loginMutation.isPending ? "Kirish..." : "Kirish"}
+                {loginMutation.isPending ? t("auth.loggingIn") : t("auth.loginButton")}
               </Button>
             </form>
           </Form>
 
           <div className="mt-6 text-center">
             <p className="text-muted-foreground text-sm">
-              Hisobingiz yo'qmi?{" "}
+              {t("auth.noAccount")}{" "}
               <Link href="/register" className="text-primary font-semibold" data-testid="link-register">
-                Ro'yxatdan o'ting
+                {t("auth.registerLink")}
               </Link>
             </p>
           </div>
         </div>
 
         <p className="text-center text-muted-foreground text-[10px] mt-4">
-          VEM Platform &copy; 2026. Barcha huquqlar himoyalangan.
+          {t("common.copyright")}
         </p>
       </div>
     </div>

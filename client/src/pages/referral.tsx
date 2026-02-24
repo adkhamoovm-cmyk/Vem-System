@@ -6,6 +6,7 @@ import { Copy, Users, UserPlus, Check, Share2, Crown, Shield, User, ChevronDown,
 import { useState } from "react";
 import type { User as UserType } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+import { useI18n } from "@/lib/i18n";
 
 interface ReferralStats {
   level1: { count: number; commission: string };
@@ -26,20 +27,21 @@ function maskPhone(phone: string) {
   return phone.slice(0, 3) + "••••" + phone.slice(-3);
 }
 
-function getVipBadge(vipLevel: number) {
-  if (vipLevel > 0) {
-    return { label: vipNames[vipLevel] || `M${vipLevel}`, color: "#FFB300", bg: "rgba(255, 179, 0, 0.15)" };
-  }
-  if (vipLevel === 0) {
-    return { label: "Stajyor", color: "#4ADE80", bg: "rgba(74, 222, 128, 0.15)" };
-  }
-  return { label: "Oddiy a'zo", color: "hsl(var(--muted-foreground))", bg: "rgba(102, 102, 102, 0.15)" };
-}
-
 export default function ReferralPage() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [expandedLevel, setExpandedLevel] = useState<number | null>(1);
+
+  function getVipBadge(vipLevel: number) {
+    if (vipLevel > 0) {
+      return { label: vipNames[vipLevel] || `M${vipLevel}`, color: "#FFB300", bg: "rgba(255, 179, 0, 0.15)" };
+    }
+    if (vipLevel === 0) {
+      return { label: "Stajyor", color: "#4ADE80", bg: "rgba(74, 222, 128, 0.15)" };
+    }
+    return { label: t("referral.regularMember"), color: "hsl(var(--muted-foreground))", bg: "rgba(102, 102, 102, 0.15)" };
+  }
 
   const { data: user } = useQuery<UserType>({
     queryKey: ["/api/auth/me"],
@@ -60,10 +62,10 @@ export default function ReferralPage() {
     try {
       await navigator.clipboard.writeText(referralLink);
       setCopied(true);
-      toast({ title: "Nusxalandi!", description: "Referal ssilka nusxalandi" });
+      toast({ title: t("common.copied"), description: t("referral.linkCopied") });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast({ title: "Xatolik", description: "Nusxalab bo'lmadi", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("referral.copyFailed"), variant: "destructive" });
     }
   };
 
@@ -87,27 +89,27 @@ export default function ReferralPage() {
               <Share2 className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="font-bold text-lg">Referal dasturi</h2>
-              <p className="text-foreground/70 text-xs">3 bosqichli komissiya tizimi</p>
+              <h2 className="font-bold text-lg">{t("referral.title")}</h2>
+              <p className="text-foreground/70 text-xs">{t("referral.threeLevel")}</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-              <p className="text-foreground/60 text-[10px] uppercase tracking-wider">Jami referallar</p>
+              <p className="text-foreground/60 text-[10px] uppercase tracking-wider">{t("referral.totalReferrals")}</p>
               <p className="text-foreground font-bold text-xl" data-testid="text-total-referrals">{totalCount}</p>
             </div>
             <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-              <p className="text-foreground/60 text-[10px] uppercase tracking-wider">Jami daromad</p>
+              <p className="text-foreground/60 text-[10px] uppercase tracking-wider">{t("referral.totalEarnings")}</p>
               <p className="text-foreground font-bold text-xl" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
             </div>
           </div>
           <p className="text-foreground/70 text-[11px] leading-relaxed">
-            Do'stlaringizni taklif qiling va ularning har bir vazifa daromadidan foiz oling. Stajyor darajadagi foydalanuvchilardan komissiya olinmaydi.
+            {t("referral.description")}
           </p>
         </div>
 
         <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
-          <label className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Sizning referal ssilkangiz</label>
+          <label className="text-muted-foreground text-xs font-medium uppercase tracking-wider">{t("referral.yourLink")}</label>
           <div className="flex gap-2 mt-2">
             <div className="flex-1 bg-card border border-border rounded-xl px-3 py-2.5 text-foreground text-xs truncate font-mono" data-testid="text-referral-link">
               {referralLink}
@@ -146,11 +148,11 @@ export default function ReferralPage() {
                       {item.level}
                     </div>
                     <div>
-                      <h4 className="text-foreground font-semibold text-sm">{item.level}-daraja referallar</h4>
+                      <h4 className="text-foreground font-semibold text-sm">{t("referral.levelReferrals", { level: item.level })}</h4>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} komissiya</span>
+                        <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} {t("referral.commission")}</span>
                         <span className="text-muted-foreground">·</span>
-                        <span className="text-muted-foreground text-xs">{item.data?.count ?? 0} ta odam</span>
+                        <span className="text-muted-foreground text-xs">{item.data?.count ?? 0} {t("common.people")}</span>
                       </div>
                     </div>
                   </div>
@@ -170,7 +172,7 @@ export default function ReferralPage() {
                     {levelUsers.length === 0 ? (
                       <div className="px-4 py-6 text-center">
                         <UserPlus className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-                        <p className="text-muted-foreground text-xs">Hali referallar yo'q</p>
+                        <p className="text-muted-foreground text-xs">{t("referral.noReferrals")}</p>
                       </div>
                     ) : (
                       <div className="divide-y divide-border">
@@ -209,12 +211,12 @@ export default function ReferralPage() {
         </div>
 
         <div className="bg-card rounded-2xl p-4 border border-border">
-          <h3 className="text-foreground font-bold text-sm mb-3">Qanday ishlaydi?</h3>
+          <h3 className="text-foreground font-bold text-sm mb-3">{t("referral.howItWorks")}</h3>
           <div className="space-y-2.5">
             {[
-              { step: "1", text: "Referal ssilkangizni do'stlaringizga yuboring", color: "hsl(var(--primary))" },
-              { step: "2", text: "Ular ro'yxatdan o'tishadi va VIP paket olishadi", color: "#4CAF50" },
-              { step: "3", text: "Har bir vazifa uchun avtomatik komissiya oling", color: "#2196F3" },
+              { step: "1", text: t("referral.step1"), color: "hsl(var(--primary))" },
+              { step: "2", text: t("referral.step2"), color: "#4CAF50" },
+              { step: "3", text: t("referral.step3"), color: "#2196F3" },
             ].map((s) => (
               <div key={s.step} className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: s.color + "20", color: s.color }}>

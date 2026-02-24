@@ -5,6 +5,7 @@ import { TrendingUp, Star, Eye, Flame, Tv, Film, Play } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
 import AppLayout from "@/components/app-layout";
+import { useI18n } from "@/lib/i18n";
 
 function getYouTubeId(url: string): string | null {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -13,6 +14,7 @@ function getYouTubeId(url: string): string | null {
 
 function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; onClose: () => void }) {
   const [playing, setPlaying] = useState(false);
+  const { t } = useI18n();
   const videoId = video.videoUrl ? getYouTubeId(video.videoUrl) : null;
 
   useEffect(() => {
@@ -50,7 +52,7 @@ function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; o
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <p className="text-muted-foreground text-sm">Video yuklanmadi</p>
+              <p className="text-muted-foreground text-sm">{t("trends.videoNotLoaded")}</p>
             </div>
           )}
         </div>
@@ -69,7 +71,7 @@ function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; o
           </div>
           <div className="mt-3 bg-primary/10 rounded-xl p-3 border border-primary/20">
             <p className="text-primary text-xs">
-              Bu yerda faqat ko'rish mumkin. Daromad olish uchun <strong>Vazifalar</strong> bo'limiga o'ting.
+              {t("trends.viewOnly")} <strong>{t("trends.goToTasks")}</strong> {t("trends.section")}
             </p>
           </div>
         </div>
@@ -79,6 +81,8 @@ function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; o
 }
 
 export default function TrendsPage() {
+  const { t } = useI18n();
+
   const { data: videos, isLoading } = useQuery<Video[]>({
     queryKey: ["/api/videos"],
   });
@@ -89,7 +93,7 @@ export default function TrendsPage() {
   });
 
   const [previewVideo, setPreviewVideo] = useState<Video | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>("Barchasi");
+  const [activeFilter, setActiveFilter] = useState<string>("all");
 
   if (isLoading) {
     return (
@@ -101,10 +105,16 @@ export default function TrendsPage() {
     );
   }
 
-  const filters = ["Barchasi", "Tele-shou", "Treyler"];
-  const filteredVideos = activeFilter === "Barchasi"
+  const filterConfig = [
+    { key: "all", label: t("trends.all"), category: null },
+    { key: "tele-shou", label: t("trends.teleShow"), category: "Tele-shou" },
+    { key: "treyler", label: t("trends.trailer"), category: "Treyler" },
+  ];
+
+  const activeFilterConfig = filterConfig.find(f => f.key === activeFilter);
+  const filteredVideos = activeFilter === "all"
     ? videos || []
-    : (videos || []).filter(v => v.category === activeFilter);
+    : (videos || []).filter(v => v.category === activeFilterConfig?.category);
 
   const sortedByRating = [...filteredVideos].sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
   const topVideos = sortedByRating.slice(0, 3);
@@ -118,32 +128,32 @@ export default function TrendsPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Flame className="w-5 h-5 text-primary" />
-            <h1 className="text-foreground font-bold text-lg">Trendlar</h1>
+            <h1 className="text-foreground font-bold text-lg">{t("trends.title")}</h1>
           </div>
         </div>
 
         <div className="flex gap-2">
-          {filters.map(f => (
+          {filterConfig.map(f => (
             <button
-              key={f}
-              onClick={() => setActiveFilter(f)}
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition-colors ${
-                activeFilter === f
+                activeFilter === f.key
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "bg-card text-muted-foreground border border-border"
               }`}
-              data-testid={`filter-${f.toLowerCase()}`}
+              data-testid={`filter-${f.key}`}
             >
-              {f}
+              {f.label}
             </button>
           ))}
         </div>
 
-        {topVideos.length > 0 && activeFilter === "Barchasi" && (
+        {topVideos.length > 0 && activeFilter === "all" && (
           <div>
             <div className="flex items-center gap-1.5 mb-3">
               <TrendingUp className="w-4 h-4 text-primary" />
-              <span className="text-foreground font-semibold text-sm">Top reytinglar</span>
+              <span className="text-foreground font-semibold text-sm">{t("trends.topRatings")}</span>
             </div>
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
               {topVideos.map((video, index) => (
@@ -190,23 +200,23 @@ export default function TrendsPage() {
           <div className="bg-card rounded-xl p-3 text-center border border-border">
             <Eye className="w-5 h-5 text-primary mx-auto mb-1" />
             <p className="text-foreground font-bold text-sm">{videos?.length || 0}</p>
-            <p className="text-muted-foreground text-[10px]">Jami kontent</p>
+            <p className="text-muted-foreground text-[10px]">{t("trends.totalContent")}</p>
           </div>
           <div className="bg-card rounded-xl p-3 text-center border border-border">
             <Tv className="w-5 h-5 text-emerald-500 dark:text-emerald-400 mx-auto mb-1" />
             <p className="text-foreground font-bold text-sm">{teleshowCount}</p>
-            <p className="text-muted-foreground text-[10px]">Tele-shoular</p>
+            <p className="text-muted-foreground text-[10px]">{t("trends.tvShows")}</p>
           </div>
           <div className="bg-card rounded-xl p-3 text-center border border-border">
             <Film className="w-5 h-5 text-[#3B82F6] mx-auto mb-1" />
             <p className="text-foreground font-bold text-sm">{treylerCount}</p>
-            <p className="text-muted-foreground text-[10px]">Treylerlar</p>
+            <p className="text-muted-foreground text-[10px]">{t("trends.trailers")}</p>
           </div>
         </div>
 
         <div>
           <h3 className="text-foreground font-bold text-sm mb-3">
-            {activeFilter === "Barchasi" ? "Barcha trendlar" : activeFilter}
+            {activeFilter === "all" ? t("trends.allTrends") : activeFilterConfig?.label}
           </h3>
           <div className="grid grid-cols-2 gap-3">
             {sortedByRating.map((video) => (
