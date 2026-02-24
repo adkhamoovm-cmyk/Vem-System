@@ -92,7 +92,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
-      <div className="absolute top-4 right-4 flex items-center gap-2">
+      <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}

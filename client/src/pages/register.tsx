@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone, Sun, Moon } from "lucide-react";
+import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone, Sun, Moon, X, FileText } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
@@ -197,13 +197,116 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
   );
 }
 
+const termsContent: Record<string, { title: string; sections: { heading: string; text: string }[] }> = {
+  uz: {
+    title: "VEM Media Platformasi Foydalanish Shartlari",
+    sections: [
+      {
+        heading: "1. Shartlarni qabul qilish",
+        text: "1.1. Ro'yxatdan o'tish jarayonida \"Ro'yxatdan o'tish\" tugmasini bosish orqali siz ushbu Shartlarga to'liq rozi ekanligingizni bildirasiz."
+      },
+      {
+        heading: "2. Foydalanuvchi yoshi",
+        text: "2.1. Ushbu Platforma xizmatlaridan foydalanish uchun siz kamida 18 yoshga to'lgan bo'lishingiz shart."
+      },
+      {
+        heading: "3. Hisobni boshqarish va Xavfsizlik",
+        text: "3.1. Foydalanuvchi o'z paroli va hisob ma'lumotlarining xavfsizligi uchun shaxsan o'zi javobgardir. Hisobni boshqa shaxslarga berish yoki sotish taqiqlanadi."
+      },
+      {
+        heading: "4. Moliyaviy va Investitsiya Xavflari",
+        text: "4.1. Kunlik vazifalar soni va daromadni oshirish uchun VIP paketlarni sotib olish moliyaviy tavakkalchilikni o'z ichiga oladi. Biz kiritilgan mablag'larning qaytishiga yoki doimiy daromadga yuz foiz kafolat bermaymiz.\n\n4.2. Platforma an'anaviy bank hisoblanmaydi. Iltimos, faqat o'zingiz yo'qotishga tayyor bo'lgan mablag'larni ishlating."
+      },
+      {
+        heading: "5. Komissiya va Pul yechish",
+        text: "5.1. Platforma pul yechish amaliyotlarida (masalan, USDT tarmog'i komissiyalari uchun) ma'lum miqdorda xizmat haqini ushlab qolishi mumkin."
+      },
+      {
+        heading: "6. Qat'iy Taqiqlangan Qoidalar (Firibgarlikka qarshi)",
+        text: "6.1. Platformadan pul yuvish yoki noqonuniy maqsadlarda foydalanish mumkin emas.\n\n6.2. Diqqat: Videolarni ko'rish uchun avtomatlashtirilgan botlar, skriptlardan foydalanish yoki referal bonuslarni sun'iy ravishda ko'paytirish uchun bitta odam tomonidan bir nechta soxta akkauntlar ochish qat'iyan taqiqlanadi. Ushbu qoidani buzgan foydalanuvchilarning hisobi ogohlantirishsiz bloklanadi va barcha mablag'lari musodara qilinadi."
+      },
+      {
+        heading: "7. Javobgarlikni cheklash",
+        text: "7.1. Platforma tizimdagi uzilishlar, kiber-hujumlar yoki uchinchi tomon to'lov tizimlaridagi xatolar oqibatida yetkazilgan zararlar uchun javobgar bo'lmaydi."
+      }
+    ]
+  },
+  ru: {
+    title: "Условия использования платформы VEM Media",
+    sections: [
+      {
+        heading: "1. Принятие условий",
+        text: "1.1. Нажимая кнопку «Зарегистрироваться» в процессе регистрации, вы подтверждаете своё полное согласие с настоящими Условиями."
+      },
+      {
+        heading: "2. Возраст пользователя",
+        text: "2.1. Для использования услуг Платформы вам должно быть не менее 18 лет."
+      },
+      {
+        heading: "3. Управление аккаунтом и Безопасность",
+        text: "3.1. Пользователь несёт персональную ответственность за безопасность своего пароля и учётных данных. Передача или продажа аккаунта третьим лицам запрещена."
+      },
+      {
+        heading: "4. Финансовые и Инвестиционные риски",
+        text: "4.1. Покупка VIP-пакетов для увеличения количества ежедневных заданий и дохода сопряжена с финансовыми рисками. Мы не гарантируем возврат вложенных средств или стабильный доход.\n\n4.2. Платформа не является традиционным банком. Пожалуйста, используйте только те средства, потерю которых вы готовы допустить."
+      },
+      {
+        heading: "5. Комиссии и Вывод средств",
+        text: "5.1. Платформа может удерживать определённую сервисную комиссию при операциях вывода средств (например, комиссии сети USDT)."
+      },
+      {
+        heading: "6. Строго запрещённые действия (Противодействие мошенничеству)",
+        text: "6.1. Использование Платформы для отмывания денег или в незаконных целях запрещено.\n\n6.2. Внимание: Использование автоматизированных ботов, скриптов для просмотра видео или создание нескольких фиктивных аккаунтов одним лицом для искусственного увеличения реферальных бонусов строго запрещено. Аккаунты нарушителей блокируются без предупреждения, а все средства конфискуются."
+      },
+      {
+        heading: "7. Ограничение ответственности",
+        text: "7.1. Платформа не несёт ответственности за убытки, возникшие в результате сбоев системы, кибератак или ошибок сторонних платёжных систем."
+      }
+    ]
+  },
+  en: {
+    title: "VEM Media Platform Terms of Service",
+    sections: [
+      {
+        heading: "1. Acceptance of Terms",
+        text: "1.1. By clicking the \"Register\" button during the registration process, you confirm your full agreement with these Terms."
+      },
+      {
+        heading: "2. User Age",
+        text: "2.1. You must be at least 18 years old to use the Platform's services."
+      },
+      {
+        heading: "3. Account Management and Security",
+        text: "3.1. The user is personally responsible for the security of their password and account credentials. Transferring or selling accounts to third parties is prohibited."
+      },
+      {
+        heading: "4. Financial and Investment Risks",
+        text: "4.1. Purchasing VIP packages to increase daily tasks and income involves financial risk. We do not guarantee the return of invested funds or consistent income.\n\n4.2. The Platform is not a traditional bank. Please only use funds that you are prepared to lose."
+      },
+      {
+        heading: "5. Commissions and Withdrawals",
+        text: "5.1. The Platform may charge a certain service fee on withdrawal operations (e.g., USDT network commissions)."
+      },
+      {
+        heading: "6. Strictly Prohibited Actions (Anti-Fraud)",
+        text: "6.1. Using the Platform for money laundering or illegal purposes is prohibited.\n\n6.2. Warning: Using automated bots, scripts for watching videos, or creating multiple fake accounts by a single person to artificially inflate referral bonuses is strictly prohibited. Accounts of violators will be blocked without warning and all funds will be confiscated."
+      },
+      {
+        heading: "7. Limitation of Liability",
+        text: "7.1. The Platform is not liable for damages resulting from system outages, cyberattacks, or errors in third-party payment systems."
+      }
+    ]
+  }
+};
+
 export default function RegisterPage() {
   const [, navigate] = useLocation();
   const { toast } = useToast();
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
   const [showCountryList, setShowCountryList] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
 
   const params = new URLSearchParams(window.location.search);
   const refCode = params.get("ref") || "";
@@ -243,7 +346,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
-      <div className="absolute top-4 right-4 flex items-center gap-2">
+      <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
@@ -435,8 +538,8 @@ export default function RegisterPage() {
                           />
                           <span className="text-muted-foreground text-xs leading-relaxed">
                             <strong>{t("auth.ageConfirm")}</strong>. {t("auth.ageResponsibility")}
-                            <Link href="#" className="text-primary font-semibold ml-1">{t("auth.termsOfUse")}</Link> {" "}
-                            <Link href="#" className="text-primary font-semibold">{t("auth.privacyPolicy")}</Link>{t("auth.readAndAccept")}
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }} className="text-primary font-semibold ml-1 underline" data-testid="link-terms">{t("auth.termsOfUse")}</button> {" "}
+                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }} className="text-primary font-semibold underline" data-testid="link-privacy">{t("auth.privacyPolicy")}</button>{t("auth.readAndAccept")}
                           </span>
                         </label>
                       </div>
@@ -471,6 +574,54 @@ export default function RegisterPage() {
           {t("common.copyright")}
         </p>
       </div>
+
+      {showTerms && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" data-testid="terms-modal">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTerms(false)} />
+          <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+            <div className="flex items-center justify-between p-5 pb-3 border-b border-border shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <FileText className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="text-base font-bold text-foreground">{termsContent[locale]?.title || termsContent.en.title}</h3>
+              </div>
+              <button
+                onClick={() => setShowTerms(false)}
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                data-testid="button-close-terms"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-5 space-y-4 flex-1">
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {locale === "uz" && "VEM Media Video Orqali Daromad Topish Platformasiga xush kelibsiz. Platformadan ro'yxatdan o'tishdan oldin, iltimos, quyidagi Foydalanish Shartlarini diqqat bilan o'qib chiqing."}
+                {locale === "ru" && "Добро пожаловать на платформу VEM Media для заработка через просмотр видео. Перед регистрацией, пожалуйста, внимательно ознакомьтесь с нижеследующими Условиями использования."}
+                {locale === "en" && "Welcome to the VEM Media Video Earning Platform. Before registering, please carefully read the following Terms of Service."}
+              </p>
+
+              {(termsContent[locale] || termsContent.en).sections.map((section, i) => (
+                <div key={i} className="space-y-1.5">
+                  <h4 className="text-sm font-bold text-foreground">{section.heading}</h4>
+                  <p className="text-muted-foreground text-[13px] leading-relaxed whitespace-pre-line">{section.text}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 pt-3 border-t border-border shrink-0">
+              <button
+                onClick={() => setShowTerms(false)}
+                className="w-full bg-primary text-white font-semibold h-11 rounded-xl text-sm transition-colors hover:bg-primary/90"
+                data-testid="button-accept-terms"
+              >
+                {locale === "uz" ? "Tushunarli" : locale === "ru" ? "Понятно" : "I Understand"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
