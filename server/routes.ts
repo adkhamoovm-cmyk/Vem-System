@@ -1163,5 +1163,111 @@ export async function registerRoutes(
   setInterval(processDailyProfits, 24 * 60 * 60 * 1000);
   setTimeout(processDailyProfits, 5000);
 
+  app.post("/api/promo/use", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const { code } = req.body;
+      if (!code || typeof code !== "string") return res.status(400).json({ message: "Promokod kiriting" });
+
+      const promo = await storage.getPromoCodeByCode(code.trim().toUpperCase());
+      if (!promo) return res.status(404).json({ message: "Bunday promokod topilmadi" });
+      if (!promo.isActive) return res.status(400).json({ message: "Bu promokod faol emas" });
+
+      if (promo.isOneTime) {
+        if (promo.currentUses >= 1) return res.status(400).json({ message: "Bu promokod allaqachon ishlatilgan" });
+      } else if (promo.maxUses && promo.currentUses >= promo.maxUses) {
+        return res.status(400).json({ message: "Bu promokod limiti tugagan" });
+      }
+
+      const existingUsage = await storage.getUserPromoCodeUsage(req.session.userId!, promo.id);
+      if (existingUsage) return res.status(400).json({ message: "Siz bu promokodni allaqachon ishlatgansiz" });
+
+      await storage.createPromoCodeUsage({ promoCodeId: promo.id, userId: req.session.userId!, amount: promo.amount });
+      await storage.incrementPromoCodeUsage(promo.id);
+      await storage.updateUserBalance(req.session.userId!, promo.amount);
+      await storage.addBalanceHistory({ userId: req.session.userId!, type: "earning", amount: promo.amount, description: `Promokod: ${promo.code}` });
+
+      if (promo.isOneTime) {
+        await storage.deactivatePromoCode(promo.id);
+      } else if (promo.maxUses && promo.currentUses + 1 >= promo.maxUses) {
+        await storage.deactivatePromoCode(promo.id);
+      }
+
+      res.json({ message: `${promo.amount} USDT hisobingizga qo'shildi!`, amount: promo.amount });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/promo/history", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const allPromos = await storage.getAllPromoCodes();
+      const userUsages = [];
+      for (const promo of allPromos) {
+        const usage = await storage.getUserPromoCodeUsage(req.session.userId!, promo.id);
+        if (usage) userUsages.push({ ...usage, code: promo.code });
+      }
+      res.json(userUsages);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/promo-codes", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { code, amount, isOneTime, maxUses } = req.body;
+      if (!code || !amount) return res.status(400).json({ message: "Kod va miqdorni kiriting" });
+      if (Number(amount) <= 0) return res.status(400).json({ message: "Miqdor 0 dan katta bo'lishi kerak" });
+
+      const existing = await storage.getPromoCodeByCode(code.trim().toUpperCase());
+      if (existing) return res.status(400).json({ message: "Bu kod allaqachon mavjud" });
+
+      const promo = await storage.createPromoCode({
+        code: code.trim().toUpperCase(),
+        amount: String(amount),
+        isOneTime: isOneTime !== false,
+        maxUses: isOneTime === false ? (maxUses || null) : null,
+      });
+      res.json(promo);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/promo-codes", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const promos = await storage.getAllPromoCodes();
+      res.json(promos);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/promo-codes/:id/usages", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const usages = await storage.getPromoCodeUsages(req.params.id as string);
+      res.json(usages);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/promo-codes/:id/deactivate", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deactivatePromoCode(req.params.id as string);
+      res.json({ message: "Promokod o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/promo-codes/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deletePromoCode(req.params.id as string);
+      res.json({ message: "Promokod o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   return httpServer;
 }

@@ -1,7 +1,7 @@
 import { eq, and, sql, desc } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -76,6 +76,15 @@ export interface IStorage {
   addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
   getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
   toggleVipPackageLock(id: string, locked: boolean): Promise<void>;
+  createPromoCode(data: { code: string; amount: string; isOneTime: boolean; maxUses?: number }): Promise<PromoCode>;
+  getPromoCodeByCode(code: string): Promise<PromoCode | undefined>;
+  getAllPromoCodes(): Promise<PromoCode[]>;
+  incrementPromoCodeUsage(id: string): Promise<void>;
+  deactivatePromoCode(id: string): Promise<void>;
+  createPromoCodeUsage(data: { promoCodeId: string; userId: string; amount: string }): Promise<PromoCodeUsage>;
+  getUserPromoCodeUsage(userId: string, promoCodeId: string): Promise<PromoCodeUsage | undefined>;
+  getPromoCodeUsages(promoCodeId: string): Promise<(PromoCodeUsage & { userPhone?: string })[]>;
+  deletePromoCode(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -461,6 +470,56 @@ export class DatabaseStorage implements IStorage {
 
   async toggleVipPackageLock(id: string, locked: boolean): Promise<void> {
     await db.update(vipPackages).set({ isLocked: locked }).where(eq(vipPackages.id, id));
+  }
+
+  async createPromoCode(data: { code: string; amount: string; isOneTime: boolean; maxUses?: number }): Promise<PromoCode> {
+    const [promo] = await db.insert(promoCodes).values(data).returning();
+    return promo;
+  }
+
+  async getPromoCodeByCode(code: string): Promise<PromoCode | undefined> {
+    const [promo] = await db.select().from(promoCodes).where(eq(promoCodes.code, code));
+    return promo;
+  }
+
+  async getAllPromoCodes(): Promise<PromoCode[]> {
+    return db.select().from(promoCodes).orderBy(desc(promoCodes.createdAt));
+  }
+
+  async incrementPromoCodeUsage(id: string): Promise<void> {
+    await db.update(promoCodes)
+      .set({ currentUses: sql`${promoCodes.currentUses} + 1` })
+      .where(eq(promoCodes.id, id));
+  }
+
+  async deactivatePromoCode(id: string): Promise<void> {
+    await db.update(promoCodes).set({ isActive: false }).where(eq(promoCodes.id, id));
+  }
+
+  async createPromoCodeUsage(data: { promoCodeId: string; userId: string; amount: string }): Promise<PromoCodeUsage> {
+    const [usage] = await db.insert(promoCodeUsages).values(data).returning();
+    return usage;
+  }
+
+  async getUserPromoCodeUsage(userId: string, promoCodeId: string): Promise<PromoCodeUsage | undefined> {
+    const [usage] = await db.select().from(promoCodeUsages)
+      .where(and(eq(promoCodeUsages.userId, userId), eq(promoCodeUsages.promoCodeId, promoCodeId)));
+    return usage;
+  }
+
+  async getPromoCodeUsages(promoCodeId: string): Promise<(PromoCodeUsage & { userPhone?: string })[]> {
+    const usages = await db.select().from(promoCodeUsages).where(eq(promoCodeUsages.promoCodeId, promoCodeId)).orderBy(desc(promoCodeUsages.usedAt));
+    const result = [];
+    for (const u of usages) {
+      const user = await this.getUser(u.userId);
+      result.push({ ...u, userPhone: user?.phone });
+    }
+    return result;
+  }
+
+  async deletePromoCode(id: string): Promise<void> {
+    await db.delete(promoCodeUsages).where(eq(promoCodeUsages.promoCodeId, id));
+    await db.delete(promoCodes).where(eq(promoCodes.id, id));
   }
 }
 

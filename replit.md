@@ -4,6 +4,12 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-24: Promo code system: users enter codes to earn USDT, admin creates/manages codes (one-time/multi-use, custom amounts)
+- 2026-02-24: Promo page (/promo) with code input, history, and instructions
+- 2026-02-24: Admin "Promokodlar" tab with create, deactivate, delete, and usage tracking
+- 2026-02-24: Dashboard quick actions: "Fund" renamed to "Fond", added red "Konvert" (promo) icon
+- 2026-02-24: Expanded video library to 25 entries (13 TV shows + 12 trailers) with popular titles
+- 2026-02-24: Auto-scrolling carousels for TV Shows and Trailers on dashboard (pause on touch, resume after 2s)
 - 2026-02-24: Light/Dark mode toggle with ThemeProvider (localStorage sync, Sun/Moon icons in header)
 - 2026-02-24: Complete theme overhaul: primary color changed from orange (#FF6B35) to deep blue (220° 80% 50%)
 - 2026-02-24: All 370+ hardcoded hex colors replaced with theme-aware Tailwind CSS variables across all pages
