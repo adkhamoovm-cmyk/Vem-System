@@ -333,6 +333,10 @@ export async function registerRoutes(
       const pkg = await storage.getVipPackage(packageId);
       if (!pkg) return res.status(404).json({ message: "Paket topilmadi" });
 
+      if (pkg.isLocked) {
+        return res.status(400).json({ message: "Bu daraja hozircha yopiq. Admin bilan bog'laning." });
+      }
+
       if (pkg.level === 0) {
         return res.status(400).json({ message: "Stajyor paketini admin orqali so'rang" });
       }
@@ -744,8 +748,16 @@ export async function registerRoutes(
       const investments = await storage.getUserInvestments(user.id);
       const referralStats = await storage.getReferralStats(user.id);
       const referralTree = await storage.getReferralTree(user.id);
+      let invitedBy = null;
+      if (user.referredBy) {
+        const referrer = await storage.getUser(user.referredBy);
+        if (referrer) {
+          invitedBy = { id: referrer.id, phone: referrer.phone, numericId: referrer.numericId };
+        }
+      }
       res.json({
-        user: { ...user, password: undefined, fundPassword: undefined },
+        user,
+        invitedBy,
         paymentMethods: methods,
         deposits,
         withdrawals,
@@ -806,6 +818,33 @@ export async function registerRoutes(
     try {
       await storage.deleteUser(req.params.id as string);
       res.json({ message: "Foydalanuvchi o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/users/:id/password", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { password, fundPassword } = req.body;
+      if (password) {
+        const hashed = await hashPassword(password);
+        await storage.updateUserPassword(req.params.id as string, hashed);
+      }
+      if (fundPassword) {
+        const hashed = await hashPassword(fundPassword);
+        await storage.updateUserFundPassword(req.params.id as string, hashed);
+      }
+      res.json({ message: "Parol yangilandi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/vip-packages/:id/toggle-lock", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { locked } = req.body;
+      await storage.toggleVipPackageLock(req.params.id as string, locked);
+      res.json({ message: locked ? "Daraja yopildi" : "Daraja ochildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

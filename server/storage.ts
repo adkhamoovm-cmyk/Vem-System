@@ -74,6 +74,7 @@ export interface IStorage {
   setStajyorUsed(id: string): Promise<void>;
   addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
   getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
+  toggleVipPackageLock(id: string, locked: boolean): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -447,6 +448,10 @@ export class DatabaseStorage implements IStorage {
 
   async getUserBalanceHistory(userId: string): Promise<BalanceHistory[]> {
     return db.select().from(balanceHistory).where(eq(balanceHistory.userId, userId)).orderBy(desc(balanceHistory.createdAt));
+  }
+
+  async toggleVipPackageLock(id: string, locked: boolean): Promise<void> {
+    await db.update(vipPackages).set({ isLocked: locked }).where(eq(vipPackages.id, id));
   }
 }
 

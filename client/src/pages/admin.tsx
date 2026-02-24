@@ -11,12 +11,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest } from "@shared/schema";
+import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, VipPackage } from "@shared/schema";
 
 const UZS_RATE = 12100;
 const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
 
-type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor";
+type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor" | "vip-manage";
 
 function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: User[]; deposits: DepositRequest[]; withdrawals: WithdrawalRequest[] }) {
   const totalBalance = allUsers.reduce((s, u) => s + Number(u.balance), 0);
@@ -59,6 +59,9 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
   const [newBalance, setNewBalance] = useState("");
   const [editVip, setEditVip] = useState(false);
   const [newVipLevel, setNewVipLevel] = useState(0);
+  const [editPassword, setEditPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [newFundPassword, setNewFundPassword] = useState("");
 
   const { data: detail } = useQuery<any>({
     queryKey: ["/api/admin/users", userId],
@@ -108,6 +111,23 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
       toast({ title: "Yechish holati yangilandi" });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
     },
+  });
+
+  const passwordMutation = useMutation({
+    mutationFn: async () => {
+      const body: any = {};
+      if (newPassword) body.password = newPassword;
+      if (newFundPassword) body.fundPassword = newFundPassword;
+      await apiRequest("POST", `/api/admin/users/${userId}/password`, body);
+    },
+    onSuccess: () => {
+      toast({ title: "Parol yangilandi" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users", userId] });
+      setEditPassword(false);
+      setNewPassword("");
+      setNewFundPassword("");
+    },
+    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
   });
 
   const deleteMethodMutation = useMutation({
@@ -160,6 +180,9 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <InfoRow label="Yechish" value={user.withdrawalBanned ? "Taqiqlangan" : "Ruxsat" } color={user.withdrawalBanned ? "#E8453C" : "#4ADE80"} />
             <InfoRow label="Ro'yxatdan" value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
             <InfoRow label="Referal kodi" value={user.referralCode} />
+            <InfoRow label="Taklif etgan" value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : "Taklifsiz"} color={detail.invitedBy ? "#4ADE80" : "#888"} />
+            <InfoRow label="Parol" value={user.password ? "••••••" : "Yo'q"} />
+            <InfoRow label="Moliya paroli" value={user.fundPassword ? "••••••" : "Yo'q"} />
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -180,6 +203,11 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
               data-testid="button-toggle-withdraw-ban"
             >
               <Shield className="w-3 h-3 mr-1" /> {user.withdrawalBanned ? "Yechish ruxsat" : "Yechish taqiq"}
+            </Button>
+            <Button size="sm" onClick={() => { setEditPassword(true); setNewPassword(""); setNewFundPassword(""); }}
+              className="bg-[#3B82F6] text-white text-xs rounded-lg h-8" data-testid="button-edit-password"
+            >
+              <Edit className="w-3 h-3 mr-1" /> Parol
             </Button>
             <Button size="sm" onClick={() => { if (confirm("Rostdan ham o'chirmoqchimisiz?")) deleteUserMutation.mutate(); }}
               className="bg-red-700 text-white text-xs rounded-lg h-8" data-testid="button-delete-user"
@@ -217,6 +245,28 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
               <div className="flex gap-2 mt-2">
                 <Button size="sm" onClick={() => vipMutation.mutate()} className="bg-[#FFB300] text-black h-8 text-xs">Saqlash</Button>
                 <Button size="sm" onClick={() => setEditVip(false)} variant="ghost" className="text-[#888] h-8 text-xs">Bekor</Button>
+              </div>
+            </div>
+          )}
+
+          {editPassword && (
+            <div className="bg-[#111] rounded-xl p-3 border border-[#3B82F6]/30 space-y-2">
+              <p className="text-[#aaa] text-xs mb-1">Parolni o'zgartirish</p>
+              <div className="flex items-center gap-2">
+                <span className="text-[#888] text-xs w-24 shrink-0">Yangi parol:</span>
+                <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Yangi login parol" className="bg-[#0a0a0a] border-[#333] text-white h-8 text-sm flex-1" data-testid="input-new-admin-password" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#888] text-xs w-24 shrink-0">Moliya paroli:</span>
+                <Input type="text" value={newFundPassword} onChange={(e) => setNewFundPassword(e.target.value)}
+                  placeholder="Yangi 6 xonali PIN" className="bg-[#0a0a0a] border-[#333] text-white h-8 text-sm flex-1" data-testid="input-new-admin-fund-password" />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => passwordMutation.mutate()} disabled={!newPassword && !newFundPassword} className="bg-[#3B82F6] text-white h-8 text-xs">
+                  <Check className="w-3 h-3 mr-1" /> Saqlash
+                </Button>
+                <Button size="sm" onClick={() => setEditPassword(false)} variant="ghost" className="text-[#888] h-8 text-xs">Bekor</Button>
               </div>
             </div>
           )}
@@ -819,6 +869,61 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
   );
 }
 
+function VipManageTab() {
+  const { toast } = useToast();
+  const { data: packages = [] } = useQuery<VipPackage[]>({ queryKey: ["/api/vip-packages"] });
+
+  const toggleLockMutation = useMutation({
+    mutationFn: async ({ id, locked }: { id: string; locked: boolean }) => {
+      await apiRequest("POST", `/api/admin/vip-packages/${id}/toggle-lock`, { locked });
+    },
+    onSuccess: () => {
+      toast({ title: "VIP daraja yangilandi" });
+      queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
+    },
+    onError: (e: Error) => toast({ title: "Xatolik", description: e.message, variant: "destructive" }),
+  });
+
+  const sorted = [...packages].sort((a, b) => a.level - b.level);
+
+  return (
+    <div>
+      <h3 className="text-white font-bold text-sm mb-3">VIP darajalarni boshqarish</h3>
+      <p className="text-[#888] text-xs mb-4">Darajalarni ochish yoki yopish. Yopilgan darajani foydalanuvchilar sotib ololmaydi.</p>
+      <div className="space-y-2">
+        {sorted.map((pkg) => (
+          <div key={pkg.id} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a] flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${pkg.isLocked ? "bg-[#E8453C]/20" : "bg-[#4ADE80]/20"}`}>
+                <Crown className={`w-5 h-5 ${pkg.isLocked ? "text-[#E8453C]" : "text-[#4ADE80]"}`} />
+              </div>
+              <div>
+                <p className="text-white text-sm font-semibold">{pkg.name}</p>
+                <p className="text-[#888] text-xs">
+                  Narx: ${Number(pkg.price).toFixed(0)} | Kunlik: {pkg.dailyTasks} vazifa | Har video: ${Number(pkg.perVideoReward).toFixed(2)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs font-medium ${pkg.isLocked ? "text-[#E8453C]" : "text-[#4ADE80]"}`}>
+                {pkg.isLocked ? "Yopiq" : "Ochiq"}
+              </span>
+              <Button
+                size="sm"
+                onClick={() => toggleLockMutation.mutate({ id: pkg.id, locked: !pkg.isLocked })}
+                className={`text-xs rounded-lg h-8 px-3 ${pkg.isLocked ? "bg-[#4ADE80] text-black" : "bg-[#E8453C] text-white"}`}
+                data-testid={`button-toggle-vip-${pkg.level}`}
+              >
+                {pkg.isLocked ? "Ochish" : "Yopish"}
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = { pending: "#FFB300", approved: "#4ADE80", rejected: "#E8453C", completed: "#4ADE80" };
   const labels: Record<string, string> = { pending: "Kutilmoqda", approved: "Tasdiqlangan", rejected: "Rad etilgan", completed: "Bajarildi" };
@@ -848,6 +953,7 @@ export default function AdminPage() {
     { id: "referrals", label: "Top referallar", icon: Trophy },
     { id: "multi", label: "Multi-akkaunt", icon: AlertTriangle },
     { id: "settings", label: "Sozlamalar", icon: Settings },
+    { id: "vip-manage", label: "VIP boshqaruv", icon: Crown },
   ];
   const financeTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
     { id: "deposits", label: "Depozitlar", icon: ArrowDownCircle, badge: pendingDeposits || undefined },
@@ -926,6 +1032,7 @@ export default function AdminPage() {
         {tab === "referrals" && <TopReferrersTab />}
         {tab === "multi" && <MultiAccountsTab />}
         {tab === "settings" && <SettingsTab />}
+        {tab === "vip-manage" && <VipManageTab />}
       </div>
     </div>
   );
