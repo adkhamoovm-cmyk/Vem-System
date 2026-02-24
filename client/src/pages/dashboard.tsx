@@ -283,7 +283,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-5 gap-2">
             {[
               { title: "Vazifalar", href: "/tasks", icon: PlayCircle, color: "#3B82F6", bg: "#3B82F6" },
-              { title: "Fund", href: "/fund", icon: Wallet, color: "#6B7280", bg: "#6B7280" },
+              { title: "Fond", href: "/fund", icon: Wallet, color: "#6B7280", bg: "#6B7280" },
               { title: "Taklif", href: "/referral", icon: Users, color: "#4ADE80", bg: "#4ADE80" },
               { title: "VIP", href: "/vip", icon: Crown, color: "#A855F7", bg: "#A855F7" },
               { title: "Yordam", href: "/help", icon: HelpCircle, color: "#3B82F6", bg: "#3B82F6" },
