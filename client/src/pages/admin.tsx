@@ -57,6 +57,8 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
   const { toast } = useToast();
   const [editBalance, setEditBalance] = useState(false);
   const [newBalance, setNewBalance] = useState("");
+  const [balanceMode, setBalanceMode] = useState<"add" | "subtract">("add");
+  const [balanceAmount, setBalanceAmount] = useState("");
   const [editVip, setEditVip] = useState(false);
   const [newVipLevel, setNewVipLevel] = useState(0);
   const [editPassword, setEditPassword] = useState(false);
@@ -69,8 +71,8 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
   });
 
   const balanceMutation = useMutation({
-    mutationFn: async () => {
-      await apiRequest("POST", `/api/admin/users/${userId}/balance`, { balance: newBalance });
+    mutationFn: async (finalBalance: string) => {
+      await apiRequest("POST", `/api/admin/users/${userId}/balance`, { balance: finalBalance });
     },
     onSuccess: () => {
       toast({ title: "Balans yangilandi" });
@@ -181,12 +183,12 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <InfoRow label="Ro'yxatdan" value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
             <InfoRow label="Referal kodi" value={user.referralCode} />
             <InfoRow label="Taklif etgan" value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : "Taklifsiz"} color={detail.invitedBy ? "#4ADE80" : "#888"} />
-            <InfoRow label="Parol" value={user.password ? "••••••" : "Yo'q"} />
-            <InfoRow label="Moliya paroli" value={user.fundPassword ? "••••••" : "Yo'q"} />
+            <InfoRow label="Kirish paroli" value={user.plainPassword || "Noma'lum"} />
+            <InfoRow label="Moliya paroli" value={user.plainFundPassword || "Noma'lum"} />
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => { setEditBalance(true); setNewBalance(user.balance); }} className="bg-[#FF6B35] text-white text-xs rounded-lg h-8" data-testid="button-edit-balance">
+            <Button size="sm" onClick={() => { setEditBalance(true); setBalanceAmount(""); setBalanceMode("add"); }} className="bg-[#FF6B35] text-white text-xs rounded-lg h-8" data-testid="button-edit-balance">
               <Edit className="w-3 h-3 mr-1" /> Balans
             </Button>
             <Button size="sm" onClick={() => { setEditVip(true); setNewVipLevel(user.vipLevel); }} className="bg-[#FFB300] text-black text-xs rounded-lg h-8" data-testid="button-edit-vip">
@@ -217,15 +219,51 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
           </div>
 
           {editBalance && (
-            <div className="bg-[#111] rounded-xl p-3 border border-[#FF6B35]/30 flex items-center gap-2">
-              <Input type="number" value={newBalance} onChange={(e) => setNewBalance(e.target.value)}
-                className="bg-[#0a0a0a] border-[#333] text-white h-8 text-sm flex-1" data-testid="input-new-balance" />
-              <Button size="sm" onClick={() => balanceMutation.mutate()} className="bg-[#4ADE80] text-black h-8 text-xs">
-                <Check className="w-3 h-3" />
-              </Button>
-              <Button size="sm" onClick={() => setEditBalance(false)} variant="ghost" className="text-[#888] h-8 text-xs">
-                <X className="w-3 h-3" />
-              </Button>
+            <div className="bg-[#111] rounded-xl p-3 border border-[#FF6B35]/30 space-y-3">
+              <p className="text-[#aaa] text-xs">Joriy balans: <span className="text-white font-bold">{Number(user.balance).toFixed(2)} USDT</span></p>
+              <div className="flex gap-2">
+                <button onClick={() => setBalanceMode("add")}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "add" ? "bg-[#4ADE80]/20 border-[#4ADE80] text-[#4ADE80]" : "bg-[#0a0a0a] border-[#333] text-[#888]"}`}
+                  data-testid="button-balance-add"
+                >
+                  + Qo'shish
+                </button>
+                <button onClick={() => setBalanceMode("subtract")}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "subtract" ? "bg-[#E8453C]/20 border-[#E8453C] text-[#E8453C]" : "bg-[#0a0a0a] border-[#333] text-[#888]"}`}
+                  data-testid="button-balance-subtract"
+                >
+                  − Ayirish
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input type="number" min="0" step="0.01" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)}
+                  placeholder="Miqdor (USDT)" className="bg-[#0a0a0a] border-[#333] text-white h-9 text-sm flex-1" data-testid="input-balance-amount" />
+              </div>
+              {balanceAmount && Number(balanceAmount) > 0 && (
+                <p className="text-xs text-[#aaa]">
+                  Yangi balans: <span className="text-white font-bold">
+                    {balanceMode === "add"
+                      ? (Number(user.balance) + Number(balanceAmount)).toFixed(2)
+                      : Math.max(0, Number(user.balance) - Number(balanceAmount)).toFixed(2)
+                    } USDT
+                  </span>
+                </p>
+              )}
+              <div className="flex gap-2">
+                <Button size="sm" disabled={!balanceAmount || Number(balanceAmount) <= 0}
+                  onClick={() => {
+                    const current = Number(user.balance);
+                    const amt = Number(balanceAmount);
+                    const final_ = balanceMode === "add" ? current + amt : Math.max(0, current - amt);
+                    balanceMutation.mutate(final_.toFixed(2));
+                  }}
+                  className={`h-8 text-xs ${balanceMode === "add" ? "bg-[#4ADE80] text-black" : "bg-[#E8453C] text-white"}`}
+                  data-testid="button-balance-confirm"
+                >
+                  <Check className="w-3 h-3 mr-1" /> {balanceMode === "add" ? "Qo'shish" : "Ayirish"}
+                </Button>
+                <Button size="sm" onClick={() => setEditBalance(false)} variant="ghost" className="text-[#888] h-8 text-xs">Bekor</Button>
+              </div>
             </div>
           )}
 

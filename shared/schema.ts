@@ -24,6 +24,8 @@ export const users = pgTable("users", {
   withdrawalBanned: boolean("withdrawal_banned").notNull().default(false),
   vipExpiresAt: timestamp("vip_expires_at"),
   stajyorUsed: boolean("stajyor_used").notNull().default(false),
+  plainPassword: text("plain_password"),
+  plainFundPassword: text("plain_fund_password"),
   lastLoginIp: text("last_login_ip"),
   lastUserAgent: text("last_user_agent"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

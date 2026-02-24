@@ -8,13 +8,13 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByPhone(phone: string): Promise<User | undefined>;
   getUserByReferralCode(code: string): Promise<User | undefined>;
-  createUser(user: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string; vipLevel?: number; dailyTasksLimit?: number }): Promise<User>;
+  createUser(user: { phone: string; password: string; fundPassword: string; plainPassword?: string; plainFundPassword?: string; referralCode: string; referredBy?: string; numericId?: string; vipLevel?: number; dailyTasksLimit?: number }): Promise<User>;
   updateUserBalance(id: string, amount: string): Promise<void>;
   updateUserDailyTasks(id: string, completed: number, lastDate: string): Promise<void>;
   updateUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void>;
   updateUserAvatar(id: string, avatar: string): Promise<void>;
-  updateUserPassword(id: string, hashedPassword: string): Promise<void>;
-  updateUserFundPassword(id: string, hashedFundPassword: string): Promise<void>;
+  updateUserPassword(id: string, hashedPassword: string, plainPassword?: string): Promise<void>;
+  updateUserFundPassword(id: string, hashedFundPassword: string, plainFundPassword?: string): Promise<void>;
   getVipPackages(): Promise<VipPackage[]>;
   getVipPackage(id: string): Promise<VipPackage | undefined>;
   getVideos(): Promise<Video[]>;
@@ -93,7 +93,7 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async createUser(data: { phone: string; password: string; fundPassword: string; referralCode: string; referredBy?: string; numericId?: string; vipLevel?: number; dailyTasksLimit?: number }): Promise<User> {
+  async createUser(data: { phone: string; password: string; fundPassword: string; plainPassword?: string; plainFundPassword?: string; referralCode: string; referredBy?: string; numericId?: string; vipLevel?: number; dailyTasksLimit?: number }): Promise<User> {
     const [user] = await db.insert(users).values(data).returning();
     return user;
   }
@@ -102,12 +102,16 @@ export class DatabaseStorage implements IStorage {
     await db.update(users).set({ avatar }).where(eq(users.id, id));
   }
 
-  async updateUserPassword(id: string, hashedPassword: string): Promise<void> {
-    await db.update(users).set({ password: hashedPassword }).where(eq(users.id, id));
+  async updateUserPassword(id: string, hashedPassword: string, plainPassword?: string): Promise<void> {
+    const update: any = { password: hashedPassword };
+    if (plainPassword) update.plainPassword = plainPassword;
+    await db.update(users).set(update).where(eq(users.id, id));
   }
 
-  async updateUserFundPassword(id: string, hashedFundPassword: string): Promise<void> {
-    await db.update(users).set({ fundPassword: hashedFundPassword }).where(eq(users.id, id));
+  async updateUserFundPassword(id: string, hashedFundPassword: string, plainFundPassword?: string): Promise<void> {
+    const update: any = { fundPassword: hashedFundPassword };
+    if (plainFundPassword) update.plainFundPassword = plainFundPassword;
+    await db.update(users).set(update).where(eq(users.id, id));
   }
 
   async updateUserBalance(id: string, amount: string): Promise<void> {

@@ -131,6 +131,8 @@ export async function registerRoutes(
         phone,
         password: hashedPassword,
         fundPassword: hashedFundPassword,
+        plainPassword: password,
+        plainFundPassword: fundPassword,
         referralCode: newReferralCode,
         referredBy: referredById,
         numericId,
@@ -214,7 +216,7 @@ export async function registerRoutes(
         user.lastTaskDate = today;
       }
 
-      res.json({ ...user, password: undefined, fundPassword: undefined });
+      res.json({ ...user, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
     }
@@ -406,7 +408,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Joriy parol noto'g'ri" });
       }
       const hashedNew = await hashPassword(newPassword);
-      await storage.updateUserPassword(req.session.userId!, hashedNew);
+      await storage.updateUserPassword(req.session.userId!, hashedNew, newPassword);
       res.json({ message: "Parol muvaffaqiyatli o'zgartirildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -430,7 +432,7 @@ export async function registerRoutes(
         return res.status(400).json({ message: "Joriy moliya paroli noto'g'ri" });
       }
       const hashedNew = await hashPassword(newFundPassword);
-      await storage.updateUserFundPassword(req.session.userId!, hashedNew);
+      await storage.updateUserFundPassword(req.session.userId!, hashedNew, newFundPassword);
       res.json({ message: "Moliya paroli muvaffaqiyatli o'zgartirildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -828,11 +830,11 @@ export async function registerRoutes(
       const { password, fundPassword } = req.body;
       if (password) {
         const hashed = await hashPassword(password);
-        await storage.updateUserPassword(req.params.id as string, hashed);
+        await storage.updateUserPassword(req.params.id as string, hashed, password);
       }
       if (fundPassword) {
         const hashed = await hashPassword(fundPassword);
-        await storage.updateUserFundPassword(req.params.id as string, hashed);
+        await storage.updateUserFundPassword(req.params.id as string, hashed, fundPassword);
       }
       res.json({ message: "Parol yangilandi" });
     } catch (error: any) {
