@@ -94,7 +94,7 @@ function VideoPlayerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" data-testid="modal-video">
-      <div className="w-full max-w-lg bg-[#1a1a1a] rounded-2xl overflow-hidden border border-[#2a2a2a] shadow-2xl">
+      <div className="w-full max-w-lg bg-card rounded-2xl overflow-hidden border border-border shadow-2xl">
         <div className="relative aspect-video bg-black">
           {!started ? (
             <div className="relative w-full h-full">
@@ -107,10 +107,10 @@ function VideoPlayerModal({
               <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center">
                 <Button
                   onClick={() => setStarted(true)}
-                  className="w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-full flex items-center justify-center shadow-xl shadow-[#FF6B35]/30 no-default-hover-elevate no-default-active-elevate cursor-pointer"
+                  className="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/30 no-default-hover-elevate no-default-active-elevate cursor-pointer"
                   data-testid="button-play"
                 >
-                  <Play className="w-7 h-7 text-white ml-1" />
+                  <Play className="w-7 h-7 text-primary-foreground ml-1" />
                 </Button>
                 <span className="text-white/90 text-xs mt-3 font-medium drop-shadow-lg">
                   Boshlash uchun bosing
@@ -128,53 +128,53 @@ function VideoPlayerModal({
               />
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
                 <div className="bg-black/70 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
-                  <Clock className="w-3 h-3 text-[#FF6B35]" />
+                  <Clock className="w-3 h-3 text-primary" />
                   <span className="text-white text-xs font-mono font-bold" data-testid="text-timer">
                     Qolgan vaqt: {timeLeft} soniya
                   </span>
                 </div>
                 <div className="bg-black/70 backdrop-blur-sm rounded-full px-3 py-1.5">
-                  <span className="text-[#FF6B35] font-bold text-xs">+${perVideoReward.toFixed(2)}</span>
+                  <span className="text-primary font-bold text-xs">+${perVideoReward.toFixed(2)}</span>
                 </div>
               </div>
               <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
                 <div className="h-1 bg-white/20">
                   <div
-                    className="h-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] transition-all duration-1000"
+                    className="h-full bg-primary transition-all duration-1000"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
               </div>
             </>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-[#111] to-[#0a0a0a] gap-3">
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-card to-background gap-3">
               <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
-              <span className="text-white font-bold text-lg">Bajarildi!</span>
+              <span className="text-foreground font-bold text-lg">Bajarildi!</span>
             </div>
           )}
         </div>
 
         <div className="p-4 space-y-3">
           {started && !completed && (
-            <div className="bg-[#FF6B35]/10 rounded-xl p-3 border border-[#FF6B35]/20">
+            <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
               <div className="flex items-center justify-between">
-                <span className="text-[#aaa] text-xs">Taymer tugagunga qadar oynani yopmang</span>
-                <span className="text-[#FF6B35] font-bold text-sm">+${perVideoReward.toFixed(2)}</span>
+                <span className="text-muted-foreground text-xs">Taymer tugagunga qadar oynani yopmang</span>
+                <span className="text-primary font-bold text-sm">+${perVideoReward.toFixed(2)}</span>
               </div>
             </div>
           )}
 
           {completed && (
             <>
-              <div className="bg-[#4ADE80]/10 rounded-xl p-4 border border-[#4ADE80]/20 text-center">
-                <p className="text-[#4ADE80] font-bold text-lg">+${perVideoReward.toFixed(2)}</p>
-                <p className="text-[#4ADE80]/70 text-xs mt-0.5">Vazifa bajarildi, balansingizga pul qo'shildi!</p>
+              <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/20 text-center">
+                <p className="text-emerald-500 dark:text-emerald-400 font-bold text-lg">+${perVideoReward.toFixed(2)}</p>
+                <p className="text-emerald-500/70 dark:text-emerald-400/70 text-xs mt-0.5">Vazifa bajarildi, balansingizga pul qo'shildi!</p>
               </div>
               <Button
                 onClick={onClose}
-                className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-10"
+                className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-10"
                 data-testid="button-close-video"
               >
                 Davom etish
@@ -186,7 +186,7 @@ function VideoPlayerModal({
             <Button
               onClick={onClose}
               variant="ghost"
-              className="w-full text-[#666] hover:text-white text-xs h-8"
+              className="w-full text-muted-foreground hover:text-foreground text-xs h-8"
               data-testid="button-cancel-video"
               disabled={started && timeLeft > 0}
             >
@@ -238,12 +238,12 @@ export default function TasksPage() {
     <AppLayout>
       <div className="p-4">
         {user && (
-          <div className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] rounded-2xl p-4 text-white shadow-lg mb-4">
+          <div className="bg-primary rounded-2xl p-4 text-primary-foreground shadow-lg mb-4">
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  <Crown className="w-4 h-4 text-white/80" />
-                  <span className="text-white/80 text-xs font-medium">
+                  <Crown className="w-4 h-4 text-primary-foreground/80" />
+                  <span className="text-primary-foreground/80 text-xs font-medium">
                     {user.vipLevel < 0 ? "Rasmiy xodim emas" : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
                   </span>
                 </div>
@@ -252,7 +252,7 @@ export default function TasksPage() {
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-white/80 text-xs">Vazifalar</span>
+                <span className="text-primary-foreground/80 text-xs">Vazifalar</span>
                 <p className="text-lg font-bold" data-testid="text-task-count">
                   {user.dailyTasksCompleted} / {user.dailyTasksLimit}
                 </p>
@@ -266,18 +266,18 @@ export default function TasksPage() {
         )}
 
         {noPrivilege && (
-          <div className="bg-[#FF6B35]/10 rounded-2xl p-4 border border-[#FF6B35]/20 mb-4">
+          <div className="bg-primary/10 rounded-2xl p-4 border border-primary/20 mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#FF6B35]/20 rounded-xl flex items-center justify-center shrink-0">
-                <Lock className="w-5 h-5 text-[#FF6B35]" />
+              <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center shrink-0">
+                <Lock className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
-                <p className="text-white text-sm font-semibold">Imtiyoz mavjud emas</p>
-                <p className="text-[#888] text-xs mt-0.5">Vazifa bajarish uchun VIP paket sotib oling</p>
+                <p className="text-foreground text-sm font-semibold">Imtiyoz mavjud emas</p>
+                <p className="text-muted-foreground text-xs mt-0.5">Vazifa bajarish uchun VIP paket sotib oling</p>
               </div>
               <Link href="/vip">
                 <Button
-                  className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white text-xs no-default-hover-elevate no-default-active-elevate rounded-xl h-8 px-4"
+                  className="bg-primary text-primary-foreground text-xs no-default-hover-elevate no-default-active-elevate rounded-xl h-8 px-4"
                   data-testid="button-go-vip"
                 >
                   VIP olish
@@ -287,22 +287,22 @@ export default function TasksPage() {
           </div>
         )}
 
-        <h2 className="text-white font-bold text-sm mb-3">Bugungi vazifalar</h2>
+        <h2 className="text-foreground font-bold text-sm mb-3">Bugungi vazifalar</h2>
 
         {isSunday() ? (
           <div className="space-y-3">
-            <div className="bg-[#1a1a1a] rounded-2xl p-8 border border-[#2a2a2a] text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-[#FF6B35]/20 to-[#E8453C]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Coffee className="w-8 h-8 text-[#FF6B35]" />
+            <div className="bg-card rounded-2xl p-8 border border-border text-center">
+              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Coffee className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-white font-bold text-lg mb-2">Erkin ish kuni</h3>
-              <p className="text-[#888] text-sm mb-1">Bugun yakshanba — dam olish kuni</p>
-              <p className="text-[#666] text-xs">Vazifalar Dushanba-Shanba kunlari bajariladi</p>
+              <h3 className="text-foreground font-bold text-lg mb-2">Erkin ish kuni</h3>
+              <p className="text-muted-foreground text-sm mb-1">Bugun yakshanba — dam olish kuni</p>
+              <p className="text-muted-foreground text-xs">Vazifalar Dushanba-Shanba kunlari bajariladi</p>
             </div>
           </div>
         ) : (
         <div className="space-y-3">
-          <div className="bg-[#1a1a1a] rounded-2xl overflow-hidden border border-[#2a2a2a]">
+          <div className="bg-card rounded-2xl overflow-hidden border border-border">
             <div className="relative aspect-video">
               <img
                 src={`https://img.youtube.com/vi/${nextVideoId}/maxresdefault.jpg`}
@@ -319,16 +319,16 @@ export default function TasksPage() {
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#FF6B35]" />
-                  <span className="text-[#aaa] text-xs">{TIMER_DURATION} soniya ko'ring</span>
+                  <Clock className="w-4 h-4 text-primary" />
+                  <span className="text-muted-foreground text-xs">{TIMER_DURATION} soniya ko'ring</span>
                 </div>
-                <span className="text-[#FF6B35] text-sm font-bold">+${perVideoReward.toFixed(2)}</span>
+                <span className="text-primary text-sm font-bold">+${perVideoReward.toFixed(2)}</span>
               </div>
 
               <Button
                 onClick={handleStartTask}
                 disabled={!hasVip || isLimitReached}
-                className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 text-sm disabled:opacity-50"
+                className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 text-sm disabled:opacity-50"
                 data-testid="button-start-task"
               >
                 {noPrivilege ? (
@@ -347,8 +347,8 @@ export default function TasksPage() {
             </div>
           </div>
 
-          <div className="bg-[#1a1a1a] rounded-2xl p-4 border border-[#2a2a2a]">
-            <p className="text-[#888] text-xs text-center">
+          <div className="bg-card rounded-2xl p-4 border border-border">
+            <p className="text-muted-foreground text-xs text-center">
               Har safar tugma bosilganda tasodifiy trayler ochiladi. {TIMER_DURATION} soniya ko'rganingizdan so'ng mukofot beriladi.
             </p>
           </div>

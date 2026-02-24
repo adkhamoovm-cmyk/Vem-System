@@ -29,10 +29,10 @@ function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: Use
 
   const stats = [
     { label: "Jami foydalanuvchilar", value: allUsers.length, icon: Users, color: "#3B82F6" },
-    { label: "Faol / Bloklangan", value: `${activeUsers} / ${bannedUsers}`, icon: Shield, color: "#4ADE80" },
-    { label: "Umumiy balans", value: `${totalBalance.toFixed(2)} USDT`, icon: DollarSign, color: "#FF6B35" },
-    { label: "Jami depozitlar", value: `${totalDeposits.toFixed(2)} USDT`, icon: ArrowDownCircle, color: "#4ADE80" },
-    { label: "Jami yechishlar", value: `${totalWithdrawals.toFixed(2)} USDT`, icon: ArrowUpCircle, color: "#E8453C" },
+    { label: "Faol / Bloklangan", value: `${activeUsers} / ${bannedUsers}`, icon: Shield, color: "hsl(var(--emerald-500, 142 71% 45%))" },
+    { label: "Umumiy balans", value: `${totalBalance.toFixed(2)} USDT`, icon: DollarSign, color: "hsl(var(--primary))" },
+    { label: "Jami depozitlar", value: `${totalDeposits.toFixed(2)} USDT`, icon: ArrowDownCircle, color: "hsl(var(--emerald-500, 142 71% 45%))" },
+    { label: "Jami yechishlar", value: `${totalWithdrawals.toFixed(2)} USDT`, icon: ArrowUpCircle, color: "hsl(var(--primary))" },
     { label: "Kutilayotgan depozitlar", value: pendingDeposits, icon: Activity, color: "#FFB300" },
     { label: "Kutilayotgan yechishlar", value: pendingWithdrawals, icon: Activity, color: "#FFB300" },
     { label: "VIP foydalanuvchilar", value: allUsers.filter(u => u.vipLevel > 0).length, icon: Crown, color: "#FFB300" },
@@ -41,12 +41,12 @@ function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: Use
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {stats.map((s, i) => (
-        <div key={i} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]">
+        <div key={i} className="bg-card rounded-xl p-4 border border-border">
           <div className="flex items-center gap-2 mb-2">
             <s.icon className="w-4 h-4" style={{ color: s.color }} />
-            <span className="text-[#888] text-[10px] uppercase tracking-wider">{s.label}</span>
+            <span className="text-muted-foreground text-[10px] uppercase tracking-wider">{s.label}</span>
           </div>
-          <p className="text-white font-bold text-lg" data-testid={`stat-${i}`}>{s.value}</p>
+          <p className="text-foreground font-bold text-lg" data-testid={`stat-${i}`}>{s.value}</p>
         </div>
       ))}
     </div>
@@ -159,13 +159,13 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="bg-[#1a1a1a] border-[#2a2a2a] max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl" aria-describedby="user-detail-desc">
+      <DialogContent className="bg-card border-border max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl" aria-describedby="user-detail-desc">
         <DialogHeader>
-          <DialogTitle className="text-white flex items-center gap-2">
+          <DialogTitle className="text-foreground flex items-center gap-2">
             <Eye className="w-5 h-5 text-[#3B82F6]" />
             Foydalanuvchi ma'lumotlari
           </DialogTitle>
-          <p id="user-detail-desc" className="text-[#888] text-xs">To'liq profil ma'lumotlari</p>
+          <p id="user-detail-desc" className="text-muted-foreground text-xs">To'liq profil ma'lumotlari</p>
         </DialogHeader>
 
         <div className="space-y-4 pt-2">
@@ -178,58 +178,58 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <InfoRow label="Depozit" value={`${Number(user.totalDeposit).toFixed(2)} USDT`} />
             <InfoRow label="IP manzil" value={user.lastLoginIp || "Noma'lum"} />
             <InfoRow label="Qurilma" value={user.lastUserAgent ? user.lastUserAgent.slice(0, 40) + "..." : "Noma'lum"} />
-            <InfoRow label="Holat" value={user.isBanned ? "Bloklangan" : "Faol"} color={user.isBanned ? "#E8453C" : "#4ADE80"} />
-            <InfoRow label="Yechish" value={user.withdrawalBanned ? "Taqiqlangan" : "Ruxsat" } color={user.withdrawalBanned ? "#E8453C" : "#4ADE80"} />
+            <InfoRow label="Holat" value={user.isBanned ? "Bloklangan" : "Faol"} color={user.isBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
+            <InfoRow label="Yechish" value={user.withdrawalBanned ? "Taqiqlangan" : "Ruxsat" } color={user.withdrawalBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
             <InfoRow label="Ro'yxatdan" value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
             <InfoRow label="Referal kodi" value={user.referralCode} />
-            <InfoRow label="Taklif etgan" value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : "Taklifsiz"} color={detail.invitedBy ? "#4ADE80" : "#888"} />
+            <InfoRow label="Taklif etgan" value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : "Taklifsiz"} color={detail.invitedBy ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--muted-foreground))"} />
             <InfoRow label="Kirish paroli" value={user.plainPassword || "Hali kirmagan"} />
             <InfoRow label="Moliya paroli" value={user.plainFundPassword || "Hali ishlatmagan"} />
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={() => { setEditBalance(true); setBalanceAmount(""); setBalanceMode("add"); }} className="bg-[#FF6B35] text-white text-xs rounded-lg h-8" data-testid="button-edit-balance">
+            <Button size="sm" onClick={() => { setEditBalance(true); setBalanceAmount(""); setBalanceMode("add"); }} className="bg-primary text-foreground text-xs rounded-lg h-8" data-testid="button-edit-balance">
               <Edit className="w-3 h-3 mr-1" /> Balans
             </Button>
             <Button size="sm" onClick={() => { setEditVip(true); setNewVipLevel(user.vipLevel); }} className="bg-[#FFB300] text-black text-xs rounded-lg h-8" data-testid="button-edit-vip">
               <Crown className="w-3 h-3 mr-1" /> VIP
             </Button>
             <Button size="sm" onClick={() => banMutation.mutate(!user.isBanned)}
-              className={`text-xs rounded-lg h-8 ${user.isBanned ? "bg-[#4ADE80] text-black" : "bg-[#E8453C] text-white"}`}
+              className={`text-xs rounded-lg h-8 ${user.isBanned ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
               data-testid="button-toggle-ban"
             >
               <Ban className="w-3 h-3 mr-1" /> {user.isBanned ? "Blokdan chiqarish" : "Bloklash"}
             </Button>
             <Button size="sm" onClick={() => withdrawBanMutation.mutate(!user.withdrawalBanned)}
-              className={`text-xs rounded-lg h-8 ${user.withdrawalBanned ? "bg-[#4ADE80] text-black" : "bg-[#E8453C] text-white"}`}
+              className={`text-xs rounded-lg h-8 ${user.withdrawalBanned ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
               data-testid="button-toggle-withdraw-ban"
             >
               <Shield className="w-3 h-3 mr-1" /> {user.withdrawalBanned ? "Yechish ruxsat" : "Yechish taqiq"}
             </Button>
             <Button size="sm" onClick={() => { setEditPassword(true); setNewPassword(""); setNewFundPassword(""); }}
-              className="bg-[#3B82F6] text-white text-xs rounded-lg h-8" data-testid="button-edit-password"
+              className="bg-[#3B82F6] text-foreground text-xs rounded-lg h-8" data-testid="button-edit-password"
             >
               <Edit className="w-3 h-3 mr-1" /> Parol
             </Button>
             <Button size="sm" onClick={() => { if (confirm("Rostdan ham o'chirmoqchimisiz?")) deleteUserMutation.mutate(); }}
-              className="bg-red-700 text-white text-xs rounded-lg h-8" data-testid="button-delete-user"
+              className="bg-red-700 text-foreground text-xs rounded-lg h-8" data-testid="button-delete-user"
             >
               <Trash2 className="w-3 h-3 mr-1" /> O'chirish
             </Button>
           </div>
 
           {editBalance && (
-            <div className="bg-[#111] rounded-xl p-3 border border-[#FF6B35]/30 space-y-3">
-              <p className="text-[#aaa] text-xs">Joriy balans: <span className="text-white font-bold">{Number(user.balance).toFixed(2)} USDT</span></p>
+            <div className="bg-card rounded-xl p-3 border border-primary/30 space-y-3">
+              <p className="text-muted-foreground text-xs">Joriy balans: <span className="text-foreground font-bold">{Number(user.balance).toFixed(2)} USDT</span></p>
               <div className="flex gap-2">
                 <button onClick={() => setBalanceMode("add")}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "add" ? "bg-[#4ADE80]/20 border-[#4ADE80] text-[#4ADE80]" : "bg-[#0a0a0a] border-[#333] text-[#888]"}`}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "add" ? "bg-[#4ADE80]/20 border-[#4ADE80] text-emerald-500 dark:text-emerald-400" : "bg-background border-border text-muted-foreground"}`}
                   data-testid="button-balance-add"
                 >
                   + Qo'shish
                 </button>
                 <button onClick={() => setBalanceMode("subtract")}
-                  className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "subtract" ? "bg-[#E8453C]/20 border-[#E8453C] text-[#E8453C]" : "bg-[#0a0a0a] border-[#333] text-[#888]"}`}
+                  className={`flex-1 py-2 rounded-lg text-sm font-semibold border ${balanceMode === "subtract" ? "bg-primary/20 border-primary text-primary" : "bg-background border-border text-muted-foreground"}`}
                   data-testid="button-balance-subtract"
                 >
                   − Ayirish
@@ -237,11 +237,11 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
               </div>
               <div className="flex items-center gap-2">
                 <Input type="number" min="0" step="0.01" value={balanceAmount} onChange={(e) => setBalanceAmount(e.target.value)}
-                  placeholder="Miqdor (USDT)" className="bg-[#0a0a0a] border-[#333] text-white h-9 text-sm flex-1" data-testid="input-balance-amount" />
+                  placeholder="Miqdor (USDT)" className="bg-background border-border text-foreground h-9 text-sm flex-1" data-testid="input-balance-amount" />
               </div>
               {balanceAmount && Number(balanceAmount) > 0 && (
-                <p className="text-xs text-[#aaa]">
-                  Yangi balans: <span className="text-white font-bold">
+                <p className="text-xs text-muted-foreground">
+                  Yangi balans: <span className="text-foreground font-bold">
                     {balanceMode === "add"
                       ? (Number(user.balance) + Number(balanceAmount)).toFixed(2)
                       : Math.max(0, Number(user.balance) - Number(balanceAmount)).toFixed(2)
@@ -257,23 +257,23 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                     const final_ = balanceMode === "add" ? current + amt : Math.max(0, current - amt);
                     balanceMutation.mutate(final_.toFixed(2));
                   }}
-                  className={`h-8 text-xs ${balanceMode === "add" ? "bg-[#4ADE80] text-black" : "bg-[#E8453C] text-white"}`}
+                  className={`h-8 text-xs ${balanceMode === "add" ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
                   data-testid="button-balance-confirm"
                 >
                   <Check className="w-3 h-3 mr-1" /> {balanceMode === "add" ? "Qo'shish" : "Ayirish"}
                 </Button>
-                <Button size="sm" onClick={() => setEditBalance(false)} variant="ghost" className="text-[#888] h-8 text-xs">Bekor</Button>
+                <Button size="sm" onClick={() => setEditBalance(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
               </div>
             </div>
           )}
 
           {editVip && (
-            <div className="bg-[#111] rounded-xl p-3 border border-[#FFB300]/30">
-              <p className="text-[#aaa] text-xs mb-2">VIP darajasini tanlang:</p>
+            <div className="bg-card rounded-xl p-3 border border-[#FFB300]/30">
+              <p className="text-muted-foreground text-xs mb-2">VIP darajasini tanlang:</p>
               <div className="flex flex-wrap gap-1.5">
                 {Object.entries(vipNames).map(([lvl, name]) => (
                   <button key={lvl} onClick={() => setNewVipLevel(Number(lvl))}
-                    className={`px-3 py-1.5 rounded-lg text-xs border ${Number(lvl) === newVipLevel ? "bg-[#FFB300]/20 border-[#FFB300] text-[#FFB300]" : "bg-[#0a0a0a] border-[#333] text-[#aaa]"}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs border ${Number(lvl) === newVipLevel ? "bg-[#FFB300]/20 border-[#FFB300] text-[#FFB300]" : "bg-background border-border text-muted-foreground"}`}
                     data-testid={`button-vip-${lvl}`}
                   >
                     {name}
@@ -282,46 +282,46 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
               </div>
               <div className="flex gap-2 mt-2">
                 <Button size="sm" onClick={() => vipMutation.mutate()} className="bg-[#FFB300] text-black h-8 text-xs">Saqlash</Button>
-                <Button size="sm" onClick={() => setEditVip(false)} variant="ghost" className="text-[#888] h-8 text-xs">Bekor</Button>
+                <Button size="sm" onClick={() => setEditVip(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
               </div>
             </div>
           )}
 
           {editPassword && (
-            <div className="bg-[#111] rounded-xl p-3 border border-[#3B82F6]/30 space-y-2">
-              <p className="text-[#aaa] text-xs mb-1">Parolni o'zgartirish</p>
+            <div className="bg-card rounded-xl p-3 border border-[#3B82F6]/30 space-y-2">
+              <p className="text-muted-foreground text-xs mb-1">Parolni o'zgartirish</p>
               <div className="flex items-center gap-2">
-                <span className="text-[#888] text-xs w-24 shrink-0">Yangi parol:</span>
+                <span className="text-muted-foreground text-xs w-24 shrink-0">Yangi parol:</span>
                 <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Yangi login parol" className="bg-[#0a0a0a] border-[#333] text-white h-8 text-sm flex-1" data-testid="input-new-admin-password" />
+                  placeholder="Yangi login parol" className="bg-background border-border text-foreground h-8 text-sm flex-1" data-testid="input-new-admin-password" />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[#888] text-xs w-24 shrink-0">Moliya paroli:</span>
+                <span className="text-muted-foreground text-xs w-24 shrink-0">Moliya paroli:</span>
                 <Input type="text" value={newFundPassword} onChange={(e) => setNewFundPassword(e.target.value)}
-                  placeholder="Yangi 6 xonali PIN" className="bg-[#0a0a0a] border-[#333] text-white h-8 text-sm flex-1" data-testid="input-new-admin-fund-password" />
+                  placeholder="Yangi 6 xonali PIN" className="bg-background border-border text-foreground h-8 text-sm flex-1" data-testid="input-new-admin-fund-password" />
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => passwordMutation.mutate()} disabled={!newPassword && !newFundPassword} className="bg-[#3B82F6] text-white h-8 text-xs">
+                <Button size="sm" onClick={() => passwordMutation.mutate()} disabled={!newPassword && !newFundPassword} className="bg-[#3B82F6] text-foreground h-8 text-xs">
                   <Check className="w-3 h-3 mr-1" /> Saqlash
                 </Button>
-                <Button size="sm" onClick={() => setEditPassword(false)} variant="ghost" className="text-[#888] h-8 text-xs">Bekor</Button>
+                <Button size="sm" onClick={() => setEditPassword(false)} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
               </div>
             </div>
           )}
 
           {detail.paymentMethods?.length > 0 && (
             <div>
-              <p className="text-[#aaa] text-xs font-semibold mb-2">To'lov usullari</p>
+              <p className="text-muted-foreground text-xs font-semibold mb-2">To'lov usullari</p>
               {detail.paymentMethods.map((m: PaymentMethod) => (
-                <div key={m.id} className="bg-[#111] rounded-lg p-2.5 border border-[#2a2a2a] flex items-center justify-between mb-1.5">
+                <div key={m.id} className="bg-card rounded-lg p-2.5 border border-border flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
-                    {m.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-[#FF6B35]" />}
+                    {m.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-primary" />}
                     <div>
-                      <p className="text-white text-xs">{m.type === "bank" ? `${m.bankName} - ${m.cardNumber}` : `${m.exchangeName} - ${m.walletAddress?.slice(0, 20)}...`}</p>
-                      <p className="text-[#888] text-[10px]">{m.type === "bank" ? m.holderName : "TRC20"}</p>
+                      <p className="text-foreground text-xs">{m.type === "bank" ? `${m.bankName} - ${m.cardNumber}` : `${m.exchangeName} - ${m.walletAddress?.slice(0, 20)}...`}</p>
+                      <p className="text-muted-foreground text-[10px]">{m.type === "bank" ? m.holderName : "TRC20"}</p>
                     </div>
                   </div>
-                  <Button size="sm" onClick={() => deleteMethodMutation.mutate(m.id)} variant="ghost" className="text-[#E8453C] h-6 px-2" data-testid={`button-delete-method-${m.id}`}>
+                  <Button size="sm" onClick={() => deleteMethodMutation.mutate(m.id)} variant="ghost" className="text-primary h-6 px-2" data-testid={`button-delete-method-${m.id}`}>
                     <Trash2 className="w-3 h-3" />
                   </Button>
                 </div>
@@ -331,19 +331,19 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
           {detail.referralStats && (
             <div>
-              <p className="text-[#aaa] text-xs font-semibold mb-2">Referal statistika</p>
+              <p className="text-muted-foreground text-xs font-semibold mb-2">Referal statistika</p>
               <div className="grid grid-cols-3 gap-2">
-                <div className="bg-[#111] rounded-lg p-2.5 text-center border border-[#2a2a2a]">
-                  <p className="text-[#4ADE80] font-bold text-sm">{detail.referralStats.level1.count}</p>
-                  <p className="text-[#888] text-[10px]">1-daraja</p>
+                <div className="bg-card rounded-lg p-2.5 text-center border border-border">
+                  <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{detail.referralStats.level1.count}</p>
+                  <p className="text-muted-foreground text-[10px]">1-daraja</p>
                 </div>
-                <div className="bg-[#111] rounded-lg p-2.5 text-center border border-[#2a2a2a]">
+                <div className="bg-card rounded-lg p-2.5 text-center border border-border">
                   <p className="text-[#3B82F6] font-bold text-sm">{detail.referralStats.level2.count}</p>
-                  <p className="text-[#888] text-[10px]">2-daraja</p>
+                  <p className="text-muted-foreground text-[10px]">2-daraja</p>
                 </div>
-                <div className="bg-[#111] rounded-lg p-2.5 text-center border border-[#2a2a2a]">
-                  <p className="text-[#FF6B35] font-bold text-sm">{detail.referralStats.level3.count}</p>
-                  <p className="text-[#888] text-[10px]">3-daraja</p>
+                <div className="bg-card rounded-lg p-2.5 text-center border border-border">
+                  <p className="text-primary font-bold text-sm">{detail.referralStats.level3.count}</p>
+                  <p className="text-muted-foreground text-[10px]">3-daraja</p>
                 </div>
               </div>
             </div>
@@ -351,40 +351,40 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
           {detail.referralTree?.length > 0 && (
             <div>
-              <p className="text-[#aaa] text-xs font-semibold mb-2">Barcha referallar ({detail.referralTree.length} ta)</p>
+              <p className="text-muted-foreground text-xs font-semibold mb-2">Barcha referallar ({detail.referralTree.length} ta)</p>
               {[1, 2, 3].map((lvl) => {
                 const levelRefs = detail.referralTree.filter((r: any) => r.level === lvl);
                 if (levelRefs.length === 0) return null;
                 const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
-                const levelColors = { 1: { bg: "bg-[#4ADE80]/10", border: "border-[#4ADE80]/20", text: "text-[#4ADE80]", badge: "bg-[#4ADE80]/20 text-[#4ADE80]" }, 2: { bg: "bg-[#3B82F6]/10", border: "border-[#3B82F6]/20", text: "text-[#3B82F6]", badge: "bg-[#3B82F6]/20 text-[#3B82F6]" }, 3: { bg: "bg-[#FF6B35]/10", border: "border-[#FF6B35]/20", text: "text-[#FF6B35]", badge: "bg-[#FF6B35]/20 text-[#FF6B35]" } };
+                const levelColors = { 1: { bg: "bg-[#4ADE80]/10", border: "border-[#4ADE80]/20", text: "text-emerald-500 dark:text-emerald-400", badge: "bg-[#4ADE80]/20 text-emerald-500 dark:text-emerald-400" }, 2: { bg: "bg-[#3B82F6]/10", border: "border-[#3B82F6]/20", text: "text-[#3B82F6]", badge: "bg-[#3B82F6]/20 text-[#3B82F6]" }, 3: { bg: "bg-primary/10", border: "border-primary/20", text: "text-primary", badge: "bg-primary/20 text-primary" } };
                 const colors = levelColors[lvl as 1 | 2 | 3];
                 return (
                   <div key={lvl} className="mb-3">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colors.badge}`}>{lvl}-daraja</span>
-                      <span className="text-[#666] text-[10px]">{levelRefs.length} ta</span>
+                      <span className="text-muted-foreground text-[10px]">{levelRefs.length} ta</span>
                     </div>
                     <div className={`${colors.bg} rounded-lg border ${colors.border} max-h-48 overflow-y-auto`}>
                       <table className="w-full text-xs">
                         <thead>
-                          <tr className="border-b border-[#2a2a2a]">
-                            <th className="text-left text-[#888] font-medium py-1.5 px-2.5 text-[10px]">ID</th>
-                            <th className="text-left text-[#888] font-medium py-1.5 px-2.5 text-[10px]">Telefon</th>
-                            <th className="text-center text-[#888] font-medium py-1.5 px-2.5 text-[10px]">VIP</th>
-                            <th className="text-right text-[#888] font-medium py-1.5 px-2.5 text-[10px]">Balans</th>
+                          <tr className="border-b border-border">
+                            <th className="text-left text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">ID</th>
+                            <th className="text-left text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">Telefon</th>
+                            <th className="text-center text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">VIP</th>
+                            <th className="text-right text-muted-foreground font-medium py-1.5 px-2.5 text-[10px]">Balans</th>
                           </tr>
                         </thead>
                         <tbody>
                           {levelRefs.map((r: any) => (
-                            <tr key={r.id} className="border-b border-[#222]/50 last:border-0">
-                              <td className="py-1.5 px-2.5 text-white font-mono text-[11px]">{r.referredNumericId || "—"}</td>
-                              <td className="py-1.5 px-2.5 text-[#ccc] text-[11px]">{r.referredPhone}</td>
+                            <tr key={r.id} className="border-b border-border/50 last:border-0">
+                              <td className="py-1.5 px-2.5 text-foreground font-mono text-[11px]">{r.referredNumericId || "—"}</td>
+                              <td className="py-1.5 px-2.5 text-foreground text-[11px]">{r.referredPhone}</td>
                               <td className="py-1.5 px-2.5 text-center">
-                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${r.referredVipLevel >= 0 ? "bg-[#FF6B35]/20 text-[#FF6B35]" : "bg-[#333] text-[#888]"}`}>
+                                <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${r.referredVipLevel >= 0 ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
                                   {r.referredVipLevel >= 0 ? (vipNames[r.referredVipLevel] || `M${r.referredVipLevel}`) : "Yo'q"}
                                 </span>
                               </td>
-                              <td className="py-1.5 px-2.5 text-right text-[#4ADE80] text-[11px] font-medium">${Number(r.referredBalance).toFixed(2)}</td>
+                              <td className="py-1.5 px-2.5 text-right text-emerald-500 dark:text-emerald-400 text-[11px] font-medium">${Number(r.referredBalance).toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -403,8 +403,8 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
 function InfoRow({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div className="bg-[#111] rounded-lg p-2.5 border border-[#2a2a2a]">
-      <p className="text-[#888] text-[10px] uppercase tracking-wider">{label}</p>
+    <div className="bg-card rounded-lg p-2.5 border border-border">
+      <p className="text-muted-foreground text-[10px] uppercase tracking-wider">{label}</p>
       <p className="text-sm font-medium mt-0.5 truncate" style={{ color: color || "#fff" }}>{value}</p>
     </div>
   );
@@ -426,48 +426,48 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder="Telefon, ID, IP yoki referal kodi bo'yicha qidirish..."
-            className="pl-10 bg-[#111] border-[#333] text-white placeholder:text-[#555] rounded-xl h-10 text-sm"
+            className="pl-10 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-10 text-sm"
             data-testid="input-search-users"
           />
         </div>
-        <span className="text-[#888] text-xs whitespace-nowrap">{filtered.length} ta</span>
+        <span className="text-muted-foreground text-xs whitespace-nowrap">{filtered.length} ta</span>
       </div>
 
-      <div className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] overflow-hidden">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-[#2a2a2a] bg-[#111]">
-                <th className="text-left text-[#888] font-medium py-2.5 px-3">Telefon</th>
-                <th className="text-left text-[#888] font-medium py-2.5 px-3">VIP</th>
-                <th className="text-left text-[#888] font-medium py-2.5 px-3">Balans</th>
-                <th className="text-left text-[#888] font-medium py-2.5 px-3">IP</th>
-                <th className="text-left text-[#888] font-medium py-2.5 px-3">Holat</th>
-                <th className="text-right text-[#888] font-medium py-2.5 px-3">Amal</th>
+              <tr className="border-b border-border bg-card">
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">Telefon</th>
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">VIP</th>
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">Balans</th>
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">IP</th>
+                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">Holat</th>
+                <th className="text-right text-muted-foreground font-medium py-2.5 px-3">Amal</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((u) => (
-                <tr key={u.id} className="border-b border-[#222] hover:bg-[#222]/50">
+                <tr key={u.id} className="border-b border-border hover:bg-muted/50">
                   <td className="py-2.5 px-3">
-                    <p className="text-white font-medium">{u.phone}</p>
-                    <p className="text-[#888] text-[10px]">ID: {u.numericId?.slice(0, 8) || "—"}</p>
+                    <p className="text-foreground font-medium">{u.phone}</p>
+                    <p className="text-muted-foreground text-[10px]">ID: {u.numericId?.slice(0, 8) || "—"}</p>
                   </td>
                   <td className="py-2.5 px-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FF6B35]/20 text-[#FF6B35]">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary">
                       {vipNames[u.vipLevel] || `M${u.vipLevel}`}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-[#4ADE80] font-mono">{Number(u.balance).toFixed(2)}</td>
-                  <td className="py-2.5 px-3 text-[#888] font-mono text-[10px]">{u.lastLoginIp || "—"}</td>
+                  <td className="py-2.5 px-3 text-emerald-500 dark:text-emerald-400 font-mono">{Number(u.balance).toFixed(2)}</td>
+                  <td className="py-2.5 px-3 text-muted-foreground font-mono text-[10px]">{u.lastLoginIp || "—"}</td>
                   <td className="py-2.5 px-3">
                     <div className="flex gap-1">
-                      {u.isBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#E8453C]/20 text-[#E8453C]">BAN</span>}
+                      {u.isBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-primary/20 text-primary">BAN</span>}
                       {u.withdrawalBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#FFB300]/20 text-[#FFB300]">W-BAN</span>}
-                      {!u.isBanned && !u.withdrawalBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#4ADE80]/20 text-[#4ADE80]">OK</span>}
+                      {!u.isBanned && !u.withdrawalBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#4ADE80]/20 text-emerald-500 dark:text-emerald-400">OK</span>}
                     </div>
                   </td>
                   <td className="py-2.5 px-3 text-right">
@@ -511,7 +511,7 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
       <div className="flex gap-2">
         {(["all", "pending", "approved", "rejected"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#111] border-[#333] text-[#aaa]"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
             data-testid={`button-filter-${f}`}
           >
             {f === "all" ? "Barchasi" : f === "pending" ? "Kutilmoqda" : f === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
@@ -521,21 +521,21 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
       </div>
 
       <div className="space-y-2">
-        {filtered.length === 0 && <p className="text-[#888] text-sm text-center py-8">Hech narsa topilmadi</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Hech narsa topilmadi</p>}
         {filtered.map(d => {
           const user = userMap[d.userId];
           return (
-            <div key={d.id} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]">
+            <div key={d.id} className="bg-card rounded-xl p-4 border border-border">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <ArrowDownCircle className="w-4 h-4 text-[#4ADE80]" />
-                    <span className="text-white font-semibold text-sm">{Number(d.amount).toFixed(2)} {d.currency}</span>
+                    <ArrowDownCircle className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                    <span className="text-foreground font-semibold text-sm">{Number(d.amount).toFixed(2)} {d.currency}</span>
                     <StatusBadge status={d.status} />
                   </div>
-                  <p className="text-[#888] text-xs">Foydalanuvchi: {user?.phone || d.userId.slice(0, 8)}</p>
-                  <p className="text-[#888] text-xs">To'lov turi: {d.paymentType === "crypto" ? "Kripto" : "Mahalliy"}</p>
-                  <p className="text-[#888] text-xs">Sana: {new Date(d.createdAt).toLocaleString()}</p>
+                  <p className="text-muted-foreground text-xs">Foydalanuvchi: {user?.phone || d.userId.slice(0, 8)}</p>
+                  <p className="text-muted-foreground text-xs">To'lov turi: {d.paymentType === "crypto" ? "Kripto" : "Mahalliy"}</p>
+                  <p className="text-muted-foreground text-xs">Sana: {new Date(d.createdAt).toLocaleString()}</p>
                   {d.receiptUrl && (
                     <a href={d.receiptUrl} target="_blank" rel="noopener noreferrer" className="text-[#3B82F6] text-xs underline mt-1 inline-block">
                       Chekni ko'rish
@@ -547,7 +547,7 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
                     <Button size="sm" onClick={() => approveMutation.mutate(d.id)} className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-deposit-${d.id}`}>
                       <Check className="w-3 h-3 mr-1" /> Tasdiqlash
                     </Button>
-                    <Button size="sm" onClick={() => rejectMutation.mutate(d.id)} className="bg-[#E8453C] text-white h-8 text-xs rounded-lg" data-testid={`button-reject-deposit-${d.id}`}>
+                    <Button size="sm" onClick={() => rejectMutation.mutate(d.id)} className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-deposit-${d.id}`}>
                       <X className="w-3 h-3 mr-1" /> Rad etish
                     </Button>
                   </div>
@@ -583,7 +583,7 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
       <div className="flex gap-2">
         {(["all", "pending", "approved", "rejected"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#111] border-[#333] text-[#aaa]"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
             data-testid={`button-filter-w-${f}`}
           >
             {f === "all" ? "Barchasi" : f === "pending" ? "Kutilmoqda" : f === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
@@ -593,50 +593,50 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
       </div>
 
       <div className="space-y-2">
-        {filtered.length === 0 && <p className="text-[#888] text-sm text-center py-8">Hech narsa topilmadi</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Hech narsa topilmadi</p>}
         {filtered.map(w => {
           const user = userMap[w.userId];
           const pm = w.paymentMethod;
           return (
-            <div key={w.id} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]">
+            <div key={w.id} className="bg-card rounded-xl p-4 border border-border">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <ArrowUpCircle className="w-4 h-4 text-[#E8453C]" />
-                    <span className="text-white font-semibold text-sm">{Number(w.amount).toFixed(2)} USDT</span>
+                    <ArrowUpCircle className="w-4 h-4 text-primary" />
+                    <span className="text-foreground font-semibold text-sm">{Number(w.amount).toFixed(2)} USDT</span>
                     <StatusBadge status={w.status} />
                   </div>
-                  <p className="text-[#888] text-xs">Foydalanuvchi: {user?.phone || w.userId.slice(0, 8)}</p>
-                  <p className="text-[#888] text-xs">Komissiya: {Number(w.commission).toFixed(2)} USDT | Sof: {Number(w.netAmount).toFixed(2)} USDT</p>
+                  <p className="text-muted-foreground text-xs">Foydalanuvchi: {user?.phone || w.userId.slice(0, 8)}</p>
+                  <p className="text-muted-foreground text-xs">Komissiya: {Number(w.commission).toFixed(2)} USDT | Sof: {Number(w.netAmount).toFixed(2)} USDT</p>
                   {pm && (
-                    <div className="mt-2 p-2.5 bg-[#111] rounded-lg border border-[#2a2a2a]">
+                    <div className="mt-2 p-2.5 bg-card rounded-lg border border-border">
                       <div className="flex items-center gap-1.5 mb-1">
-                        {pm.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-[#4ADE80]" />}
-                        <span className="text-white text-xs font-medium">{pm.type === "bank" ? "Bank karta" : "USDT hamyon"}</span>
+                        {pm.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />}
+                        <span className="text-foreground text-xs font-medium">{pm.type === "bank" ? "Bank karta" : "USDT hamyon"}</span>
                       </div>
                       {pm.type === "bank" ? (
                         <>
-                          <p className="text-[#ccc] text-xs">Karta: <span className="text-white font-mono">{pm.cardNumber}</span></p>
-                          <p className="text-[#ccc] text-xs">Egasi: <span className="text-white">{pm.holderName}</span></p>
-                          <p className="text-[#ccc] text-xs">Bank: <span className="text-white">{pm.bankName}</span></p>
+                          <p className="text-foreground text-xs">Karta: <span className="text-foreground font-mono">{pm.cardNumber}</span></p>
+                          <p className="text-foreground text-xs">Egasi: <span className="text-foreground">{pm.holderName}</span></p>
+                          <p className="text-foreground text-xs">Bank: <span className="text-foreground">{pm.bankName}</span></p>
                         </>
                       ) : (
                         <>
-                          <p className="text-[#ccc] text-xs">Manzil: <span className="text-white font-mono text-[10px]">{pm.walletAddress}</span></p>
-                          <p className="text-[#ccc] text-xs">Birja: <span className="text-white">{pm.exchangeName}</span></p>
+                          <p className="text-foreground text-xs">Manzil: <span className="text-foreground font-mono text-[10px]">{pm.walletAddress}</span></p>
+                          <p className="text-foreground text-xs">Birja: <span className="text-foreground">{pm.exchangeName}</span></p>
                         </>
                       )}
                     </div>
                   )}
-                  {!pm && <p className="text-[#E8453C] text-xs mt-1">Rekvizit topilmadi</p>}
-                  <p className="text-[#888] text-xs mt-1">Sana: {new Date(w.createdAt).toLocaleString()}</p>
+                  {!pm && <p className="text-primary text-xs mt-1">Rekvizit topilmadi</p>}
+                  <p className="text-muted-foreground text-xs mt-1">Sana: {new Date(w.createdAt).toLocaleString()}</p>
                 </div>
                 {w.status === "pending" && (
                   <div className="flex gap-1.5">
                     <Button size="sm" onClick={() => approveMutation.mutate(w.id)} className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-withdrawal-${w.id}`}>
                       <Check className="w-3 h-3 mr-1" /> Tasdiqlash
                     </Button>
-                    <Button size="sm" onClick={() => rejectMutation.mutate(w.id)} className="bg-[#E8453C] text-white h-8 text-xs rounded-lg" data-testid={`button-reject-withdrawal-${w.id}`}>
+                    <Button size="sm" onClick={() => rejectMutation.mutate(w.id)} className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-withdrawal-${w.id}`}>
                       <X className="w-3 h-3 mr-1" /> Rad etish
                     </Button>
                   </div>
@@ -702,22 +702,22 @@ function SettingsTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-white font-bold text-sm">Depozit rekvizitlari</h3>
-        <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="bg-[#FF6B35] text-white text-xs rounded-lg h-8" data-testid="button-add-deposit-setting">
+        <h3 className="text-foreground font-bold text-sm">Depozit rekvizitlari</h3>
+        <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="bg-primary text-foreground text-xs rounded-lg h-8" data-testid="button-add-deposit-setting">
           <Plus className="w-3 h-3 mr-1" /> Qo'shish
         </Button>
       </div>
 
       {showForm && (
-        <div className="bg-[#1a1a1a] rounded-xl p-4 border border-[#FF6B35]/30 space-y-3">
+        <div className="bg-card rounded-xl p-4 border border-primary/30 space-y-3">
           <div className="flex gap-2">
             <button onClick={() => setFormType("bank")}
-              className={`px-3 py-1.5 rounded-lg text-xs border ${formType === "bank" ? "bg-[#3B82F6]/20 border-[#3B82F6] text-[#3B82F6]" : "bg-[#111] border-[#333] text-[#aaa]"}`}
+              className={`px-3 py-1.5 rounded-lg text-xs border ${formType === "bank" ? "bg-[#3B82F6]/20 border-[#3B82F6] text-[#3B82F6]" : "bg-card border-border text-muted-foreground"}`}
             >
               <CreditCard className="w-3 h-3 inline mr-1" /> Bank karta
             </button>
             <button onClick={() => setFormType("usdt")}
-              className={`px-3 py-1.5 rounded-lg text-xs border ${formType === "usdt" ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#111] border-[#333] text-[#aaa]"}`}
+              className={`px-3 py-1.5 rounded-lg text-xs border ${formType === "usdt" ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
             >
               <Globe className="w-3 h-3 inline mr-1" /> USDT
             </button>
@@ -726,20 +726,20 @@ function SettingsTab() {
           {formType === "bank" ? (
             <>
               <Input value={holderName} onChange={(e) => setHolderName(e.target.value)} placeholder="Karta egasi ismi"
-                className="bg-[#111] border-[#333] text-white h-9 text-sm" data-testid="input-setting-holder" />
+                className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-holder" />
               <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="Bank nomi (Uzcard, Humo...)"
-                className="bg-[#111] border-[#333] text-white h-9 text-sm" data-testid="input-setting-bank" />
+                className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-bank" />
               <Input value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder="Karta raqami"
-                className="bg-[#111] border-[#333] text-white h-9 text-sm font-mono" data-testid="input-setting-card" />
+                className="bg-card border-border text-foreground h-9 text-sm font-mono" data-testid="input-setting-card" />
             </>
           ) : (
             <>
               <Input value={exchangeName} onChange={(e) => setExchangeName(e.target.value)} placeholder="Birja nomi (Binance, Bybit...)"
-                className="bg-[#111] border-[#333] text-white h-9 text-sm" data-testid="input-setting-exchange" />
+                className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-exchange" />
               <Input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder="USDT hamyon manzili"
-                className="bg-[#111] border-[#333] text-white h-9 text-sm font-mono" data-testid="input-setting-wallet" />
+                className="bg-card border-border text-foreground h-9 text-sm font-mono" data-testid="input-setting-wallet" />
               <Input value={networkType} onChange={(e) => setNetworkType(e.target.value)} placeholder="Tarmoq (TRC20)"
-                className="bg-[#111] border-[#333] text-white h-9 text-sm" data-testid="input-setting-network" />
+                className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-network" />
             </>
           )}
 
@@ -747,22 +747,22 @@ function SettingsTab() {
             <Button size="sm" onClick={() => saveMutation.mutate()} className="bg-[#4ADE80] text-black h-8 text-xs" data-testid="button-save-setting">
               <Check className="w-3 h-3 mr-1" /> Saqlash
             </Button>
-            <Button size="sm" onClick={resetForm} variant="ghost" className="text-[#888] h-8 text-xs">Bekor</Button>
+            <Button size="sm" onClick={resetForm} variant="ghost" className="text-muted-foreground h-8 text-xs">Bekor</Button>
           </div>
         </div>
       )}
 
       <div className="space-y-2">
-        {settings.length === 0 && <p className="text-[#888] text-sm text-center py-4">Hech qanday rekvizit qo'shilmagan</p>}
+        {settings.length === 0 && <p className="text-muted-foreground text-sm text-center py-4">Hech qanday rekvizit qo'shilmagan</p>}
         {settings.map(s => (
-          <div key={s.id} className="bg-[#1a1a1a] rounded-xl p-3 border border-[#2a2a2a] flex items-center justify-between">
+          <div key={s.id} className="bg-card rounded-xl p-3 border border-border flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {s.type === "bank" ? <CreditCard className="w-4 h-4 text-[#3B82F6]" /> : <Globe className="w-4 h-4 text-[#FF6B35]" />}
+              {s.type === "bank" ? <CreditCard className="w-4 h-4 text-[#3B82F6]" /> : <Globe className="w-4 h-4 text-primary" />}
               <div>
-                <p className="text-white text-sm font-medium">
+                <p className="text-foreground text-sm font-medium">
                   {s.type === "bank" ? `${s.bankName} - ${s.cardNumber}` : `${s.exchangeName} - ${s.networkType}`}
                 </p>
-                <p className="text-[#888] text-xs">
+                <p className="text-muted-foreground text-xs">
                   {s.type === "bank" ? s.holderName : s.walletAddress?.slice(0, 30)}
                 </p>
               </div>
@@ -771,7 +771,7 @@ function SettingsTab() {
               <Button size="sm" onClick={() => startEdit(s)} variant="ghost" className="text-[#3B82F6] h-7 px-2" data-testid={`button-edit-setting-${s.id}`}>
                 <Edit className="w-3 h-3" />
               </Button>
-              <Button size="sm" onClick={() => deleteMutation.mutate(s.id)} variant="ghost" className="text-[#E8453C] h-7 px-2" data-testid={`button-delete-setting-${s.id}`}>
+              <Button size="sm" onClick={() => deleteMutation.mutate(s.id)} variant="ghost" className="text-primary h-7 px-2" data-testid={`button-delete-setting-${s.id}`}>
                 <Trash2 className="w-3 h-3" />
               </Button>
             </div>
@@ -789,25 +789,25 @@ function TopReferrersTab() {
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-2">
         <Trophy className="w-5 h-5 text-[#FFB300]" />
-        <h3 className="text-white font-bold text-sm">Top 10 faol referalchilar</h3>
-        <span className="text-[#888] text-xs">(1-daraja taklif soni bo'yicha)</span>
+        <h3 className="text-foreground font-bold text-sm">Top 10 faol referalchilar</h3>
+        <span className="text-muted-foreground text-xs">(1-daraja taklif soni bo'yicha)</span>
       </div>
 
-      {topReferrers.length === 0 && <p className="text-[#888] text-sm text-center py-8">Ma'lumot topilmadi</p>}
+      {topReferrers.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Ma'lumot topilmadi</p>}
 
       <div className="space-y-2">
         {topReferrers.map((r: any, i: number) => (
-          <div key={r.referrerId} className="bg-[#1a1a1a] rounded-xl p-3 border border-[#2a2a2a] flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${i < 3 ? "bg-[#FFB300]/20 text-[#FFB300]" : "bg-[#333] text-[#888]"}`}>
+          <div key={r.referrerId} className="bg-card rounded-xl p-3 border border-border flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${i < 3 ? "bg-[#FFB300]/20 text-[#FFB300]" : "bg-muted text-muted-foreground"}`}>
               {i + 1}
             </div>
             <div className="flex-1">
-              <p className="text-white text-sm font-medium">{r.phone || r.referrerId.slice(0, 8)}</p>
-              <p className="text-[#888] text-xs">VIP: {vipNames[r.vipLevel] || "—"} | ID: {r.numericId?.slice(0, 8) || "—"}</p>
+              <p className="text-foreground text-sm font-medium">{r.phone || r.referrerId.slice(0, 8)}</p>
+              <p className="text-muted-foreground text-xs">VIP: {vipNames[r.vipLevel] || "—"} | ID: {r.numericId?.slice(0, 8) || "—"}</p>
             </div>
             <div className="text-right">
-              <p className="text-[#4ADE80] font-bold text-sm">{r.count} ta</p>
-              <p className="text-[#888] text-[10px]">{Number(r.totalCommission).toFixed(2)} USDT</p>
+              <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{r.count} ta</p>
+              <p className="text-muted-foreground text-[10px]">{Number(r.totalCommission).toFixed(2)} USDT</p>
             </div>
           </div>
         ))}
@@ -827,37 +827,37 @@ function MultiAccountsTab() {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-2">
-        <AlertTriangle className="w-5 h-5 text-[#E8453C]" />
-        <h3 className="text-white font-bold text-sm">Bir xil IP/qurilmali akkauntlar</h3>
+        <AlertTriangle className="w-5 h-5 text-primary" />
+        <h3 className="text-foreground font-bold text-sm">Bir xil IP/qurilmali akkauntlar</h3>
       </div>
 
       {groups.length === 0 && (
-        <div className="bg-[#111] rounded-xl p-8 border border-[#2a2a2a] text-center">
-          <Shield className="w-8 h-8 text-[#4ADE80] mx-auto mb-2" />
-          <p className="text-[#4ADE80] text-sm font-semibold">Multi-akkaunt topilmadi</p>
-          <p className="text-[#888] text-xs mt-1">Bir xil IP dan kirgan foydalanuvchilar yo'q</p>
+        <div className="bg-card rounded-xl p-8 border border-border text-center">
+          <Shield className="w-8 h-8 text-emerald-500 dark:text-emerald-400 mx-auto mb-2" />
+          <p className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">Multi-akkaunt topilmadi</p>
+          <p className="text-muted-foreground text-xs mt-1">Bir xil IP dan kirgan foydalanuvchilar yo'q</p>
         </div>
       )}
 
       {groups.map((g: any) => (
-        <div key={g.ip} className="bg-[#1a1a1a] rounded-xl border border-[#E8453C]/20 overflow-hidden">
+        <div key={g.ip} className="bg-card rounded-xl border border-primary/20 overflow-hidden">
           <button
             onClick={() => setExpandedIp(expandedIp === g.ip ? null : g.ip)}
             className="w-full p-3 flex items-center justify-between"
             data-testid={`button-expand-ip-${g.ip}`}
           >
             <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-[#E8453C]" />
-              <span className="text-white text-sm font-mono">{g.ip || "null"}</span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] bg-[#E8453C]/20 text-[#E8453C] font-bold">{g.count} akkaunt</span>
+              <AlertTriangle className="w-4 h-4 text-primary" />
+              <span className="text-foreground text-sm font-mono">{g.ip || "null"}</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/20 text-primary font-bold">{g.count} akkaunt</span>
             </div>
-            {expandedIp === g.ip ? <ChevronDown className="w-4 h-4 text-[#888]" /> : <ChevronRight className="w-4 h-4 text-[#888]" />}
+            {expandedIp === g.ip ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
           </button>
           {expandedIp === g.ip && (
-            <div className="border-t border-[#2a2a2a] p-3 space-y-1.5">
+            <div className="border-t border-border p-3 space-y-1.5">
               {(g.userIds || []).map((uid: string) => (
-                <div key={uid} className="bg-[#111] rounded-lg p-2 flex items-center justify-between">
-                  <span className="text-[#888] text-xs font-mono">{uid.slice(0, 12)}...</span>
+                <div key={uid} className="bg-card rounded-lg p-2 flex items-center justify-between">
+                  <span className="text-muted-foreground text-xs font-mono">{uid.slice(0, 12)}...</span>
                 </div>
               ))}
             </div>
@@ -900,13 +900,13 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-2">
         <UserPlus className="w-5 h-5 text-[#78909C]" />
-        <h3 className="text-white font-bold text-sm">Stajyor so'rovlari</h3>
+        <h3 className="text-foreground font-bold text-sm">Stajyor so'rovlari</h3>
       </div>
 
       <div className="flex gap-2">
         {(["all", "pending", "approved", "rejected"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#111] border-[#333] text-[#aaa]"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
             data-testid={`button-filter-stajyor-${f}`}
           >
             {f === "all" ? "Barchasi" : f === "pending" ? "Kutilmoqda" : f === "approved" ? "Tasdiqlangan" : "Rad etilgan"}
@@ -916,26 +916,26 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
       </div>
 
       <div className="space-y-2">
-        {filtered.length === 0 && <p className="text-[#888] text-sm text-center py-8">Hech narsa topilmadi</p>}
+        {filtered.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">Hech narsa topilmadi</p>}
         {filtered.map(r => {
           const user = userMap[r.userId];
           return (
-            <div key={r.id} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a]" data-testid={`stajyor-request-${r.id}`}>
+            <div key={r.id} className="bg-card rounded-xl p-4 border border-border" data-testid={`stajyor-request-${r.id}`}>
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <UserPlus className="w-4 h-4 text-[#78909C]" />
-                    <span className="text-white font-semibold text-sm">{user?.phone || r.userId.slice(0, 8)}</span>
+                    <span className="text-foreground font-semibold text-sm">{user?.phone || r.userId.slice(0, 8)}</span>
                     <StatusBadge status={r.status} />
                   </div>
                   {r.message && (
-                    <div className="flex items-start gap-1.5 mt-1.5 bg-[#111] rounded-lg p-2 border border-[#2a2a2a]">
-                      <MessageSquare className="w-3 h-3 text-[#888] mt-0.5 shrink-0" />
-                      <p className="text-[#ccc] text-xs">{r.message}</p>
+                    <div className="flex items-start gap-1.5 mt-1.5 bg-card rounded-lg p-2 border border-border">
+                      <MessageSquare className="w-3 h-3 text-muted-foreground mt-0.5 shrink-0" />
+                      <p className="text-foreground text-xs">{r.message}</p>
                     </div>
                   )}
-                  <p className="text-[#888] text-xs mt-1">ID: {user?.numericId?.slice(0, 10) || "—"}</p>
-                  <p className="text-[#888] text-xs">Sana: {new Date(r.createdAt).toLocaleString()}</p>
+                  <p className="text-muted-foreground text-xs mt-1">ID: {user?.numericId?.slice(0, 10) || "—"}</p>
+                  <p className="text-muted-foreground text-xs">Sana: {new Date(r.createdAt).toLocaleString()}</p>
                 </div>
                 {r.status === "pending" && (
                   <div className="flex gap-1.5">
@@ -945,7 +945,7 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
                       <Check className="w-3 h-3 mr-1" /> Yoqish
                     </Button>
                     <Button size="sm" onClick={() => rejectMutation.mutate(r.id)}
-                      className="bg-[#E8453C] text-white h-8 text-xs rounded-lg" data-testid={`button-reject-stajyor-${r.id}`}
+                      className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-stajyor-${r.id}`}
                     >
                       <X className="w-3 h-3 mr-1" /> Rad etish
                     </Button>
@@ -979,30 +979,30 @@ function VipManageTab() {
 
   return (
     <div>
-      <h3 className="text-white font-bold text-sm mb-3">VIP darajalarni boshqarish</h3>
-      <p className="text-[#888] text-xs mb-4">Darajalarni ochish yoki yopish. Yopilgan darajani foydalanuvchilar sotib ololmaydi.</p>
+      <h3 className="text-foreground font-bold text-sm mb-3">VIP darajalarni boshqarish</h3>
+      <p className="text-muted-foreground text-xs mb-4">Darajalarni ochish yoki yopish. Yopilgan darajani foydalanuvchilar sotib ololmaydi.</p>
       <div className="space-y-2">
         {sorted.map((pkg) => (
-          <div key={pkg.id} className="bg-[#1a1a1a] rounded-xl p-4 border border-[#2a2a2a] flex items-center justify-between">
+          <div key={pkg.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${pkg.isLocked ? "bg-[#E8453C]/20" : "bg-[#4ADE80]/20"}`}>
-                <Crown className={`w-5 h-5 ${pkg.isLocked ? "text-[#E8453C]" : "text-[#4ADE80]"}`} />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${pkg.isLocked ? "bg-primary/20" : "bg-[#4ADE80]/20"}`}>
+                <Crown className={`w-5 h-5 ${pkg.isLocked ? "text-primary" : "text-emerald-500 dark:text-emerald-400"}`} />
               </div>
               <div>
-                <p className="text-white text-sm font-semibold">{pkg.name}</p>
-                <p className="text-[#888] text-xs">
+                <p className="text-foreground text-sm font-semibold">{pkg.name}</p>
+                <p className="text-muted-foreground text-xs">
                   Narx: ${Number(pkg.price).toFixed(0)} | Kunlik: {pkg.dailyTasks} vazifa | Har video: ${Number(pkg.perVideoReward).toFixed(2)}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-medium ${pkg.isLocked ? "text-[#E8453C]" : "text-[#4ADE80]"}`}>
+              <span className={`text-xs font-medium ${pkg.isLocked ? "text-primary" : "text-emerald-500 dark:text-emerald-400"}`}>
                 {pkg.isLocked ? "Yopiq" : "Ochiq"}
               </span>
               <Button
                 size="sm"
                 onClick={() => toggleLockMutation.mutate({ id: pkg.id, locked: !pkg.isLocked })}
-                className={`text-xs rounded-lg h-8 px-3 ${pkg.isLocked ? "bg-[#4ADE80] text-black" : "bg-[#E8453C] text-white"}`}
+                className={`text-xs rounded-lg h-8 px-3 ${pkg.isLocked ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
                 data-testid={`button-toggle-vip-${pkg.level}`}
               >
                 {pkg.isLocked ? "Ochish" : "Yopish"}
@@ -1016,7 +1016,7 @@ function VipManageTab() {
 }
 
 function StatusBadge({ status }: { status: string }) {
-  const colors: Record<string, string> = { pending: "#FFB300", approved: "#4ADE80", rejected: "#E8453C", completed: "#4ADE80" };
+  const colors: Record<string, string> = { pending: "#FFB300", approved: "hsl(var(--emerald-500, 142 71% 45%))", rejected: "hsl(var(--primary))", completed: "hsl(var(--emerald-500, 142 71% 45%))" };
   const labels: Record<string, string> = { pending: "Kutilmoqda", approved: "Tasdiqlangan", rejected: "Rad etilgan", completed: "Bajarildi" };
   return (
     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: `${colors[status]}20`, color: colors[status] }}>
@@ -1053,21 +1053,21 @@ export default function AdminPage() {
 
   if (usersLoading || depositsLoading || withdrawalsLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
-      <div className="bg-[#111] border-b border-[#2a2a2a] px-4 py-3">
+    <div className="min-h-screen bg-background">
+      <div className="bg-card border-b border-border px-4 py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[#FF6B35]" />
-            <h1 className="text-white font-bold text-lg">VEM Admin</h1>
+            <Shield className="w-5 h-5 text-primary" />
+            <h1 className="text-foreground font-bold text-lg">VEM Admin</h1>
           </div>
-          <a href="/dashboard" className="text-[#888] text-xs hover:text-white transition-colors" data-testid="link-back-to-site">
+          <a href="/dashboard" className="text-muted-foreground text-xs hover:text-foreground transition-colors" data-testid="link-back-to-site">
             Saytga qaytish
           </a>
         </div>
@@ -1076,38 +1076,38 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto p-4">
         <div className="space-y-2 pb-3 mb-4">
           <div>
-            <p className="text-[#666] text-[10px] uppercase tracking-widest mb-1.5 px-1">Texnik bo'lim</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">Texnik bo'lim</p>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {techTabs.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
-                    tab === t.id ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#1a1a1a] border-[#2a2a2a] text-[#aaa] hover:text-white"
+                    tab === t.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
                   }`}
                   data-testid={`tab-${t.id}`}
                 >
                   <t.icon className="w-3.5 h-3.5" />
                   {t.label}
                   {t.badge !== undefined && t.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-[#E8453C] text-white font-bold">{t.badge}</span>
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{t.badge}</span>
                   )}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-[#666] text-[10px] uppercase tracking-widest mb-1.5 px-1">Moliya departament</p>
+            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">Moliya departament</p>
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {financeTabs.map(t => (
                 <button key={t.id} onClick={() => setTab(t.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
-                    tab === t.id ? "bg-[#FF6B35]/20 border-[#FF6B35] text-[#FF6B35]" : "bg-[#1a1a1a] border-[#2a2a2a] text-[#aaa] hover:text-white"
+                    tab === t.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
                   }`}
                   data-testid={`tab-${t.id}`}
                 >
                   <t.icon className="w-3.5 h-3.5" />
                   {t.label}
                   {t.badge !== undefined && t.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-[#E8453C] text-white font-bold">{t.badge}</span>
+                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{t.badge}</span>
                   )}
                 </button>
               ))}

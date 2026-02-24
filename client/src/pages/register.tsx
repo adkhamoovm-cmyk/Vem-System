@@ -84,10 +84,10 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
       className={`relative h-12 rounded-2xl select-none overflow-hidden transition-all duration-300 ${
         verified
           ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 shadow-[0_0_20px_rgba(34,197,94,0.15)]"
-          : "bg-[#161616]"
+          : "bg-muted"
       }`}
       style={{
-        border: verified ? "1.5px solid rgba(34,197,94,0.4)" : "1.5px solid rgba(255,255,255,0.06)",
+        border: verified ? "1.5px solid rgba(34,197,94,0.4)" : "1.5px solid hsl(var(--border))",
       }}
       onMouseMove={(e) => handleMove(e.clientX)}
       onMouseUp={handleEnd}
@@ -102,7 +102,7 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
           width: `${progress}%`,
           background: verified
             ? "linear-gradient(90deg, rgba(34,197,94,0.25), rgba(16,185,129,0.25))"
-            : "linear-gradient(90deg, rgba(255,107,53,0.12), rgba(232,69,60,0.08))",
+            : "linear-gradient(90deg, hsl(var(--primary) / 0.12), hsl(var(--primary) / 0.08))",
         }}
       />
 
@@ -114,10 +114,10 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
           </div>
         ) : (
           <div className="flex items-center gap-1.5">
-            <span className="text-[13px] text-[#555] font-medium tracking-wide">Surish orqali tasdiqlang</span>
+            <span className="text-[13px] text-muted-foreground font-medium tracking-wide">Surish orqali tasdiqlang</span>
             <div className="flex -space-x-1">
-              <ArrowRight className="w-3.5 h-3.5 text-[#444] animate-pulse" />
-              <ArrowRight className="w-3.5 h-3.5 text-[#333] animate-pulse" style={{ animationDelay: "150ms" }} />
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/60 animate-pulse" />
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 animate-pulse" style={{ animationDelay: "150ms" }} />
             </div>
           </div>
         )}
@@ -128,8 +128,8 @@ function SliderCaptcha({ onVerified }: { onVerified: () => void }) {
           verified
             ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-[0_2px_12px_rgba(34,197,94,0.4)]"
             : isDragging
-              ? "bg-gradient-to-br from-[#FF6B35] to-[#E8453C] text-white shadow-[0_2px_16px_rgba(255,107,53,0.4)] scale-105"
-              : "bg-[#1e1e1e] text-[#FF6B35] border border-[#333] shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+              ? "bg-primary text-white shadow-lg scale-105"
+              : "bg-card text-primary border border-border shadow-md"
         }`}
         style={{
           left: `${sliderPos + 3}px`,
@@ -194,9 +194,9 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
           onChange={(e) => handleDigitChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}
-          className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 bg-[#111] outline-none transition-all
-            ${error ? "border-red-400 text-red-500" : digits[i]?.trim() ? "border-[#FF6B35] text-white" : "border-[#333] text-white"}
-            focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20`}
+          className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 bg-card outline-none transition-all
+            ${error ? "border-red-400 text-red-500" : digits[i]?.trim() ? "border-primary text-foreground" : "border-border text-foreground"}
+            focus:border-primary focus:ring-2 focus:ring-primary/20`}
           data-testid={`input-pin-${i}`}
         />
       ))}
@@ -235,20 +235,20 @@ export default function RegisterPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-5">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg shadow-[#FF6B35]/20">
+          <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
             <span className="text-white text-2xl font-bold">V</span>
           </div>
-          <h1 className="text-2xl font-bold text-white">VEM</h1>
-          <p className="text-[#999] text-sm mt-0.5">Video Earning Platform</p>
+          <h1 className="text-2xl font-bold text-foreground">VEM</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">Video Earning Platform</p>
         </div>
 
-        <div className="bg-[#1a1a1a] rounded-2xl p-6 shadow-lg border border-[#2a2a2a]">
+        <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
           <div className="flex items-center gap-2 mb-5">
-            <div className="w-1 h-5 bg-gradient-to-b from-[#FF6B35] to-[#E8453C] rounded-full" />
-            <h2 className="text-lg font-bold text-white">Ro'yxatdan o'tish</h2>
+            <div className="w-1 h-5 bg-primary rounded-full" />
+            <h2 className="text-lg font-bold text-foreground">Ro'yxatdan o'tish</h2>
           </div>
 
           <Form {...form}>
@@ -258,37 +258,37 @@ export default function RegisterPage() {
                 name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Telefon raqami</FormLabel>
                     <FormControl>
                       <div className="flex gap-2">
                         <div className="relative">
                           <button
                             type="button"
                             onClick={() => setShowCountryList(!showCountryList)}
-                            className="flex items-center gap-1.5 h-11 px-3 bg-[#111] border border-[#333] rounded-xl text-sm font-medium text-white whitespace-nowrap hover:border-[#FF6B35]/40 transition-colors"
+                            className="flex items-center gap-1.5 h-11 px-3 bg-card border border-border rounded-xl text-sm font-medium text-foreground whitespace-nowrap hover:border-primary/40 transition-colors"
                             data-testid="button-country-code"
                           >
                             <span className="text-lg">{selectedCountry.flag}</span>
                             <span className="text-sm">{selectedCountry.code}</span>
-                            <ChevronDown className={`w-3.5 h-3.5 text-[#999] transition-transform ${showCountryList ? "rotate-180" : ""}`} />
+                            <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${showCountryList ? "rotate-180" : ""}`} />
                           </button>
                           {showCountryList && (
                             <>
                               <div className="fixed inset-0 z-40" onClick={() => setShowCountryList(false)} />
-                              <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl shadow-xl z-50">
+                              <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-card border border-border rounded-xl shadow-xl z-50">
                                 {countryCodes.map((c) => (
                                   <button
                                     key={c.country + c.code}
                                     type="button"
                                     onClick={() => { setSelectedCountry(c); setShowCountryList(false); }}
-                                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-[#222] transition-colors ${
-                                      selectedCountry.country === c.country ? "bg-[#222]" : ""
+                                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-muted transition-colors ${
+                                      selectedCountry.country === c.country ? "bg-muted" : ""
                                     }`}
                                     data-testid={`option-country-${c.country}`}
                                   >
                                     <span className="text-lg">{c.flag}</span>
-                                    <span className="text-white font-medium flex-1">{c.name}</span>
-                                    <span className="text-[#999] text-xs">{c.code}</span>
+                                    <span className="text-foreground font-medium flex-1">{c.name}</span>
+                                    <span className="text-muted-foreground text-xs">{c.code}</span>
                                   </button>
                                 ))}
                               </div>
@@ -296,11 +296,11 @@ export default function RegisterPage() {
                           )}
                         </div>
                         <div className="relative flex-1">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <Input
                             {...field}
                             placeholder="90 123 45 67"
-                            className="pl-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                            className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                             data-testid="input-phone"
                           />
                         </div>
@@ -316,21 +316,21 @@ export default function RegisterPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Kirish paroli</FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Kirish paroli</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
                           placeholder="Kamida 6 ta belgi"
-                          className="pl-10 pr-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                          className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                           data-testid="input-password"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#555] hover:text-[#888] transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                         >
                           {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -347,15 +347,15 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center justify-between">
-                      <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Pul yechish paroli</FormLabel>
-                      <span className="text-[10px] text-[#999]">6 xonali PIN</span>
+                      <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Pul yechish paroli</FormLabel>
+                      <span className="text-[10px] text-muted-foreground">6 xonali PIN</span>
                     </div>
                     <FormControl>
                       <div>
-                        <div className="bg-[#FF6B35]/10 border border-[#FF6B35]/20 rounded-xl p-3.5">
+                        <div className="bg-primary/10 border border-primary/20 rounded-xl p-3.5">
                           <div className="flex items-center gap-2 mb-2.5">
-                            <Shield className="w-4 h-4 text-[#FF6B35]" />
-                            <span className="text-[#FF6B35] text-xs font-semibold">Moliya fondi parolini yarating</span>
+                            <Shield className="w-4 h-4 text-primary" />
+                            <span className="text-primary text-xs font-semibold">Moliya fondi parolini yarating</span>
                           </div>
                           <PinInput
                             value={field.value}
@@ -375,14 +375,14 @@ export default function RegisterPage() {
                 name="referralCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-[#aaa] text-xs font-semibold uppercase tracking-wider">Referal kodi <span className="text-[#666] normal-case">(ixtiyoriy)</span></FormLabel>
+                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">Referal kodi <span className="text-muted-foreground normal-case">(ixtiyoriy)</span></FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+                        <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                           {...field}
                           placeholder="Taklif kodini kiriting"
-                          className="pl-10 h-11 bg-[#111] border-[#333] text-white placeholder:text-[#555] focus:border-[#FF6B35]/50 focus:ring-[#FF6B35]/20 rounded-xl"
+                          className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                           data-testid="input-referral"
                         />
                       </div>
@@ -411,18 +411,18 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="bg-[#111] rounded-xl p-3 border border-[#333]">
+                      <div className="bg-muted rounded-xl p-3 border border-border">
                         <label className="flex items-start gap-3 cursor-pointer">
                           <Checkbox
                             checked={field.value}
                             onCheckedChange={field.onChange}
-                            className="mt-0.5 border-[#444] data-[state=checked]:bg-[#FF6B35] data-[state=checked]:border-[#FF6B35]"
+                            className="mt-0.5 border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             data-testid="checkbox-age-confirm"
                           />
-                          <span className="text-[#888] text-xs leading-relaxed">
+                          <span className="text-muted-foreground text-xs leading-relaxed">
                             Men <strong>18 yoshdan oshganman</strong>. Moliyaviy mas'uliyatni o'z bo'ynimga olaman.
-                            <Link href="#" className="text-[#FF6B35] font-semibold ml-1">Foydalanish shartlari</Link> va{" "}
-                            <Link href="#" className="text-[#FF6B35] font-semibold">Maxfiylik siyosati</Link>ni o'qib chiqdim va qabul qilaman.
+                            <Link href="#" className="text-primary font-semibold ml-1">Foydalanish shartlari</Link> va{" "}
+                            <Link href="#" className="text-primary font-semibold">Maxfiylik siyosati</Link>ni o'qib chiqdim va qabul qilaman.
                           </span>
                         </label>
                       </div>
@@ -434,7 +434,7 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg shadow-[#FF6B35]/20 text-base mt-1"
+                className="w-full bg-primary text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg text-base mt-1"
                 disabled={registerMutation.isPending}
                 data-testid="button-register"
               >
@@ -444,16 +444,16 @@ export default function RegisterPage() {
           </Form>
 
           <div className="mt-5 text-center">
-            <p className="text-[#999] text-sm">
+            <p className="text-muted-foreground text-sm">
               Hisobingiz bormi?{" "}
-              <Link href="/login" className="text-[#FF6B35] font-semibold" data-testid="link-login">
+              <Link href="/login" className="text-primary font-semibold" data-testid="link-login">
                 Kirish
               </Link>
             </p>
           </div>
         </div>
 
-        <p className="text-center text-[#555] text-[10px] mt-4">
+        <p className="text-center text-muted-foreground text-[10px] mt-4">
           VEM Platform &copy; 2026. Barcha huquqlar himoyalangan.
         </p>
       </div>

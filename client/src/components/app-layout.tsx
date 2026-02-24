@@ -1,7 +1,8 @@
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
-import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut } from "lucide-react";
+import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/components/theme-provider";
 import type { User } from "@shared/schema";
 
 const sideNavItems = [
@@ -16,6 +17,7 @@ const rightNavItems = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -35,20 +37,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isTasksActive = location === "/tasks";
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] pb-20">
-      <header className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#222]">
+    <div className="min-h-screen bg-background pb-20">
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-bold">V</span>
+            <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-primary-foreground text-xs font-bold">V</span>
             </div>
-            <span className="text-lg font-bold text-white tracking-tight">VEM</span>
+            <span className="text-lg font-bold text-foreground tracking-tight">VEM</span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="text-muted-foreground hover:text-foreground transition-colors p-1"
+              data-testid="button-theme-toggle"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <button
               onClick={() => logoutMutation.mutate()}
-              className="text-[#888] hover:text-white transition-colors p-1"
+              className="text-muted-foreground hover:text-foreground transition-colors p-1"
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />
@@ -59,7 +68,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       <main className="max-w-lg mx-auto">{children}</main>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#111]/95 backdrop-blur-md border-t border-[#222]">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
         <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2 relative">
           {sideNavItems.map((item) => {
             const active = location === item.href;
@@ -67,7 +76,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Link key={item.href} href={item.href}>
                 <button
                   className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px] ${
-                    active ? "text-[#FF6B35]" : "text-[#666]"
+                    active ? "text-primary" : "text-muted-foreground"
                   }`}
                   data-testid={item.testId}
                 >
@@ -83,14 +92,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="flex flex-col items-center -mt-7 relative"
               data-testid="nav-vazifalar"
             >
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 ${
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 bg-primary ${
                 isTasksActive
-                  ? "bg-gradient-to-br from-[#FF6B35] to-[#E8453C] shadow-[0_4px_15px_rgba(255,107,53,0.4)]"
-                  : "bg-gradient-to-br from-[#FF6B35] to-[#E8453C] shadow-[0_4px_15px_rgba(255,107,53,0.25)]"
+                  ? "shadow-[0_4px_15px_hsl(var(--primary)/0.4)]"
+                  : "shadow-[0_4px_15px_hsl(var(--primary)/0.25)]"
               }`}>
-                <PlayCircle className="w-7 h-7 text-white stroke-[2]" />
+                <PlayCircle className="w-7 h-7 text-primary-foreground stroke-[2]" />
               </div>
-              <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-[#FF6B35]" : "text-[#666]"}`}>
+              <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-primary" : "text-muted-foreground"}`}>
                 Vazifalar
               </span>
             </button>
@@ -102,7 +111,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <Link key={item.href} href={item.href}>
                 <button
                   className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors min-w-[56px] ${
-                    active ? "text-[#FF6B35]" : "text-[#666]"
+                    active ? "text-primary" : "text-muted-foreground"
                   }`}
                   data-testid={item.testId}
                 >

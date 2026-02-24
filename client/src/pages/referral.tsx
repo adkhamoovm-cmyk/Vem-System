@@ -33,7 +33,7 @@ function getVipBadge(vipLevel: number) {
   if (vipLevel === 0) {
     return { label: "Stajyor", color: "#4ADE80", bg: "rgba(74, 222, 128, 0.15)" };
   }
-  return { label: "Oddiy a'zo", color: "#666", bg: "rgba(102, 102, 102, 0.15)" };
+  return { label: "Oddiy a'zo", color: "hsl(var(--muted-foreground))", bg: "rgba(102, 102, 102, 0.15)" };
 }
 
 export default function ReferralPage() {
@@ -68,7 +68,7 @@ export default function ReferralPage() {
   };
 
   const levels = [
-    { level: 1, percent: "9%", color: "#FF6B35", bg: "rgba(255, 107, 53, 0.15)", borderColor: "#FF6B35", data: stats?.level1 },
+    { level: 1, percent: "9%", color: "hsl(var(--primary))", bg: "rgba(255, 107, 53, 0.15)", borderColor: "hsl(var(--primary))", data: stats?.level1 },
     { level: 2, percent: "3%", color: "#4CAF50", bg: "rgba(76, 175, 80, 0.15)", borderColor: "#4CAF50", data: stats?.level2 },
     { level: 3, percent: "1%", color: "#2196F3", bg: "rgba(33, 150, 243, 0.15)", borderColor: "#2196F3", data: stats?.level3 },
   ];
@@ -79,7 +79,7 @@ export default function ReferralPage() {
   return (
     <AppLayout>
       <div className="p-4 space-y-4">
-        <div className="bg-gradient-to-br from-[#FF6B35] via-[#E8453C] to-[#c73030] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden">
+        <div className="bg-primary rounded-2xl p-5 text-foreground shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
           <div className="flex items-center gap-3 mb-4">
@@ -88,33 +88,33 @@ export default function ReferralPage() {
             </div>
             <div>
               <h2 className="font-bold text-lg">Referal dasturi</h2>
-              <p className="text-white/70 text-xs">3 bosqichli komissiya tizimi</p>
+              <p className="text-foreground/70 text-xs">3 bosqichli komissiya tizimi</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 mb-4">
             <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-              <p className="text-white/60 text-[10px] uppercase tracking-wider">Jami referallar</p>
-              <p className="text-white font-bold text-xl" data-testid="text-total-referrals">{totalCount}</p>
+              <p className="text-foreground/60 text-[10px] uppercase tracking-wider">Jami referallar</p>
+              <p className="text-foreground font-bold text-xl" data-testid="text-total-referrals">{totalCount}</p>
             </div>
             <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-              <p className="text-white/60 text-[10px] uppercase tracking-wider">Jami daromad</p>
-              <p className="text-white font-bold text-xl" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
+              <p className="text-foreground/60 text-[10px] uppercase tracking-wider">Jami daromad</p>
+              <p className="text-foreground font-bold text-xl" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
             </div>
           </div>
-          <p className="text-white/70 text-[11px] leading-relaxed">
+          <p className="text-foreground/70 text-[11px] leading-relaxed">
             Do'stlaringizni taklif qiling va ularning har bir vazifa daromadidan foiz oling. Stajyor darajadagi foydalanuvchilardan komissiya olinmaydi.
           </p>
         </div>
 
-        <div className="bg-[#1a1a1a] rounded-2xl p-4 shadow-sm border border-[#2a2a2a]">
-          <label className="text-[#888] text-xs font-medium uppercase tracking-wider">Sizning referal ssilkangiz</label>
+        <div className="bg-card rounded-2xl p-4 shadow-sm border border-border">
+          <label className="text-muted-foreground text-xs font-medium uppercase tracking-wider">Sizning referal ssilkangiz</label>
           <div className="flex gap-2 mt-2">
-            <div className="flex-1 bg-[#111] border border-[#2a2a2a] rounded-xl px-3 py-2.5 text-white text-xs truncate font-mono" data-testid="text-referral-link">
+            <div className="flex-1 bg-card border border-border rounded-xl px-3 py-2.5 text-foreground text-xs truncate font-mono" data-testid="text-referral-link">
               {referralLink}
             </div>
             <Button
               onClick={copyLink}
-              className="bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-medium shrink-0 no-default-hover-elevate no-default-active-elevate rounded-xl h-10 px-4 shadow-md"
+              className="bg-primary text-primary-foreground font-medium shrink-0 no-default-hover-elevate no-default-active-elevate rounded-xl h-10 px-4 shadow-md"
               data-testid="button-copy-link"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -129,8 +129,8 @@ export default function ReferralPage() {
             return (
               <div
                 key={item.level}
-                className="bg-[#1a1a1a] rounded-2xl shadow-sm border overflow-hidden transition-colors"
-                style={{ borderColor: isExpanded ? item.borderColor + "40" : "#2a2a2a" }}
+                className="bg-card rounded-2xl shadow-sm border overflow-hidden transition-colors"
+                style={{ borderColor: isExpanded ? item.borderColor + "40" : "hsl(var(--border))" }}
                 data-testid={`card-referral-level-${item.level}`}
               >
                 <button
@@ -146,11 +146,11 @@ export default function ReferralPage() {
                       {item.level}
                     </div>
                     <div>
-                      <h4 className="text-white font-semibold text-sm">{item.level}-daraja referallar</h4>
+                      <h4 className="text-foreground font-semibold text-sm">{item.level}-daraja referallar</h4>
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} komissiya</span>
-                        <span className="text-[#555]">·</span>
-                        <span className="text-[#888] text-xs">{item.data?.count ?? 0} ta odam</span>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="text-muted-foreground text-xs">{item.data?.count ?? 0} ta odam</span>
                       </div>
                     </div>
                   </div>
@@ -159,33 +159,33 @@ export default function ReferralPage() {
                       <p className="font-bold text-sm" style={{ color: item.color }}>
                         {Number(item.data?.commission ?? 0).toFixed(2)}
                       </p>
-                      <p className="text-[#666] text-[10px]">USDT</p>
+                      <p className="text-muted-foreground text-[10px]">USDT</p>
                     </div>
-                    {isExpanded ? <ChevronDown className="w-4 h-4 text-[#555]" /> : <ChevronRight className="w-4 h-4 text-[#555]" />}
+                    {isExpanded ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="border-t border-[#222]">
+                  <div className="border-t border-border">
                     {levelUsers.length === 0 ? (
                       <div className="px-4 py-6 text-center">
-                        <UserPlus className="w-8 h-8 text-[#333] mx-auto mb-2" />
-                        <p className="text-[#555] text-xs">Hali referallar yo'q</p>
+                        <UserPlus className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-muted-foreground text-xs">Hali referallar yo'q</p>
                       </div>
                     ) : (
-                      <div className="divide-y divide-[#222]">
+                      <div className="divide-y divide-border">
                         {levelUsers.map((u, i) => {
                           const badge = getVipBadge(u.vipLevel);
                           return (
                             <div key={i} className="px-4 py-3 flex items-center justify-between" data-testid={`referral-user-${item.level}-${i}`}>
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-[#222] flex items-center justify-center">
-                                  <User className="w-4 h-4 text-[#666]" />
+                                <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
+                                  <User className="w-4 h-4 text-muted-foreground" />
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-2">
-                                    <Phone className="w-3 h-3 text-[#555]" />
-                                    <p className="text-white text-sm font-mono">{maskPhone(u.phone)}</p>
+                                    <Phone className="w-3 h-3 text-muted-foreground" />
+                                    <p className="text-foreground text-sm font-mono">{maskPhone(u.phone)}</p>
                                   </div>
                                 </div>
                               </div>
@@ -208,11 +208,11 @@ export default function ReferralPage() {
           })}
         </div>
 
-        <div className="bg-[#1a1a1a] rounded-2xl p-4 border border-[#2a2a2a]">
-          <h3 className="text-white font-bold text-sm mb-3">Qanday ishlaydi?</h3>
+        <div className="bg-card rounded-2xl p-4 border border-border">
+          <h3 className="text-foreground font-bold text-sm mb-3">Qanday ishlaydi?</h3>
           <div className="space-y-2.5">
             {[
-              { step: "1", text: "Referal ssilkangizni do'stlaringizga yuboring", color: "#FF6B35" },
+              { step: "1", text: "Referal ssilkangizni do'stlaringizga yuboring", color: "hsl(var(--primary))" },
               { step: "2", text: "Ular ro'yxatdan o'tishadi va VIP paket olishadi", color: "#4CAF50" },
               { step: "3", text: "Har bir vazifa uchun avtomatik komissiya oling", color: "#2196F3" },
             ].map((s) => (
@@ -220,7 +220,7 @@ export default function ReferralPage() {
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: s.color + "20", color: s.color }}>
                   {s.step}
                 </div>
-                <p className="text-[#aaa] text-xs">{s.text}</p>
+                <p className="text-muted-foreground text-xs">{s.text}</p>
               </div>
             ))}
           </div>

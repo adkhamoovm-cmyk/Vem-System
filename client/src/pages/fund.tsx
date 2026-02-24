@@ -72,7 +72,7 @@ export default function FundPage() {
     return (
       <AppLayout>
         <div className="flex items-center justify-center py-20">
-          <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       </AppLayout>
     );
@@ -81,35 +81,35 @@ export default function FundPage() {
   return (
     <AppLayout>
       <div className="px-4 py-4 space-y-4">
-        <div className="bg-gradient-to-br from-[#FF6B35] to-[#E8453C] rounded-2xl p-4 text-white shadow-lg" data-testid="fund-header">
+        <div className="bg-primary rounded-2xl p-4 text-primary-foreground shadow-lg" data-testid="fund-header">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-9 h-9 bg-white/20 rounded-xl flex items-center justify-center">
               <Wallet className="w-5 h-5" />
             </div>
             <div>
               <h1 className="text-lg font-bold">VEM Fund</h1>
-              <p className="text-white/70 text-xs">Passiv investitsiya</p>
+              <p className="text-primary-foreground/70 text-xs">Passiv investitsiya</p>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2">
             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-white/60">Balans</p>
+              <p className="text-[10px] text-primary-foreground/60">Balans</p>
               <p className="text-sm font-bold" data-testid="text-fund-balance">${Number(user?.balance || 0).toFixed(2)}</p>
             </div>
             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-white/60">Jami kiritilgan</p>
+              <p className="text-[10px] text-primary-foreground/60">Jami kiritilgan</p>
               <p className="text-sm font-bold" data-testid="text-total-invested">${totalInvested.toFixed(2)}</p>
             </div>
             <div className="bg-white/10 rounded-xl p-2.5 text-center">
-              <p className="text-[10px] text-white/60">Kunlik foyda</p>
+              <p className="text-[10px] text-primary-foreground/60">Kunlik foyda</p>
               <p className="text-sm font-bold text-green-300" data-testid="text-daily-profit">+${totalDailyProfit.toFixed(2)}</p>
             </div>
           </div>
         </div>
 
         <div>
-          <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-[#FF6B35]" />
+          <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-primary" />
             Investitsiya tariflari
           </h2>
           <div className="space-y-3">
@@ -118,7 +118,7 @@ export default function FundPage() {
               return (
                 <div
                   key={plan.id}
-                  className="bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] overflow-hidden shadow-sm"
+                  className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm"
                   data-testid={`card-plan-${plan.name}`}
                 >
                   <div className={`bg-gradient-to-r ${colors.gradient} p-3 flex items-center justify-between`}>
@@ -139,20 +139,20 @@ export default function FundPage() {
                   <div className="p-3 space-y-2">
                     <div className="grid grid-cols-2 gap-2">
                       <div className={`${colors.bg} rounded-xl p-2.5 text-center`}>
-                        <p className="text-[10px] text-[#888]">Kunlik foyda</p>
+                        <p className="text-[10px] text-muted-foreground">Kunlik foyda</p>
                         <p className="text-sm font-bold" style={{ color: colors.accent }}>{plan.dailyRoi}%</p>
                       </div>
                       <div className={`${colors.bg} rounded-xl p-2.5 text-center`}>
-                        <p className="text-[10px] text-[#888]">Asosiy pul</p>
+                        <p className="text-[10px] text-muted-foreground">Asosiy pul</p>
                         <p className="text-sm font-bold" style={{ color: colors.accent }}>
                           {plan.returnPrincipal ? "Qaytadi" : "Qaytmaydi"}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-[#888] px-1">
-                      <span>Min: <span className="font-semibold text-white">${Number(plan.minDeposit).toLocaleString()}</span></span>
-                      <span>Max: <span className="font-semibold text-white">{plan.maxDeposit ? `$${Number(plan.maxDeposit).toLocaleString()}` : "Cheksiz"}</span></span>
+                    <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+                      <span>Min: <span className="font-semibold text-foreground">${Number(plan.minDeposit).toLocaleString()}</span></span>
+                      <span>Max: <span className="font-semibold text-foreground">{plan.maxDeposit ? `$${Number(plan.maxDeposit).toLocaleString()}` : "Cheksiz"}</span></span>
                     </div>
 
                     <Button
@@ -171,8 +171,8 @@ export default function FundPage() {
 
         {activeInvestments.length > 0 && (
           <div>
-            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#FF6B35]" />
+            <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-primary" />
               Aktiv investitsiyalar
             </h2>
             <div className="space-y-2">
@@ -183,13 +183,13 @@ export default function FundPage() {
                   ? Math.max(0, Math.ceil((new Date(inv.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                   : null;
                 return (
-                  <div key={inv.id} className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-3 shadow-sm" data-testid={`investment-${inv.id}`}>
+                  <div key={inv.id} className="bg-card rounded-xl border border-border p-3 shadow-sm" data-testid={`investment-${inv.id}`}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         {(() => { const Icon = planIcons[plan?.name || "F1"] || Sprout; return <Icon className="w-5 h-5" style={{ color: colors.accent }} />; })()}
                         <div>
-                          <p className="font-semibold text-sm text-white">{plan?.name || "Fund"}</p>
-                          <p className="text-[10px] text-[#666]">
+                          <p className="font-semibold text-sm text-foreground">{plan?.name || "Fund"}</p>
+                          <p className="text-[10px] text-muted-foreground">
                             {new Date(inv.startDate).toLocaleDateString("uz-UZ")}
                           </p>
                         </div>
@@ -199,7 +199,7 @@ export default function FundPage() {
                         <p className="text-[10px] text-green-500 font-medium">+${Number(inv.dailyProfit).toFixed(2)}/kun</p>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-[#666] bg-[#111] rounded-lg px-2 py-1.5">
+                    <div className="flex items-center justify-between text-[10px] text-muted-foreground bg-card rounded-lg px-2 py-1.5">
                       <span className="flex items-center gap-1">
                         <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                         Aktiv
@@ -218,7 +218,7 @@ export default function FundPage() {
 
         {completedInvestments.length > 0 && (
           <div>
-            <h2 className="text-base font-bold text-white mb-3 flex items-center gap-2">
+            <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-500" />
               Yakunlangan
             </h2>
@@ -226,15 +226,15 @@ export default function FundPage() {
               {completedInvestments.map((inv) => {
                 const plan = plans?.find(p => p.id === inv.fundPlanId);
                 return (
-                  <div key={inv.id} className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-3 shadow-sm opacity-70">
+                  <div key={inv.id} className="bg-card rounded-xl border border-border p-3 shadow-sm opacity-70">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-semibold text-sm text-[#888]">{plan?.name || "Fund"}</p>
-                        <p className="text-[10px] text-[#666]">{new Date(inv.startDate).toLocaleDateString("uz-UZ")}</p>
+                        <p className="font-semibold text-sm text-muted-foreground">{plan?.name || "Fund"}</p>
+                        <p className="text-[10px] text-muted-foreground">{new Date(inv.startDate).toLocaleDateString("uz-UZ")}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-[#888]">${Number(inv.investedAmount).toFixed(2)}</p>
-                        <p className="text-[10px] text-[#666]">Yakunlangan</p>
+                        <p className="text-sm font-bold text-muted-foreground">${Number(inv.investedAmount).toFixed(2)}</p>
+                        <p className="text-[10px] text-muted-foreground">Yakunlangan</p>
                       </div>
                     </div>
                   </div>
@@ -246,53 +246,53 @@ export default function FundPage() {
 
         {selectedPlan && (
           <div className="fixed inset-0 z-[100] bg-black/50 flex items-end justify-center" data-testid="modal-invest">
-            <div className="bg-[#1a1a1a] w-full max-w-lg rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom">
+            <div className="bg-card w-full max-w-lg rounded-t-3xl p-5 space-y-4 animate-in slide-in-from-bottom">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                   {(() => { const Icon = planIcons[selectedPlan.name] || Sprout; return <Icon className="w-5 h-5" style={{ color: planColors[selectedPlan.name]?.accent }} />; })()}
                   {selectedPlan.name} ga investitsiya
                 </h3>
-                <button onClick={() => setSelectedPlan(null)} className="text-[#666] hover:text-[#aaa]" data-testid="button-close-invest">
+                <button onClick={() => setSelectedPlan(null)} className="text-muted-foreground hover:text-foreground" data-testid="button-close-invest">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="bg-[#111] rounded-xl p-3 space-y-1 text-sm">
+              <div className="bg-muted rounded-xl p-3 space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[#888]">Kunlik foyda:</span>
-                  <span className="font-semibold text-white">{selectedPlan.dailyRoi}%</span>
+                  <span className="text-muted-foreground">Kunlik foyda:</span>
+                  <span className="font-semibold text-foreground">{selectedPlan.dailyRoi}%</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#888]">Muzlatish:</span>
-                  <span className="font-semibold text-white">{selectedPlan.lockDays ? `${selectedPlan.lockDays} kun` : "Umrbod"}</span>
+                  <span className="text-muted-foreground">Muzlatish:</span>
+                  <span className="font-semibold text-foreground">{selectedPlan.lockDays ? `${selectedPlan.lockDays} kun` : "Umrbod"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#888]">Asosiy pul:</span>
-                  <span className="font-semibold text-white">{selectedPlan.returnPrincipal ? "Qaytadi" : "Qaytmaydi"}</span>
+                  <span className="text-muted-foreground">Asosiy pul:</span>
+                  <span className="font-semibold text-foreground">{selectedPlan.returnPrincipal ? "Qaytadi" : "Qaytmaydi"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#888]">Depozit:</span>
-                  <span className="font-semibold text-white">
+                  <span className="text-muted-foreground">Depozit:</span>
+                  <span className="font-semibold text-foreground">
                     ${Number(selectedPlan.minDeposit).toLocaleString()} - {selectedPlan.maxDeposit ? `$${Number(selectedPlan.maxDeposit).toLocaleString()}` : "Cheksiz"}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-[#aaa] mb-1.5 block">Summa kiriting ($)</label>
+                <label className="text-sm font-medium text-muted-foreground mb-1.5 block">Summa kiriting ($)</label>
                 <input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder={`Min: $${Number(selectedPlan.minDeposit).toLocaleString()}`}
-                  className="w-full border border-[#333] bg-transparent text-white rounded-xl px-4 py-3 text-base focus:outline-none focus:border-[#FF6B35] transition-colors"
+                  className="w-full border border-border bg-transparent text-foreground rounded-xl px-4 py-3 text-base focus:outline-none focus:border-primary transition-colors"
                   data-testid="input-invest-amount"
                 />
                 {amount && Number(amount) > 0 && (
-                  <p className="text-xs text-[#4ADE80] mt-1.5 font-medium">
+                  <p className="text-xs text-emerald-500 dark:text-emerald-400 mt-1.5 font-medium">
                     Kunlik foyda: +${(Number(amount) * Number(selectedPlan.dailyRoi) / 100).toFixed(2)}
                     {selectedPlan.lockDays && (
-                      <span className="text-[#666] ml-1">
+                      <span className="text-muted-foreground ml-1">
                         | Jami: +${(Number(amount) * Number(selectedPlan.dailyRoi) / 100 * selectedPlan.lockDays).toFixed(2)}
                       </span>
                     )}
@@ -300,13 +300,13 @@ export default function FundPage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between text-xs text-[#666] bg-[#111] rounded-lg px-3 py-2">
+              <div className="flex items-center justify-between text-xs text-muted-foreground bg-muted rounded-lg px-3 py-2">
                 <span>Balans:</span>
-                <span className="font-semibold text-white">${Number(user?.balance || 0).toFixed(2)}</span>
+                <span className="font-semibold text-foreground">${Number(user?.balance || 0).toFixed(2)}</span>
               </div>
 
               <Button
-                className="w-full bg-gradient-to-r from-[#FF6B35] to-[#E8453C] text-white font-bold rounded-xl h-12 text-base shadow-lg"
+                className="w-full bg-primary text-primary-foreground font-bold rounded-xl h-12 text-base shadow-lg"
                 onClick={handleInvest}
                 disabled={investMutation.isPending || !amount || Number(amount) <= 0}
                 data-testid="button-confirm-invest"
