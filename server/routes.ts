@@ -114,7 +114,7 @@ export async function registerRoutes(
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',system-ui,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
 .card{background:linear-gradient(145deg,#12122a,#1a1a2e);border:1px solid rgba(99,102,241,0.2);border-radius:24px;padding:28px 24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-.logo{width:64px;height:64px;margin:0 auto 16px;border-radius:16px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;color:#fff;box-shadow:0 8px 24px rgba(59,130,246,0.3)}
+.logo{width:120px;height:auto;margin:0 auto 16px;filter:drop-shadow(0px 4px 12px rgba(79,107,255,0.4))}
 h1{font-size:20px;margin-bottom:4px;background:linear-gradient(135deg,#60a5fa,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
 .subtitle{color:#94a3b8;font-size:13px;margin-bottom:20px}
 .browser-tabs{display:flex;gap:6px;margin-bottom:16px;background:#0f0f23;border-radius:12px;padding:4px}
@@ -140,7 +140,7 @@ h1{font-size:20px;margin-bottom:4px;background:linear-gradient(135deg,#60a5fa,#a
 .detected svg{width:14px;height:14px}
 </style></head><body>
 <div class="card">
-<div class="logo">V</div>
+<img src="/icons/vem-logo.png" alt="VEM" class="logo">
 <h1>VEM Ilovani O'rnatish</h1>
 <p class="subtitle">Telefoningizga VEM ilovasini o'rnating</p>
 
