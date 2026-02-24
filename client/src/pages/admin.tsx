@@ -405,7 +405,7 @@ function InfoRow({ label, value, color }: { label: string; value: string; color?
   return (
     <div className="bg-card rounded-lg p-2.5 border border-border">
       <p className="text-muted-foreground text-[10px] uppercase tracking-wider">{label}</p>
-      <p className="text-sm font-medium mt-0.5 truncate" style={{ color: color || "#fff" }}>{value}</p>
+      <p className={`text-sm font-medium mt-0.5 truncate ${!color ? "text-foreground" : ""}`} style={color ? { color } : undefined}>{value}</p>
     </div>
   );
 }

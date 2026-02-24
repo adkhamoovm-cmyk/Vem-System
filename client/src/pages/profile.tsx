@@ -1024,29 +1024,29 @@ export default function ProfilePage() {
               {showFinanceService && (
                 <div className="px-4 pb-4 space-y-3">
                   {bankCard ? (
-                    <div className="bg-gradient-to-br from-[#1e3a5f] to-[#0f2440] rounded-xl p-4 border border-[#2a4a6f] relative overflow-hidden" data-testid="card-bank-linked">
+                    <div className="bg-gradient-to-br from-[#dbeafe] to-[#bfdbfe] dark:from-[#1e3a5f] dark:to-[#0f2440] rounded-xl p-4 border border-[#93c5fd] dark:border-[#2a4a6f] relative overflow-hidden" data-testid="card-bank-linked">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-[#60A5FA]" />
-                          <span className="text-[#60A5FA] text-xs font-semibold uppercase tracking-wider">{bankCard.bankName}</span>
+                          <CreditCard className="w-4 h-4 text-[#2563eb] dark:text-[#60A5FA]" />
+                          <span className="text-[#2563eb] dark:text-[#60A5FA] text-xs font-semibold uppercase tracking-wider">{bankCard.bankName}</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                          <span className="text-emerald-500 dark:text-emerald-400 text-[10px]">Faol</span>
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">Faol</span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-foreground font-mono text-sm tracking-widest" data-testid="text-card-number">
+                        <p className="text-[#1e3a5f] dark:text-white font-mono text-sm tracking-widest" data-testid="text-card-number">
                           {showCardNumber
                             ? bankCard.cardNumber
                             : `${bankCard.cardNumber?.slice(0, 4)} •••• •••• ${bankCard.cardNumber?.slice(-4)}`}
                         </p>
-                        <button onClick={() => setShowCardNumber(!showCardNumber)} className="text-[#60A5FA] hover:text-foreground transition-colors" data-testid="button-toggle-card">
+                        <button onClick={() => setShowCardNumber(!showCardNumber)} className="text-[#2563eb] dark:text-[#60A5FA] hover:text-foreground transition-colors" data-testid="button-toggle-card">
                           {showCardNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
-                      <p className="text-[#8ab4f8] text-xs mt-2">{bankCard.holderName}</p>
+                      <p className="text-[#3b82f6] dark:text-[#8ab4f8] text-xs mt-2">{bankCard.holderName}</p>
                     </div>
                   ) : (
                     <button onClick={() => setShowAddBankCard(true)} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#3B82F6] transition-colors" data-testid="button-add-bank-card">
@@ -1055,25 +1055,25 @@ export default function ProfilePage() {
                     </button>
                   )}
                   {usdtWallet ? (
-                    <div className="bg-gradient-to-br from-[#1a2e1a] to-[#0f1f0f] rounded-xl p-4 border border-[#2a4a2a] relative overflow-hidden" data-testid="card-usdt-linked">
+                    <div className="bg-gradient-to-br from-[#dcfce7] to-[#bbf7d0] dark:from-[#1a2e1a] dark:to-[#0f1f0f] rounded-xl p-4 border border-[#86efac] dark:border-[#2a4a2a] relative overflow-hidden" data-testid="card-usdt-linked">
                       <div className="absolute top-0 right-0 w-24 h-24 bg-[#4ADE80]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
-                          <Wallet className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-                          <span className="text-emerald-500 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">{usdtWallet.exchangeName} · TRC20</span>
+                          <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          <span className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">{usdtWallet.exchangeName} · TRC20</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                          <span className="text-emerald-500 dark:text-emerald-400 text-[10px]">Faol</span>
+                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">Faol</span>
                         </div>
                       </div>
                       <div className="flex items-center justify-between">
-                        <p className="text-foreground font-mono text-xs tracking-wider" data-testid="text-wallet-address">
+                        <p className="text-[#14532d] dark:text-white font-mono text-xs tracking-wider" data-testid="text-wallet-address">
                           {showWalletAddress
                             ? usdtWallet.walletAddress
                             : `${usdtWallet.walletAddress?.slice(0, 6)}••••••${usdtWallet.walletAddress?.slice(-6)}`}
                         </p>
-                        <button onClick={() => setShowWalletAddress(!showWalletAddress)} className="text-emerald-500 dark:text-emerald-400 hover:text-foreground transition-colors" data-testid="button-toggle-wallet">
+                        <button onClick={() => setShowWalletAddress(!showWalletAddress)} className="text-emerald-600 dark:text-emerald-400 hover:text-foreground transition-colors" data-testid="button-toggle-wallet">
                           {showWalletAddress ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
