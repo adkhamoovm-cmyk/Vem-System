@@ -779,7 +779,7 @@ function showGuide(browser) {
         receiptUrl,
       });
 
-      res.json({ deposit, message: "So'rov yuborildi! Admin tekshirgandan so'ng balansingizga qo'shiladi." });
+      res.json({ deposit, message: "So'rov yuborildi! Moliya bo'limi tekshirgandan so'ng balansingizga qo'shiladi." });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
