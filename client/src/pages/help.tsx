@@ -22,8 +22,8 @@ export default function HelpPage() {
       icon: Users,
       color: "#4ADE80",
       items: [
-        { label: t("help.officialGroup"), value: "t.me/Vem_Official", link: "https://t.me/Vem_Official", icon: MessageCircle },
-        { label: t("help.newsChannel"), value: "VEM Hamjamiyat", link: "https://t.me/+rO6-eoMDl0EyYWNh", icon: Users },
+        { label: t("help.officialChannel"), value: "t.me/Vem_Official", link: "https://t.me/Vem_Official", icon: MessageCircle },
+        { label: t("help.communityGroup"), value: "VEM Hamjamiyat", link: "https://t.me/+rO6-eoMDl0EyYWNh", icon: Users },
       ],
     },
   ];
