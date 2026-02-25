@@ -428,27 +428,6 @@ function showGuide(browser) {
       await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
       await storage.addBalanceHistory({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
 
-      if (user.referredBy && user.vipLevel > 0) {
-        const l1Commission = (perVideoReward * 0.09).toFixed(2);
-        await storage.updateUserBalance(user.referredBy, l1Commission);
-        await storage.addReferralCommission(user.referredBy, userId, 1, l1Commission);
-        await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi (${user.phone})` });
-        const l1Referrer = await storage.getUser(user.referredBy);
-        if (l1Referrer?.referredBy) {
-          const l2Commission = (perVideoReward * 0.03).toFixed(2);
-          await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
-          await storage.addReferralCommission(l1Referrer.referredBy, userId, 2, l2Commission);
-          await storage.addBalanceHistory({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi` });
-          const l2Referrer = await storage.getUser(l1Referrer.referredBy);
-          if (l2Referrer?.referredBy) {
-            const l3Commission = (perVideoReward * 0.01).toFixed(2);
-            await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
-            await storage.addReferralCommission(l2Referrer.referredBy, userId, 3, l3Commission);
-            await storage.addBalanceHistory({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi` });
-          }
-        }
-      }
-
       res.json({ reward: rewardStr, message: "Vazifa bajarildi!" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -520,6 +499,28 @@ function showGuide(browser) {
       await storage.setUserVipExpiry(userId, expiresAt);
       await storage.setUserVipPurchaseInfo(userId, new Date(), String(pkg.price));
       await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-effectiveCost), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)${refundAmount > 0 ? ` | Qaytim: ${refundAmount.toFixed(2)} USDT` : ""}` });
+
+      if (user.referredBy && !isExtension) {
+        const vipPrice = Number(pkg.price);
+        const l1Commission = (vipPrice * 0.09).toFixed(2);
+        await storage.updateUserBalance(user.referredBy, l1Commission);
+        await storage.addReferralCommission(user.referredBy, userId, 1, l1Commission);
+        await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi — ${pkg.name} sotib oldi (${user.phone})` });
+        const l1Referrer = await storage.getUser(user.referredBy);
+        if (l1Referrer?.referredBy) {
+          const l2Commission = (vipPrice * 0.03).toFixed(2);
+          await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
+          await storage.addReferralCommission(l1Referrer.referredBy, userId, 2, l2Commission);
+          await storage.addBalanceHistory({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+          const l2Referrer = await storage.getUser(l1Referrer.referredBy);
+          if (l2Referrer?.referredBy) {
+            const l3Commission = (vipPrice * 0.01).toFixed(2);
+            await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
+            await storage.addReferralCommission(l2Referrer.referredBy, userId, 3, l3Commission);
+            await storage.addBalanceHistory({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+          }
+        }
+      }
 
       const refundMsg = refundAmount > 0 ? ` Oldingi VIP dan ${refundAmount.toFixed(2)} USDT qaytarildi.` : "";
       res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} kun ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}` });
