@@ -765,8 +765,8 @@ function showGuide(browser) {
       if (currency === "USDT" && numAmount < minUsd) {
         return res.status(400).json({ message: `Minimal miqdor: ${minUsd} USDT` });
       }
-      if (currency === "UZS" && numAmount < minUsd * 12850) {
-        return res.status(400).json({ message: `Minimal miqdor: ${(minUsd * 12850).toLocaleString()} UZS` });
+      if (currency === "UZS" && numAmount < minUsd * 12100) {
+        return res.status(400).json({ message: `Minimal miqdor: ${(minUsd * 12100).toLocaleString()} UZS` });
       }
 
       const receiptUrl = req.file ? `/uploads/receipts/${req.file.filename}` : undefined;
@@ -1081,7 +1081,7 @@ function showGuide(browser) {
 
       let amountInUSDT = deposit.amount;
       if (deposit.currency === "UZS") {
-        amountInUSDT = (Number(deposit.amount) / 12850).toFixed(2);
+        amountInUSDT = (Number(deposit.amount) / 12100).toFixed(2);
       }
 
       await storage.updateDepositStatus(deposit.id, "approved");
