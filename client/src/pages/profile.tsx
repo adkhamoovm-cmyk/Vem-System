@@ -8,7 +8,7 @@ import {
   Wallet, ListChecks, Users, Camera, Shield, Lock,
   Phone, CreditCard, Headphones, ScrollText, Settings,
   ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle, Clock, X, Building, Globe,
-  History, TrendingUp, Banknote, Eye, EyeOff, Landmark,
+  History, TrendingUp, Banknote, Eye, EyeOff, Landmark, RotateCcw,
   GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -1245,15 +1245,16 @@ export default function ProfilePage() {
                     ))}
                   </div>
                   <div className="divide-y divide-border max-h-80 overflow-y-auto">
-                    {balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).length === 0 ? (
+                    {balHistory.filter(h => historyFilter === "all" || h.type === historyFilter || (historyFilter === "withdrawal" && h.type === "withdrawal_cancel")).length === 0 ? (
                       <div className="px-4 py-8 text-center text-muted-foreground text-xs">{t("profile.noOperations")}</div>
                     ) : (
-                      balHistory.filter(h => historyFilter === "all" || h.type === historyFilter).map((h) => {
+                      balHistory.filter(h => historyFilter === "all" || h.type === historyFilter || (historyFilter === "withdrawal" && h.type === "withdrawal_cancel")).map((h) => {
                         const isPositive = Number(h.amount) >= 0;
                         const typeIcons: Record<string, { icon: typeof TrendingUp; color: string }> = {
                           earning: { icon: TrendingUp, color: "#4ADE80" },
                           deposit: { icon: ArrowDownCircle, color: "#4ADE80" },
                           withdrawal: { icon: ArrowUpCircle, color: "hsl(var(--primary))" },
+                          withdrawal_cancel: { icon: RotateCcw, color: "#FFB300" },
                           vip_purchase: { icon: Crown, color: "hsl(var(--yellow-500, 234 179 8))" },
                           fund_invest: { icon: Banknote, color: "#60A5FA" },
                           commission: { icon: Users, color: "#A78BFA" },
@@ -1274,6 +1275,19 @@ export default function ProfilePage() {
                                     const m = d.match(/^(\w+)\s/);
                                     return m ? m[1] : "VIP";
                                   };
+                                  const parts = desc.split("|");
+                                  const hasStatusFormat = parts.length >= 2 && ["pending", "approved", "rejected"].includes(parts[0]);
+                                  const entryStatus = hasStatusFormat ? parts[0] : null;
+                                  const methodInfo = hasStatusFormat ? parts[1] : "";
+                                  const commissionInfo = hasStatusFormat && parts[2] ? parts[2] : "";
+
+                                  const statusLabel = entryStatus === "pending" ? t("common.pending")
+                                    : entryStatus === "approved" ? t("common.approved")
+                                    : entryStatus === "rejected" ? t("common.rejected") : "";
+                                  const statusColor = entryStatus === "pending" ? "text-yellow-500"
+                                    : entryStatus === "approved" ? "text-emerald-500"
+                                    : entryStatus === "rejected" ? "text-red-500" : "";
+
                                   const typeMap: Record<string, () => string> = {
                                     earning: () => {
                                       if (desc.includes("Fond") || desc.includes("fond")) return t("vip.historyFundProfit");
@@ -1282,9 +1296,16 @@ export default function ProfilePage() {
                                     },
                                     deposit: () => {
                                       if (desc.includes("qaytarildi") || desc.includes("fond")) return t("vip.historyFundReturn");
+                                      if (hasStatusFormat) return t("vip.historyDeposit");
                                       return t("vip.historyDeposit");
                                     },
-                                    withdrawal: () => t("vip.historyWithdrawal", { commission: "10%" }),
+                                    withdrawal: () => {
+                                      if (hasStatusFormat) {
+                                        return `${t("vip.historyWithdrawalMethod", { method: methodInfo })}`;
+                                      }
+                                      return t("vip.historyWithdrawal", { commission: "10%" });
+                                    },
+                                    withdrawal_cancel: () => t("vip.historyWithdrawalCancel"),
                                     vip_purchase: () => {
                                       const name = extractName(desc);
                                       if (desc.includes("uzaytirildi")) return t("vip.historyVipExtend", { name });
@@ -1299,6 +1320,26 @@ export default function ProfilePage() {
                                   const fn = typeMap[h.type];
                                   return fn ? fn() : h.description;
                                 })()}</p>
+                                {(() => {
+                                  const desc = h.description || "";
+                                  const parts = desc.split("|");
+                                  const hasStatusFormat = parts.length >= 2 && ["pending", "approved", "rejected"].includes(parts[0]);
+                                  if (!hasStatusFormat) return null;
+                                  const entryStatus = parts[0];
+                                  const methodInfo = parts[1] || "";
+                                  const statusLabel = entryStatus === "pending" ? t("common.pending")
+                                    : entryStatus === "approved" ? t("common.approved")
+                                    : entryStatus === "rejected" ? t("common.rejected") : "";
+                                  const statusColor = entryStatus === "pending" ? "text-yellow-500"
+                                    : entryStatus === "approved" ? "text-emerald-500"
+                                    : entryStatus === "rejected" ? "text-red-500" : "";
+                                  return (
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                      <span className={`text-[9px] font-semibold ${statusColor}`}>{statusLabel}</span>
+                                      {methodInfo && <span className="text-muted-foreground text-[9px]">• {methodInfo}</span>}
+                                    </div>
+                                  );
+                                })()}
                                 <p className="text-muted-foreground text-[10px]">{new Date(h.createdAt).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>
                               </div>
                             </div>

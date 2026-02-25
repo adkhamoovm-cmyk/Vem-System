@@ -779,6 +779,9 @@ function showGuide(browser) {
         receiptUrl,
       });
 
+      const depositMethodLabel = paymentType === "crypto" ? `USDT (${currency === "USDT" ? "Crypto" : "UZS"})` : `Bank karta (${currency})`;
+      await storage.addBalanceHistory({ userId, type: "deposit", amount: "0", description: `pending|${depositMethodLabel}|${numAmount.toFixed(2)} ${currency}` });
+
       res.json({ deposit, message: "So'rov yuborildi! Moliya bo'limi tekshirgandan so'ng balansingizga qo'shiladi." });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -865,6 +868,10 @@ function showGuide(browser) {
       const commission = numAmount * 0.10;
       const netAmount = numAmount - commission;
 
+      const methodLabel = isCrypto
+        ? `BSC (BEP20)${method.walletAddress ? ` — ${method.walletAddress.slice(0, 6)}...${method.walletAddress.slice(-4)}` : ""}`
+        : `${method.bankName || "Bank karta"}${method.cardNumber ? ` — ****${method.cardNumber.slice(-4)}` : ""}`;
+
       await storage.deductUserBalance(userId, numAmount.toFixed(2));
 
       const withdrawal = await storage.createWithdrawalRequest({
@@ -874,7 +881,7 @@ function showGuide(browser) {
         commission: commission.toFixed(2),
         netAmount: netAmount.toFixed(2),
       });
-      await storage.addBalanceHistory({ userId, type: "withdrawal", amount: String(-numAmount), description: `Pul yechish so'rovi (komissiya: ${commission.toFixed(2)})` });
+      await storage.addBalanceHistory({ userId, type: "withdrawal", amount: String(-numAmount), description: `pending|${methodLabel}|${commission.toFixed(2)}` });
 
       res.json({ withdrawal, message: "Yechish so'rovi yuborildi! Tekshirgandan so'ng amalga oshiriladi." });
     } catch (error: any) {
@@ -1080,7 +1087,7 @@ function showGuide(browser) {
       await storage.updateDepositStatus(deposit.id, "approved");
       await storage.updateUserBalance(deposit.userId, amountInUSDT);
       await storage.updateUserTotalDeposit(deposit.userId, amountInUSDT);
-      await storage.addBalanceHistory({ userId: deposit.userId, type: "deposit", amount: amountInUSDT, description: `Depozit tasdiqlandi (${deposit.currency})` });
+      await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "approved", amountInUSDT);
       res.json({ message: "Depozit tasdiqlandi va balansga qo'shildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1094,6 +1101,7 @@ function showGuide(browser) {
       if (deposit.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan depozitlar rad etilishi mumkin" });
 
       await storage.updateDepositStatus(deposit.id, "rejected");
+      await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "rejected", "0");
       res.json({ message: "Depozit rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1122,6 +1130,7 @@ function showGuide(browser) {
       if (!withdrawal) return res.status(404).json({ message: "So'rov topilmadi" });
       if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar tasdiqlanishi mumkin" });
       await storage.updateWithdrawalStatus(withdrawal.id, "approved");
+      await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "approved");
       res.json({ message: "Yechish tasdiqlandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1136,7 +1145,8 @@ function showGuide(browser) {
 
       await storage.updateWithdrawalStatus(withdrawal.id, "rejected");
       await storage.updateUserBalance(withdrawal.userId, withdrawal.amount);
-      await storage.addBalanceHistory({ userId: withdrawal.userId, type: "admin_adjust", amount: withdrawal.amount, description: `Pul yechish rad etildi — balans qaytarildi` });
+      await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "rejected");
+      await storage.addBalanceHistory({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `Yechish bekor qilindi — qaytarildi ${withdrawal.amount} USDT` });
       res.json({ message: "Yechish rad etildi va balans qaytarildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

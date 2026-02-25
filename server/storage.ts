@@ -79,6 +79,8 @@ export interface IStorage {
   setStajyorUsed(id: string): Promise<void>;
   addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
   getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
+  updateWithdrawalHistoryStatus(userId: string, withdrawalId: string, newStatus: string): Promise<void>;
+  updateDepositHistoryStatus(userId: string, amount: string, currency: string, newStatus: string, amountInUSDT: string): Promise<void>;
   toggleVipPackageLock(id: string, locked: boolean): Promise<void>;
   createPromoCode(data: { code: string; amount: string; isOneTime: boolean; maxUses?: number }): Promise<PromoCode>;
   getPromoCodeByCode(code: string): Promise<PromoCode | undefined>;
@@ -513,6 +515,35 @@ export class DatabaseStorage implements IStorage {
 
   async getUserBalanceHistory(userId: string): Promise<BalanceHistory[]> {
     return db.select().from(balanceHistory).where(eq(balanceHistory.userId, userId)).orderBy(desc(balanceHistory.createdAt));
+  }
+
+  async updateWithdrawalHistoryStatus(userId: string, _withdrawalId: string, newStatus: string): Promise<void> {
+    const entries = await db.select().from(balanceHistory)
+      .where(and(eq(balanceHistory.userId, userId), eq(balanceHistory.type, "withdrawal")))
+      .orderBy(desc(balanceHistory.createdAt))
+      .limit(5);
+    const pendingEntry = entries.find(e => e.description?.startsWith("pending|"));
+    if (pendingEntry) {
+      const parts = pendingEntry.description!.split("|");
+      parts[0] = newStatus;
+      await db.update(balanceHistory).set({ description: parts.join("|") }).where(eq(balanceHistory.id, pendingEntry.id));
+    }
+  }
+
+  async updateDepositHistoryStatus(userId: string, amount: string, currency: string, newStatus: string, amountInUSDT: string): Promise<void> {
+    const entries = await db.select().from(balanceHistory)
+      .where(and(eq(balanceHistory.userId, userId), eq(balanceHistory.type, "deposit")))
+      .orderBy(desc(balanceHistory.createdAt))
+      .limit(10);
+    const searchStr = `${amount} ${currency}`;
+    const pendingEntry = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
+    if (pendingEntry) {
+      const parts = pendingEntry.description!.split("|");
+      parts[0] = newStatus;
+      await db.update(balanceHistory)
+        .set({ description: parts.join("|"), amount: amountInUSDT })
+        .where(eq(balanceHistory.id, pendingEntry.id));
+    }
   }
 
   async toggleVipPackageLock(id: string, locked: boolean): Promise<void> {
