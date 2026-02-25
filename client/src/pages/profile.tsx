@@ -600,6 +600,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
 function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean; onClose: () => void; user: User; paymentMethods: PaymentMethod[] }) {
   const { toast } = useToast();
   const { t, locale, translateServerMessage } = useI18n();
+  const [withdrawType, setWithdrawType] = useState<"card" | "crypto" | null>(null);
   const [selectedMethodId, setSelectedMethodId] = useState("");
   const [amount, setAmount] = useState("");
   const [fundPassword, setFundPassword] = useState("");
@@ -632,6 +633,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
       setAmount("");
       setFundPassword("");
       setSelectedMethodId("");
+      setWithdrawType(null);
     },
     onError: (error: Error) => {
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
@@ -691,7 +693,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-[11px]">{t("profile.minWithdrawAmount")}</span>
                 <span className="text-muted-foreground text-[11px] font-medium">
-                  {(() => { const sm = paymentMethods.find(m => m.id === selectedMethodId); return sm?.type === "crypto" ? "3.00" : "2.00"; })()} USDT
+                  {withdrawType === "crypto" ? "3.00" : "2.00"} USDT
                 </span>
               </div>
               <div className="flex justify-between">
@@ -709,20 +711,71 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
             </div>
           </div>
 
-          {paymentMethods.length === 0 ? (
-            <div className="bg-primary/5 rounded-xl p-5 border border-primary/20 text-center">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <Lock className="w-6 h-6 text-primary" />
-              </div>
-              <p className="text-foreground text-sm font-semibold">{t("profile.addPaymentFirst")}</p>
-              <p className="text-muted-foreground text-xs mt-1">{t("profile.addPaymentFirstDesc")}</p>
+          {!withdrawType ? (
+            <div className="space-y-3">
+              <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.selectWithdrawType")}</p>
+              <button
+                onClick={() => setWithdrawType("card")}
+                className="w-full bg-card rounded-xl p-4 border border-border hover:border-[#3B82F6]/50 transition-colors flex items-center gap-3 text-left group"
+                data-testid="button-withdraw-card"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-[#3B82F6]/20 to-[#3B82F6]/5 rounded-xl flex items-center justify-center">
+                  <CreditCard className="w-6 h-6 text-[#3B82F6]" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-foreground font-semibold text-sm">{t("profile.bankCardUzs")}</p>
+                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? "Мин. вывод: 2 USDT" : locale === "en" ? "Min withdrawal: 2 USDT" : "Min yechish: 2 USDT"}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#3B82F6] transition-colors" />
+              </button>
+              <button
+                onClick={() => setWithdrawType("crypto")}
+                className="w-full bg-card rounded-xl p-4 border border-border hover:border-yellow-500/50 transition-colors flex items-center gap-3 text-left group"
+                data-testid="button-withdraw-crypto"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 rounded-xl flex items-center justify-center">
+                  <Globe className="w-6 h-6 text-yellow-500" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-foreground font-semibold text-sm">BSC (BEP20)</p>
+                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? "Мин. вывод: 3 USDT" : locale === "en" ? "Min withdrawal: 3 USDT" : "Min yechish: 3 USDT"}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-yellow-500 transition-colors" />
+              </button>
             </div>
-          ) : (
+          ) : (() => {
+            const filteredMethods = paymentMethods.filter(m => withdrawType === "card" ? m.type === "bank" : m.type === "crypto");
+            const minAmount = withdrawType === "crypto" ? 3 : 2;
+            return (
             <>
+              <button onClick={() => { setWithdrawType(null); setSelectedMethodId(""); setAmount(""); setFundPassword(""); }} className="text-muted-foreground text-xs flex items-center gap-1.5 hover:text-foreground transition-colors">
+                <ChevronDown className="w-3.5 h-3.5 rotate-90" /> {t("profile.back")}
+              </button>
+
+              {withdrawType === "crypto" && (
+                <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
+                  <p className="text-amber-500 text-xs font-semibold">
+                    {locale === "ru" ? "Внимание: Вывод крипто только через сеть BSC (BEP20)! Средства, отправленные через другую сеть, будут потеряны."
+                      : locale === "en" ? "Attention: Crypto withdrawal only via BSC (BEP20) network! Funds sent via wrong network will be lost."
+                      : "Diqqat: Kripto faqat BSC (BEP20) tarmoq orqali yechiladi! Noto'g'ri tarmoqdan yuborilgan mablag' yo'qoladi."}
+                  </p>
+                </div>
+              )}
+
+              {filteredMethods.length === 0 ? (
+                <div className="bg-primary/5 rounded-xl p-5 border border-primary/20 text-center">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Lock className="w-6 h-6 text-primary" />
+                  </div>
+                  <p className="text-foreground text-sm font-semibold">{t("profile.addPaymentFirst")}</p>
+                  <p className="text-muted-foreground text-xs mt-1">{t("profile.addPaymentFirstDesc")}</p>
+                </div>
+              ) : (
+              <>
               <div className="space-y-1.5">
                 <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.paymentMethod")}</label>
                 <div className="space-y-2">
-                  {paymentMethods.map((m) => (
+                  {filteredMethods.map((m) => (
                     <button
                       key={m.id}
                       onClick={() => setSelectedMethodId(m.id)}
@@ -732,12 +785,12 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                       data-testid={`button-method-${m.id}`}
                     >
                       <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                        m.type === "bank" ? "bg-[#3B82F6]/15" : "bg-primary/15"
+                        m.type === "bank" ? "bg-[#3B82F6]/15" : "bg-yellow-500/15"
                       }`}>
                         {m.type === "bank" ? (
                           <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                         ) : (
-                          <Wallet className="w-4 h-4 text-primary" />
+                          <Wallet className="w-4 h-4 text-yellow-500" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -758,27 +811,17 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 </div>
               </div>
 
-              {paymentMethods.find(m => m.id === selectedMethodId)?.type === "crypto" && (
-                <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
-                  <p className="text-amber-500 text-xs font-semibold">
-                    {locale === "ru" ? "Внимание: Вывод крипто только через сеть BSC (BEP20)! Средства, отправленные через другую сеть, будут потеряны."
-                      : locale === "en" ? "Attention: Crypto withdrawal only via BSC (BEP20) network! Funds sent via wrong network will be lost."
-                      : "Diqqat: Kripto faqat BSC (BEP20) tarmoq orqali yechiladi! Noto'g'ri tarmoqdan yuborilgan mablag' yo'qoladi."}
-                  </p>
-                </div>
-              )}
-
               <div className="space-y-1.5">
                 <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.amountUsdt")}</label>
                 <Input
                   type="number"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder={t("profile.minWithdrawal")}
+                  placeholder={`${locale === "ru" ? "Минимум" : locale === "en" ? "Minimum" : "Minimal"}: $${minAmount}`}
                   className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 text-base focus:border-primary"
                   data-testid="input-withdraw-amount"
                 />
-                {numAmount >= (paymentMethods.find(m => m.id === selectedMethodId)?.type === "crypto" ? 3 : 2) && (
+                {numAmount >= minAmount && (
                   <div className="bg-background rounded-xl p-3 border border-border space-y-1.5">
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground text-[11px]">{t("profile.withdrawAmount")}</span>
@@ -818,14 +861,17 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
               <Button
                 onClick={() => withdrawMutation.mutate()}
-                disabled={!selectedMethodId || numAmount < (paymentMethods.find(m => m.id === selectedMethodId)?.type === "crypto" ? 3 : 2) || numAmount > balance || fundPassword.length !== 6 || !isWithdrawTime || withdrawMutation.isPending}
+                disabled={!selectedMethodId || numAmount < minAmount || numAmount > balance || fundPassword.length !== 6 || !isWithdrawTime || withdrawMutation.isPending}
                 className="w-full bg-primary text-primary-foreground font-bold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-primary/10"
                 data-testid="button-submit-withdraw"
               >
                 {withdrawMutation.isPending ? t("profile.sending") : t("profile.submitWithdrawRequest")}
               </Button>
+              </>
+              )}
             </>
-          )}
+            );
+          })()}
         </div>
       </DialogContent>
     </Dialog>
