@@ -688,14 +688,19 @@ function showGuide(browser) {
       }
 
       await storage.updateUserBalance(userId, String(-investAmount));
+      const today = new Date().toISOString().split("T")[0];
       const investment = await storage.createInvestment({
         userId,
         fundPlanId,
         investedAmount: investAmount.toFixed(2),
         dailyProfit,
         endDate,
+        lastProfitDate: today,
       });
       await storage.addBalanceHistory({ userId, type: "fund_invest", amount: String(-investAmount), description: `${plan.name} fondiga investitsiya` });
+
+      await storage.updateUserBalance(userId, dailyProfit);
+      await storage.addBalanceHistory({ userId, type: "fund_profit", amount: dailyProfit, description: `${plan.name} fond daromadi +${dailyProfit} USDT` });
 
       res.json({ investment, message: "Investitsiya muvaffaqiyatli amalga oshirildi!" });
     } catch (error: any) {
