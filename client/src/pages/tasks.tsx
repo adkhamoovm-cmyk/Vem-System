@@ -14,16 +14,32 @@ function isSunday() {
 }
 
 const youtubeVideos = [
-  "8Qn_spdM5Zg",
-  "d9MyW72ELq0",
-  "TcMBFSGVi1c",
-  "eOrNdBpGMv8",
-  "xjDjIWPwcPU",
-  "YoHD9XEInc0",
-  "hYcw5ksV8YQ",
-  "u34gHaRiBIU",
-  "giXco2jaZ_4",
-  "dQw4w9WgXcQ",
+  "Ed1sGgHUo88", "_zHPsmXCjB0", "ueCc-AYUMRs", "XwQRkOK5KC4", "YN2H_sKcmGw",
+  "u3V5KDHRQvk", "gn5QmllRCn4", "C5pHpQqhmR4", "TcMBFSGVi1c", "PLLQK9la6Go",
+  "pBk4NYhWNMM", "L0MK7qz13bU", "ue80QwXMRHg", "-sAOWhvheK8", "fsQgc9pCyDU",
+  "xxEt9fnILgQ", "8g18jFHCLXk", "cqGjhVJWtEg", "KK8FHdFluOQ", "6COmYeLsz4c",
+  "mqqft2x_Aa4", "Rt_UqUm38BI", "YoHD9XEInc0", "d9MyW72ELq0", "giXco2jaZ_4",
+  "hYcw5ksV8YQ", "u34gHaRiBIU", "8Qn_spdM5Zg", "eOrNdBpGMv8", "xjDjIWPwcPU",
+  "JfVOs4VSpmA", "Way9Dexny3w", "odM92ap8_c0", "BwPL0Md_QFQ", "dxWvtMOGAhw",
+  "NIhFB4Z3IRk", "GoAA0sYkLI0", "zSWdZVtXT7E", "jBa4FkKKbME", "aOC8E8z_ifw",
+  "FtSpp0Lfpkw", "vKQi3bBA1y8", "X0tOpBuYasI", "VYhIkhdcuis", "CaimKeDcudo",
+  "hcrVOYR7x7k", "JDcAKZEACgU", "5UaKlB667Lc", "mJdSuElLmIQ", "SBQLsHSVSqQ",
+  "nW948Va-l10", "wxN1T1uxQ2g", "IWBsDaFWyTE", "0WVDKZJkGlY", "BIhNsAtPbPI",
+  "2m1drlOZSDw", "aThhcwSRgZ8", "P6AaSMfXHbA", "YDDHHrt6l4w", "FmWR8FwQDF0",
+  "h7_8pCq1Grk", "bK6ldnjE3Y0", "ByXuk6nOMao", "kXYiU_JCYtU", "MjVB5Z8W3Z0",
+  "ism8dBjVWwk", "avz06HB9QP8", "ZYzbalQ6Lg8", "lV1OOlGwExM", "Kdr5oedn40c",
+  "8YjFbMbfXaQ", "qEVUtrk8_B4", "t86sKsR4pnk", "lB95KLmpLR4", "u7X7m6fPO4k",
+  "JYhxGOvBOYk", "ycoY201RTRo", "EjIemyR1OlI", "e9vrfEoc8_g", "TC2OKcHZQMU",
+  "oZ6iiRrz1SY", "nYEJCCNduhw", "tI_-n6IbKBE", "wb49-oV0F78", "rH1ywkS_Mc8",
+  "6DxjJzmYsXo", "QdpxoFluDgI", "AI7ULzgf8RU", "s7EdQ4FqbhY", "VuN4jMJfRdo",
+  "RlOB3UALvrQ", "LKFuXETZUsI", "EG0si5bSd6I", "4rgYUipGJNo", "ryzXmdFjDVA",
+  "5PSNL1qE6VY", "KYz2wyBy3kc", "hSVNbxjdvv8", "BbbYbkR-228", "sVxJ016xb4Q",
+  "tmeOjFno6Do", "Gls8Q1uYCTs", "CDNsjVX4OSk", "8ZYhuvIv1pA", "shW9i6k8cB0",
+  "MiLz1xCAhsc", "mcomJrA7eTk", "1ZGow7gczKk", "d7Nk8kyCols", "GV3HUDMQ-F8",
+  "VoJc2ZUBt5o", "A5uoVNJnkzo", "M7XM597XO94", "CnGJlLqHRLg", "0-YGVKhH5vE",
+  "H6UhVFWbTpw", "tPRv-Y9CKNY", "aWzlQ2N6qqg", "p01crvxinwo", "aSiDu3Yt5tI",
+  "Py_IndUbcxc", "inJiLBs2VFo", "HGCFM4Mgk3c", "rPX8jXwwjbE", "3CExtfeE7I4",
+  "cZ3rO5ZHj3E", "ZID0MIDoKr8", "G5kzUpWAusI", "8UcVQKgjXiw",
 ];
 
 const TIMER_DURATION = 30;
@@ -212,8 +228,33 @@ export default function TasksPage() {
     queryKey: ["/api/vip-packages"],
   });
 
+  const [watchedToday, setWatchedToday] = useState<Set<string>>(new Set());
+  const [shuffledVideos, setShuffledVideos] = useState<string[]>(() => {
+    const arr = [...youtubeVideos];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  });
+  const [videoIndex, setVideoIndex] = useState(0);
+
+  const getNextUnwatched = (startIdx: number): string => {
+    for (let i = 0; i < shuffledVideos.length; i++) {
+      const idx = (startIdx + i) % shuffledVideos.length;
+      if (!watchedToday.has(shuffledVideos[idx])) {
+        setVideoIndex(idx + 1);
+        return shuffledVideos[idx];
+      }
+    }
+    setWatchedToday(new Set());
+    const randomIdx = Math.floor(Math.random() * shuffledVideos.length);
+    setVideoIndex(randomIdx + 1);
+    return shuffledVideos[randomIdx];
+  };
+
   const [nextVideoId, setNextVideoId] = useState(() =>
-    youtubeVideos[Math.floor(Math.random() * youtubeVideos.length)]
+    shuffledVideos[0]
   );
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
@@ -224,7 +265,7 @@ export default function TasksPage() {
   const isLimitReached = user ? user.dailyTasksCompleted >= user.dailyTasksLimit : false;
 
   const pickNextVideo = () => {
-    setNextVideoId(youtubeVideos[Math.floor(Math.random() * youtubeVideos.length)]);
+    setNextVideoId(getNextUnwatched(videoIndex));
   };
 
   const handleStartTask = () => {
@@ -233,6 +274,9 @@ export default function TasksPage() {
   };
 
   const handleCloseVideo = () => {
+    if (activeVideoId) {
+      setWatchedToday(prev => new Set(prev).add(activeVideoId));
+    }
     setActiveVideoId(null);
     pickNextVideo();
   };
