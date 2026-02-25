@@ -162,7 +162,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                       <div className="bg-primary/5 px-3.5 py-2 border-b border-primary/10 flex items-center gap-2">
                         <Globe className="w-3.5 h-3.5 text-primary" />
                         <span className="text-primary text-xs font-semibold">{req.exchangeName || "USDT"}</span>
-                        <span className="text-muted-foreground text-[10px] ml-auto">{req.networkType || "TRC20"}</span>
+                        <span className="text-muted-foreground text-[10px] ml-auto">{req.networkType || "BEP20"}</span>
                       </div>
                       <div className="px-3.5 py-3">
                         <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">{t("profile.walletAddressLabel")}</p>
@@ -628,7 +628,9 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
             <div className="px-3.5 py-2.5 space-y-1.5">
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-[11px]">{t("profile.minWithdrawAmount")}</span>
-                <span className="text-muted-foreground text-[11px] font-medium">2.00 USDT</span>
+                <span className="text-muted-foreground text-[11px] font-medium">
+                  {(() => { const sm = paymentMethods.find(m => m.id === selectedMethodId); return sm?.type === "crypto" ? "3.00" : "2.00"; })()} USDT
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-[11px]">{t("profile.commissionLabel")}</span>
@@ -678,7 +680,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-foreground text-xs font-medium">
-                          {m.type === "bank" ? `${m.bankName} •••• ${m.cardNumber?.slice(-4)}` : `${m.exchangeName} • TRC20`}
+                          {m.type === "bank" ? `${m.bankName} •••• ${m.cardNumber?.slice(-4)}` : `${m.exchangeName} • BEP20`}
                         </p>
                         <p className="text-muted-foreground text-[10px] truncate mt-0.5">
                           {m.type === "bank" ? m.holderName : m.walletAddress}
@@ -694,6 +696,12 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 </div>
               </div>
 
+              {paymentMethods.find(m => m.id === selectedMethodId)?.type === "crypto" && (
+                <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
+                  <p className="text-amber-500 text-xs font-semibold">{t("profile.attentionTrc20")}</p>
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.amountUsdt")}</label>
                 <Input
@@ -704,7 +712,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                   className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 text-base focus:border-primary"
                   data-testid="input-withdraw-amount"
                 />
-                {numAmount >= 2 && (
+                {numAmount >= (paymentMethods.find(m => m.id === selectedMethodId)?.type === "crypto" ? 3 : 2) && (
                   <div className="bg-background rounded-xl p-3 border border-border space-y-1.5">
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground text-[11px]">{t("profile.withdrawAmount")}</span>
@@ -744,7 +752,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
               <Button
                 onClick={() => withdrawMutation.mutate()}
-                disabled={!selectedMethodId || numAmount < 2 || numAmount > balance || fundPassword.length !== 6 || !isWithdrawTime || withdrawMutation.isPending}
+                disabled={!selectedMethodId || numAmount < (paymentMethods.find(m => m.id === selectedMethodId)?.type === "crypto" ? 3 : 2) || numAmount > balance || fundPassword.length !== 6 || !isWithdrawTime || withdrawMutation.isPending}
                 className="w-full bg-primary text-primary-foreground font-bold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-primary/10"
                 data-testid="button-submit-withdraw"
               >
@@ -1060,7 +1068,7 @@ export default function ProfilePage() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">{usdtWallet.exchangeName} · TRC20</span>
+                          <span className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">{usdtWallet.exchangeName} · BEP20</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />

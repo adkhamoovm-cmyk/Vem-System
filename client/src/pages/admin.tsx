@@ -350,7 +350,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                     {m.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-primary" />}
                     <div>
                       <p className="text-foreground text-xs">{m.type === "bank" ? `${m.bankName} - ${m.cardNumber}` : `${m.exchangeName} - ${m.walletAddress?.slice(0, 20)}...`}</p>
-                      <p className="text-muted-foreground text-[10px]">{m.type === "bank" ? m.holderName : "TRC20"}</p>
+                      <p className="text-muted-foreground text-[10px]">{m.type === "bank" ? m.holderName : "BEP20"}</p>
                     </div>
                   </div>
                   <Button size="sm" onClick={() => deleteMethodMutation.mutate(m.id)} variant="ghost" className="text-primary h-6 px-2" data-testid={`button-delete-method-${m.id}`}>
@@ -733,7 +733,7 @@ function SettingsTab() {
   const [holderName, setHolderName] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
   const [exchangeName, setExchangeName] = useState("");
-  const [networkType, setNetworkType] = useState("TRC20");
+  const [networkType, setNetworkType] = useState("BEP20");
 
   const { data: settings = [] } = useQuery<DepositSetting[]>({ queryKey: ["/api/admin/deposit-settings"] });
 
@@ -758,7 +758,7 @@ function SettingsTab() {
     onSuccess: () => { toast({ title: t("admin.deleted") }); queryClient.invalidateQueries({ queryKey: ["/api/admin/deposit-settings"] }); },
   });
 
-  const resetForm = () => { setShowForm(false); setEditingId(null); setBankName(""); setCardNumber(""); setHolderName(""); setWalletAddress(""); setExchangeName(""); setNetworkType("TRC20"); };
+  const resetForm = () => { setShowForm(false); setEditingId(null); setBankName(""); setCardNumber(""); setHolderName(""); setWalletAddress(""); setExchangeName(""); setNetworkType("BEP20"); };
 
   const startEdit = (s: DepositSetting) => {
     setEditingId(s.id);
@@ -768,7 +768,7 @@ function SettingsTab() {
     setHolderName(s.holderName || "");
     setWalletAddress(s.walletAddress || "");
     setExchangeName(s.exchangeName || "");
-    setNetworkType(s.networkType || "TRC20");
+    setNetworkType(s.networkType || "BEP20");
     setShowForm(true);
   };
 
