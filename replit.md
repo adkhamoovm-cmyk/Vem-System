@@ -5,6 +5,7 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 
 ## Recent Changes
 - 2026-02-25: **Pre-launch Security Audit**: Rate limiting (express-rate-limit) on auth/task/withdraw/deposit/vip/fund routes; DB CHECK constraint (balance >= 0); isBanned check on all financial routes; duplicate video watching prevention per day; global API rate limiter (60 req/min)
+- 2026-02-25: Video library cleaned: 108 verified YouTube trailer IDs (all with valid maxresdefault.jpg thumbnails), removed all invalid/404 IDs
 - 2026-02-25: Support widget (draggable) on login/register pages with 3 Telegram links (support, channel, community)
 - 2026-02-25: Help page updated with correct Telegram links (t.me/vem_ms, t.me/Vem_Official, community group)
 - 2026-02-24: PWA install modal: in-app scrollable modal with multi-language support (uz/ru/en), auto-detects iOS/Android/Desktop
