@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, getVipName } from "@/lib/i18n";
 
 const levelIcons: Record<number, typeof Shield> = {
   0: Shield, 1: Medal, 2: Star, 3: Award, 4: Gem, 5: Zap,
@@ -27,7 +27,7 @@ const levelColors: Record<number, { primary: string; bg: string; gradient: strin
 };
 
 export default function VipPage() {
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [stajyorMsg, setStajyorMsg] = useState("");
 
@@ -102,7 +102,7 @@ export default function VipPage() {
             <div className="mt-3 bg-white/10 rounded-xl p-3 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <span className="text-primary-foreground/80 text-xs">{t("vip.currentLevel")}</span>
-                <span className="font-bold text-sm">{user.vipLevel < 0 ? t("common.notEmployee") : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}</span>
+                <span className="font-bold text-sm">{user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}</span>
               </div>
               <div className="flex items-center justify-between mt-1">
                 <span className="text-primary-foreground/80 text-xs">{t("common.balance")}:</span>
@@ -226,7 +226,7 @@ export default function VipPage() {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-foreground font-bold">{pkg.name}</h3>
+                          <h3 className="text-foreground font-bold">{pkg.name === "Stajyor" ? getVipName(0, locale) : pkg.name}</h3>
                           {isLocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                         </div>
                         <p className="text-muted-foreground text-xs mt-0.5">{pkg.level === 0 ? t("vip.descStajyor") : t("vip.descDaily", { count: pkg.dailyTasks })}</p>

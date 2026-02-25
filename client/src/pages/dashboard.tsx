@@ -5,15 +5,10 @@ import { Progress } from "@/components/ui/progress";
 import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, getVipName } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
 
-const vipNames: Record<number, string> = {
-  0: "Stajyor",
-  1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5",
-  6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10",
-};
 
 const VipIcon = ({ level, className }: { level: number; className?: string }) => {
   const iconMap: Record<number, any> = {
@@ -216,7 +211,7 @@ export default function DashboardPage() {
                 <div>
                   <span className="text-muted-foreground text-[9px] uppercase tracking-wider flex items-center gap-1">
                     {user.vipLevel >= 0 && <VipIcon level={user.vipLevel} className="w-3 h-3 text-primary" />}
-                    {user.vipLevel < 0 ? t("common.notEmployee") : (vipNames[user.vipLevel] || `M${user.vipLevel}`)}
+                    {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
                   </span>
                   <p className="text-foreground text-xs font-medium">ID: {user.numericId || "—"}</p>
                 </div>

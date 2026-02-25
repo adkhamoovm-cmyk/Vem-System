@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory } from "@shared/schema";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, getVipName } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
 
@@ -26,7 +26,7 @@ function formatUZS(usd: number): string {
 
 function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User }) {
   const { toast } = useToast();
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const [paymentType, setPaymentType] = useState<"crypto" | "local" | null>(null);
   const [amount, setAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -317,7 +317,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
 
 function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose: () => void; type: "bank" | "usdt" }) {
   const { toast } = useToast();
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const [holderName, setHolderName] = useState("");
   const [bankName, setBankName] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -537,7 +537,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
 
 function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean; onClose: () => void; user: User; paymentMethods: PaymentMethod[] }) {
   const { toast } = useToast();
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const [selectedMethodId, setSelectedMethodId] = useState("");
   const [amount, setAmount] = useState("");
   const [fundPassword, setFundPassword] = useState("");
@@ -760,7 +760,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
 export default function ProfilePage() {
   const { toast } = useToast();
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const [, navigate] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSecretInfo, setShowSecretInfo] = useState(false);
@@ -891,7 +891,6 @@ export default function ProfilePage() {
     }
   };
 
-  const vipTierNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
 
   const vipIconMap: Record<number, any> = {
     0: GraduationCap, 1: Star, 2: Star, 3: Star, 4: Flame,
@@ -951,7 +950,7 @@ export default function ProfilePage() {
                 return (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary flex items-center gap-1">
                     {user.vipLevel >= 0 && <VipLevelIcon className="w-3 h-3" />}
-                    {user.vipLevel < 0 ? t("profile.notEmployee") : (vipTierNames[user.vipLevel] || `M${user.vipLevel}`)}
+                    {user.vipLevel < 0 ? t("profile.notEmployee") : getVipName(user.vipLevel, locale)}
                   </span>
                 );
               })()}

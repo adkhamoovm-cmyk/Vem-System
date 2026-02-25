@@ -13,15 +13,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, VipPackage, PromoCode } from "@shared/schema";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, getVipName } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
-const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
+
 
 type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor" | "vip-manage" | "promo";
 
 function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: User[]; deposits: DepositRequest[]; withdrawals: WithdrawalRequest[] }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const totalBalance = allUsers.reduce((s, u) => s + Number(u.balance), 0);
   const totalDeposits = deposits.filter(d => d.status === "approved").reduce((s, d) => s + Number(d.amount), 0);
   const totalWithdrawals = withdrawals.filter(w => w.status === "approved").reduce((s, w) => s + Number(w.amount), 0);
@@ -57,7 +57,7 @@ function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: Use
 }
 
 function UserDetailModal({ userId, open, onClose }: { userId: string | null; open: boolean; onClose: () => void }) {
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [editBalance, setEditBalance] = useState(false);
   const [newBalance, setNewBalance] = useState("");
@@ -176,7 +176,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
           <div className="grid grid-cols-2 gap-3">
             <InfoRow label={t("admin.phone")} value={user.phone} />
             <InfoRow label="ID" value={user.numericId || "—"} />
-            <InfoRow label="VIP" value={vipNames[user.vipLevel] || `M${user.vipLevel}`} />
+            <InfoRow label="VIP" value={getVipName(user.vipLevel, locale)} />
             <InfoRow label={t("admin.vipPurchasedAt")} value={user.vipPurchasedAt ? new Date(user.vipPurchasedAt).toLocaleDateString() : "—"} />
             <InfoRow label={t("admin.vipExpiresAt")} value={user.vipExpiresAt ? new Date(user.vipExpiresAt).toLocaleDateString() : "—"} />
             <InfoRow label={t("common.balance")} value={`${Number(user.balance).toFixed(2)} USDT`} />
@@ -387,7 +387,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
               {[1, 2, 3].map((lvl) => {
                 const levelRefs = detail.referralTree.filter((r: any) => r.level === lvl);
                 if (levelRefs.length === 0) return null;
-                const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
+                
                 const levelColors = { 1: { bg: "bg-[#4ADE80]/10", border: "border-[#4ADE80]/20", text: "text-emerald-500 dark:text-emerald-400", badge: "bg-[#4ADE80]/20 text-emerald-500 dark:text-emerald-400" }, 2: { bg: "bg-[#3B82F6]/10", border: "border-[#3B82F6]/20", text: "text-[#3B82F6]", badge: "bg-[#3B82F6]/20 text-[#3B82F6]" }, 3: { bg: "bg-primary/10", border: "border-primary/20", text: "text-primary", badge: "bg-primary/20 text-primary" } };
                 const colors = levelColors[lvl as 1 | 2 | 3];
                 return (
@@ -413,7 +413,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
                               <td className="py-1.5 px-2.5 text-foreground text-[11px]">{r.referredPhone}</td>
                               <td className="py-1.5 px-2.5 text-center">
                                 <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${r.referredVipLevel >= 0 ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
-                                  {r.referredVipLevel >= 0 ? (vipNames[r.referredVipLevel] || `M${r.referredVipLevel}`) : "—"}
+                                  {getVipName(r.referredVipLevel, locale)}
                                 </span>
                               </td>
                               <td className="py-1.5 px-2.5 text-right text-emerald-500 dark:text-emerald-400 text-[11px] font-medium">${Number(r.referredBalance).toFixed(2)}</td>
@@ -443,7 +443,7 @@ function InfoRow({ label, value, color }: { label: string; value: string; color?
 }
 
 function UsersTab({ users: allUsers }: { users: User[] }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [search, setSearch] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
@@ -491,7 +491,7 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
                   </td>
                   <td className="py-2.5 px-3">
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary">
-                      {vipNames[u.vipLevel] || `M${u.vipLevel}`}
+                      {getVipName(u.vipLevel, locale)}
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-emerald-500 dark:text-emerald-400 font-mono">{Number(u.balance).toFixed(2)}</td>
@@ -856,7 +856,7 @@ function SettingsTab() {
 }
 
 function TopReferrersTab() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { data: topReferrers = [] } = useQuery<any[]>({ queryKey: ["/api/admin/top-referrers"] });
 
   return (
@@ -877,7 +877,7 @@ function TopReferrersTab() {
             </div>
             <div className="flex-1">
               <p className="text-foreground text-sm font-medium">{r.phone || r.referrerId.slice(0, 8)}</p>
-              <p className="text-muted-foreground text-xs">VIP: {vipNames[r.vipLevel] || "—"} | ID: {r.numericId?.slice(0, 8) || "—"}</p>
+              <p className="text-muted-foreground text-xs">VIP: {getVipName(r.vipLevel, locale)} | ID: {r.numericId?.slice(0, 8) || "—"}</p>
             </div>
             <div className="text-right">
               <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{t("admin.count", { count: String(r.count) })}</p>
@@ -914,7 +914,7 @@ function parseDevice(ua: string | null): { device: string; browser: string; isMo
 }
 
 function MultiAccountsTab() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { toast } = useToast();
   const { data: groups = [], isLoading } = useQuery<any[]>({ queryKey: ["/api/admin/multi-accounts"] });
   const [expandedIp, setExpandedIp] = useState<string | null>(null);
@@ -1012,7 +1012,7 @@ function MultiAccountsTab() {
                               ? "bg-yellow-500/20 text-yellow-500"
                               : "bg-muted text-muted-foreground"
                           }`}>
-                            {user.vipLevel >= 0 ? (vipNames[user.vipLevel] || `M${user.vipLevel}`) : "—"}
+                            {getVipName(user.vipLevel, locale)}
                           </span>
                           {user.isBanned && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] bg-red-500/20 text-red-500 font-bold">

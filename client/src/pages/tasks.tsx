@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Play, Clock, CheckCircle, Crown, Lock, X, Coffee } from "lucide-react";
 import type { User, VipPackage } from "@shared/schema";
 import { Link } from "wouter";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, getVipName } from "@/lib/i18n";
 
 function isSunday() {
   return new Date().getDay() === 0;
@@ -40,7 +40,7 @@ function VideoPlayerModal({
   onClose: () => void;
 }) {
   const { toast } = useToast();
-  const { t, translateServerMessage } = useI18n();
+  const { t, locale, translateServerMessage } = useI18n();
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [completed, setCompleted] = useState(false);
@@ -201,7 +201,7 @@ function VideoPlayerModal({
 }
 
 export default function TasksPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -246,7 +246,7 @@ export default function TasksPage() {
                 <div className="flex items-center gap-2 mb-0.5">
                   <Crown className="w-4 h-4 text-primary-foreground/80" />
                   <span className="text-primary-foreground/80 text-xs font-medium">
-                    {user.vipLevel < 0 ? t("common.notEmployee") : user.vipLevel === 0 ? "Stajyor" : `M${user.vipLevel}`}
+                    {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
                   </span>
                 </div>
                 <p className="text-sm font-semibold">

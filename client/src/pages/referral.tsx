@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, Users, UserPlus, Check, Share2, Crown, Shield, User, ChevronDown, ChevronRight, Phone } from "lucide-react";
 import { useState } from "react";
 import type { User as UserType } from "@shared/schema";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, getVipName } from "@/lib/i18n";
 
 interface ReferralStats {
   level1: { count: number; commission: string };
@@ -19,25 +19,23 @@ interface ReferredUser {
   level: number;
 }
 
-const vipNames: Record<number, string> = { 0: "Stajyor", 1: "M1", 2: "M2", 3: "M3", 4: "M4", 5: "M5", 6: "M6", 7: "M7", 8: "M8", 9: "M9", 10: "M10" };
-
 function maskPhone(phone: string) {
   if (phone.length <= 6) return phone;
   return phone.slice(0, 3) + "••••" + phone.slice(-3);
 }
 
 export default function ReferralPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const [expandedLevel, setExpandedLevel] = useState<number | null>(1);
 
   function getVipBadge(vipLevel: number) {
     if (vipLevel > 0) {
-      return { label: vipNames[vipLevel] || `M${vipLevel}`, color: "#FFB300", bg: "rgba(255, 179, 0, 0.15)" };
+      return { label: getVipName(vipLevel, locale), color: "#FFB300", bg: "rgba(255, 179, 0, 0.15)" };
     }
     if (vipLevel === 0) {
-      return { label: "Stajyor", color: "#4ADE80", bg: "rgba(74, 222, 128, 0.15)" };
+      return { label: getVipName(0, locale), color: "#4ADE80", bg: "rgba(74, 222, 128, 0.15)" };
     }
     return { label: t("referral.regularMember"), color: "hsl(var(--muted-foreground))", bg: "rgba(102, 102, 102, 0.15)" };
   }
