@@ -9,6 +9,7 @@ import { promisify } from "util";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import rateLimit from "express-rate-limit";
 
 const scryptAsync = promisify(scrypt);
 
@@ -82,6 +83,42 @@ async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+const taskRateLimiter = rateLimit({
+  windowMs: 10 * 1000,
+  max: 3,
+  message: { message: "Juda tez so'rov. Biroz kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => req.session?.userId || "unknown",
+  validate: false,
+});
+
+const withdrawRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  message: { message: "Juda tez so'rov. 1 daqiqa kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => req.session?.userId || "unknown",
+  validate: false,
+});
+
+const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Juda ko'p urinish. 15 daqiqa kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const apiRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: { message: "Juda ko'p so'rov. Biroz kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -104,6 +141,8 @@ export async function registerRoutes(
       },
     })
   );
+
+  app.use("/api/", apiRateLimiter);
 
   app.get("/api/download-app", (req: Request, res: Response) => {
     const domain = process.env.REPLIT_DOMAINS || process.env.REPLIT_DEV_DOMAIN || "vem.app";
@@ -226,7 +265,7 @@ function showGuide(browser) {
 </body></html>`);
   });
 
-  app.post("/api/auth/register", async (req: Request, res: Response) => {
+  app.post("/api/auth/register", authRateLimiter, async (req: Request, res: Response) => {
     try {
       const { phone, password, fundPassword, referralCode, captcha } = req.body;
 
@@ -293,7 +332,7 @@ function showGuide(browser) {
     }
   });
 
-  app.post("/api/auth/login", async (req: Request, res: Response) => {
+  app.post("/api/auth/login", authRateLimiter, async (req: Request, res: Response) => {
     try {
       const { phone, password, rememberMe } = req.body;
 
@@ -370,7 +409,7 @@ function showGuide(browser) {
     }
   });
 
-  app.post("/api/tasks/complete", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/tasks/complete", requireAuth, taskRateLimiter, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
       const { videoId, youtubeVideoId } = req.body;
@@ -383,6 +422,10 @@ function showGuide(browser) {
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      if (user.isBanned) {
+        return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
+      }
 
       const today = uzbNow.toISOString().split("T")[0];
       let dailyCompleted = user.dailyTasksCompleted;
@@ -404,6 +447,12 @@ function showGuide(browser) {
         if (!video) return res.status(404).json({ message: "Video topilmadi" });
       }
 
+      const taskVideoId = videoId || `yt_${youtubeVideoId}`;
+      const alreadyWatched = await storage.hasUserWatchedVideoToday(userId, taskVideoId, today);
+      if (alreadyWatched) {
+        return res.status(400).json({ message: "Bu videoni bugun allaqachon ko'rgansiz" });
+      }
+
       if (user.vipLevel < 0) {
         return res.status(400).json({ message: "Avval VIP paket sotib oling" });
       }
@@ -420,7 +469,6 @@ function showGuide(browser) {
         return res.status(400).json({ message: "VIP paket sotib oling" });
       }
 
-      const taskVideoId = videoId || `yt_${youtubeVideoId}`;
       const rewardStr = perVideoReward.toFixed(2);
       await storage.createTaskHistory({ userId, videoId: taskVideoId, reward: rewardStr });
       await storage.updateUserBalance(userId, rewardStr);
@@ -443,13 +491,17 @@ function showGuide(browser) {
     }
   });
 
-  app.post("/api/vip/purchase", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
       const { packageId } = req.body;
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      if (user.isBanned) {
+        return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
+      }
 
       const pkg = await storage.getVipPackage(packageId);
       if (!pkg) return res.status(404).json({ message: "Paket topilmadi" });
@@ -652,13 +704,17 @@ function showGuide(browser) {
     }
   });
 
-  app.post("/api/fund/invest", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/fund/invest", requireAuth, withdrawRateLimiter, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
       const { fundPlanId, amount } = req.body;
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      if (user.isBanned) {
+        return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
+      }
 
       const plan = await storage.getFundPlan(fundPlanId);
       if (!plan) return res.status(404).json({ message: "Tarif topilmadi" });
@@ -774,10 +830,15 @@ function showGuide(browser) {
     limits: { fileSize: 5 * 1024 * 1024 },
   });
 
-  app.post("/api/deposit", requireAuth, uploadReceipt.single("receipt"), async (req: Request, res: Response) => {
+  app.post("/api/deposit", requireAuth, withdrawRateLimiter, uploadReceipt.single("receipt"), async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
       const { amount, currency, paymentType } = req.body;
+
+      const depositUser = await storage.getUser(userId);
+      if (depositUser?.isBanned) {
+        return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
+      }
 
       if (!amount || !currency || !paymentType) {
         return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
@@ -826,13 +887,17 @@ function showGuide(browser) {
     }
   });
 
-  app.post("/api/withdraw", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/withdraw", requireAuth, withdrawRateLimiter, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
       const { paymentMethodId, amount, fundPassword } = req.body;
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+
+      if (user.isBanned) {
+        return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
+      }
 
       if (user.withdrawalBanned) {
         return res.status(403).json({ message: "Sizning pul yechish huquqingiz cheklangan. Texnik yordamga murojaat qiling." });

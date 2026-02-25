@@ -21,6 +21,7 @@ export interface IStorage {
   getVideo(id: string): Promise<Video | undefined>;
   createTaskHistory(entry: { userId: string; videoId: string; reward: string }): Promise<TaskHistory>;
   getUserTasksToday(userId: string, date: string): Promise<number>;
+  hasUserWatchedVideoToday(userId: string, videoId: string, date: string): Promise<boolean>;
   getReferralStats(userId: string): Promise<{
     level1: { count: number; commission: string };
     level2: { count: number; commission: string };
@@ -179,6 +180,17 @@ export class DatabaseStorage implements IStorage {
         sql`DATE(${taskHistory.completedAt}) = ${date}`
       ));
     return Number(result[0]?.count || 0);
+  }
+
+  async hasUserWatchedVideoToday(userId: string, videoId: string, date: string): Promise<boolean> {
+    const result = await db.select({ count: sql<number>`count(*)` })
+      .from(taskHistory)
+      .where(and(
+        eq(taskHistory.userId, userId),
+        eq(taskHistory.videoId, videoId),
+        sql`DATE(${taskHistory.completedAt}) = ${date}`
+      ));
+    return Number(result[0]?.count || 0) > 0;
   }
 
   async getReferralStats(userId: string) {
