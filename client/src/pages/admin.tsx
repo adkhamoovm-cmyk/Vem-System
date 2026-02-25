@@ -811,8 +811,22 @@ function SettingsTab() {
                 className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-exchange" />
               <Input value={walletAddress} onChange={(e) => setWalletAddress(e.target.value)} placeholder={t("admin.walletAddressPlaceholder")}
                 className="bg-card border-border text-foreground h-9 text-sm font-mono" data-testid="input-setting-wallet" />
-              <Input value={networkType} onChange={(e) => setNetworkType(e.target.value)} placeholder={t("admin.networkPlaceholder")}
-                className="bg-card border-border text-foreground h-9 text-sm" data-testid="input-setting-network" />
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setNetworkType("TRC20")}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${networkType === "TRC20" ? "bg-red-500/20 border-red-500 text-red-500" : "bg-card border-border text-muted-foreground hover:border-muted-foreground"}`}
+                  data-testid="button-network-trc20"
+                >
+                  TRC20
+                </button>
+                <button
+                  onClick={() => setNetworkType("BEP20")}
+                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${networkType === "BEP20" ? "bg-yellow-500/20 border-yellow-500 text-yellow-500" : "bg-card border-border text-muted-foreground hover:border-muted-foreground"}`}
+                  data-testid="button-network-bep20"
+                >
+                  BSC (BEP20)
+                </button>
+              </div>
             </>
           )}
 

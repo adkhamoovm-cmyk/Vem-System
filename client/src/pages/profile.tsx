@@ -28,6 +28,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
   const { toast } = useToast();
   const { t, locale, translateServerMessage } = useI18n();
   const [paymentType, setPaymentType] = useState<"crypto" | "local" | null>(null);
+  const [cryptoNetwork, setCryptoNetwork] = useState<"TRC20" | "BEP20" | null>(null);
   const [amount, setAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -81,6 +82,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
       queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
       onClose();
       setPaymentType(null);
+      setCryptoNetwork(null);
       setAmount("");
       setReceiptFile(null);
     },
@@ -92,6 +94,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
   const handleClose = () => {
     onClose();
     setPaymentType(null);
+    setCryptoNetwork(null);
     setAmount("");
     setReceiptFile(null);
   };
@@ -127,7 +130,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                 </div>
                 <div className="flex-1">
                   <p className="text-foreground font-semibold text-sm">{t("profile.cryptoUsdt")}</p>
-                  <p className="text-muted-foreground text-xs mt-0.5">{t("profile.trc20Network")}</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">via TRC20 / BSC (BEP20)</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </button>
@@ -148,43 +151,96 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
             </div>
           ) : (
             <div className="space-y-4 pt-4">
-              <button onClick={() => setPaymentType(null)} className="text-muted-foreground text-xs flex items-center gap-1.5 hover:text-foreground transition-colors">
+              <button onClick={() => { if (paymentType === "crypto" && cryptoNetwork) { setCryptoNetwork(null); } else { setPaymentType(null); setCryptoNetwork(null); } }} className="text-muted-foreground text-xs flex items-center gap-1.5 hover:text-foreground transition-colors">
                 <ChevronDown className="w-3.5 h-3.5 rotate-90" /> {t("profile.back")}
               </button>
 
-              {paymentType === "crypto" && usdtRequisites.length > 0 && (
-                <div className="space-y-2.5">
-                  <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                    <Wallet className="w-3.5 h-3.5" /> {t("profile.paymentRequisites")}
-                  </p>
-                  {usdtRequisites.map((req) => (
-                    <div key={req.id} className="bg-background rounded-xl border border-primary/20 overflow-hidden">
-                      <div className="bg-primary/5 px-3.5 py-2 border-b border-primary/10 flex items-center gap-2">
-                        <Globe className="w-3.5 h-3.5 text-primary" />
-                        <span className="text-primary text-xs font-semibold">{req.exchangeName || "USDT"}</span>
-                        <span className="text-muted-foreground text-[10px] ml-auto">{req.networkType || "BEP20"}</span>
-                      </div>
-                      <div className="px-3.5 py-3">
-                        <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">{t("profile.walletAddressLabel")}</p>
-                        <div className="flex items-center gap-2">
-                          <code className="text-emerald-500 dark:text-emerald-400 text-xs font-mono flex-1 break-all leading-relaxed">{req.walletAddress}</code>
-                          <button
-                            onClick={() => copyToClipboard(req.walletAddress || "", `wallet-${req.id}`)}
-                            className="shrink-0 w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center hover:border-[#4ADE80] transition-colors"
-                            data-testid={`button-copy-wallet-${req.id}`}
-                          >
-                            {copiedField === `wallet-${req.id}` ? (
-                              <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
+              {paymentType === "crypto" && !cryptoNetwork && (
+                <div className="space-y-3">
+                  <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.selectNetwork")}</p>
+                  <button
+                    onClick={() => setCryptoNetwork("TRC20")}
+                    className="w-full bg-card rounded-xl p-3.5 border border-border hover:border-primary/50 transition-colors flex items-center gap-3 text-left group"
+                    data-testid="button-network-trc20"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-red-500/20 to-red-500/5 rounded-xl flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-red-500" />
                     </div>
-                  ))}
+                    <div className="flex-1">
+                      <p className="text-foreground font-semibold text-sm">TRC20</p>
+                      <p className="text-muted-foreground text-[10px] mt-0.5">TRON Network</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </button>
+                  <button
+                    onClick={() => setCryptoNetwork("BEP20")}
+                    className="w-full bg-card rounded-xl p-3.5 border border-border hover:border-primary/50 transition-colors flex items-center gap-3 text-left group"
+                    data-testid="button-network-bep20"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 rounded-xl flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-yellow-500" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-foreground font-semibold text-sm">BSC (BEP20)</p>
+                      <p className="text-muted-foreground text-[10px] mt-0.5">Binance Smart Chain</p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </button>
+                  <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
+                    <p className="text-amber-500 text-xs font-semibold">{t("profile.attentionTrc20")}</p>
+                  </div>
                 </div>
               )}
+
+              {paymentType === "crypto" && cryptoNetwork && (() => {
+                const filteredReqs = usdtRequisites.filter(r => (r.networkType || "BEP20") === cryptoNetwork);
+                return filteredReqs.length > 0 ? (
+                  <div className="space-y-2.5">
+                    <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                      <Wallet className="w-3.5 h-3.5" /> {t("profile.paymentRequisites")} · {cryptoNetwork}
+                    </p>
+                    <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
+                      <p className="text-amber-500 text-xs font-semibold">
+                        {cryptoNetwork === "TRC20"
+                          ? (locale === "ru" ? "Внимание: Отправляйте только через сеть TRC20! Средства, отправленные через другую сеть, будут потеряны."
+                            : locale === "en" ? "Attention: Only send via TRC20 network! Funds sent via other networks will be lost."
+                            : "Diqqat: Faqat TRC20 tarmog'idan yuboring! Boshqa tarmoqdan yuborilgan mablag' yo'qoladi.")
+                          : t("profile.attentionTrc20")}
+                      </p>
+                    </div>
+                    {filteredReqs.map((req) => (
+                      <div key={req.id} className="bg-background rounded-xl border border-primary/20 overflow-hidden">
+                        <div className="bg-primary/5 px-3.5 py-2 border-b border-primary/10 flex items-center gap-2">
+                          <Globe className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-primary text-xs font-semibold">{req.exchangeName || "USDT"}</span>
+                          <span className="text-muted-foreground text-[10px] ml-auto">{req.networkType || "BEP20"}</span>
+                        </div>
+                        <div className="px-3.5 py-3">
+                          <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">{t("profile.walletAddressLabel")}</p>
+                          <div className="flex items-center gap-2">
+                            <code className="text-emerald-500 dark:text-emerald-400 text-xs font-mono flex-1 break-all leading-relaxed">{req.walletAddress}</code>
+                            <button
+                              onClick={() => copyToClipboard(req.walletAddress || "", `wallet-${req.id}`)}
+                              className="shrink-0 w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center hover:border-[#4ADE80] transition-colors"
+                              data-testid={`button-copy-wallet-${req.id}`}
+                            >
+                              {copiedField === `wallet-${req.id}` ? (
+                                <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-primary/5 rounded-xl p-5 border border-primary/20 text-center">
+                    <p className="text-muted-foreground text-sm">{t("profile.noRequisites")} ({cryptoNetwork})</p>
+                  </div>
+                );
+              })()}
 
               {paymentType === "local" && bankRequisites.length > 0 && (
                 <div className="space-y-2.5">
@@ -225,7 +281,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                 </div>
               )}
 
-              {((paymentType === "crypto" && usdtRequisites.length === 0) || (paymentType === "local" && bankRequisites.length === 0)) && (
+              {paymentType === "local" && bankRequisites.length === 0 && (
                 <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 text-center">
                   <Clock className="w-6 h-6 text-primary mx-auto mb-2" />
                   <p className="text-foreground text-sm font-semibold">{t("profile.requisitesNotAdded")}</p>
@@ -233,6 +289,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                 </div>
               )}
 
+              {(paymentType === "local" || (paymentType === "crypto" && cryptoNetwork)) && (
               <div className="bg-card rounded-xl p-3.5 border border-border">
                 <p className="text-primary text-xs font-semibold mb-2 flex items-center gap-1.5">
                   <ScrollText className="w-3.5 h-3.5" /> {t("profile.depositRules")}
@@ -244,7 +301,10 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                   <li className="flex items-start gap-1.5"><span className="text-primary mt-0.5">•</span> {t("profile.afterApproval")}</li>
                 </ul>
               </div>
+              )}
 
+              {(paymentType === "local" || (paymentType === "crypto" && cryptoNetwork)) && (
+              <>
               <div className="space-y-1.5">
                 <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">
                   {t("profile.amountLabel")} ({paymentType === "crypto" ? "USDT" : "UZS"})
@@ -307,6 +367,8 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
               >
                 {depositMutation.isPending ? t("profile.sending") : t("profile.submitDepositRequest")}
               </Button>
+              </>
+              )}
             </div>
           )}
         </div>
@@ -698,7 +760,11 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
               {paymentMethods.find(m => m.id === selectedMethodId)?.type === "crypto" && (
                 <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
-                  <p className="text-amber-500 text-xs font-semibold">{t("profile.attentionTrc20")}</p>
+                  <p className="text-amber-500 text-xs font-semibold">
+                    {locale === "ru" ? "Внимание: Вывод крипто только через сеть BSC (BEP20)! Средства, отправленные через другую сеть, будут потеряны."
+                      : locale === "en" ? "Attention: Crypto withdrawal only via BSC (BEP20) network! Funds sent via wrong network will be lost."
+                      : "Diqqat: Kripto faqat BSC (BEP20) tarmoq orqali yechiladi! Noto'g'ri tarmoqdan yuborilgan mablag' yo'qoladi."}
+                  </p>
                 </div>
               )}
 
