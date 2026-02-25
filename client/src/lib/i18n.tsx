@@ -1704,7 +1704,7 @@ const translations: Record<Locale, any> = {
       important: "Important:",
       importantNote: "The deposit is returned after the package expires. 10% commission is deducted from earnings. Locked packages unlock after certain conditions are met.",
       guarantee: "deposit",
-      defaultStajyorMessage: "Please activate my Stajyor level",
+      defaultStajyorMessage: "Please activate my Intern level",
       descStajyor: "Initial trial period",
       descDaily: "{count} video tasks per day",
       historyEarning: "Video watching income ({name})",
