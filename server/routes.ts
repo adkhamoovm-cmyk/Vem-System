@@ -779,8 +779,9 @@ function showGuide(browser) {
         receiptUrl,
       });
 
-      const depositMethodLabel = paymentType === "crypto" ? `USDT (${currency === "USDT" ? "Crypto" : "UZS"})` : `Bank karta (${currency})`;
-      await storage.addBalanceHistory({ userId, type: "deposit", amount: "0", description: `pending|${depositMethodLabel}|${numAmount.toFixed(2)} ${currency}` });
+      const depositMethodLabel = paymentType === "crypto" ? `USDT (Crypto)` : `Bank karta (${currency})`;
+      const pendingAmountUSDT = currency === "UZS" ? (numAmount / 12100).toFixed(2) : numAmount.toFixed(2);
+      await storage.addBalanceHistory({ userId, type: "deposit", amount: pendingAmountUSDT, description: `pending|${depositMethodLabel}|${numAmount.toFixed(2)} ${currency}` });
 
       res.json({ deposit, message: "So'rov yuborildi! Moliya bo'limi tekshirgandan so'ng balansingizga qo'shiladi." });
     } catch (error: any) {
