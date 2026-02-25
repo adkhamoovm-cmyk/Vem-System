@@ -1,8 +1,10 @@
-import { MessageCircle, Users, Headphones, ExternalLink, HelpCircle } from "lucide-react";
+import { useState } from "react";
+import { MessageCircle, Users, Headphones, ExternalLink, HelpCircle, ChevronDown } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export default function HelpPage() {
   const { t } = useI18n();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const helpSections = [
     {
@@ -32,7 +34,12 @@ export default function HelpPage() {
     { q: t("help.faqQ3"), a: t("help.faqA3") },
     { q: t("help.faqQ4"), a: t("help.faqA4") },
     { q: t("help.faqQ5"), a: t("help.faqA5") },
+    { q: t("help.faqQ6"), a: t("help.faqA6") },
   ];
+
+  const toggleFaq = (index: number) => {
+    setOpenFaq(openFaq === index ? null : index);
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -98,11 +105,32 @@ export default function HelpPage() {
               <p className="text-muted-foreground text-[10px]">FAQ</p>
             </div>
           </div>
-          <div className="border-t border-border divide-y divide-border">
+          <div className="border-t border-border">
             {faqItems.map((faq, i) => (
-              <div key={i} className="px-4 py-3" data-testid={`faq-item-${i}`}>
-                <p className="text-foreground text-xs font-semibold mb-1">{faq.q}</p>
-                <p className="text-muted-foreground text-[11px] leading-relaxed">{faq.a}</p>
+              <div key={i} className="border-b border-border last:border-b-0" data-testid={`faq-item-${i}`}>
+                <button
+                  onClick={() => toggleFaq(i)}
+                  className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
+                  data-testid={`faq-toggle-${i}`}
+                >
+                  <span className="text-foreground text-[13px] font-medium pr-3 leading-snug">{faq.q}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-300 ${
+                      openFaq === i ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+                <div
+                  className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                    openFaq === i ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                  }`}
+                >
+                  <div className="px-4 pb-4 pt-0">
+                    <div className="bg-muted/50 rounded-xl p-3.5">
+                      <p className="text-muted-foreground text-[12px] leading-relaxed">{faq.a}</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
