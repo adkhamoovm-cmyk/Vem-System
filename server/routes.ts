@@ -807,8 +807,9 @@ function showGuide(browser) {
         return res.status(403).json({ message: "Sizning pul yechish huquqingiz cheklangan. Texnik yordamga murojaat qiling." });
       }
 
-      if (user.vipLevel < 1) {
+      if (Number(user.vipLevel) < 1) {
         const hasInvestments = await storage.hasUserInvestments(userId);
+        console.log(`[Withdraw] User ${userId} vipLevel=${user.vipLevel}, hasInvestments=${hasInvestments}`);
         if (!hasInvestments) {
           return res.status(400).json({ message: "Pul yechish uchun VIP paket sotib oling yoki Fondga pul qo'ying. Stajyor paketda yechish mumkin emas!" });
         }
