@@ -744,7 +744,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               </button>
             </div>
           ) : (() => {
-            const filteredMethods = paymentMethods.filter(m => withdrawType === "card" ? m.type === "bank" : m.type === "crypto");
+            const filteredMethods = paymentMethods.filter(m => withdrawType === "card" ? m.type === "bank" : m.type === "usdt");
             const minAmount = withdrawType === "crypto" ? 3 : 2;
             return (
             <>

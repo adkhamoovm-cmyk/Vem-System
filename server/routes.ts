@@ -850,7 +850,7 @@ function showGuide(browser) {
 
       const numAmount = Number(amount);
       const method = (await storage.getUserPaymentMethods(userId)).find(m => m.id === paymentMethodId);
-      const isCrypto = method?.type === "crypto";
+      const isCrypto = method?.type === "usdt";
       const minAmount = isCrypto ? 3 : 2;
       if (isNaN(numAmount) || numAmount < minAmount) {
         return res.status(400).json({ message: isCrypto ? "Kripto uchun minimal yechish miqdori: 3 USDT" : "Minimal yechish miqdori: 2 USDT" });
