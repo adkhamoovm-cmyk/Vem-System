@@ -807,15 +807,11 @@ function showGuide(browser) {
         return res.status(403).json({ message: "Sizning pul yechish huquqingiz cheklangan. Texnik yordamga murojaat qiling." });
       }
 
-      if (user.vipLevel === 0) {
+      if (user.vipLevel < 1) {
         const hasInvestments = await storage.hasUserInvestments(userId);
         if (!hasInvestments) {
-          return res.status(400).json({ message: "Pul yechish uchun kamida bitta Fundga pul qo'yishingiz yoki M1 paketini xarid qilishingiz kerak" });
+          return res.status(400).json({ message: "Pul yechish uchun VIP paket sotib oling yoki Fondga pul qo'ying. Stajyor paketda yechish mumkin emas!" });
         }
-      }
-
-      if (user.vipLevel < 0) {
-        return res.status(400).json({ message: "Pul yechish uchun avval Stajyor lavozimini yoqtiring yoki VIP paket sotib oling" });
       }
 
       const fundPassOk = await comparePasswords(fundPassword, user.fundPassword);
