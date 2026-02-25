@@ -1474,7 +1474,7 @@ export default function AdminPage() {
         <div className="space-y-2 pb-3 mb-4">
           <div>
             <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">{t("admin.techSection")}</p>
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            <div className="flex flex-wrap gap-2">
               {techTabs.map(tb => (
                 <button key={tb.id} onClick={() => setTab(tb.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
@@ -1493,7 +1493,7 @@ export default function AdminPage() {
           </div>
           <div>
             <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">{t("admin.financeSection")}</p>
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+            <div className="flex flex-wrap gap-2">
               {financeTabs.map(tb => (
                 <button key={tb.id} onClick={() => setTab(tb.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
