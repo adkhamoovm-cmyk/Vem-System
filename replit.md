@@ -4,6 +4,8 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-02-25: Support widget (draggable) on login/register pages with 3 Telegram links (support, channel, community)
+- 2026-02-25: Help page updated with correct Telegram links (t.me/vem_ms, t.me/Vem_Official, community group)
 - 2026-02-24: PWA install modal: in-app scrollable modal with multi-language support (uz/ru/en), auto-detects iOS/Android/Desktop
 - 2026-02-24: Terms of Service modal on register page with professional 7-section terms in 3 languages
 - 2026-02-24: Fixed login/register header buttons (theme/language) z-index for small screens

@@ -6,13 +6,12 @@ export default function HelpPage() {
 
   const helpSections = [
     {
-      title: t("help.contactManager"),
-      description: t("help.managerDesc"),
+      title: t("help.techSupport"),
+      description: t("help.techSupportDesc"),
       icon: Headphones,
-      color: "hsl(var(--primary))",
+      color: "#3B82F6",
       items: [
-        { label: t("help.telegramManager"), value: "@vem_manager", link: "https://t.me/vem_manager", icon: Send },
-        { label: t("help.phoneNumber"), value: "+998 90 123 45 67", link: "tel:+998901234567", icon: Phone },
+        { label: t("help.techHelp"), value: "@vem_ms", link: "https://t.me/vem_ms", icon: Headphones },
       ],
     },
     {
@@ -21,17 +20,18 @@ export default function HelpPage() {
       icon: Users,
       color: "#4ADE80",
       items: [
-        { label: t("help.officialGroup"), value: "t.me/vem_official", link: "https://t.me/vem_official", icon: Users },
-        { label: t("help.newsChannel"), value: "t.me/vem_news", link: "https://t.me/vem_news", icon: MessageCircle },
+        { label: t("help.officialGroup"), value: "t.me/Vem_Official", link: "https://t.me/Vem_Official", icon: MessageCircle },
+        { label: t("help.newsChannel"), value: "VEM Hamjamiyat", link: "https://t.me/+rO6-eoMDl0EyYWNh", icon: Users },
       ],
     },
     {
-      title: t("help.techSupport"),
-      description: t("help.techSupportDesc"),
+      title: t("help.contactManager"),
+      description: t("help.managerDesc"),
       icon: Shield,
-      color: "#3B82F6",
+      color: "hsl(var(--primary))",
       items: [
-        { label: t("help.techHelp"), value: "@vem_support", link: "https://t.me/vem_support", icon: Headphones },
+        { label: t("help.telegramManager"), value: "@vem_ms", link: "https://t.me/vem_ms", icon: Send },
+        { label: t("help.phoneNumber"), value: "+998 90 123 45 67", link: "tel:+998901234567", icon: Phone },
       ],
     },
   ];

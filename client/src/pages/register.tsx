@@ -15,6 +15,7 @@ import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { SupportWidget } from "@/components/support-widget";
 
 const countryCodes = [
   { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}" },
@@ -622,6 +623,7 @@ export default function RegisterPage() {
           </div>
         </div>
       )}
+      <SupportWidget />
     </div>
   );
 }
