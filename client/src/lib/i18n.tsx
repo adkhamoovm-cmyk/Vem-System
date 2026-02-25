@@ -226,6 +226,7 @@ const translations: Record<Locale, any> = {
       help: "Yordam",
     },
     auth: {
+      welcome: "Xush kelibsiz!",
       login: "Tizimga kirish",
       register: "Ro'yxatdan o'tish",
       phone: "Telefon raqami",
@@ -883,6 +884,7 @@ const translations: Record<Locale, any> = {
       help: "Помощь",
     },
     auth: {
+      welcome: "Добро пожаловать!",
       login: "Вход в систему",
       register: "Регистрация",
       phone: "Номер телефона",
@@ -1540,6 +1542,7 @@ const translations: Record<Locale, any> = {
       help: "Help",
     },
     auth: {
+      welcome: "Welcome!",
       login: "Sign In",
       register: "Sign Up",
       phone: "Phone number",

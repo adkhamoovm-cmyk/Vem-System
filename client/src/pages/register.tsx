@@ -360,7 +360,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-5">
           <img src={vemLogo} alt="VEM" className="pro-logo h-14 mx-auto" />
-          <p className="text-muted-foreground text-sm mt-0.5">Video Earning Platform</p>
+          <p className="text-muted-foreground text-sm mt-0.5">{t("auth.welcome")}</p>
         </div>
 
         <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">

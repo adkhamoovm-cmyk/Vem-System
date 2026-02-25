@@ -106,7 +106,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img src={vemLogo} alt="VEM" className="pro-logo h-16 mx-auto" />
-          <p className="text-muted-foreground mt-1 text-sm">Video Earning Platform</p>
+          <p className="text-muted-foreground mt-1 text-sm">{t("auth.welcome")}</p>
         </div>
 
         <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
