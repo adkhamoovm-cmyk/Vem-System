@@ -66,7 +66,7 @@ export interface IStorage {
   getTopReferrers(limit: number): Promise<{ referrerId: string; count: number; totalCommission: string }[]>;
   getUsersByIp(ip: string): Promise<User[]>;
   updateUserLoginInfo(id: string, ip: string, userAgent: string): Promise<void>;
-  getMultiAccountGroups(): Promise<{ ip: string; count: number; userIds: string[] }[]>;
+  getMultiAccountGroups(): Promise<{ ip: string; count: number; users: Pick<User, 'id' | 'phone' | 'numericId' | 'lastLoginIp' | 'lastUserAgent' | 'isBanned' | 'createdAt' | 'vipLevel'>[] }[]>;
   createStajyorRequest(userId: string, message?: string): Promise<StajyorRequest>;
   getUserStajyorRequests(userId: string): Promise<StajyorRequest[]>;
   getAllStajyorRequests(): Promise<StajyorRequest[]>;
@@ -418,21 +418,37 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
-  async getMultiAccountGroups(): Promise<{ ip: string; count: number; userIds: string[] }[]> {
+  async getMultiAccountGroups(): Promise<{ ip: string; count: number; users: Pick<User, 'id' | 'phone' | 'numericId' | 'lastLoginIp' | 'lastUserAgent' | 'isBanned' | 'createdAt' | 'vipLevel'>[] }[]> {
     const ipGroups = await db.select({
       ip: users.lastLoginIp,
       count: sql<number>`count(*)`,
-      userIds: sql<string[]>`array_agg(${users.id})`,
     })
       .from(users)
-      .where(sql`${users.lastLoginIp} IS NOT NULL`)
+      .where(sql`${users.lastLoginIp} IS NOT NULL AND ${users.lastLoginIp} != ''`)
       .groupBy(users.lastLoginIp)
       .having(sql`count(*) > 1`);
-    return ipGroups.map(g => ({
-      ip: g.ip as string,
-      count: Number(g.count),
-      userIds: g.userIds,
-    }));
+
+    const result = [];
+    for (const g of ipGroups) {
+      const groupUsers = await db.select({
+        id: users.id,
+        phone: users.phone,
+        numericId: users.numericId,
+        lastLoginIp: users.lastLoginIp,
+        lastUserAgent: users.lastUserAgent,
+        isBanned: users.isBanned,
+        createdAt: users.createdAt,
+        vipLevel: users.vipLevel,
+      })
+        .from(users)
+        .where(eq(users.lastLoginIp, g.ip as string));
+      result.push({
+        ip: g.ip as string,
+        count: Number(g.count),
+        users: groupUsers,
+      });
+    }
+    return result;
   }
   async createStajyorRequest(userId: string, message?: string): Promise<StajyorRequest> {
     const [req] = await db.insert(stajyorRequests).values({ userId, message: message || null }).returning();
