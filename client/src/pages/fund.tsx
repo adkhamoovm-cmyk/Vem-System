@@ -174,12 +174,14 @@ export default function FundPage() {
               {t("fund.activeInvestments")}
             </h2>
             <div className="space-y-2">
-              {activeInvestments.map((inv) => {
+              {activeInvestments.map((inv: any) => {
                 const plan = plans?.find(p => p.id === inv.fundPlanId);
                 const colors = planColors[plan?.name || "F1"] || planColors.F1;
                 const daysLeft = inv.endDate
                   ? Math.max(0, Math.ceil((new Date(inv.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
                   : null;
+                const totalEarned = Number(inv.totalEarned || 0);
+                const daysPassed = inv.daysPassed || 0;
                 return (
                   <div key={inv.id} className="bg-card rounded-xl border border-border p-3 shadow-sm" data-testid={`investment-${inv.id}`}>
                     <div className="flex items-center justify-between mb-2">
@@ -195,6 +197,16 @@ export default function FundPage() {
                       <div className="text-right">
                         <p className="text-sm font-bold" style={{ color: colors.accent }}>${Number(inv.investedAmount).toFixed(2)}</p>
                         <p className="text-[10px] text-green-500 font-medium">+${Number(inv.dailyProfit).toFixed(2)}/{t("common.days")}</p>
+                      </div>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg px-2.5 py-2 mb-2 space-y-1">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">{t("fund.earnedProfit")}:</span>
+                        <span className="text-emerald-500 font-bold">+${totalEarned.toFixed(2)} USDT</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">{t("fund.daysPassed")}:</span>
+                        <span className="text-foreground font-medium">{daysPassed} {t("common.days")}</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-[10px] text-muted-foreground bg-card rounded-lg px-2 py-1.5">

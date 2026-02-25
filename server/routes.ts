@@ -624,8 +624,29 @@ function showGuide(browser) {
 
   app.get("/api/investments", requireAuth, async (req: Request, res: Response) => {
     try {
-      const userInvestments = await storage.getUserInvestments(req.session.userId!);
-      res.json(userInvestments);
+      const userId = req.session.userId!;
+      const userInvestments = await storage.getUserInvestments(userId);
+      const history = await storage.getUserBalanceHistory(userId);
+      const fundProfits = history.filter(h => h.type === "fund_profit" || (h.type === "earning" && h.description?.includes("Fond")));
+
+      const allPlans = await storage.getFundPlans();
+      const enriched = userInvestments.map(inv => {
+        const plan = allPlans.find(p => p.id === inv.fundPlanId);
+        const planName = plan?.name || "Fund";
+        const profitEntries = fundProfits.filter(h =>
+          h.description?.includes(planName) &&
+          new Date(h.createdAt) >= new Date(inv.startDate)
+        );
+        const totalEarned = profitEntries.reduce((sum, h) => sum + Number(h.amount), 0);
+        const daysPassed = Math.floor((Date.now() - new Date(inv.startDate).getTime()) / (1000 * 60 * 60 * 24));
+        return {
+          ...inv,
+          totalEarned: totalEarned.toFixed(2),
+          daysPassed,
+          planName,
+        };
+      });
+      res.json(enriched);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -1317,16 +1338,18 @@ function showGuide(browser) {
       for (const inv of activeInvestments) {
         if (inv.lastProfitDate === today) continue;
 
+        const plan = await storage.getFundPlan(inv.fundPlanId);
+        const planName = plan?.name || "Fund";
+
         await storage.updateUserBalance(inv.userId, inv.dailyProfit);
         await storage.updateInvestmentLastProfitDate(inv.id, today);
-        await storage.addBalanceHistory({ userId: inv.userId, type: "earning", amount: inv.dailyProfit, description: `Fond kunlik daromadi` });
+        await storage.addBalanceHistory({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
 
         if (inv.endDate && new Date(inv.endDate) <= new Date()) {
           await storage.updateInvestmentStatus(inv.id, "completed");
-          const plan = await storage.getFundPlan(inv.fundPlanId);
           if (plan?.returnPrincipal) {
             await storage.updateUserBalance(inv.userId, inv.investedAmount);
-            await storage.addBalanceHistory({ userId: inv.userId, type: "deposit", amount: inv.investedAmount, description: `${plan.name} fond investitsiyasi qaytarildi` });
+            await storage.addBalanceHistory({ userId: inv.userId, type: "fund_return", amount: inv.investedAmount, description: `${planName} fond investitsiyasi qaytarildi — ${inv.investedAmount} USDT` });
           }
         }
       }
