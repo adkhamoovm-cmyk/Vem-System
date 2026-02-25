@@ -417,7 +417,7 @@ export default function RegisterPage() {
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <Input
                             {...field}
-                            placeholder="90 123 45 67"
+                            placeholder=""
                             className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                             data-testid="input-phone"
                           />
