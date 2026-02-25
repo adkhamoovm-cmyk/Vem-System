@@ -1,4 +1,4 @@
-import { MessageCircle, Users, Headphones, Shield, ExternalLink, Send, Phone, HelpCircle, ChevronRight } from "lucide-react";
+import { MessageCircle, Users, Headphones, ExternalLink, HelpCircle } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export default function HelpPage() {
@@ -22,16 +22,6 @@ export default function HelpPage() {
       items: [
         { label: t("help.officialGroup"), value: "t.me/Vem_Official", link: "https://t.me/Vem_Official", icon: MessageCircle },
         { label: t("help.newsChannel"), value: "VEM Hamjamiyat", link: "https://t.me/+rO6-eoMDl0EyYWNh", icon: Users },
-      ],
-    },
-    {
-      title: t("help.contactManager"),
-      description: t("help.managerDesc"),
-      icon: Shield,
-      color: "hsl(var(--primary))",
-      items: [
-        { label: t("help.telegramManager"), value: "@vem_ms", link: "https://t.me/vem_ms", icon: Send },
-        { label: t("help.phoneNumber"), value: "+998 90 123 45 67", link: "tel:+998901234567", icon: Phone },
       ],
     },
   ];
