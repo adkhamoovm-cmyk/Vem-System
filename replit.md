@@ -4,6 +4,8 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-03-01: **Optimization round**: Accessibility fixes (dialog aria-describedby), lazy loading for all images, CSV export for admin users list, country name translations in Trends (25+ countries uz/ru/en), remaining i18n hardcoded text fixed (dashboard referral/fund widgets, profile deposit/withdrawal warnings, close buttons)
+- 2026-03-01: **UID rename**: All "ID:" labels changed to "UID:" across dashboard, profile, admin panel (6 locations)
 - 2026-02-25: **Pre-launch Security Audit**: Rate limiting (express-rate-limit) on auth/task/withdraw/deposit/vip/fund routes; DB CHECK constraint (balance >= 0); isBanned check on all financial routes; duplicate video watching prevention per day; global API rate limiter (60 req/min)
 - 2026-02-25: Video library cleaned: 108 verified YouTube trailer IDs (all with valid maxresdefault.jpg thumbnails), removed all invalid/404 IDs
 - 2026-02-25: Support widget (draggable) on login/register pages with 3 Telegram links (support, channel, community)

@@ -433,7 +433,7 @@ export default function DashboardPage() {
                   <Link key={video.id} href="/tasks">
                     <div className="relative w-32 shrink-0 cursor-pointer group" data-testid={`tv-show-${video.id}`}>
                       <div className="w-32 h-48 rounded-lg overflow-hidden bg-card shadow-lg">
-                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-lg" />
                       </div>
                       <div className="absolute top-2 left-2">
@@ -471,7 +471,7 @@ export default function DashboardPage() {
                   <Link key={video.id} href="/tasks">
                     <div className="relative w-56 shrink-0 cursor-pointer group" data-testid={`trailer-${video.id}`}>
                       <div className="w-56 h-32 rounded-lg overflow-hidden bg-card shadow-lg">
-                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-lg" />
                       </div>
                       <div className="absolute top-2 right-2">

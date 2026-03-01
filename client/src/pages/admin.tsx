@@ -7,7 +7,7 @@ import {
   Shield, Ban, Trash2, Edit, Check, X, Eye, Search, AlertTriangle,
   Trophy, ChevronDown, ChevronRight, Wallet, CreditCard, Globe, Plus,
   RefreshCw, DollarSign, Activity, TrendingUp, UserPlus, MessageSquare, Mail, Copy,
-  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown, Megaphone
+  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown, Megaphone, Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -457,6 +457,29 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
       (u.referralCode || "").toLowerCase().includes(q);
   });
 
+  const exportCSV = () => {
+    const headers = ["UID", t("admin.phone"), "VIP", `${t("common.balance")} (USDT)`, `${t("admin.earnings")} (USDT)`, `${t("common.deposit")} (USDT)`, "IP", t("admin.status"), t("admin.registeredAt")];
+    const rows = filtered.map(u => [
+      u.numericId || "",
+      u.phone,
+      getVipName(u.vipLevel, locale),
+      Number(u.balance).toFixed(2),
+      Number(u.totalEarnings).toFixed(2),
+      Number(u.totalDeposit).toFixed(2),
+      u.lastLoginIp || "",
+      u.isBanned ? t("admin.blocked") : t("common.active"),
+      u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "",
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `vem-users-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
@@ -468,6 +491,15 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
             data-testid="input-search-users"
           />
         </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={exportCSV}
+          className="shrink-0 w-10 h-10 rounded-xl"
+          data-testid="button-export-csv"
+        >
+          <Download className="w-4 h-4" />
+        </Button>
         <span className="text-muted-foreground text-xs whitespace-nowrap">{t("admin.count", { count: String(filtered.length) })}</span>
       </div>
 
@@ -608,10 +640,11 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
       </div>
 
       <Dialog open={!!viewReceipt} onOpenChange={() => setViewReceipt(null)}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-2 sm:p-4">
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-2 sm:p-4" aria-describedby="receipt-preview-desc">
           <DialogHeader>
             <DialogTitle>{t("admin.viewReceipt")}</DialogTitle>
           </DialogHeader>
+          <p id="receipt-preview-desc" className="sr-only">{t("admin.viewReceipt")}</p>
           {viewReceipt && (
             <div className="flex items-center justify-center overflow-auto max-h-[80vh]">
               <img

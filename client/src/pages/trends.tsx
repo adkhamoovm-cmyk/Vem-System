@@ -443,7 +443,7 @@ export default function TrendsPage() {
                 <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
                   <div className="relative w-36 shrink-0" data-testid={`trend-top-${video.id}`}>
                     <div className="w-36 h-52 rounded-2xl overflow-hidden bg-card shadow-md">
-                      <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
+                      <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-2xl" />
                     </div>
                     <div className="absolute top-2 left-2">
@@ -487,7 +487,7 @@ export default function TrendsPage() {
               <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
                 <div className="relative w-28 shrink-0" data-testid={`trend-new-${video.id}`}>
                   <div className="w-28 h-40 rounded-xl overflow-hidden bg-card shadow-md">
-                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
+                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-xl" />
                   </div>
                   <div className="absolute top-2 left-2">
@@ -537,7 +537,7 @@ export default function TrendsPage() {
               <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
                 <div className="bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/40 transition-colors" data-testid={`trend-card-${video.id}`}>
                   <div className="relative aspect-[3/4] bg-card">
-                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
+                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
                     <div className="absolute top-2 right-2">
                       <span className="bg-red-600 text-white text-[8px] font-bold px-2 py-0.5 rounded">
