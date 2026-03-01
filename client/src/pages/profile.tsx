@@ -1531,7 +1531,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <h2 className="text-foreground font-bold text-base">{t("profile.changeLoginPassword")}</h2>
-                  <p id="change-pwd-desc" className="text-muted-foreground text-xs">{t("profile.changePasswordDesc") || t("profile.changeLoginPassword")}</p>
+                  <p id="change-pwd-desc" className="text-muted-foreground text-xs">{t("profile.changePasswordDesc")}</p>
                 </div>
               </div>
             </div>
@@ -1563,7 +1563,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <h2 className="text-foreground font-bold text-base">{t("profile.changeFundPasswordMenu")}</h2>
-                  <p id="change-fund-pwd-desc" className="text-muted-foreground text-xs">6 {t("profile.digit") || "xonali PIN kod"}</p>
+                  <p id="change-fund-pwd-desc" className="text-muted-foreground text-xs">{t("profile.fundPasswordDesc")}</p>
                 </div>
               </div>
             </div>
