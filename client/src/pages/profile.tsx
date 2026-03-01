@@ -117,7 +117,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
             <div className="w-full rounded-xl bg-amber-500/10 border border-amber-500/30 px-4 py-3 flex items-start gap-2.5">
               <Clock className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
               <p className="text-xs text-amber-600 dark:text-amber-400 text-left leading-relaxed">
-                {locale === "uz" ? "Tekshiruv vaqti: 1–24 soat. Qayta ariza yubormaslik uchun iltimos sabr bilan kuting." : locale === "ru" ? "Время проверки: 1–24 часа. Пожалуйста, подождите и не отправляйте повторную заявку." : "Review time: 1–24 hours. Please wait patiently and do not resubmit."}
+                {t("profile.depositReviewTime")}
               </p>
             </div>
             <div className="flex gap-3 w-full">
@@ -346,6 +346,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                 </label>
                 <Input
                   type="number"
+                  autoComplete="off"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder={paymentType === "crypto" ? t("profile.depositMinCrypto") : t("profile.depositMinLocal").replace("{amount}", (10 * UZS_RATE).toLocaleString())}
@@ -496,6 +497,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                 <div>
                   <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.fullName")}</label>
                   <Input
+                    autoComplete="name"
                     value={holderName}
                     onChange={(e) => setHolderName(e.target.value)}
                     placeholder={t("profile.fullNamePlaceholder")}
@@ -525,6 +527,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                 <div>
                   <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.cardNumber")}</label>
                   <Input
+                    autoComplete="cc-number"
                     value={cardNumber}
                     onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
                     placeholder="8600 0000 0000 0000"
@@ -557,6 +560,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                 <div>
                   <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.trc20WalletAddress")}</label>
                   <Input
+                    autoComplete="off"
                     value={walletAddress}
                     onChange={(e) => setWalletAddress(e.target.value)}
                     placeholder="T..."
@@ -601,6 +605,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
               <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.fundPassword")}</label>
               <Input
                 type="password"
+                autoComplete="off"
                 value={fundPassword}
                 onChange={(e) => setFundPassword(e.target.value.replace(/\D/g, "").slice(0, 6))}
                 placeholder={t("profile.sixDigitPin")}
@@ -718,7 +723,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
             <div className="w-full rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-3 flex items-start gap-2.5">
               <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
               <p className="text-xs text-emerald-600 dark:text-emerald-400 text-left leading-relaxed">
-                {locale === "uz" ? "Ariza moliyaviy bo'limga yuborildi. Tekshiruv vaqti: 1–24 soat." : locale === "ru" ? "Заявка передана в финансовый отдел. Время обработки: 1–24 часа." : "Request sent to the financial department. Processing time: 1–24 hours."}
+                {t("profile.withdrawProcessingInfo")}
               </p>
             </div>
             <div className="flex gap-3 w-full">
@@ -762,10 +767,10 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               </div>
               <div>
                 <p className="text-red-500 text-xs font-semibold">
-                  {locale === "ru" ? "Вывод средств временно приостановлен" : locale === "en" ? "Withdrawals temporarily suspended" : "Pul yechish vaqtincha to'xtatilgan"}
+                  {t("profile.withdrawSuspended")}
                 </p>
                 <p className="text-red-400/70 text-[11px] mt-0.5">
-                  {locale === "ru" ? "Пожалуйста, попробуйте позже" : locale === "en" ? "Please try again later" : "Iltimos, keyinroq urinib ko'ring"}
+                  {t("profile.withdrawSuspendedSub")}
                 </p>
               </div>
             </div>
@@ -836,7 +841,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 </div>
                 <div className="flex-1">
                   <p className="text-foreground font-semibold text-sm">{t("profile.bankCardUzs")}</p>
-                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? `Мин. вывод: ${minWithdrawalBank} USDT` : locale === "en" ? `Min withdrawal: ${minWithdrawalBank} USDT` : `Min yechish: ${minWithdrawalBank} USDT`}</p>
+                  <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.minWithdrawalLabel", { amount: String(minWithdrawalBank) })}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#3B82F6] transition-colors" />
               </button>
@@ -850,7 +855,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 </div>
                 <div className="flex-1">
                   <p className="text-foreground font-semibold text-sm">BSC (BEP20)</p>
-                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? `Мин. вывод: ${minWithdrawalUsdt} USDT` : locale === "en" ? `Min withdrawal: ${minWithdrawalUsdt} USDT` : `Min yechish: ${minWithdrawalUsdt} USDT`}</p>
+                  <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.minWithdrawalLabel", { amount: String(minWithdrawalUsdt) })}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-yellow-500 transition-colors" />
               </button>
@@ -925,9 +930,10 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.amountUsdt")}</label>
                 <Input
                   type="number"
+                  autoComplete="off"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  placeholder={`${locale === "ru" ? "Минимум" : locale === "en" ? "Minimum" : "Minimal"}: $${minAmount}`}
+                  placeholder={t("profile.withdrawMinPlaceholder", { amount: String(minAmount) })}
                   className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 text-base focus:border-primary"
                   data-testid="input-withdraw-amount"
                 />
@@ -960,6 +966,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 </label>
                 <Input
                   type="password"
+                  autoComplete="off"
                   value={fundPassword}
                   onChange={(e) => setFundPassword(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="• • • • • •"
@@ -1278,8 +1285,8 @@ export default function ProfilePage() {
               onClick={() => {
                 if (!isWithdrawalGloballyEnabled) {
                   toast({
-                    title: locale === "ru" ? "Вывод недоступен" : locale === "en" ? "Withdrawal unavailable" : "Yechish mavjud emas",
-                    description: locale === "ru" ? "Вывод средств временно приостановлен. Попробуйте позже." : locale === "en" ? "Withdrawals are temporarily suspended. Please try again later." : "Pul yechish vaqtincha to'xtatilgan. Keyinroq urinib ko'ring.",
+                    title: t("profile.withdrawUnavailableTitle"),
+                    description: t("profile.withdrawUnavailableDesc"),
                     variant: "destructive",
                   });
                   return;
@@ -1591,11 +1598,11 @@ export default function ProfilePage() {
             <div className="p-4 space-y-3">
               <div>
                 <label className="text-muted-foreground text-xs">{t("profile.currentPassword")}</label>
-                <Input type="password" value={currentPwd} onChange={(e) => setCurrentPwd(e.target.value)} placeholder={t("profile.currentPasswordPlaceholder")} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11" data-testid="input-current-password" />
+                <Input type="password" autoComplete="current-password" value={currentPwd} onChange={(e) => setCurrentPwd(e.target.value)} placeholder={t("profile.currentPasswordPlaceholder")} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11" data-testid="input-current-password" />
               </div>
               <div>
                 <label className="text-muted-foreground text-xs">{t("profile.newPassword")}</label>
-                <Input type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} placeholder={t("profile.newPasswordPlaceholder")} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11" data-testid="input-new-password" />
+                <Input type="password" autoComplete="new-password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} placeholder={t("profile.newPasswordPlaceholder")} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11" data-testid="input-new-password" />
               </div>
               <Button onClick={() => changePasswordMutation.mutate()} disabled={!currentPwd || newPwd.length < 6 || changePasswordMutation.isPending} className="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50" data-testid="button-save-password">
                 {changePasswordMutation.isPending ? t("profile.saving") : t("profile.changePassword")}

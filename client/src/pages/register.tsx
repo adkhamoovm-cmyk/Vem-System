@@ -447,6 +447,7 @@ export default function RegisterPage() {
                           <Input
                             {...field}
                             placeholder=""
+                            autoComplete="tel"
                             className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                             data-testid="input-phone"
                           />
@@ -470,6 +471,7 @@ export default function RegisterPage() {
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
+                          autoComplete="new-password"
                           placeholder={t("auth.minChars")}
                           className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                           data-testid="input-password"
@@ -594,7 +596,7 @@ export default function RegisterPage() {
                           <div className="mt-2.5 flex items-center gap-2 text-[11px] text-amber-500 dark:text-amber-400">
                             <FileText className="w-3.5 h-3.5 shrink-0" />
                             <span>
-                              {locale === "uz" ? "Rozilik bildirish uchun avval shartlarni to'liq o'qing" : locale === "ru" ? "Прочитайте условия до конца, чтобы принять их" : "Read the terms fully before accepting"}
+                              {t("auth.termsReadFirst")}
                             </span>
                           </div>
                         )}
@@ -644,7 +646,7 @@ export default function RegisterPage() {
                 <div>
                   <h3 className="text-sm font-bold text-foreground leading-tight">{termsContent[locale]?.title || termsContent.en.title}</h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {locale === "uz" ? "O'qib bo'lgach qabul qilish tugmasi faollashadi" : locale === "ru" ? "Кнопка активируется после прочтения" : "Button activates after reading"}
+                    {t("auth.termsButtonActivates")}
                   </p>
                 </div>
               </div>
@@ -660,7 +662,7 @@ export default function RegisterPage() {
             <div className="px-5 pt-2 pb-1 shrink-0">
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[11px] text-muted-foreground">
-                  {locale === "uz" ? "O'qish jarayoni" : locale === "ru" ? "Прогресс чтения" : "Reading progress"}
+                  {t("auth.readingProgress")}
                 </span>
                 <span className={`text-[11px] font-semibold ${hasReadTerms ? "text-green-500" : "text-primary"}`}>
                   {Math.round(scrollProgress)}%
@@ -681,9 +683,7 @@ export default function RegisterPage() {
               data-testid="terms-scroll-area"
             >
               <p className="text-muted-foreground text-sm leading-relaxed">
-                {locale === "uz" && "VEM Media Video Orqali Daromad Topish Platformasiga xush kelibsiz. Platformadan ro'yxatdan o'tishdan oldin, iltimos, quyidagi Foydalanish Shartlarini diqqat bilan o'qib chiqing."}
-                {locale === "ru" && "Добро пожаловать на платформу VEM Media для заработка через просмотр видео. Перед регистрацией, пожалуйста, внимательно ознакомьтесь с нижеследующими Условиями использования."}
-                {locale === "en" && "Welcome to the VEM Media Video Earning Platform. Before registering, please carefully read the following Terms of Service."}
+                {t("auth.termsWelcomeText")}
               </p>
 
               {(termsContent[locale] || termsContent.en).sections.map((section, i) => (
@@ -701,7 +701,7 @@ export default function RegisterPage() {
                 <div className="flex items-center justify-center gap-2 text-[12px] text-amber-500 dark:text-amber-400 py-1">
                   <FileText className="w-3.5 h-3.5 shrink-0" />
                   <span>
-                    {locale === "uz" ? "Qabul qilish uchun pastga qadar o'qing" : locale === "ru" ? "Прокрутите вниз, чтобы принять" : "Scroll to the bottom to accept"}
+                    {t("auth.scrollToAccept")}
                   </span>
                 </div>
               )}
@@ -719,10 +719,7 @@ export default function RegisterPage() {
                 }`}
                 data-testid="button-accept-terms"
               >
-                {hasReadTerms
-                  ? (locale === "uz" ? "O'qidim va roziman" : locale === "ru" ? "Прочитал и согласен" : "I have read and agree")
-                  : (locale === "uz" ? "O'qishni davom eting..." : locale === "ru" ? "Читайте дальше..." : "Keep reading...")
-                }
+                {hasReadTerms ? t("auth.readAndAgree") : t("auth.keepReading")}
               </button>
             </div>
           </div>

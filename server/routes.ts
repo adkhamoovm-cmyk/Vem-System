@@ -923,7 +923,6 @@ function showGuide(browser) {
 
       if (Number(user.vipLevel) < 1) {
         const hasInvestments = await storage.hasUserInvestments(userId);
-        console.log(`[Withdraw] User ${userId} vipLevel=${user.vipLevel}, hasInvestments=${hasInvestments}`);
         if (!hasInvestments) {
           return res.status(400).json({ message: "Pul yechish uchun VIP paket sotib oling yoki Fondga pul qo'ying. Stajyor paketda yechish mumkin emas!" });
         }
@@ -1570,7 +1569,6 @@ function showGuide(browser) {
           }
         }
       }
-      console.log(`[Cron] Daily profits processed for ${activeInvestments.length} investments`);
     } catch (error) {
       console.error("[Cron] Error processing daily profits:", error);
     }

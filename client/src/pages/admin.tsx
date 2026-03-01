@@ -617,6 +617,7 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
                       <img
                         src={d.receiptUrl}
                         alt={t("admin.viewReceipt")}
+                        loading="lazy"
                         className="w-full max-w-[200px] h-auto rounded-lg border border-border object-cover hover:opacity-80 transition-opacity"
                       />
                       <p className="text-primary text-[10px] mt-1">{t("admin.viewReceipt")}</p>

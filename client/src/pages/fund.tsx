@@ -425,6 +425,7 @@ export default function FundPage() {
                   <label className="text-sm font-medium text-muted-foreground mb-1.5 block">{t("fund.enterAmount")}</label>
                   <input
                     type="number"
+                    autoComplete="off"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder={`${t("fund.min")}: $${Number(selectedPlan.minDeposit).toLocaleString()}`}
@@ -501,6 +502,7 @@ export default function FundPage() {
                     inputMode="numeric"
                     pattern="[0-9]*"
                     maxLength={6}
+                    autoComplete="off"
                     value={pin}
                     onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
                     placeholder="••••••"

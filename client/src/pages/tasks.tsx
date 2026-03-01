@@ -115,6 +115,7 @@ function VideoPlayerModal({
               <img
                 src={thumbnailUrl}
                 alt="Video thumbnail"
+                loading="lazy"
                 className="w-full h-full object-cover"
                 data-testid="img-thumbnail"
               />
@@ -373,6 +374,7 @@ export default function TasksPage() {
               <img
                 src={`https://img.youtube.com/vi/${nextVideoId}/maxresdefault.jpg`}
                 alt="Video preview"
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />

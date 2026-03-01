@@ -164,6 +164,7 @@ export default function LoginPage() {
                           <Input
                             {...field}
                             placeholder=""
+                            autoComplete="tel"
                             className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                             data-testid="input-phone"
                           />
@@ -187,6 +188,7 @@ export default function LoginPage() {
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
+                          autoComplete="current-password"
                           placeholder={t("auth.enterPassword")}
                           className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
                           data-testid="input-password"
