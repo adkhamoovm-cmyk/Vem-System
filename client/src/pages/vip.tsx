@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
-import { useI18n, getVipName } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
+import { getVipName } from "@/lib/vip-utils";
 
 const levelIcons: Record<number, typeof Shield> = {
   0: Shield, 1: Medal, 2: Star, 3: Award, 4: Gem, 5: Zap,

@@ -7,7 +7,8 @@ import { Copy, UserPlus, Check, Share2, Crown, User, ChevronDown, ChevronRight, 
 import { SiTelegram, SiWhatsapp } from "react-icons/si";
 import { useState, useEffect, useRef } from "react";
 import type { User as UserType } from "@shared/schema";
-import { useI18n, getVipName } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
+import { getVipName } from "@/lib/vip-utils";
 
 interface ReferralStats {
   level1: { count: number; commission: string };

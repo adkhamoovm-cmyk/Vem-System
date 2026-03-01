@@ -91,6 +91,7 @@ export const investments = pgTable("investments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: text("user_id").notNull(),
   fundPlanId: text("fund_plan_id").notNull(),
+  planName: text("plan_name").notNull().default(""),
   investedAmount: decimal("invested_amount", { precision: 12, scale: 2 }).notNull(),
   dailyProfit: decimal("daily_profit", { precision: 12, scale: 2 }).notNull(),
   startDate: timestamp("start_date").notNull().defaultNow(),

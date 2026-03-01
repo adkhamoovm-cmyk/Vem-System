@@ -5,7 +5,8 @@ import { Progress } from "@/components/ui/progress";
 import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare, Coffee, AlertTriangle, CalendarDays, CheckCheck, ArrowUpRight, ArrowDownRight, Sprout, RefreshCw, Clock } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage, Investment, BalanceHistory } from "@shared/schema";
-import { useI18n, getVipName } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
+import { getVipName } from "@/lib/vip-utils";
 
 const UZS_RATE = 12100;
 

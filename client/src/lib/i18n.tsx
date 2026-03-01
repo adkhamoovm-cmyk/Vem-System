@@ -78,16 +78,6 @@ export function useI18n() {
   return useContext(I18nContext);
 }
 
-export function getVipName(level: number, locale: string): string {
-  if (level < 0) return "—";
-  if (level === 0) {
-    if (locale === "ru") return "Стажёр";
-    if (locale === "en") return "Intern";
-    return "Stajyor";
-  }
-  return `M${level}`;
-}
-
 export { localeLabels };
 
 const serverMessageMap: Record<string, string> = {

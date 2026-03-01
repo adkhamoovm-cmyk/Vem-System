@@ -683,10 +683,8 @@ function showGuide(browser) {
 
       const allPlans = await storage.getFundPlans();
       const enriched = userInvestments.map(inv => {
-        const plan = allPlans.find(p => p.id === inv.fundPlanId);
-        const planName = plan?.name || "Fund";
+        const planName = inv.planName || allPlans.find(p => p.id === inv.fundPlanId)?.name || "Fund";
         const profitEntries = fundProfits.filter(h =>
-          h.description?.includes(planName) &&
           new Date(h.createdAt) >= new Date(inv.startDate)
         );
         const totalEarned = profitEntries.reduce((sum, h) => sum + Number(h.amount), 0);
@@ -767,6 +765,7 @@ function showGuide(browser) {
       const investment = await storage.createInvestment({
         userId,
         fundPlanId,
+        planName: plan.name,
         investedAmount: investAmount.toFixed(2),
         dailyProfit,
         endDate,
@@ -1557,7 +1556,7 @@ function showGuide(browser) {
         if (inv.lastProfitDate === today) continue;
 
         const plan = await storage.getFundPlan(inv.fundPlanId);
-        const planName = plan?.name || "Fund";
+        const planName = (inv as any).planName || plan?.name || "Fund";
 
         await storage.updateUserBalance(inv.userId, inv.dailyProfit);
         await storage.updateInvestmentLastProfitDate(inv.id, today);

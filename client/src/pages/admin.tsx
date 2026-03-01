@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, VipPackage, PromoCode } from "@shared/schema";
-import { useI18n, getVipName } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
+import { getVipName } from "@/lib/vip-utils";
 
 const UZS_RATE = 12100;
 

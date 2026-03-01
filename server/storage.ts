@@ -31,7 +31,7 @@ export interface IStorage {
   getReferredUsers(userId: string): Promise<{ phone: string; vipLevel: number; level: number }[]>;
   getFundPlans(): Promise<FundPlan[]>;
   getFundPlan(id: string): Promise<FundPlan | undefined>;
-  createInvestment(data: { userId: string; fundPlanId: string; investedAmount: string; dailyProfit: string; endDate: Date | null; lastProfitDate?: string }): Promise<Investment>;
+  createInvestment(data: { userId: string; fundPlanId: string; planName: string; investedAmount: string; dailyProfit: string; endDate: Date | null; lastProfitDate?: string }): Promise<Investment>;
   getUserInvestments(userId: string): Promise<Investment[]>;
   getActiveInvestments(): Promise<Investment[]>;
   updateInvestmentStatus(id: string, status: string): Promise<void>;
@@ -254,7 +254,7 @@ export class DatabaseStorage implements IStorage {
     return plan;
   }
 
-  async createInvestment(data: { userId: string; fundPlanId: string; investedAmount: string; dailyProfit: string; endDate: Date | null; lastProfitDate?: string }): Promise<Investment> {
+  async createInvestment(data: { userId: string; fundPlanId: string; planName: string; investedAmount: string; dailyProfit: string; endDate: Date | null; lastProfitDate?: string }): Promise<Investment> {
     const [inv] = await db.insert(investments).values({
       ...data,
       status: "active",

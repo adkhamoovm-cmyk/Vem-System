@@ -7,7 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import { Play, Clock, CheckCircle, Crown, Lock, X, Coffee } from "lucide-react";
 import type { User, VipPackage } from "@shared/schema";
 import { Link } from "wouter";
-import { useI18n, getVipName } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
+import { getVipName } from "@/lib/vip-utils";
 
 function isSunday() {
   return new Date().getDay() === 0;
