@@ -1443,10 +1443,7 @@ export default function ProfilePage() {
 
         <Dialog open={showFinanceService} onOpenChange={setShowFinanceService}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="finance-service-desc">
-            <div className="relative bg-gradient-to-br from-[#3B82F6]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
-              <button onClick={() => setShowFinanceService(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center" data-testid="button-close-finance-service">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+            <div className="bg-gradient-to-br from-[#3B82F6]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/20 flex items-center justify-center">
                   <Landmark className="w-5 h-5 text-[#3B82F6]" />
@@ -1521,10 +1518,7 @@ export default function ProfilePage() {
 
         <Dialog open={showChangePassword} onOpenChange={(open) => { setShowChangePassword(open); if (!open) { setCurrentPwd(""); setNewPwd(""); } }}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="change-pwd-desc">
-            <div className="relative bg-gradient-to-br from-[#F59E0B]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
-              <button onClick={() => setShowChangePassword(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center" data-testid="button-close-change-password">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+            <div className="bg-gradient-to-br from-[#F59E0B]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center">
                   <Lock className="w-5 h-5 text-[#F59E0B]" />
@@ -1553,10 +1547,7 @@ export default function ProfilePage() {
 
         <Dialog open={showChangeFundPwd} onOpenChange={(open) => { setShowChangeFundPwd(open); if (!open) { setCurrentFundPwd(""); setNewFundPwd(""); } }}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="change-fund-pwd-desc">
-            <div className="relative bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
-              <button onClick={() => setShowChangeFundPwd(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center" data-testid="button-close-change-fund-password">
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+            <div className="bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/20 flex items-center justify-center">
                   <Shield className="w-5 h-5 text-[#A78BFA]" />
@@ -1585,14 +1576,7 @@ export default function ProfilePage() {
 
         <Dialog open={showFinanceHistory} onOpenChange={setShowFinanceHistory}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full h-[92vh] max-h-[92vh] rounded-2xl overflow-hidden flex flex-col" aria-describedby="finance-history-desc">
-            <div className="relative bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border shrink-0">
-              <button
-                onClick={() => setShowFinanceHistory(false)}
-                className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center"
-                data-testid="button-close-finance-history"
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
+            <div className="bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border shrink-0">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/20 flex items-center justify-center">
                   <History className="w-5 h-5 text-[#A78BFA]" />
