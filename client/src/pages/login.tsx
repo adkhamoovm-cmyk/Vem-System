@@ -41,6 +41,14 @@ export default function LoginPage() {
   const { t, translateServerMessage } = useI18n();
   const [showPassword, setShowPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetStep, setResetStep] = useState(1);
+  const [resetPhone, setResetPhone] = useState("");
+  const [resetPin, setResetPin] = useState("");
+  const [resetAnswer, setResetAnswer] = useState("");
+  const [resetNewPass, setResetNewPass] = useState("");
+  const [resetVerifyType, setResetVerifyType] = useState<"card" | "crypto" | "referrer" | "">("");
+  const [resetVerifyHint, setResetVerifyHint] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("vem_remember") === "true");
   const [selectedCountry, setSelectedCountry] = useState(() => {
     const saved = localStorage.getItem("vem_country");
@@ -68,19 +76,6 @@ export default function LoginPage() {
     defaultValues: { phone: savedPhone, password: "" },
   });
 
-  const resetSchema = z.object({
-    phone: z.string().min(5, t("auth.phoneValidation")),
-    fundPassword: z.string().length(6, t("auth.sixDigitPin")),
-    newPassword: z.string().min(6, t("auth.minChars")),
-  });
-
-  type ResetForm = z.infer<typeof resetSchema>;
-
-  const resetForm = useForm<ResetForm>({
-    resolver: zodResolver(resetSchema),
-    defaultValues: { phone: "", fundPassword: "", newPassword: "" },
-  });
-
   const loginMutation = useMutation({
     mutationFn: async (data: LoginForm) => {
       const fullPhone = selectedCountry.code + data.phone;
@@ -105,21 +100,79 @@ export default function LoginPage() {
     },
   });
 
-  const resetMutation = useMutation({
-    mutationFn: async (data: ResetForm) => {
-      const fullPhone = resetCountry.code + data.phone;
-      const res = await apiRequest("POST", "/api/auth/reset-password", { phone: fullPhone, fundPassword: data.fundPassword, newPassword: data.newPassword });
-      return res.json();
-    },
-    onSuccess: (data) => {
+  const openResetModal = async () => {
+    try { await apiRequest("POST", "/api/auth/reset-cancel", {}); } catch {}
+    setShowResetPassword(true);
+    setResetStep(1);
+    setResetPhone("");
+    setResetPin("");
+    setResetAnswer("");
+    setResetNewPass("");
+    setResetVerifyType("");
+    setResetVerifyHint("");
+  };
+
+  const handleResetStep1 = async () => {
+    if (!resetPhone || resetPhone.length < 5) return;
+    setResetLoading(true);
+    try {
+      const fullPhone = resetCountry.code + resetPhone;
+      const res = await apiRequest("POST", "/api/auth/reset-step1", { phone: fullPhone });
+      const data = await res.json();
+      if (data.success) setResetStep(2);
+    } catch (error: any) {
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleResetStep2 = async () => {
+    if (resetPin.length !== 6) return;
+    setResetLoading(true);
+    try {
+      const res = await apiRequest("POST", "/api/auth/reset-step2", { fundPassword: resetPin });
+      const data = await res.json();
+      if (data.success) {
+        setResetVerifyType(data.verifyType);
+        setResetVerifyHint(data.verifyHint || "");
+        setResetStep(3);
+      }
+    } catch (error: any) {
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleResetStep3 = async () => {
+    if (!resetAnswer.trim()) return;
+    setResetLoading(true);
+    try {
+      const res = await apiRequest("POST", "/api/auth/reset-step3", { answer: resetAnswer.trim() });
+      const data = await res.json();
+      if (data.success) setResetStep(4);
+    } catch (error: any) {
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleResetStep4 = async () => {
+    if (resetNewPass.length < 6) return;
+    setResetLoading(true);
+    try {
+      const res = await apiRequest("POST", "/api/auth/reset-password", { newPassword: resetNewPass });
+      const data = await res.json();
       toast({ title: t("auth.resetSuccess"), description: translateServerMessage(data.message) });
       setShowResetPassword(false);
-      resetForm.reset();
-    },
-    onError: (error: Error) => {
+    } catch (error: any) {
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
-    },
-  });
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const { theme, toggleTheme } = useTheme();
 
@@ -252,7 +305,7 @@ export default function LoginPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setShowResetPassword(true)}
+                  onClick={openResetModal}
                   className="text-primary text-sm font-medium hover:underline"
                   data-testid="link-forgot-password"
                 >
@@ -284,152 +337,244 @@ export default function LoginPage() {
         {showResetPassword && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowResetPassword(false)}>
             <div className="bg-card rounded-2xl p-6 shadow-xl border border-border w-full max-w-md" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4">
                 <button
-                  onClick={() => setShowResetPassword(false)}
+                  onClick={async () => {
+                    if (resetStep > 1) {
+                      if (resetStep === 2) {
+                        try { await apiRequest("POST", "/api/auth/reset-cancel", {}); } catch {}
+                      }
+                      setResetStep(resetStep - 1);
+                    } else {
+                      try { await apiRequest("POST", "/api/auth/reset-cancel", {}); } catch {}
+                      setShowResetPassword(false);
+                    }
+                  }}
                   className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
-                  data-testid="button-back-to-login"
+                  data-testid="button-back-reset"
                 >
                   <ArrowLeft className="w-4 h-4" />
                 </button>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-1">
                   <div className="w-1 h-5 bg-primary rounded-full" />
                   <h2 className="text-lg font-bold text-foreground">{t("auth.resetPassword")}</h2>
                 </div>
+                <span className="text-muted-foreground text-xs font-medium bg-muted px-2 py-1 rounded-lg">
+                  {t("auth.stepOf", { current: String(resetStep), total: "4" })}
+                </span>
               </div>
 
-              <div className="bg-muted/50 rounded-xl p-3 mb-5 border border-border">
-                <div className="flex items-start gap-2">
-                  <KeyRound className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                  <p className="text-muted-foreground text-xs leading-relaxed">{t("auth.fundPasswordHint")}</p>
-                </div>
+              <div className="flex gap-1 mb-5">
+                {[1,2,3,4].map(s => (
+                  <div key={s} className={`h-1 flex-1 rounded-full transition-colors ${s <= resetStep ? "bg-primary" : "bg-muted"}`} />
+                ))}
               </div>
 
-              <Form {...resetForm}>
-                <form onSubmit={resetForm.handleSubmit((data) => resetMutation.mutate(data))} className="space-y-4">
-                  <FormField
-                    control={resetForm.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.phone")}</FormLabel>
-                        <FormControl>
-                          <div className="flex gap-2">
-                            <div className="relative">
-                              <button
-                                type="button"
-                                onClick={() => setShowCountryListReset(!showCountryListReset)}
-                                className="flex items-center gap-1.5 h-11 px-3 bg-card border border-border rounded-xl text-sm font-medium text-foreground whitespace-nowrap hover:border-primary/40 transition-colors"
-                                data-testid="button-reset-country-code"
-                              >
-                                <span className="text-lg">{resetCountry.flag}</span>
-                                <span className="text-sm">{resetCountry.code}</span>
-                                <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${showCountryListReset ? "rotate-180" : ""}`} />
-                              </button>
-                              {showCountryListReset && (
-                                <>
-                                  <div className="fixed inset-0 z-40" onClick={() => setShowCountryListReset(false)} />
-                                  <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-card border border-border rounded-xl shadow-xl z-50">
-                                    {countryCodes.map((c) => (
-                                      <button
-                                        key={c.country + c.code}
-                                        type="button"
-                                        onClick={() => { setResetCountry(c); setShowCountryListReset(false); }}
-                                        className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-muted transition-colors ${
-                                          resetCountry.country === c.country ? "bg-muted" : ""
-                                        }`}
-                                      >
-                                        <span className="text-lg">{c.flag}</span>
-                                        <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
-                                        <span className="text-muted-foreground text-xs">{c.code}</span>
-                                      </button>
-                                    ))}
-                                  </div>
-                                </>
-                              )}
+              <p className="text-muted-foreground text-sm mb-4">
+                {resetStep === 1 && t("auth.resetStep1")}
+                {resetStep === 2 && t("auth.resetStep2")}
+                {resetStep === 3 && t("auth.resetStep3")}
+                {resetStep === 4 && t("auth.resetStep4")}
+              </p>
+
+              {resetStep === 1 && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider block mb-1.5">{t("auth.phone")}</label>
+                    <div className="flex gap-2">
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setShowCountryListReset(!showCountryListReset)}
+                          className="flex items-center gap-1.5 h-11 px-3 bg-card border border-border rounded-xl text-sm font-medium text-foreground whitespace-nowrap hover:border-primary/40 transition-colors"
+                          data-testid="button-reset-country-code"
+                        >
+                          <span className="text-lg">{resetCountry.flag}</span>
+                          <span className="text-sm">{resetCountry.code}</span>
+                          <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${showCountryListReset ? "rotate-180" : ""}`} />
+                        </button>
+                        {showCountryListReset && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setShowCountryListReset(false)} />
+                            <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-card border border-border rounded-xl shadow-xl z-50">
+                              {countryCodes.map((c) => (
+                                <button
+                                  key={c.country + c.code}
+                                  type="button"
+                                  onClick={() => { setResetCountry(c); setShowCountryListReset(false); }}
+                                  className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-muted transition-colors ${
+                                    resetCountry.country === c.country ? "bg-muted" : ""
+                                  }`}
+                                >
+                                  <span className="text-lg">{c.flag}</span>
+                                  <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
+                                  <span className="text-muted-foreground text-xs">{c.code}</span>
+                                </button>
+                              ))}
                             </div>
-                            <div className="relative flex-1">
-                              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                              <Input
-                                {...field}
-                                placeholder=""
-                                autoComplete="tel"
-                                className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
-                                data-testid="input-reset-phone"
-                              />
-                            </div>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={resetForm.control}
-                    name="fundPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.fundPassword")}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              {...field}
-                              type="password"
-                              maxLength={6}
-                              inputMode="numeric"
-                              placeholder="••••••"
-                              className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl tracking-[0.3em]"
-                              data-testid="input-reset-fund-password"
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={resetForm.control}
-                    name="newPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.newPassword")}</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                              {...field}
-                              type={showPassword ? "text" : "password"}
-                              placeholder={t("auth.enterNewPassword")}
-                              className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
-                              data-testid="input-reset-new-password"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                            >
-                              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                            </button>
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
+                          </>
+                        )}
+                      </div>
+                      <div className="relative flex-1">
+                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          value={resetPhone}
+                          onChange={e => setResetPhone(e.target.value)}
+                          placeholder=""
+                          autoComplete="tel"
+                          className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
+                          data-testid="input-reset-phone"
+                        />
+                      </div>
+                    </div>
+                  </div>
                   <Button
-                    type="submit"
-                    className="w-full bg-primary text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg text-base"
-                    disabled={resetMutation.isPending}
+                    onClick={handleResetStep1}
+                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    disabled={resetLoading || resetPhone.length < 5}
+                    data-testid="button-reset-next-1"
+                  >
+                    {resetLoading ? t("auth.checking") : t("auth.next")}
+                  </Button>
+                </div>
+              )}
+
+              {resetStep === 2 && (
+                <div className="space-y-4">
+                  <div className="bg-muted/50 rounded-xl p-3 mb-2 border border-border">
+                    <div className="flex items-start gap-2">
+                      <KeyRound className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                      <p className="text-muted-foreground text-xs leading-relaxed">{t("auth.fundPasswordHint")}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider block mb-1.5">{t("auth.fundPassword")}</label>
+                    <div className="flex justify-center gap-2">
+                      {[0,1,2,3,4,5].map(i => (
+                        <Input
+                          key={i}
+                          type="password"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={resetPin[i] || ""}
+                          className="w-11 h-12 text-center text-lg font-bold bg-muted border-border text-foreground rounded-xl focus:border-primary/50 focus:ring-primary/20"
+                          data-testid={`input-reset-pin-${i}`}
+                          onChange={e => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            if (val.length <= 1) {
+                              const newPin = resetPin.split("");
+                              newPin[i] = val;
+                              setResetPin(newPin.join("").slice(0, 6));
+                              if (val && i < 5) {
+                                const next = e.target.parentElement?.parentElement?.querySelector(`[data-testid="input-reset-pin-${i+1}"]`) as HTMLInputElement;
+                                next?.focus();
+                              }
+                            }
+                          }}
+                          onKeyDown={e => {
+                            if (e.key === "Backspace" && !resetPin[i] && i > 0) {
+                              const prev = (e.target as HTMLElement).parentElement?.parentElement?.querySelector(`[data-testid="input-reset-pin-${i-1}"]`) as HTMLInputElement;
+                              prev?.focus();
+                            }
+                          }}
+                          onPaste={e => {
+                            e.preventDefault();
+                            const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                            setResetPin(paste);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleResetStep2}
+                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    disabled={resetLoading || resetPin.length !== 6}
+                    data-testid="button-reset-next-2"
+                  >
+                    {resetLoading ? t("auth.checking") : t("auth.next")}
+                  </Button>
+                </div>
+              )}
+
+              {resetStep === 3 && (
+                <div className="space-y-4">
+                  <div className="bg-muted/50 rounded-xl p-3 mb-2 border border-border">
+                    <div className="flex items-start gap-2">
+                      <KeyRound className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                      <p className="text-muted-foreground text-xs leading-relaxed">
+                        {resetVerifyType === "card" && t("auth.verifyCardLast6")}
+                        {resetVerifyType === "crypto" && t("auth.verifyCryptoFull")}
+                        {resetVerifyType === "referrer" && (resetVerifyHint ? t("auth.verifyReferrerPhone") : t("auth.verifyRegDate"))}
+                      </p>
+                    </div>
+                  </div>
+                  {resetVerifyHint && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      {resetVerifyType === "card" && t("auth.verifyCardHint", { hint: resetVerifyHint })}
+                      {resetVerifyType === "crypto" && t("auth.verifyCryptoHint", { hint: resetVerifyHint })}
+                      {resetVerifyType === "referrer" && t("auth.verifyReferrerHint", { hint: resetVerifyHint })}
+                    </p>
+                  )}
+                  <div>
+                    <Input
+                      value={resetAnswer}
+                      onChange={e => setResetAnswer(e.target.value)}
+                      placeholder={
+                        resetVerifyType === "card" ? "XXXXXX" :
+                        resetVerifyType === "crypto" ? "T..." :
+                        resetVerifyType === "referrer" && resetVerifyHint ? "+998..." :
+                        "2026-01-15"
+                      }
+                      className="h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl text-center tracking-wider"
+                      data-testid="input-reset-verify"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleResetStep3}
+                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    disabled={resetLoading || !resetAnswer.trim()}
+                    data-testid="button-reset-next-3"
+                  >
+                    {resetLoading ? t("auth.checking") : t("auth.next")}
+                  </Button>
+                </div>
+              )}
+
+              {resetStep === 4 && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider block mb-1.5">{t("auth.newPassword")}</label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        value={resetNewPass}
+                        onChange={e => setResetNewPass(e.target.value)}
+                        type={showPassword ? "text" : "password"}
+                        placeholder={t("auth.enterNewPassword")}
+                        className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
+                        data-testid="input-reset-new-password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <p className="text-muted-foreground text-[10px] mt-1">{t("auth.minChars")}</p>
+                  </div>
+                  <Button
+                    onClick={handleResetStep4}
+                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    disabled={resetLoading || resetNewPass.length < 6}
                     data-testid="button-reset-password"
                   >
-                    {resetMutation.isPending ? t("auth.resetting") : t("auth.resetPassword")}
+                    {resetLoading ? t("auth.resetting") : t("auth.resetPassword")}
                   </Button>
-                </form>
-              </Form>
+                </div>
+              )}
 
               <div className="mt-4 text-center">
                 <button

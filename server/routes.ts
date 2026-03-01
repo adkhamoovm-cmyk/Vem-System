@@ -63,6 +63,9 @@ declare module "express-session" {
   interface SessionData {
     userId: string;
     adminPinVerified: boolean;
+    resetPhone: string;
+    resetStep: number;
+    resetVerifyType: string;
   }
 }
 
@@ -346,44 +349,148 @@ function showGuide(browser) {
     }
   });
 
-  app.post("/api/auth/reset-password", authRateLimiter, async (req: Request, res: Response) => {
-    try {
-      const { phone, fundPassword, newPassword } = req.body;
+  app.post("/api/auth/reset-cancel", async (req: Request, res: Response) => {
+    req.session.resetStep = undefined;
+    req.session.resetPhone = undefined;
+    req.session.resetVerifyType = undefined;
+    res.json({ success: true });
+  });
 
-      if (!phone || !fundPassword || !newPassword) {
+  app.post("/api/auth/reset-step1", authRateLimiter, async (req: Request, res: Response) => {
+    try {
+      const { phone } = req.body;
+      if (!phone || typeof phone !== "string") {
         return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
       }
-
-      if (typeof fundPassword !== "string" || typeof newPassword !== "string" || typeof phone !== "string") {
-        return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
-      }
-
-      if (newPassword.length < 6) {
-        return res.status(400).json({ message: "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak" });
-      }
-
-      const genericError = "Telefon raqami yoki moliya paroli noto'g'ri";
-
       const user = await storage.getUserByPhone(phone);
       if (!user) {
-        return res.status(400).json({ message: genericError });
+        return res.status(400).json({ message: "Telefon raqami yoki moliya paroli noto'g'ri" });
       }
-
       if (user.isBanned) {
         return res.status(403).json({ message: "Sizning hisobingiz bloklangan. Texnik yordamga murojaat qiling." });
       }
+      req.session.resetPhone = phone;
+      req.session.resetStep = 1;
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
+    }
+  });
 
-      if (!user.fundPassword) {
-        return res.status(400).json({ message: genericError });
+  app.post("/api/auth/reset-step2", authRateLimiter, async (req: Request, res: Response) => {
+    try {
+      if (req.session.resetStep !== 1 || !req.session.resetPhone) {
+        return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
       }
-
-      const fundPassValid = await comparePasswords(fundPassword, user.fundPassword);
-      if (!fundPassValid) {
-        return res.status(400).json({ message: genericError });
+      const { fundPassword } = req.body;
+      if (!fundPassword || typeof fundPassword !== "string") {
+        return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
       }
+      const user = await storage.getUserByPhone(req.session.resetPhone);
+      if (!user || !user.fundPassword) {
+        return res.status(400).json({ message: "Telefon raqami yoki moliya paroli noto'g'ri" });
+      }
+      const valid = await comparePasswords(fundPassword, user.fundPassword);
+      if (!valid) {
+        return res.status(400).json({ message: "Telefon raqami yoki moliya paroli noto'g'ri" });
+      }
+      const methods = await storage.getUserPaymentMethods(user.id);
+      let verifyType: "card" | "crypto" | "referrer" = "referrer";
+      let verifyHint = "";
+      if (methods.length > 0) {
+        const m = methods[0];
+        if (m.type === "bank" && m.cardNumber) {
+          verifyType = "card";
+          verifyHint = m.cardNumber.slice(0, 4) + " **** **** " + m.cardNumber.slice(-2);
+        } else if ((m.type === "crypto_trc20" || m.type === "crypto_bep20") && m.walletAddress) {
+          verifyType = "crypto";
+          verifyHint = m.walletAddress.slice(0, 4) + "..." + m.walletAddress.slice(-4);
+        } else {
+          verifyType = "referrer";
+        }
+      }
+      if (verifyType === "referrer") {
+        const referrer = user.referredBy ? await storage.getUser(user.referredBy) : null;
+        if (referrer) {
+          verifyHint = referrer.phone.slice(0, 5) + "***" + referrer.phone.slice(-2);
+        }
+      }
+      req.session.resetStep = 2;
+      req.session.resetVerifyType = verifyType;
+      res.json({ success: true, verifyType, verifyHint });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
+    }
+  });
 
+  app.post("/api/auth/reset-step3", authRateLimiter, async (req: Request, res: Response) => {
+    try {
+      if (req.session.resetStep !== 2 || !req.session.resetPhone || !req.session.resetVerifyType) {
+        return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
+      }
+      const { answer } = req.body;
+      if (!answer || typeof answer !== "string") {
+        return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
+      }
+      const user = await storage.getUserByPhone(req.session.resetPhone);
+      if (!user) {
+        return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
+      }
+      const verifyType = req.session.resetVerifyType;
+      let verified = false;
+      if (verifyType === "card") {
+        const methods = await storage.getUserPaymentMethods(user.id);
+        const bankMethod = methods.find(m => m.type === "bank" && m.cardNumber);
+        if (bankMethod && bankMethod.cardNumber) {
+          const last6 = bankMethod.cardNumber.replace(/\s/g, "").slice(-6);
+          verified = answer.replace(/\s/g, "") === last6;
+        }
+      } else if (verifyType === "crypto") {
+        const methods = await storage.getUserPaymentMethods(user.id);
+        const cryptoMethod = methods.find(m => (m.type === "crypto_trc20" || m.type === "crypto_bep20") && m.walletAddress);
+        if (cryptoMethod && cryptoMethod.walletAddress) {
+          verified = answer.trim().toLowerCase() === cryptoMethod.walletAddress.trim().toLowerCase();
+        }
+      } else {
+        const referrer = user.referredBy ? await storage.getUser(user.referredBy) : null;
+        if (referrer) {
+          verified = answer.replace(/\s/g, "") === referrer.phone.replace(/\s/g, "");
+        } else {
+          const userCreatedDate = user.createdAt ? new Date(user.createdAt).toISOString().split("T")[0] : "";
+          verified = answer.trim() === userCreatedDate;
+        }
+      }
+      if (!verified) {
+        return res.status(400).json({ message: "Tasdiqlash ma'lumoti noto'g'ri" });
+      }
+      req.session.resetStep = 3;
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
+    }
+  });
+
+  app.post("/api/auth/reset-password", authRateLimiter, async (req: Request, res: Response) => {
+    try {
+      if (req.session.resetStep !== 3 || !req.session.resetPhone) {
+        return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
+      }
+      const { newPassword } = req.body;
+      if (!newPassword || typeof newPassword !== "string") {
+        return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak" });
+      }
+      const user = await storage.getUserByPhone(req.session.resetPhone);
+      if (!user) {
+        return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
+      }
       const hashedNew = await hashPassword(newPassword);
       await storage.updateUserPassword(user.id, hashedNew, newPassword);
+      req.session.resetStep = undefined;
+      req.session.resetPhone = undefined;
+      req.session.resetVerifyType = undefined;
       res.json({ message: "Parol muvaffaqiyatli tiklandi! Endi yangi parol bilan kiring." });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
