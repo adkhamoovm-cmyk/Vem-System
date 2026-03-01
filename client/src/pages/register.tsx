@@ -315,9 +315,14 @@ export default function RegisterPage() {
   const handleTermsScroll = useCallback(() => {
     const el = termsScrollRef.current;
     if (!el) return;
-    const scrolled = el.scrollTop;
+    const scrolled = Math.max(0, el.scrollTop);
     const total = el.scrollHeight - el.clientHeight;
-    const progress = total > 0 ? Math.min((scrolled / total) * 100, 100) : 100;
+    if (total <= 0) {
+      setScrollProgress(100);
+      setHasReadTerms(true);
+      return;
+    }
+    const progress = Math.max(0, Math.min(Math.round((scrolled / total) * 100), 100));
     setScrollProgress(progress);
     if (progress >= 95) {
       setHasReadTerms(true);
@@ -327,6 +332,8 @@ export default function RegisterPage() {
   useEffect(() => {
     if (showTerms) {
       setScrollProgress(0);
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
       setTimeout(() => {
         const el = termsScrollRef.current;
         if (el) {
@@ -335,7 +342,14 @@ export default function RegisterPage() {
           if (total <= 0) setHasReadTerms(true);
         }
       }, 100);
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
     }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
   }, [showTerms]);
 
   const params = new URLSearchParams(window.location.search);
@@ -639,7 +653,7 @@ export default function RegisterPage() {
 
       {showTerms && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" data-testid="terms-modal">
-          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTerms(false)} />
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTerms(false)} onTouchMove={(e) => e.preventDefault()} />
           <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300 shadow-2xl">
 
             <div className="flex items-center justify-between p-5 pb-3 border-b border-border shrink-0">
@@ -683,7 +697,8 @@ export default function RegisterPage() {
             <div
               ref={termsScrollRef}
               onScroll={handleTermsScroll}
-              className="overflow-y-auto px-5 pb-5 pt-3 space-y-4 flex-1"
+              className="overflow-y-auto px-5 pb-5 pt-3 space-y-4 flex-1 overscroll-contain"
+              style={{ WebkitOverflowScrolling: "touch" }}
               data-testid="terms-scroll-area"
             >
               <p className="text-muted-foreground text-sm leading-relaxed">
