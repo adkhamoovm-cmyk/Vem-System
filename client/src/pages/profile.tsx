@@ -993,6 +993,61 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
   );
 }
 
+function PinInput({ value, onChange, error, testId }: { value: string; onChange: (val: string) => void; error?: boolean; testId?: string }) {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const digits = value.padEnd(6, "").split("").slice(0, 6);
+
+  const handleDigitChange = (index: number, digit: string) => {
+    if (!/^\d*$/.test(digit)) return;
+    const newDigits = [...digits];
+    newDigits[index] = digit.slice(-1);
+    const newValue = newDigits.join("").replace(/\s/g, "");
+    onChange(newValue);
+    if (digit && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: { key: string }) => {
+    if (e.key === "Backspace" && !digits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+      const newDigits = [...digits];
+      newDigits[index - 1] = "";
+      onChange(newDigits.join("").replace(/\s/g, ""));
+    }
+  };
+
+  const handlePaste = (e: { preventDefault: () => void; clipboardData: DataTransfer }) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    onChange(pasted);
+    const focusIndex = Math.min(pasted.length, 5);
+    inputRefs.current[focusIndex]?.focus();
+  };
+
+  return (
+    <div className="flex gap-2 justify-center" data-testid={testId}>
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <input
+          key={i}
+          ref={(el) => { inputRefs.current[i] = el; }}
+          type="password"
+          inputMode="numeric"
+          maxLength={1}
+          value={digits[i]?.trim() || ""}
+          onChange={(e) => handleDigitChange(i, e.target.value)}
+          onKeyDown={(e) => handleKeyDown(i, e)}
+          onPaste={i === 0 ? handlePaste : undefined}
+          className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 bg-card outline-none transition-all
+            ${error ? "border-red-400 text-red-500" : digits[i]?.trim() ? "border-primary text-foreground" : "border-border text-foreground"}
+            focus:border-primary focus:ring-2 focus:ring-primary/20`}
+          data-testid={`${testId}-${i}`}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const { toast } = useToast();
   const { t, locale, translateServerMessage } = useI18n();
@@ -1558,14 +1613,14 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-            <div className="p-4 space-y-3">
+            <div className="p-4 space-y-4">
               <div>
-                <label className="text-muted-foreground text-xs">{t("profile.currentFundPassword")}</label>
-                <Input type="password" value={currentFundPwd} onChange={(e) => setCurrentFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={t("profile.currentFundPwdPlaceholder")} maxLength={6} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]" data-testid="input-current-fund-password" />
+                <label className="text-muted-foreground text-xs block mb-2">{t("profile.currentFundPassword")}</label>
+                <PinInput value={currentFundPwd} onChange={setCurrentFundPwd} testId="input-current-fund-password" />
               </div>
               <div>
-                <label className="text-muted-foreground text-xs">{t("profile.newFundPassword")}</label>
-                <Input type="password" value={newFundPwd} onChange={(e) => setNewFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={t("profile.newFundPwdPlaceholder")} maxLength={6} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]" data-testid="input-new-fund-password" />
+                <label className="text-muted-foreground text-xs block mb-2">{t("profile.newFundPassword")}</label>
+                <PinInput value={newFundPwd} onChange={setNewFundPwd} testId="input-new-fund-password" />
               </div>
               <Button onClick={() => changeFundPwdMutation.mutate()} disabled={currentFundPwd.length !== 6 || newFundPwd.length !== 6 || changeFundPwdMutation.isPending} className="w-full bg-gradient-to-r from-violet-400 to-violet-500 text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50" data-testid="button-save-fund-password">
                 {changeFundPwdMutation.isPending ? t("profile.saving") : t("profile.changeFundPasswordMenu")}
