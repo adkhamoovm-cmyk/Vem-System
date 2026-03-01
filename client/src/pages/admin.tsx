@@ -177,7 +177,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
         <div className="space-y-4 pt-2">
           <div className="grid grid-cols-2 gap-3">
             <InfoRow label={t("admin.phone")} value={user.phone} />
-            <InfoRow label="ID" value={user.numericId || "—"} />
+            <InfoRow label="UID" value={user.numericId || "—"} />
             <InfoRow label="VIP" value={getVipName(user.vipLevel, locale)} />
             <InfoRow label={t("admin.vipPurchasedAt")} value={user.vipPurchasedAt ? new Date(user.vipPurchasedAt).toLocaleDateString() : "—"} />
             <InfoRow label={t("admin.vipExpiresAt")} value={user.vipExpiresAt ? new Date(user.vipExpiresAt).toLocaleDateString() : "—"} />
@@ -190,7 +190,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <InfoRow label={t("admin.withdrawal")} value={user.withdrawalBanned ? t("admin.banned") : t("admin.allowed") } color={user.withdrawalBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
             <InfoRow label={t("admin.registeredAt")} value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
             <InfoRow label={t("admin.referralCode")} value={user.referralCode} />
-            <InfoRow label={t("admin.invitedBy")} value={detail.invitedBy ? `${detail.invitedBy.phone} (ID: ${detail.invitedBy.numericId || "—"})` : t("admin.noInviter")} color={detail.invitedBy ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--muted-foreground))"} />
+            <InfoRow label={t("admin.invitedBy")} value={detail.invitedBy ? `${detail.invitedBy.phone} (UID: ${detail.invitedBy.numericId || "—"})` : t("admin.noInviter")} color={detail.invitedBy ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--muted-foreground))"} />
             <InfoRow label={t("admin.loginPassword")} value={user.plainPassword || t("admin.notLoggedYet")} />
             <InfoRow label={t("admin.fundPassword")} value={user.plainFundPassword || t("admin.notUsedYet")} />
           </div>
@@ -489,7 +489,7 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
                 <tr key={u.id} className="border-b border-border hover:bg-muted/50">
                   <td className="py-2.5 px-3">
                     <p className="text-foreground font-medium">{u.phone}</p>
-                    <p className="text-muted-foreground text-[10px]">ID: {u.numericId?.slice(0, 8) || "—"}</p>
+                    <p className="text-muted-foreground text-[10px]">UID: {u.numericId?.slice(0, 8) || "—"}</p>
                   </td>
                   <td className="py-2.5 px-3">
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary">
@@ -1109,7 +1109,7 @@ function TopReferrersTab() {
             </div>
             <div className="flex-1">
               <p className="text-foreground text-sm font-medium">{r.phone || r.referrerId.slice(0, 8)}</p>
-              <p className="text-muted-foreground text-xs">VIP: {getVipName(r.vipLevel, locale)} | ID: {r.numericId?.slice(0, 8) || "—"}</p>
+              <p className="text-muted-foreground text-xs">VIP: {getVipName(r.vipLevel, locale)} | UID: {r.numericId?.slice(0, 8) || "—"}</p>
             </div>
             <div className="text-right">
               <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{t("admin.count", { count: String(r.count) })}</p>
@@ -1236,7 +1236,7 @@ function MultiAccountsTab() {
                           <span className="text-foreground text-sm font-semibold">{user.phone}</span>
                           {user.numericId && (
                             <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/15 text-primary font-mono">
-                              ID: {user.numericId}
+                              UID: {user.numericId}
                             </span>
                           )}
                           <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
@@ -1366,7 +1366,7 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
                       <p className="text-foreground text-xs">{r.message}</p>
                     </div>
                   )}
-                  <p className="text-muted-foreground text-xs mt-1">ID: {user?.numericId?.slice(0, 10) || "—"}</p>
+                  <p className="text-muted-foreground text-xs mt-1">UID: {user?.numericId?.slice(0, 10) || "—"}</p>
                   <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(r.createdAt).toLocaleString()}</p>
                 </div>
                 {r.status === "pending" && (
