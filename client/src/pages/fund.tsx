@@ -107,7 +107,7 @@ export default function FundPage() {
   const handleConfirmInvest = () => {
     if (!selectedPlan || !amount || !pin) return;
     if (pin.length !== 6) {
-      toast({ title: t("common.error"), description: "Moliya kodi 6 ta raqamdan iborat bo'lishi kerak", variant: "destructive" });
+      toast({ title: t("common.error"), description: t("fund.fundCodeLength"), variant: "destructive" });
       return;
     }
     investMutation.mutate({ fundPlanId: selectedPlan.id, amount: Number(amount), fundPassword: pin });
@@ -170,14 +170,12 @@ export default function FundPage() {
             <AlertTriangle className="w-5 h-5 text-amber-500" />
           </div>
           <div className="flex-1">
-            <p className="text-amber-500 font-bold text-sm">Faol investitsiya mavjud</p>
+            <p className="text-amber-500 font-bold text-sm">{t("fund.activeWarningTitle")}</p>
             <p className="text-muted-foreground text-xs mt-0.5 leading-relaxed">
-              Siz faqat <span className="font-bold text-foreground">1 ta</span> investitsiya qo'ya olasiz. Joriy investitsiyangiz
-              {daysUntilExpiry !== null
-                ? <span className="font-bold text-amber-500"> {daysUntilExpiry} kun </span>
-                : <span className="font-bold text-amber-500"> ∞ </span>
+              {t("fund.activeWarningLine1")} {daysUntilExpiry !== null
+                ? t("fund.activeWarningLine2Days", { days: daysUntilExpiry })
+                : t("fund.activeWarningLine2Forever")
               }
-              dan so'ng yangi plan tanlash mumkin bo'ladi.
             </p>
           </div>
         </div>
@@ -239,7 +237,7 @@ export default function FundPage() {
                     disabled={isBlocked}
                   >
                     {isBlocked
-                      ? <><Lock className="w-4 h-4 mr-1" /> Bloklangan</>
+                      ? <><Lock className="w-4 h-4 mr-1" /> {t("fund.blocked")}</>
                       : <>{t("fund.invest")} <ArrowRight className="w-4 h-4 ml-1" /></>
                     }
                   </Button>
@@ -344,41 +342,41 @@ export default function FundPage() {
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                 <ShieldAlert className="w-5 h-5 text-amber-500" />
-                Investitsiya mumkin emas
+                {t("fund.cannotInvestTitle")}
               </h3>
               <button onClick={() => setShowWarning(false)} data-testid="button-close-warning">
                 <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 space-y-2">
-              <p className="text-amber-500 font-bold text-sm">⚠️ Faol investitsiya mavjud</p>
+              <p className="text-amber-500 font-bold text-sm">{t("fund.activeWarningBadge")}</p>
               <p className="text-foreground text-sm leading-relaxed">
-                Platformamizda har bir foydalanuvchi <span className="font-bold">faqat 1 ta</span> faol investitsiya saqlashi mumkin.
+                {t("fund.oneInvestmentRule")}
               </p>
               {activeInvestments[0] && (
                 <div className="bg-card rounded-xl p-3 space-y-1 mt-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Joriy plan:</span>
+                    <span className="text-muted-foreground">{t("fund.currentPlan")}</span>
                     <span className="font-bold text-foreground">{(activeInvestments[0] as any).planName}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Summa:</span>
+                    <span className="text-muted-foreground">{t("fund.amount")}</span>
                     <span className="font-bold text-foreground">${Number(activeInvestments[0].investedAmount).toFixed(2)}</span>
                   </div>
                   {daysUntilExpiry !== null && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Qolgan muddat:</span>
-                      <span className="font-bold text-amber-500">{daysUntilExpiry} kun</span>
+                      <span className="text-muted-foreground">{t("fund.remainingDays")}</span>
+                      <span className="font-bold text-amber-500">{t("fund.daysCount", { days: daysUntilExpiry })}</span>
                     </div>
                   )}
                 </div>
               )}
               <p className="text-muted-foreground text-xs mt-2">
-                Joriy investitsiya muddati tugagandan so'ng yangi plan tanlash imkoniyatiga ega bo'lasiz.
+                {t("fund.afterExpiryNote")}
               </p>
             </div>
             <Button className="w-full rounded-xl h-11" onClick={() => setShowWarning(false)} data-testid="button-ok-warning">
-              Tushunarli
+              {t("fund.understood")}
             </Button>
           </div>
         </div>
@@ -456,7 +454,7 @@ export default function FundPage() {
                   disabled={!amount || Number(amount) <= 0}
                   data-testid="button-next-to-pin"
                 >
-                  Davom etish <ChevronRight className="w-5 h-5 ml-1" />
+                  {t("fund.continueBtn")} <ChevronRight className="w-5 h-5 ml-1" />
                 </Button>
               </>
             )}
@@ -471,7 +469,7 @@ export default function FundPage() {
                     </button>
                     <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                       <KeyRound className="w-5 h-5 text-primary" />
-                      Moliya kodini kiriting
+                      {t("fund.enterFundCode")}
                     </h3>
                   </div>
                   <button onClick={closeModal} className="text-muted-foreground hover:text-foreground" data-testid="button-close-pin">
@@ -481,22 +479,22 @@ export default function FundPage() {
 
                 <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-1 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Plan:</span>
+                    <span className="text-muted-foreground">{t("fund.currentPlan")}</span>
                     <span className="font-bold text-foreground">{selectedPlan.name}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Summa:</span>
+                    <span className="text-muted-foreground">{t("fund.amount")}</span>
                     <span className="font-bold text-primary">${Number(amount).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Kunlik daromad:</span>
+                    <span className="text-muted-foreground">{t("fund.dailyIncome")}</span>
                     <span className="font-bold text-emerald-500">+${(Number(amount) * Number(selectedPlan.dailyRoi) / 100).toFixed(2)}</span>
                   </div>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                    Moliya kodi (6 raqam)
+                    {t("fund.fundCodeLabel")}
                   </label>
                   <input
                     type="password"
@@ -511,7 +509,7 @@ export default function FundPage() {
                     autoFocus
                   />
                   <p className="text-muted-foreground text-xs mt-1.5 text-center">
-                    Ro'yxatdan o'tishda belgilagan moliya kodingizni kiriting
+                    {t("fund.fundCodeHint")}
                   </p>
                 </div>
 
