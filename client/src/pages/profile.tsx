@@ -1244,200 +1244,238 @@ export default function ProfilePage() {
 
   return (
     <div className="p-4 space-y-4 pb-24">
-        <div className="flex items-center gap-4 pt-2">
-          <div className="relative" onClick={handleAvatarClick} data-testid="button-avatar-upload">
-            <div className="w-[72px] h-[72px] rounded-full border-2 border-primary overflow-hidden bg-card flex items-center justify-center cursor-pointer">
-              {user.avatar ? (
-                <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" data-testid="img-avatar" />
-              ) : (
-                <UserIcon className="w-9 h-9 text-muted-foreground" />
-              )}
-            </div>
-            <div className="absolute bottom-0 right-0 w-6 h-6 bg-gradient-to-r from-primary to-primary rounded-full flex items-center justify-center border-2 border-background">
-              <Camera className="w-3 h-3 text-foreground" />
-            </div>
-            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} data-testid="input-avatar-file" />
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 pt-6">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-foreground font-bold text-lg" data-testid="text-profile-name">{displayName}</h2>
-              {(() => {
-                const VipLevelIcon = vipIconMap[user.vipLevel] || Star;
-                return (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/20 text-primary flex items-center gap-1">
-                    {user.vipLevel >= 0 && <VipLevelIcon className="w-3 h-3" />}
-                    {user.vipLevel < 0 ? t("profile.notEmployee") : getVipName(user.vipLevel, locale)}
-                  </span>
-                );
-              })()}
+          <div className="relative flex items-center gap-4">
+            <div className="relative" onClick={handleAvatarClick} data-testid="button-avatar-upload">
+              <div className="w-[76px] h-[76px] rounded-full border-[3px] border-white/30 overflow-hidden bg-white/10 backdrop-blur-sm flex items-center justify-center cursor-pointer shadow-lg shadow-black/20">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" data-testid="img-avatar" />
+                ) : (
+                  <UserIcon className="w-9 h-9 text-white/70" />
+                )}
+              </div>
+              <div className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full flex items-center justify-center border-2 border-primary shadow-md">
+                <Camera className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} data-testid="input-avatar-file" />
             </div>
-            <button onClick={copyId} className="flex items-center gap-1 mt-0.5 group" data-testid="button-copy-id">
-              <span className="text-muted-foreground text-xs">UID: {user.numericId || "—"}</span>
-              <Copy className="w-3 h-3 text-muted-foreground group-hover:text-primary" />
-            </button>
+            <div className="flex-1">
+              <h2 className="text-white font-bold text-lg drop-shadow-sm" data-testid="text-profile-name">{displayName}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                {(() => {
+                  const VipLevelIcon = vipIconMap[user.vipLevel] || Star;
+                  return (
+                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/20 text-white backdrop-blur-sm flex items-center gap-1 shadow-sm">
+                      {user.vipLevel >= 0 && <VipLevelIcon className="w-3 h-3" />}
+                      {user.vipLevel < 0 ? t("profile.notEmployee") : getVipName(user.vipLevel, locale)}
+                    </span>
+                  );
+                })()}
+              </div>
+              <button onClick={copyId} className="flex items-center gap-1.5 mt-1.5 group" data-testid="button-copy-id">
+                <span className="text-white/60 text-xs">UID: {user.numericId || "—"}</span>
+                <Copy className="w-3 h-3 text-white/40 group-hover:text-white/80 transition-colors" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl p-4 border border-border">
-          <div className="text-center mb-3">
-            <p className="text-muted-foreground text-[10px] uppercase tracking-wider">{t("profile.totalBalance")}</p>
-            <p className="text-foreground font-bold text-2xl mt-1" data-testid="text-balance">{balance.toFixed(2)} <span className="text-emerald-500 dark:text-emerald-400 text-sm">USDT</span></p>
-            <p className="text-muted-foreground text-sm">{formatUZS(balance)} UZS</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              onClick={() => setShowDeposit(true)}
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11"
-              data-testid="button-deposit"
-            >
-              <ArrowDownCircle className="w-4 h-4 mr-1.5" />
-              {t("common.deposit")}
-            </Button>
-            <Button
-              onClick={() => {
-                if (!isWithdrawalGloballyEnabled) {
-                  toast({
-                    title: t("profile.withdrawUnavailableTitle"),
-                    description: t("profile.withdrawUnavailableDesc"),
-                    variant: "destructive",
-                  });
-                  return;
-                }
-                setShowWithdraw(true);
-              }}
-              className="bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11"
-              data-testid="button-withdraw"
-            >
-              <ArrowUpCircle className="w-4 h-4 mr-1.5" />
-              {t("common.withdrawal")}
-            </Button>
+        <div className="relative rounded-2xl overflow-hidden border border-border bg-card">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-emerald-500/5 dark:from-primary/10 dark:to-emerald-500/10" />
+          <div className="relative p-5">
+            <div className="text-center mb-4">
+              <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-medium">{t("profile.totalBalance")}</p>
+              <div className="flex items-baseline justify-center gap-1.5 mt-2">
+                <span className="text-foreground font-bold text-3xl tracking-tight" data-testid="text-balance">{balance.toFixed(2)}</span>
+                <span className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">USDT</span>
+              </div>
+              <p className="text-muted-foreground text-xs mt-0.5">{formatUZS(balance)} UZS</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              <Button
+                onClick={() => setShowDeposit(true)}
+                className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-transform"
+                data-testid="button-deposit"
+              >
+                <ArrowDownCircle className="w-4 h-4 mr-1.5" />
+                {t("common.deposit")}
+              </Button>
+              <Button
+                onClick={() => {
+                  if (!isWithdrawalGloballyEnabled) {
+                    toast({
+                      title: t("profile.withdrawUnavailableTitle"),
+                      description: t("profile.withdrawUnavailableDesc"),
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  setShowWithdraw(true);
+                }}
+                className="bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+                data-testid="button-withdraw"
+              >
+                <ArrowUpCircle className="w-4 h-4 mr-1.5" />
+                {t("common.withdrawal")}
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl p-4 border border-border">
-          <div className="grid grid-cols-3 divide-x divide-border">
-            <div className="text-center px-2">
+        <div className="grid grid-cols-3 gap-2.5">
+          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-2">
+                <ArrowDownCircle className="w-4 h-4 text-primary" />
+              </div>
               <p className="text-primary font-bold text-sm" data-testid="text-balance-deposit">{Number(user.totalDeposit || 0).toFixed(2)}</p>
-              <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.depositedUsdt")}</p>
+              <p className="text-muted-foreground text-[10px] mt-0.5 leading-tight">{t("profile.depositedUsdt")}</p>
             </div>
-            <div className="text-center px-2">
+          </div>
+          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mx-auto mb-2">
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
+              </div>
               <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm" data-testid="text-balance-earnings">{Number(user.totalEarnings || 0).toFixed(2)}</p>
-              <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.earningsUsdt")}</p>
+              <p className="text-muted-foreground text-[10px] mt-0.5 leading-tight">{t("profile.earningsUsdt")}</p>
             </div>
-            <div className="text-center px-2">
+          </div>
+          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center mx-auto mb-2">
+                <Users className="w-4 h-4 text-violet-500" />
+              </div>
               <p className="text-foreground font-bold text-sm">{totalReferrals}</p>
-              <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.referrals")}</p>
+              <p className="text-muted-foreground text-[10px] mt-0.5 leading-tight">{t("profile.referrals")}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
-          <h3 className="text-foreground font-bold text-sm px-4 pt-4 pb-2">{t("profile.myServices")}</h3>
-          <div className="divide-y divide-border">
-            <button onClick={() => setShowFinanceService(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-service">
+        <div className="space-y-2">
+          <h3 className="text-foreground font-bold text-sm px-1">{t("profile.myServices")}</h3>
+          <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
+            <button onClick={() => setShowFinanceService(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-finance-service">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
-                  <Landmark className="w-4 h-4 text-[#3B82F6]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center">
+                  <Landmark className="w-4.5 h-4.5 text-blue-500" />
                 </div>
                 <div>
-                  <span className="text-foreground text-sm">{t("profile.financeService")}</span>
+                  <span className="text-foreground text-sm font-medium">{t("profile.financeService")}</span>
                   <p className="text-muted-foreground text-[10px]">{bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")} · {usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
 
-            <button onClick={() => setShowFinanceHistory(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-history">
+            <button onClick={() => setShowFinanceHistory(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-finance-history">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/20 flex items-center justify-center">
-                  <History className="w-4 h-4 text-[#A78BFA]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-600/10 flex items-center justify-center">
+                  <History className="w-4.5 h-4.5 text-violet-500" />
                 </div>
                 <div>
-                  <span className="text-foreground text-sm">{t("profile.financialHistory")}</span>
+                  <span className="text-foreground text-sm font-medium">{t("profile.financialHistory")}</span>
                   <p className="text-muted-foreground text-[10px]">{balHistory.length} {t("profile.operations")}</p>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
 
-            <button onClick={() => navigate("/tasks")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-tasks">
+            <button onClick={() => navigate("/tasks")} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-my-tasks">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
-                  <ListChecks className="w-4 h-4 text-[#3B82F6]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/10 flex items-center justify-center">
+                  <ListChecks className="w-4.5 h-4.5 text-cyan-500" />
                 </div>
-                <span className="text-foreground text-sm">{t("profile.myTasks")}</span>
+                <span className="text-foreground text-sm font-medium">{t("profile.myTasks")}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
-            <button onClick={() => navigate("/referral")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-referrals">
+            <button onClick={() => navigate("/referral")} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-my-referrals">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#4ADE80]/20 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-[#4CAF50]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 to-green-600/10 flex items-center justify-center">
+                  <Users className="w-4.5 h-4.5 text-emerald-500" />
                 </div>
                 <div>
-                  <span className="text-foreground text-sm">{t("profile.myReferrals")}</span>
-                  <span className="ml-2 text-[10px] text-muted-foreground">{t("profile.referralCount", { count: totalReferrals })}</span>
+                  <span className="text-foreground text-sm font-medium">{t("profile.myReferrals")}</span>
+                  <span className="ml-2 text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded-full font-medium">{totalReferrals}</span>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
-            <button onClick={() => navigate("/vip")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-my-vip">
+            <button onClick={() => navigate("/vip")} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-my-vip">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#FFB300]/20 flex items-center justify-center">
-                  <Crown className="w-4 h-4 text-[#FFB300]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-600/10 flex items-center justify-center">
+                  <Crown className="w-4.5 h-4.5 text-amber-500" />
                 </div>
-                <span className="text-foreground text-sm">{t("profile.myVipSubs")}</span>
+                <span className="text-foreground text-sm font-medium">{t("profile.myVipSubs")}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
-            <button onClick={() => setShowSecretInfo(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-secret-info">
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-foreground font-bold text-sm px-1">{t("profile.secretInfo")}</h3>
+          <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
+            <button onClick={() => setShowSecretInfo(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-secret-info">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#6B7280]/20 flex items-center justify-center">
-                  <Lock className="w-4 h-4 text-[#6B7280]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gray-500/20 to-gray-600/10 flex items-center justify-center">
+                  <Lock className="w-4.5 h-4.5 text-gray-500" />
                 </div>
-                <span className="text-foreground text-sm">{t("profile.secretInfo")}</span>
+                <span className="text-foreground text-sm font-medium">{t("profile.secretInfo")}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
 
-            <button onClick={() => setShowChangePassword(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-password">
+            <button onClick={() => setShowChangePassword(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-change-password">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/20 flex items-center justify-center">
-                  <Lock className="w-4 h-4 text-[#F59E0B]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/10 flex items-center justify-center">
+                  <Lock className="w-4.5 h-4.5 text-amber-500" />
                 </div>
-                <span className="text-foreground text-sm">{t("profile.changeLoginPassword")}</span>
+                <span className="text-foreground text-sm font-medium">{t("profile.changeLoginPassword")}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
 
-            <button onClick={() => setShowChangeFundPwd(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-fund-password">
+            <button onClick={() => setShowChangeFundPwd(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-change-fund-password">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/20 flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-[#A78BFA]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center">
+                  <Shield className="w-4.5 h-4.5 text-violet-500" />
                 </div>
-                <span className="text-foreground text-sm">{t("profile.changeFundPasswordMenu")}</span>
+                <span className="text-foreground text-sm font-medium">{t("profile.changeFundPasswordMenu")}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
+          </div>
+        </div>
 
-            <button onClick={() => navigate("/help")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-support">
+        <div className="space-y-2">
+          <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
+            <button onClick={() => navigate("/help")} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-support">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
-                  <Headphones className="w-4 h-4 text-[#3b6db5]" />
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center">
+                  <Headphones className="w-4.5 h-4.5 text-blue-500" />
                 </div>
-                <span className="text-foreground text-sm">{t("profile.customerSupport")}</span>
+                <span className="text-foreground text-sm font-medium">{t("profile.customerSupport")}</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
             </button>
             {user.isAdmin && (
-              <button onClick={() => navigate("/admin")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-admin">
+              <button onClick={() => navigate("/admin")} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-admin">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#EF4444]/20 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-[#EF4444]" />
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-red-500/20 to-red-600/10 flex items-center justify-center">
+                    <Shield className="w-4.5 h-4.5 text-red-500" />
                   </div>
-                  <span className="text-[#EF4444] text-sm font-semibold">{t("admin.title")}</span>
+                  <span className="text-red-500 text-sm font-semibold">{t("admin.title")}</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-[#EF4444]" />
+                <ChevronRight className="w-4 h-4 text-red-400 group-hover:translate-x-0.5 transition-all" />
               </button>
             )}
           </div>
@@ -1447,7 +1485,7 @@ export default function ProfilePage() {
           onClick={() => logoutMutation.mutate()}
           disabled={logoutMutation.isPending}
           variant="outline"
-          className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 rounded-xl h-12 font-semibold gap-2"
+          className="w-full border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-500 rounded-xl h-12 font-semibold gap-2 transition-all active:scale-[0.98]"
           data-testid="button-profile-logout"
         >
           <LogOut className="w-4 h-4" />
