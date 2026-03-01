@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import {
   TrendingUp, Star, Eye, Flame, Tv, Film, Play,
-  Search, Clock, ChevronDown, X
+  Search, ChevronDown, X
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
@@ -150,12 +150,6 @@ function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; o
                 <span className="text-muted-foreground text-xs">{video.releaseDate}</span>
               </div>
             )}
-            {video.duration > 0 && (
-              <div className="flex items-center gap-1 bg-muted rounded-full px-2.5 py-1">
-                <Clock className="w-3 h-3 text-muted-foreground" />
-                <span className="text-muted-foreground text-xs">{video.duration} {t("trends.minutes")}</span>
-              </div>
-            )}
           </div>
         </div>
       </DialogContent>
@@ -267,6 +261,8 @@ export default function TrendsPage() {
     duration: t("trends.sortDuration"),
   };
 
+  const activeSortKeys: SortKey[] = ["rating", "newest"];
+
   return (
     <div className="p-4 space-y-4 pb-6">
 
@@ -286,7 +282,7 @@ export default function TrendsPage() {
           </button>
           {showSort && (
             <div className="absolute right-0 top-8 z-50 bg-card border border-border rounded-xl shadow-lg py-1 min-w-[130px]">
-              {(["rating", "newest", "duration"] as SortKey[]).map(key => (
+              {activeSortKeys.map(key => (
                 <button
                   key={key}
                   onClick={() => { setSortKey(key); setShowSort(false); }}
@@ -424,17 +420,9 @@ export default function TrendsPage() {
                     </div>
                     <div className="absolute bottom-2 left-2 right-2">
                       <h4 className="text-white font-bold text-xs truncate">{video.title}</h4>
-                      <div className="flex items-center justify-between mt-0.5">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                          <span className="text-white/90 text-[10px] font-medium">{video.rating}</span>
-                        </div>
-                        {video.duration > 0 && (
-                          <div className="flex items-center gap-0.5">
-                            <Clock className="w-2.5 h-2.5 text-white/70" />
-                            <span className="text-white/70 text-[9px]">{video.duration}{t("trends.minutes")}</span>
-                          </div>
-                        )}
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                        <span className="text-white/90 text-[10px] font-medium">{video.rating}</span>
                       </div>
                     </div>
                   </div>
@@ -519,17 +507,9 @@ export default function TrendsPage() {
                       </div>
                     </div>
                     <div className="absolute bottom-2 left-2 right-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                          <span className="text-white text-[10px] font-medium">{video.rating}</span>
-                        </div>
-                        {video.duration > 0 && (
-                          <div className="flex items-center gap-0.5">
-                            <Clock className="w-2.5 h-2.5 text-white/70" />
-                            <span className="text-white/70 text-[9px]">{video.duration}{t("trends.minutes")}</span>
-                          </div>
-                        )}
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                        <span className="text-white text-[10px] font-medium">{video.rating}</span>
                       </div>
                     </div>
                   </div>
