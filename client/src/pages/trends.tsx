@@ -9,6 +9,49 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 
+type Locale = "uz" | "ru" | "en";
+
+const COUNTRY_TRANSLATIONS: Record<string, Record<Locale, string>> = {
+  "AQSH":         { uz: "AQSH",          ru: "США",           en: "USA" },
+  "Amerika":      { uz: "Amerika",       ru: "Америка",       en: "America" },
+  "Janubiy Koreya": { uz: "Janubiy Koreya", ru: "Южная Корея", en: "South Korea" },
+  "Koreya":       { uz: "Koreya",        ru: "Корея",         en: "Korea" },
+  "Ispaniya":     { uz: "Ispaniya",      ru: "Испания",       en: "Spain" },
+  "Yaponiya":     { uz: "Yaponiya",      ru: "Япония",        en: "Japan" },
+  "Fransiya":     { uz: "Fransiya",      ru: "Франция",       en: "France" },
+  "Britaniya":    { uz: "Britaniya",     ru: "Великобритания", en: "UK" },
+  "Germaniya":    { uz: "Germaniya",     ru: "Германия",      en: "Germany" },
+  "Italiya":      { uz: "Italiya",       ru: "Италия",        en: "Italy" },
+  "Hindiston":    { uz: "Hindiston",     ru: "Индия",         en: "India" },
+  "Xitoy":        { uz: "Xitoy",         ru: "Китай",         en: "China" },
+  "Rossiya":      { uz: "Rossiya",       ru: "Россия",        en: "Russia" },
+  "O'zbekiston":  { uz: "O'zbekiston",   ru: "Узбекистан",    en: "Uzbekistan" },
+  "Turkiya":      { uz: "Turkiya",       ru: "Турция",        en: "Turkey" },
+  "Kanada":       { uz: "Kanada",        ru: "Канада",        en: "Canada" },
+  "Braziliya":    { uz: "Braziliya",     ru: "Бразилия",      en: "Brazil" },
+  "Daniya":       { uz: "Daniya",        ru: "Дания",         en: "Denmark" },
+  "Shvetsiya":    { uz: "Shvetsiya",     ru: "Швеция",        en: "Sweden" },
+  "Norvegiya":    { uz: "Norvegiya",     ru: "Норвегия",      en: "Norway" },
+  "Tailand":      { uz: "Tailand",       ru: "Таиланд",       en: "Thailand" },
+  "Avstraliya":   { uz: "Avstraliya",    ru: "Австралия",     en: "Australia" },
+  "Meksika":      { uz: "Meksika",       ru: "Мексика",       en: "Mexico" },
+  "Argentina":    { uz: "Argentina",     ru: "Аргентина",     en: "Argentina" },
+  "Niderlandiya": { uz: "Niderlandiya",  ru: "Нидерланды",    en: "Netherlands" },
+  "Belgiya":      { uz: "Belgiya",       ru: "Бельгия",       en: "Belgium" },
+  "Polsha":       { uz: "Polsha",        ru: "Польша",        en: "Poland" },
+  "Chexiya":      { uz: "Chexiya",       ru: "Чехия",         en: "Czech Republic" },
+};
+
+function getCountryLabel(country: string | null | undefined, locale: Locale): string {
+  if (!country) return "";
+  for (const key of Object.keys(COUNTRY_TRANSLATIONS)) {
+    if (country.toLowerCase() === key.toLowerCase()) {
+      return COUNTRY_TRANSLATIONS[key][locale] || country;
+    }
+  }
+  return country;
+}
+
 function getYouTubeId(url: string): string | null {
   const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   return match ? match[1] : null;
@@ -85,7 +128,7 @@ function HorizontalCardSkeleton() {
   );
 }
 
-function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; onClose: () => void }) {
+function PreviewModal({ video, open, onClose, locale }: { video: Video; open: boolean; onClose: () => void; locale: Locale }) {
   const [playing, setPlaying] = useState(false);
   const { t } = useI18n();
   const videoId = video.videoUrl ? getYouTubeId(video.videoUrl) : null;
@@ -142,7 +185,7 @@ function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; o
             {video.country && (
               <div className="flex items-center gap-1 bg-muted rounded-full px-2.5 py-1">
                 <span className="text-sm">{flag}</span>
-                <span className="text-muted-foreground text-xs">{video.country}</span>
+                <span className="text-muted-foreground text-xs">{getCountryLabel(video.country, locale)}</span>
               </div>
             )}
             {video.releaseDate && (
@@ -160,7 +203,7 @@ function PreviewModal({ video, open, onClose }: { video: Video; open: boolean; o
 type SortKey = "rating" | "newest" | "duration";
 
 export default function TrendsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const { data: videos, isLoading } = useQuery<Video[]>({
     queryKey: ["/api/videos"],
@@ -361,7 +404,7 @@ export default function TrendsPage() {
               }`}
               data-testid={`filter-country-${country}`}
             >
-              {getFlag(country)} {country}
+              {getFlag(country)} {getCountryLabel(country, locale as Locale)}
             </button>
           ))}
         </div>
@@ -456,7 +499,7 @@ export default function TrendsPage() {
                     <h4 className="text-white font-bold text-[10px] truncate">{video.title}</h4>
                     <div className="flex items-center gap-0.5 mt-0.5">
                       <span className="text-white/80 text-[9px]">{getFlag(video.country)}</span>
-                      <span className="text-white/70 text-[9px] truncate">{video.country}</span>
+                      <span className="text-white/70 text-[9px] truncate">{getCountryLabel(video.country, locale as Locale)}</span>
                     </div>
                   </div>
                 </div>
@@ -469,7 +512,7 @@ export default function TrendsPage() {
       <div>
         <h3 className="text-foreground font-bold text-sm mb-3">
           {isFiltered
-            ? `${filteredVideos.length} ta natija`
+            ? t("trends.resultsCount", { count: String(filteredVideos.length) })
             : t("trends.allTrends")}
         </h3>
 
@@ -485,7 +528,7 @@ export default function TrendsPage() {
               onClick={() => { setSearchQuery(""); setActiveCategory("all"); setActiveCountry("all"); }}
               className="mt-3 text-primary text-xs underline"
             >
-              Filterni tozalash
+              {t("trends.clearFilters")}
             </button>
           </div>
         ) : (
@@ -520,7 +563,7 @@ export default function TrendsPage() {
                     )}
                     <div className="flex items-center gap-1 mt-1">
                       <span className="text-[10px]">{getFlag(video.country)}</span>
-                      <span className="text-muted-foreground text-[9px] truncate">{video.country}</span>
+                      <span className="text-muted-foreground text-[9px] truncate">{getCountryLabel(video.country, locale as Locale)}</span>
                     </div>
                   </div>
                 </div>
@@ -535,6 +578,7 @@ export default function TrendsPage() {
           video={previewVideo}
           open={!!previewVideo}
           onClose={() => setPreviewVideo(null)}
+          locale={locale as Locale}
         />
       )}
     </div>

@@ -368,6 +368,8 @@ const translations: Record<Locale, any> = {
       minutes: "daq",
       noResults: "Hech narsa topilmadi",
       allCountries: "Barcha",
+      resultsCount: "{count} ta natija",
+      clearFilters: "Filterni tozalash",
     },
     referral: {
       title: "Referal dasturi",
@@ -1116,6 +1118,8 @@ const translations: Record<Locale, any> = {
       minutes: "мин",
       noResults: "Ничего не найдено",
       allCountries: "Все",
+      resultsCount: "{count} результатов",
+      clearFilters: "Сбросить фильтры",
     },
     referral: {
       title: "Реферальная программа",
@@ -1864,6 +1868,8 @@ const translations: Record<Locale, any> = {
       minutes: "min",
       noResults: "Nothing found",
       allCountries: "All",
+      resultsCount: "{count} results",
+      clearFilters: "Clear filters",
     },
     referral: {
       title: "Referral Program",
