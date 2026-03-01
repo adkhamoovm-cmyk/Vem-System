@@ -1,6 +1,6 @@
 import { db } from "./db";
 import { vipPackages, videos, fundPlans } from "@shared/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 
 export async function seedDatabase() {
   await db.execute(sql`DELETE FROM ${vipPackages}`);
@@ -447,40 +447,22 @@ export async function seedDatabase() {
     console.log("Videos seeded (13 TV shows + 12 trailers with verified YouTube URLs)");
   }
 
-  await db.execute(sql`DELETE FROM ${fundPlans}`);
-  await db.insert(fundPlans).values([
-    {
-      name: "F1",
-      lockDays: 13,
-      dailyRoi: "2.30",
-      minDeposit: "10",
-      maxDeposit: "54",
-      returnPrincipal: true,
-    },
-    {
-      name: "F2",
-      lockDays: 27,
-      dailyRoi: "2.60",
-      minDeposit: "55",
-      maxDeposit: "249",
-      returnPrincipal: true,
-    },
-    {
-      name: "F3",
-      lockDays: 45,
-      dailyRoi: "3.00",
-      minDeposit: "250",
-      maxDeposit: "999",
-      returnPrincipal: true,
-    },
-    {
-      name: "F4",
-      lockDays: null,
-      dailyRoi: "4.00",
-      minDeposit: "1000",
-      maxDeposit: null,
-      returnPrincipal: false,
-    },
-  ]);
-  console.log("Fund plans seeded (4 F-Series)");
+  const existingPlans = await db.select().from(fundPlans);
+  const planDefs = [
+    { name: "F1", lockDays: 13, dailyRoi: "2.30", minDeposit: "10", maxDeposit: "54", returnPrincipal: true },
+    { name: "F2", lockDays: 27, dailyRoi: "2.60", minDeposit: "55", maxDeposit: "249", returnPrincipal: true },
+    { name: "F3", lockDays: 45, dailyRoi: "3.00", minDeposit: "250", maxDeposit: "999", returnPrincipal: true },
+    { name: "F4", lockDays: null, dailyRoi: "4.00", minDeposit: "1000", maxDeposit: null, returnPrincipal: false },
+  ];
+  for (const def of planDefs) {
+    const exists = existingPlans.find(p => p.name === def.name);
+    if (!exists) {
+      await db.insert(fundPlans).values(def);
+    } else {
+      await db.update(fundPlans)
+        .set({ lockDays: def.lockDays, dailyRoi: def.dailyRoi, minDeposit: def.minDeposit, maxDeposit: def.maxDeposit, returnPrincipal: def.returnPrincipal })
+        .where(eq(fundPlans.id, exists.id));
+    }
+  }
+  console.log("Fund plans seeded (4 F-Series) - IDs preserved");
 }

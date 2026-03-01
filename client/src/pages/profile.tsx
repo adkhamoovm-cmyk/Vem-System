@@ -1503,6 +1503,7 @@ export default function ProfilePage() {
 
         <Dialog open={showFinanceService} onOpenChange={setShowFinanceService}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="finance-service-desc">
+            <DialogTitle className="sr-only">{t("profile.financeService")}</DialogTitle>
             <div className="bg-gradient-to-br from-[#3B82F6]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/20 flex items-center justify-center">
@@ -1578,6 +1579,7 @@ export default function ProfilePage() {
 
         <Dialog open={showChangePassword} onOpenChange={(open) => { setShowChangePassword(open); if (!open) { setCurrentPwd(""); setNewPwd(""); } }}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="change-pwd-desc">
+            <DialogTitle className="sr-only">{t("profile.changeLoginPassword")}</DialogTitle>
             <div className="bg-gradient-to-br from-[#F59E0B]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center">
@@ -1607,6 +1609,7 @@ export default function ProfilePage() {
 
         <Dialog open={showChangeFundPwd} onOpenChange={(open) => { setShowChangeFundPwd(open); if (!open) { setCurrentFundPwd(""); setNewFundPwd(""); } }}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden !top-[5%] !translate-y-0" aria-describedby="change-fund-pwd-desc">
+            <DialogTitle className="sr-only">{t("profile.changeFundPasswordMenu")}</DialogTitle>
             <div className="bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/20 flex items-center justify-center">
@@ -1636,6 +1639,7 @@ export default function ProfilePage() {
 
         <Dialog open={showFinanceHistory} onOpenChange={setShowFinanceHistory}>
           <DialogContent className="bg-background border-border p-0 max-w-md w-full h-[92vh] max-h-[92vh] rounded-2xl overflow-hidden flex flex-col" aria-describedby="finance-history-desc">
+            <DialogTitle className="sr-only">{t("profile.financialHistory")}</DialogTitle>
             <div className="bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border shrink-0">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/20 flex items-center justify-center">
