@@ -605,16 +605,31 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
   const [amount, setAmount] = useState("");
   const [fundPassword, setFundPassword] = useState("");
 
+  const { data: platformSettings } = useQuery<{
+    withdrawalCommissionPercent: number;
+    minWithdrawalUsdt: number;
+    minWithdrawalBank: number;
+    withdrawalStartHour: number;
+    withdrawalEndHour: number;
+    maxDailyWithdrawals: number;
+  }>({ queryKey: ["/api/platform-settings"] });
+
+  const commissionPercent = platformSettings?.withdrawalCommissionPercent ?? 10;
+  const minWithdrawalUsdt = platformSettings?.minWithdrawalUsdt ?? 3;
+  const minWithdrawalBank = platformSettings?.minWithdrawalBank ?? 2;
+  const withdrawalStartHour = platformSettings?.withdrawalStartHour ?? 11;
+  const withdrawalEndHour = platformSettings?.withdrawalEndHour ?? 17;
+
   const balance = Number(user.balance);
   const numAmount = Number(amount) || 0;
-  const commission = numAmount * 0.10;
+  const commission = numAmount * (commissionPercent / 100);
   const netAmount = numAmount - commission;
 
   const now = new Date();
   const day = now.getDay();
   const hour = now.getHours();
   const isSundayNow = day === 0;
-  const isWithdrawTime = day >= 1 && day <= 6 && hour >= 11 && hour < 17;
+  const isWithdrawTime = day >= 1 && day <= 6 && hour >= withdrawalStartHour && hour < withdrawalEndHour;
 
   const withdrawMutation = useMutation({
     mutationFn: async () => {
@@ -693,12 +708,12 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-[11px]">{t("profile.minWithdrawAmount")}</span>
                 <span className="text-muted-foreground text-[11px] font-medium">
-                  {withdrawType === "crypto" ? "3.00" : "2.00"} USDT
+                  {withdrawType === "crypto" ? minWithdrawalUsdt.toFixed(2) : minWithdrawalBank.toFixed(2)} USDT
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-[11px]">{t("profile.commissionLabel")}</span>
-                <span className="text-primary text-[11px] font-medium">10%</span>
+                <span className="text-primary text-[11px] font-medium">{commissionPercent}%</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground text-[11px]">{t("profile.withdrawTime")}</span>
@@ -724,7 +739,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 </div>
                 <div className="flex-1">
                   <p className="text-foreground font-semibold text-sm">{t("profile.bankCardUzs")}</p>
-                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? "Мин. вывод: 2 USDT" : locale === "en" ? "Min withdrawal: 2 USDT" : "Min yechish: 2 USDT"}</p>
+                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? `Мин. вывод: ${minWithdrawalBank} USDT` : locale === "en" ? `Min withdrawal: ${minWithdrawalBank} USDT` : `Min yechish: ${minWithdrawalBank} USDT`}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#3B82F6] transition-colors" />
               </button>
@@ -738,14 +753,14 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 </div>
                 <div className="flex-1">
                   <p className="text-foreground font-semibold text-sm">BSC (BEP20)</p>
-                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? "Мин. вывод: 3 USDT" : locale === "en" ? "Min withdrawal: 3 USDT" : "Min yechish: 3 USDT"}</p>
+                  <p className="text-muted-foreground text-[10px] mt-0.5">{locale === "ru" ? `Мин. вывод: ${minWithdrawalUsdt} USDT` : locale === "en" ? `Min withdrawal: ${minWithdrawalUsdt} USDT` : `Min yechish: ${minWithdrawalUsdt} USDT`}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-yellow-500 transition-colors" />
               </button>
             </div>
           ) : (() => {
             const filteredMethods = paymentMethods.filter(m => withdrawType === "card" ? m.type === "bank" : m.type === "usdt");
-            const minAmount = withdrawType === "crypto" ? 3 : 2;
+            const minAmount = withdrawType === "crypto" ? minWithdrawalUsdt : minWithdrawalBank;
             return (
             <>
               <button onClick={() => { setWithdrawType(null); setSelectedMethodId(""); setAmount(""); setFundPassword(""); }} className="text-muted-foreground text-xs flex items-center gap-1.5 hover:text-foreground transition-colors">
@@ -828,7 +843,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                       <span className="text-foreground text-[11px] font-medium">{numAmount.toFixed(2)} USDT</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground text-[11px]">{t("profile.commissionPercent")}</span>
+                      <span className="text-muted-foreground text-[11px]">{t("profile.commissionPercent")} ({commissionPercent}%)</span>
                       <span className="text-primary text-[11px] font-medium">-{commission.toFixed(2)} USDT</span>
                     </div>
                     <div className="border-t border-border pt-1.5">
