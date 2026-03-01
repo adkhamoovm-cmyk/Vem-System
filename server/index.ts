@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -6,6 +7,7 @@ import { seedDatabase } from "./seed";
 
 const app = express();
 app.set("trust proxy", 1);
+app.use(compression());
 const httpServer = createServer(app);
 
 declare module "http" {

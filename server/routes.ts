@@ -415,7 +415,8 @@ function showGuide(browser) {
         return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
       }
       const { pin } = req.body;
-      const adminPin = process.env.ADMIN_PIN;
+      const dbPin = await storage.getPlatformSetting("admin_pin");
+      const adminPin = dbPin || process.env.ADMIN_PIN;
       if (!adminPin) {
         return res.status(500).json({ message: "Admin PIN sozlanmagan" });
       }
@@ -440,14 +441,15 @@ function showGuide(browser) {
   app.post("/api/admin/change-pin", pinRateLimiter, requireAdmin, async (req: Request, res: Response) => {
     try {
       const { currentPin, newPin } = req.body;
-      const adminPin = process.env.ADMIN_PIN || "077077";
+      const dbPin = await storage.getPlatformSetting("admin_pin");
+      const adminPin = dbPin || process.env.ADMIN_PIN || "077077";
       if (currentPin !== adminPin) {
         return res.status(400).json({ message: "Joriy PIN kod noto'g'ri" });
       }
       if (!newPin || newPin.length !== 6 || !/^\d{6}$/.test(newPin)) {
         return res.status(400).json({ message: "Yangi PIN kod 6 ta raqamdan iborat bo'lishi kerak" });
       }
-      process.env.ADMIN_PIN = newPin;
+      await storage.upsertPlatformSetting("admin_pin", newPin);
       res.json({ message: "PIN kod muvaffaqiyatli o'zgartirildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
@@ -1096,7 +1098,7 @@ function showGuide(browser) {
   app.get("/api/admin/users", requireAdmin, async (_req: Request, res: Response) => {
     try {
       const allUsers = await storage.getAllUsers();
-      res.json(allUsers.map(u => ({ ...u, password: undefined, fundPassword: undefined })));
+      res.json(allUsers.map(u => ({ ...u, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined })));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -1132,8 +1134,9 @@ function showGuide(browser) {
           invitedBy = { id: referrer.id, phone: referrer.phone, numericId: referrer.numericId };
         }
       }
+      const { password: _, fundPassword: _fp, plainPassword: _pp, plainFundPassword: _pfp, ...safeUser } = user;
       res.json({
-        user,
+        user: safeUser,
         invitedBy,
         paymentMethods: methods,
         deposits,

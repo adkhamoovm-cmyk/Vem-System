@@ -7,9 +7,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage, Investment, BalanceHistory } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
-
-const UZS_RATE = 12100;
-
+import { UZS_RATE, formatUZS } from "@/lib/utils";
 
 const VipIcon = ({ level, className }: { level: number; className?: string }) => {
   const iconMap: Record<number, any> = {
@@ -69,11 +67,6 @@ function AutoScrollCarousel({ children, speed = 0.5 }: { children: React.ReactNo
       {children}
     </div>
   );
-}
-
-function formatUZS(usd: number): string {
-  const uzs = usd * UZS_RATE;
-  return uzs.toLocaleString("uz-UZ", { maximumFractionDigits: 0 });
 }
 
 export default function DashboardPage() {

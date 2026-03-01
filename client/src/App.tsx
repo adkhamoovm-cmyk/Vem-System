@@ -7,81 +7,81 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { I18nProvider } from "@/lib/i18n";
 import AppLayout from "@/components/app-layout";
 import NotFound from "@/pages/not-found";
-import LoginPage from "@/pages/login";
-import RegisterPage from "@/pages/register";
-import DashboardPage from "@/pages/dashboard";
-import TasksPage from "@/pages/tasks";
-import ReferralPage from "@/pages/referral";
-import VipPage from "@/pages/vip";
-import ProfilePage from "@/pages/profile";
-import TrendsPage from "@/pages/trends";
-import FundPage from "@/pages/fund";
-import AdminPage from "@/pages/admin";
-import HelpPage from "@/pages/help";
-import PromoPage from "@/pages/promo";
 import type { User } from "@shared/schema";
+import { lazy, Suspense } from "react";
+import { ErrorBoundary } from "@/components/error-boundary";
 
-function ProtectedRoute({ component: Component }: { component: () => JSX.Element | null }) {
-  const { data: user, isLoading } = useQuery<User>({
-    queryKey: ["/api/auth/me"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
-  });
+const LoginPage = lazy(() => import("@/pages/login"));
+const RegisterPage = lazy(() => import("@/pages/register"));
+const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const TasksPage = lazy(() => import("@/pages/tasks"));
+const ReferralPage = lazy(() => import("@/pages/referral"));
+const VipPage = lazy(() => import("@/pages/vip"));
+const ProfilePage = lazy(() => import("@/pages/profile"));
+const TrendsPage = lazy(() => import("@/pages/trends"));
+const FundPage = lazy(() => import("@/pages/fund"));
+const AdminPage = lazy(() => import("@/pages/admin"));
+const HelpPage = lazy(() => import("@/pages/help"));
+const PromoPage = lazy(() => import("@/pages/promo"));
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Redirect to="/login" />;
-  }
-
-  return <AppLayout><Component /></AppLayout>;
+function PageLoader() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
 }
 
-function AdminRoute({ component: Component }: { component: () => JSX.Element }) {
+function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
+  if (!user) return <Redirect to="/login" />;
 
-  if (!user || !user.isAdmin) {
-    return <Redirect to="/dashboard" />;
-  }
-
-  return <AppLayout><Component /></AppLayout>;
+  return (
+    <AppLayout>
+      <Suspense fallback={<PageLoader />}>
+        <Component />
+      </Suspense>
+    </AppLayout>
+  );
 }
 
-function AuthRoute({ component: Component }: { component: () => JSX.Element }) {
+function AdminRoute({ component: Component }: { component: React.ComponentType }) {
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+  if (isLoading) return <PageLoader />;
+  if (!user || !user.isAdmin) return <Redirect to="/dashboard" />;
 
-  if (user) {
-    return <Redirect to="/dashboard" />;
-  }
+  return (
+    <AppLayout>
+      <Suspense fallback={<PageLoader />}>
+        <Component />
+      </Suspense>
+    </AppLayout>
+  );
+}
 
-  return <Component />;
+function AuthRoute({ component: Component }: { component: React.ComponentType }) {
+  const { data: user, isLoading } = useQuery<User>({
+    queryKey: ["/api/auth/me"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+  });
+
+  if (isLoading) return <PageLoader />;
+  if (user) return <Redirect to="/dashboard" />;
+
+  return (
+    <Suspense fallback={<PageLoader />}>
+      <Component />
+    </Suspense>
+  );
 }
 
 function Router() {
@@ -133,16 +133,18 @@ function Router() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <I18nProvider>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
-        </QueryClientProvider>
-      </I18nProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <I18nProvider>
+          <QueryClientProvider client={queryClient}>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </QueryClientProvider>
+        </I18nProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

@@ -18,13 +18,7 @@ import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSet
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 import { QRCodeSVG } from "qrcode.react";
-
-const UZS_RATE = 12100;
-
-function formatUZS(usd: number): string {
-  const uzs = usd * UZS_RATE;
-  return uzs.toLocaleString("uz-UZ", { maximumFractionDigits: 0 });
-}
+import { UZS_RATE, formatUZS } from "@/lib/utils";
 
 function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User }) {
   const { toast } = useToast();
