@@ -1209,8 +1209,13 @@ function showGuide(browser) {
       if (!deposit) return res.status(404).json({ message: "Depozit topilmadi" });
       if (deposit.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan depozitlar rad etilishi mumkin" });
 
+      let amountInUSDT = deposit.amount;
+      if (deposit.currency === "UZS") {
+        amountInUSDT = (Number(deposit.amount) / 12100).toFixed(2);
+      }
+
       await storage.updateDepositStatus(deposit.id, "rejected");
-      await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "rejected", "0");
+      await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "rejected", amountInUSDT);
       res.json({ message: "Depozit rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
