@@ -131,125 +131,140 @@ export default function ReferralPage() {
   return (
     <div className="p-4 space-y-4 pb-6">
 
-      <div className="bg-primary rounded-2xl p-5 text-foreground shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm">
-            <Share2 className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="font-bold text-lg">{t("referral.title")}</h2>
-            <p className="text-foreground/70 text-xs">{t("referral.threeLevel")}</p>
-          </div>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20">
+        <div className="absolute inset-0 opacity-[0.07]">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-28 h-28 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
+          <div className="absolute top-1/2 left-1/2 w-20 h-20 bg-white rounded-full -translate-x-1/2 -translate-y-1/2" />
         </div>
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-            <p className="text-foreground/60 text-[10px] uppercase tracking-wider">{t("referral.totalReferrals")}</p>
-            <p className="text-foreground font-bold text-2xl" data-testid="text-total-referrals">{totalCount}</p>
-          </div>
-          <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-            <p className="text-foreground/60 text-[10px] uppercase tracking-wider">{t("referral.totalEarnings")}</p>
-            <p className="text-foreground font-bold text-2xl" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
-            <p className="text-foreground/60 text-[10px]">USDT</p>
-          </div>
-        </div>
-
-        {totalEarnings > 0 && (
-          <div className="mb-3">
-            <p className="text-foreground/60 text-[10px] uppercase tracking-wider mb-1.5">{t("referral.earningsBreakdown")}</p>
-            <div className="flex gap-1 h-2 rounded-full overflow-hidden bg-white/10">
-              {levels.map((l) => {
-                const w = totalEarnings > 0 ? (Number(l.data?.commission || 0) / totalEarnings) * 100 : 0;
-                return w > 0 ? (
-                  <div key={l.level} style={{ width: `${w}%`, backgroundColor: l.color }} className="h-full transition-all" />
-                ) : null;
-              })}
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-lg">
+              <Share2 className="w-6 h-6 text-white" />
             </div>
-            <div className="flex gap-3 mt-1.5">
-              {levels.map((l) => (
-                <div key={l.level} className="flex items-center gap-1">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: l.color }} />
-                  <span className="text-foreground/60 text-[9px]">{l.percent}</span>
-                </div>
-              ))}
+            <div>
+              <h2 className="font-bold text-lg text-white">{t("referral.title")}</h2>
+              <p className="text-white/60 text-xs">{t("referral.threeLevel")}</p>
             </div>
           </div>
-        )}
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+              <p className="text-white/50 text-[10px] uppercase tracking-widest font-medium">{t("referral.totalReferrals")}</p>
+              <p className="text-white font-bold text-3xl mt-1" data-testid="text-total-referrals">{totalCount}</p>
+              <p className="text-white/40 text-[10px] mt-0.5">{t("common.people")}</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
+              <p className="text-white/50 text-[10px] uppercase tracking-widest font-medium">{t("referral.totalEarnings")}</p>
+              <p className="text-white font-bold text-3xl mt-1" data-testid="text-total-earnings">{totalEarnings.toFixed(2)}</p>
+              <p className="text-white/40 text-[10px] mt-0.5">USDT</p>
+            </div>
+          </div>
 
-        <p className="text-foreground/70 text-[11px] leading-relaxed">
-          {t("referral.description")}
-        </p>
+          {totalEarnings > 0 && (
+            <div className="mb-4 bg-white/5 rounded-xl p-3 border border-white/10">
+              <p className="text-white/50 text-[10px] uppercase tracking-widest font-medium mb-2">{t("referral.earningsBreakdown")}</p>
+              <div className="flex gap-1 h-2.5 rounded-full overflow-hidden bg-white/10">
+                {levels.map((l) => {
+                  const w = totalEarnings > 0 ? (Number(l.data?.commission || 0) / totalEarnings) * 100 : 0;
+                  return w > 0 ? (
+                    <div key={l.level} style={{ width: `${w}%`, backgroundColor: l.color }} className="h-full transition-all first:rounded-l-full last:rounded-r-full" />
+                  ) : null;
+                })}
+              </div>
+              <div className="flex gap-4 mt-2">
+                {levels.map((l) => (
+                  <div key={l.level} className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: l.color }} />
+                    <span className="text-white/60 text-[10px] font-medium">{t("referral.levelReferrals", { level: l.level })} · {l.percent}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <p className="text-white/50 text-[11px] leading-relaxed">
+            {t("referral.description")}
+          </p>
+        </div>
       </div>
 
-      <div className="bg-card rounded-2xl p-4 shadow-sm border border-border space-y-3">
-        <div>
-          <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("referral.yourCode")}</label>
-          <div className="flex gap-2 mt-2 items-center">
-            <div className="flex-1 bg-muted/50 border border-border rounded-xl px-4 py-3 text-center" data-testid="text-referral-code">
-              <span className="text-foreground font-bold text-2xl tracking-[0.3em] font-mono">{referralCode}</span>
+      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+        <div className="p-4 space-y-4">
+          <div>
+            <label className="text-muted-foreground text-[10px] font-semibold uppercase tracking-widest">{t("referral.yourCode")}</label>
+            <div className="flex gap-2 mt-2 items-center">
+              <div className="flex-1 relative bg-gradient-to-r from-primary/5 to-blue-500/5 dark:from-primary/10 dark:to-blue-500/10 border border-primary/20 rounded-xl px-4 py-3.5 text-center" data-testid="text-referral-code">
+                <span className="text-foreground font-bold text-2xl tracking-[0.3em] font-mono">{referralCode}</span>
+              </div>
+              <button
+                onClick={copyCode}
+                className="shrink-0 w-14 h-14 rounded-xl border border-border bg-card flex items-center justify-center hover:bg-muted/50 transition-colors active:scale-95"
+                data-testid="button-copy-code"
+              >
+                {codeCopied ? <Check className="w-5 h-5 text-emerald-500" /> : <Copy className="w-5 h-5 text-muted-foreground" />}
+              </button>
             </div>
-            <Button
-              onClick={copyCode}
-              variant="outline"
-              className="shrink-0 rounded-xl h-14 px-4 border-border"
-              data-testid="button-copy-code"
-            >
-              {codeCopied ? <Check className="w-5 h-5 text-green-500" /> : <Copy className="w-5 h-5" />}
-            </Button>
+          </div>
+
+          <div>
+            <label className="text-muted-foreground text-[10px] font-semibold uppercase tracking-widest">{t("referral.yourLink")}</label>
+            <div className="flex gap-2 mt-2">
+              <div className="flex-1 bg-muted/30 border border-border rounded-xl px-3 py-2.5 text-foreground text-xs truncate font-mono" data-testid="text-referral-link">
+                {referralLink}
+              </div>
+              <Button
+                onClick={copyLink}
+                className="bg-gradient-to-r from-primary to-blue-600 text-white font-medium shrink-0 no-default-hover-elevate no-default-active-elevate rounded-xl h-10 px-5 shadow-lg shadow-primary/20 active:scale-95 transition-transform"
+                data-testid="button-copy-link"
+              >
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div>
-          <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("referral.yourLink")}</label>
-          <div className="flex gap-2 mt-2">
-            <div className="flex-1 bg-card border border-border rounded-xl px-3 py-2.5 text-foreground text-xs truncate font-mono" data-testid="text-referral-link">
-              {referralLink}
-            </div>
-            <Button
-              onClick={copyLink}
-              className="bg-primary text-primary-foreground font-medium shrink-0 no-default-hover-elevate no-default-active-elevate rounded-xl h-10 px-4 shadow-md"
-              data-testid="button-copy-link"
-            >
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </Button>
-          </div>
-        </div>
-
-        <div>
-          <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("referral.shareVia")}</label>
-          <div className="flex gap-2 mt-2">
+        <div className="border-t border-border p-4">
+          <label className="text-muted-foreground text-[10px] font-semibold uppercase tracking-widest">{t("referral.shareVia")}</label>
+          <div className="grid grid-cols-4 gap-2 mt-2.5">
             <button
               onClick={shareViaTelegram}
-              className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl bg-[#229ED9]/10 border border-[#229ED9]/20 text-[#229ED9] transition-colors active:bg-[#229ED9]/20"
+              className="flex flex-col items-center gap-2 py-3.5 rounded-xl bg-gradient-to-b from-[#229ED9]/15 to-[#229ED9]/5 border border-[#229ED9]/20 text-[#229ED9] transition-all active:scale-95 hover:border-[#229ED9]/40"
               data-testid="button-share-telegram"
             >
-              <SiTelegram className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Telegram</span>
+              <div className="w-10 h-10 rounded-xl bg-[#229ED9]/15 flex items-center justify-center">
+                <SiTelegram className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-semibold">Telegram</span>
             </button>
             <button
               onClick={shareViaWhatsApp}
-              className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/20 text-[#25D366] transition-colors active:bg-[#25D366]/20"
+              className="flex flex-col items-center gap-2 py-3.5 rounded-xl bg-gradient-to-b from-[#25D366]/15 to-[#25D366]/5 border border-[#25D366]/20 text-[#25D366] transition-all active:scale-95 hover:border-[#25D366]/40"
               data-testid="button-share-whatsapp"
             >
-              <SiWhatsapp className="w-5 h-5" />
-              <span className="text-[10px] font-medium">WhatsApp</span>
+              <div className="w-10 h-10 rounded-xl bg-[#25D366]/15 flex items-center justify-center">
+                <SiWhatsapp className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-semibold">WhatsApp</span>
             </button>
             <button
               onClick={() => setShowQr(true)}
-              className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl bg-[#A78BFA]/10 border border-[#A78BFA]/20 text-[#A78BFA] transition-colors active:bg-[#A78BFA]/20"
+              className="flex flex-col items-center gap-2 py-3.5 rounded-xl bg-gradient-to-b from-[#A78BFA]/15 to-[#A78BFA]/5 border border-[#A78BFA]/20 text-[#A78BFA] transition-all active:scale-95 hover:border-[#A78BFA]/40"
               data-testid="button-show-qr"
             >
-              <QrCode className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{t("referral.qrCode")}</span>
+              <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/15 flex items-center justify-center">
+                <QrCode className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-semibold">{t("referral.qrCode")}</span>
             </button>
             <button
               onClick={shareNative}
-              className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl bg-muted border border-border text-muted-foreground transition-colors active:bg-muted/70"
+              className="flex flex-col items-center gap-2 py-3.5 rounded-xl bg-gradient-to-b from-muted/80 to-muted/30 border border-border text-muted-foreground transition-all active:scale-95 hover:border-primary/30"
               data-testid="button-share-native"
             >
-              <ExternalLink className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{t("common.share") ?? "Share"}</span>
+              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+                <ExternalLink className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] font-semibold">{t("common.share") ?? "Share"}</span>
             </button>
           </div>
         </div>
@@ -257,10 +272,10 @@ export default function ReferralPage() {
 
       <Dialog open={showQr} onOpenChange={setShowQr}>
         <DialogContent className="bg-background border-border p-0 max-w-xs w-full rounded-2xl overflow-hidden" aria-describedby="qr-dialog-desc">
-          <div className="bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
+          <div className="bg-gradient-to-br from-violet-500/20 via-card to-card px-5 pt-5 pb-4 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/20 flex items-center justify-center">
-                <QrCode className="w-5 h-5 text-[#A78BFA]" />
+              <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/10 flex items-center justify-center">
+                <QrCode className="w-5 h-5 text-violet-500" />
               </div>
               <div>
                 <h2 className="text-foreground font-bold text-base">{t("referral.qrCode")}</h2>
@@ -268,10 +283,10 @@ export default function ReferralPage() {
               </div>
             </div>
           </div>
-          <div className="p-5 flex flex-col items-center gap-4">
+          <div className="p-6 flex flex-col items-center gap-5">
             {qrUrl && (
-              <div className="p-3 bg-white rounded-2xl shadow-sm">
-                <img src={qrUrl} alt="QR Code" className="w-[220px] h-[220px]" data-testid="img-qr-code" />
+              <div className="p-4 bg-white rounded-2xl shadow-md">
+                <img src={qrUrl} alt="QR Code" className="w-[200px] h-[200px]" data-testid="img-qr-code" />
               </div>
             )}
             <div className="text-center">
@@ -280,7 +295,7 @@ export default function ReferralPage() {
             </div>
             <Button
               onClick={copyLink}
-              className="w-full bg-primary text-primary-foreground rounded-xl h-11 no-default-hover-elevate no-default-active-elevate font-semibold"
+              className="w-full bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl h-11 no-default-hover-elevate no-default-active-elevate font-semibold shadow-lg shadow-primary/20"
               data-testid="button-copy-link-qr"
             >
               {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
@@ -291,6 +306,7 @@ export default function ReferralPage() {
       </Dialog>
 
       <div className="space-y-3">
+        <h3 className="text-foreground font-bold text-sm px-1">{t("referral.levelReferrals", { level: "" }).replace(/\d/, "").trim()}</h3>
         {levels.map((item) => {
           const levelUsers = referredUsers.filter(u => u.level === item.level);
           const isExpanded = expandedLevel === item.level;
@@ -298,38 +314,37 @@ export default function ReferralPage() {
           return (
             <div
               key={item.level}
-              className="bg-card rounded-2xl shadow-sm border overflow-hidden transition-colors"
+              className="bg-card rounded-2xl border overflow-hidden transition-all"
               style={{ borderColor: isExpanded ? item.borderColor + "40" : "hsl(var(--border))" }}
               data-testid={`card-referral-level-${item.level}`}
             >
               <button
                 onClick={() => setExpandedLevel(isExpanded ? null : item.level)}
-                className="flex items-center justify-between w-full px-4 py-4 text-left"
+                className="flex items-center justify-between w-full px-4 py-4 text-left hover:bg-muted/30 transition-colors group"
                 data-testid={`button-expand-level-${item.level}`}
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold"
-                    style={{ backgroundColor: item.bg, color: item.color }}
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-bold shadow-sm"
+                    style={{ background: `linear-gradient(135deg, ${item.color}25, ${item.color}10)`, color: item.color, border: `1px solid ${item.color}20` }}
                   >
                     {item.level}
                   </div>
                   <div>
                     <h4 className="text-foreground font-semibold text-sm">{t("referral.levelReferrals", { level: item.level })}</h4>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs font-bold" style={{ color: item.color }}>{item.percent} {t("referral.commission")}</span>
-                      <span className="text-muted-foreground">·</span>
+                      <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ color: item.color, backgroundColor: item.bg }}>{item.percent}</span>
                       <span className="text-muted-foreground text-xs">{item.data?.count ?? 0} {t("common.people")}</span>
                     </div>
                     {totalEarnings > 0 && (
-                      <div className="mt-1.5 flex items-center gap-2">
-                        <div className="w-20 h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div className="mt-2 flex items-center gap-2">
+                        <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all"
-                            style={{ width: `${earningsPct}%`, backgroundColor: item.color }}
+                            style={{ width: `${earningsPct}%`, background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)` }}
                           />
                         </div>
-                        <span className="text-[10px] text-muted-foreground">{earningsPct.toFixed(0)}%</span>
+                        <span className="text-[10px] text-muted-foreground font-medium">{earningsPct.toFixed(0)}%</span>
                       </div>
                     )}
                   </div>
@@ -341,15 +356,19 @@ export default function ReferralPage() {
                     </p>
                     <p className="text-muted-foreground text-[10px]">USDT</p>
                   </div>
-                  {isExpanded ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
+                  <div className="w-6 h-6 rounded-lg bg-muted/50 flex items-center justify-center">
+                    {isExpanded ? <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary transition-colors" />}
+                  </div>
                 </div>
               </button>
 
               {isExpanded && (
-                <div className="border-t border-border">
+                <div className="border-t border-border" style={{ borderColor: item.borderColor + "20" }}>
                   {levelUsers.length === 0 ? (
-                    <div className="px-4 py-6 text-center">
-                      <UserPlus className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                    <div className="px-4 py-8 text-center">
+                      <div className="w-14 h-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
+                        <UserPlus className="w-6 h-6 text-muted-foreground" />
+                      </div>
                       <p className="text-muted-foreground text-xs">{t("referral.noReferrals")}</p>
                     </div>
                   ) : (
@@ -357,10 +376,10 @@ export default function ReferralPage() {
                       {levelUsers.map((u, i) => {
                         const badge = getVipBadge(u.vipLevel);
                         return (
-                          <div key={i} className="px-4 py-3 flex items-center justify-between" data-testid={`referral-user-${item.level}-${i}`}>
+                          <div key={i} className="px-4 py-3 flex items-center justify-between hover:bg-muted/30 transition-colors" data-testid={`referral-user-${item.level}-${i}`}>
                             <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center">
-                                <User className="w-4 h-4 text-muted-foreground" />
+                              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `linear-gradient(135deg, ${item.color}15, ${item.color}08)` }}>
+                                <User className="w-4 h-4" style={{ color: item.color }} />
                               </div>
                               <div>
                                 <div className="flex items-center gap-2">
@@ -370,10 +389,10 @@ export default function ReferralPage() {
                               </div>
                             </div>
                             <div
-                              className="px-2.5 py-1 rounded-full text-[10px] font-semibold"
+                              className="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1"
                               style={{ backgroundColor: badge.bg, color: badge.color }}
                             >
-                              {u.vipLevel > 0 && <Crown className="w-2.5 h-2.5 inline mr-1" />}
+                              {u.vipLevel > 0 && <Crown className="w-2.5 h-2.5" />}
                               {badge.label}
                             </div>
                           </div>
@@ -388,19 +407,26 @@ export default function ReferralPage() {
         })}
       </div>
 
-      <div className="bg-card rounded-2xl p-4 border border-border">
-        <h3 className="text-foreground font-bold text-sm mb-3">{t("referral.howItWorks")}</h3>
-        <div className="space-y-2.5">
+      <div className="bg-card rounded-2xl border border-border overflow-hidden">
+        <div className="p-4 pb-3">
+          <h3 className="text-foreground font-bold text-sm">{t("referral.howItWorks")}</h3>
+        </div>
+        <div className="px-4 pb-4 space-y-0">
           {[
-            { step: "1", text: t("referral.step1"), color: "hsl(var(--primary))" },
-            { step: "2", text: t("referral.step2"), color: "#4CAF50" },
-            { step: "3", text: t("referral.step3"), color: "#2196F3" },
-          ].map((s) => (
-            <div key={s.step} className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0" style={{ backgroundColor: s.color + "20", color: s.color }}>
+            { step: "1", text: t("referral.step1"), color: "hsl(var(--primary))", gradient: "from-primary/20 to-primary/5" },
+            { step: "2", text: t("referral.step2"), color: "#4CAF50", gradient: "from-emerald-500/20 to-emerald-500/5" },
+            { step: "3", text: t("referral.step3"), color: "#2196F3", gradient: "from-blue-500/20 to-blue-500/5" },
+          ].map((s, idx) => (
+            <div key={s.step} className="flex items-start gap-3 relative">
+              {idx < 2 && (
+                <div className="absolute left-[18px] top-10 w-px h-6" style={{ backgroundColor: s.color + "30" }} />
+              )}
+              <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${s.gradient} flex items-center justify-center text-xs font-bold shrink-0 mt-1 shadow-sm`} style={{ color: s.color }}>
                 {s.step}
               </div>
-              <p className="text-muted-foreground text-xs">{s.text}</p>
+              <div className="flex-1 py-2">
+                <p className="text-muted-foreground text-xs leading-relaxed">{s.text}</p>
+              </div>
             </div>
           ))}
         </div>
