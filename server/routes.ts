@@ -915,10 +915,13 @@ function showGuide(browser) {
         const maxDays = endMs ? Math.max(1, Math.round((endMs - startMs) / (1000 * 60 * 60 * 24))) : Infinity;
         const effectiveDays = Math.min(daysPassed, maxDays);
         const totalEarned = (Number(inv.dailyProfit) * effectiveDays);
+        const daysLeft = maxDays === Infinity ? null : Math.max(0, maxDays - daysPassed);
         return {
           ...inv,
           totalEarned: totalEarned.toFixed(2),
           daysPassed,
+          maxDays: maxDays === Infinity ? null : maxDays,
+          daysLeft,
           planName,
         };
       });

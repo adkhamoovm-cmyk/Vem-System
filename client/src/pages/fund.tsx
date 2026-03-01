@@ -120,12 +120,11 @@ export default function FundPage() {
   const totalInvested = activeInvestments.reduce((sum, i) => sum + Number(i.investedAmount), 0);
 
   // Calculate when active investment expires
-  const activeExpiry = activeInvestments[0]?.endDate
-    ? new Date(String(activeInvestments[0].endDate))
-    : null;
-  const daysUntilExpiry = activeExpiry
-    ? Math.max(0, Math.ceil((activeExpiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-    : null;
+  const daysUntilExpiry = activeInvestments[0]?.daysLeft != null
+    ? activeInvestments[0].daysLeft
+    : (activeInvestments[0]?.endDate
+      ? Math.max(0, Math.floor((new Date(String(activeInvestments[0].endDate)).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+      : null);
 
   if (plansLoading) {
     return (
@@ -258,9 +257,9 @@ export default function FundPage() {
             {activeInvestments.map((inv: any) => {
               const plan = plans?.find(p => p.id === inv.fundPlanId);
               const colors = planColors[plan?.name || "F1"] || planColors.F1;
-              const daysLeft = inv.endDate
-                ? Math.max(0, Math.ceil((new Date(inv.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-                : null;
+              const daysLeft = inv.daysLeft != null ? inv.daysLeft : (inv.endDate
+                ? Math.max(0, Math.floor((new Date(inv.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                : null);
               const totalEarned = Number(inv.totalEarned || 0);
               const daysPassed = inv.daysPassed || 0;
               return (
