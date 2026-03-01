@@ -1641,23 +1641,32 @@ export default function ProfilePage() {
                   <p id="finance-history-desc" className="text-muted-foreground text-xs">{balHistory.length} {t("profile.operations")}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-emerald-500/10 rounded-xl p-2.5">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <ArrowDownCircle className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-emerald-500 text-[10px] font-medium">{t("profile.filterDeposit")}</span>
+              <div className="grid grid-cols-3 gap-1.5">
+                <div className="bg-emerald-500/10 rounded-xl p-2">
+                  <div className="flex items-center gap-1 mb-1">
+                    <ArrowDownCircle className="w-3 h-3 text-emerald-500" />
+                    <span className="text-emerald-500 text-[9px] font-medium">{t("profile.filterDeposit")}</span>
                   </div>
-                  <p className="text-emerald-500 font-bold text-sm">
-                    +{balHistory.filter(h => Number(h.amount) > 0).reduce((s, h) => s + Number(h.amount), 0).toFixed(2)} USDT
+                  <p className="text-emerald-500 font-bold text-xs">
+                    +{balHistory.filter(h => h.type === "deposit" && Number(h.amount) > 0).reduce((s, h) => s + Number(h.amount), 0).toFixed(2)} USDT
                   </p>
                 </div>
-                <div className="bg-primary/10 rounded-xl p-2.5">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <ArrowUpCircle className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-primary text-[10px] font-medium">{t("profile.filterWithdrawal")}</span>
+                <div className="bg-amber-500/10 rounded-xl p-2">
+                  <div className="flex items-center gap-1 mb-1">
+                    <ArrowUpCircle className="w-3 h-3 text-amber-500" />
+                    <span className="text-amber-500 text-[9px] font-medium">{t("profile.filterExpense")}</span>
                   </div>
-                  <p className="text-primary font-bold text-sm">
-                    {balHistory.filter(h => Number(h.amount) < 0).reduce((s, h) => s + Number(h.amount), 0).toFixed(2)} USDT
+                  <p className="text-amber-500 font-bold text-xs">
+                    {balHistory.filter(h => ["vip_purchase", "fund_invest"].includes(h.type)).reduce((s, h) => s + Number(h.amount), 0).toFixed(2)} USDT
+                  </p>
+                </div>
+                <div className="bg-red-500/10 rounded-xl p-2">
+                  <div className="flex items-center gap-1 mb-1">
+                    <ArrowUpCircle className="w-3 h-3 text-red-500" />
+                    <span className="text-red-500 text-[9px] font-medium">{t("profile.filterWithdrawal")}</span>
+                  </div>
+                  <p className="text-red-500 font-bold text-xs">
+                    {balHistory.filter(h => h.type === "withdrawal").reduce((s, h) => s + Number(h.amount), 0).toFixed(2)} USDT
                   </p>
                 </div>
               </div>
