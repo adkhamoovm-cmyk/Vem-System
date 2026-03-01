@@ -957,6 +957,11 @@ export default function ProfilePage() {
     queryKey: ["/api/withdrawals"],
   });
 
+  const { data: platformSettingsMain } = useQuery<{ withdrawalEnabled: boolean }>({
+    queryKey: ["/api/platform-settings"],
+  });
+  const isWithdrawalGloballyEnabled = platformSettingsMain?.withdrawalEnabled !== false;
+
   const { data: balHistory = [] } = useQuery<BalanceHistory[]>({
     queryKey: ["/api/balance-history"],
   });
@@ -1130,7 +1135,17 @@ export default function ProfilePage() {
               {t("common.deposit")}
             </Button>
             <Button
-              onClick={() => setShowWithdraw(true)}
+              onClick={() => {
+                if (!isWithdrawalGloballyEnabled) {
+                  toast({
+                    title: locale === "ru" ? "Вывод недоступен" : locale === "en" ? "Withdrawal unavailable" : "Yechish mavjud emas",
+                    description: locale === "ru" ? "Вывод средств временно приостановлен. Попробуйте позже." : locale === "en" ? "Withdrawals are temporarily suspended. Please try again later." : "Pul yechish vaqtincha to'xtatilgan. Keyinroq urinib ko'ring.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                setShowWithdraw(true);
+              }}
               className="bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11"
               data-testid="button-withdraw"
             >
