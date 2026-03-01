@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
-import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut, Sun, Moon, HelpCircle, Megaphone, X, ChevronRight } from "lucide-react";
+import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut, Sun, Moon, Megaphone, X, ChevronRight } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -95,11 +95,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
-  const { data: unreadBroadcasts = [] } = useQuery<Broadcast[]>({
-    queryKey: ["/api/broadcasts/unread"],
-    refetchInterval: 60000,
-  });
-
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await apiRequest("POST", "/api/auth/logout");
@@ -182,25 +177,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-primary" : "text-muted-foreground"}`}>
                 {t("nav.tasks")}
               </span>
-            </button>
-          </Link>
-
-          <Link href="/help">
-            <button
-              className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors min-w-[48px] relative ${
-                isHelpActive ? "text-primary" : "text-muted-foreground"
-              }`}
-              data-testid="nav-help"
-            >
-              <div className="relative">
-                <HelpCircle className={`w-5 h-5 ${isHelpActive ? "stroke-[2.5]" : ""}`} />
-                {unreadBroadcasts.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-red-500 rounded-full text-[8px] text-white font-bold flex items-center justify-center leading-none">
-                    {unreadBroadcasts.length > 9 ? "9+" : unreadBroadcasts.length}
-                  </span>
-                )}
-              </div>
-              <span className="text-[10px] font-medium">{t("nav.help") || "Yordam"}</span>
             </button>
           </Link>
 
