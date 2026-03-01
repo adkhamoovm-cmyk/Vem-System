@@ -346,6 +346,50 @@ function showGuide(browser) {
     }
   });
 
+  app.post("/api/auth/reset-password", authRateLimiter, async (req: Request, res: Response) => {
+    try {
+      const { phone, fundPassword, newPassword } = req.body;
+
+      if (!phone || !fundPassword || !newPassword) {
+        return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
+      }
+
+      if (typeof fundPassword !== "string" || typeof newPassword !== "string" || typeof phone !== "string") {
+        return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ message: "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak" });
+      }
+
+      const genericError = "Telefon raqami yoki moliya paroli noto'g'ri";
+
+      const user = await storage.getUserByPhone(phone);
+      if (!user) {
+        return res.status(400).json({ message: genericError });
+      }
+
+      if (user.isBanned) {
+        return res.status(403).json({ message: "Sizning hisobingiz bloklangan. Texnik yordamga murojaat qiling." });
+      }
+
+      if (!user.fundPassword) {
+        return res.status(400).json({ message: genericError });
+      }
+
+      const fundPassValid = await comparePasswords(fundPassword, user.fundPassword);
+      if (!fundPassValid) {
+        return res.status(400).json({ message: genericError });
+      }
+
+      const hashedNew = await hashPassword(newPassword);
+      await storage.updateUserPassword(user.id, hashedNew, newPassword);
+      res.json({ message: "Parol muvaffaqiyatli tiklandi! Endi yangi parol bilan kiring." });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
+    }
+  });
+
   app.post("/api/auth/login", authRateLimiter, async (req: Request, res: Response) => {
     try {
       const { phone, password, rememberMe } = req.body;

@@ -4,6 +4,8 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-03-01: **Password reset**: Fund password (6-digit PIN) based password reset on login page; generic error messages prevent user enumeration; rate limited via authRateLimiter; 3-language translations
+- 2026-03-01: **VIP Sunday skip**: VIP duration now counts only work days (Mon-Sat), Sundays skipped; frontend shows both calendar and work days
 - 2026-03-01: **Deep optimization**: 16 DB indexes added (task_history, referrals, investments, deposits, withdrawals, balance_history, users, payment_methods, stajyor_requests); remaining hardcoded text moved to i18n (withdrawal settings, broadcasts, save button); 404 page redesigned with dark-mode support; try-catch added to pin-status endpoint
 - 2026-03-01: **Performance optimization**: React.lazy code splitting (all routes lazy-loaded); ErrorBoundary component; gzip compression middleware; image optimization (7.8MB PNG → 270KB WebP); UZS_RATE/formatUZS centralized in utils.ts; plainPassword removed from admin API responses; ADMIN_PIN stored in DB (platform_settings) instead of process.env
 - 2026-03-01: **Admin PIN gate**: 6-digit PIN required before accessing admin panel (env var ADMIN_PIN); session-based verification; rate limited (5 attempts/5min); PIN input UI with auto-advance, paste support; 3-language translations
