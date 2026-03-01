@@ -458,7 +458,7 @@ export default function TrendsPage() {
                     </div>
                     <div className="absolute top-2 right-2">
                       <span className="bg-red-600 text-white text-[8px] font-bold px-2 py-0.5 rounded">
-                        {video.category === "Tele-shou" ? "TV" : "Film"}
+                        {video.category === "Tele-shou" ? t("trends.tvBadge") : t("trends.filmBadge")}
                       </span>
                     </div>
                     <div className="absolute bottom-2 left-2 right-2">
@@ -541,7 +541,7 @@ export default function TrendsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
                     <div className="absolute top-2 right-2">
                       <span className="bg-red-600 text-white text-[8px] font-bold px-2 py-0.5 rounded">
-                        {video.category === "Tele-shou" ? "TV" : "Film"}
+                        {video.category === "Tele-shou" ? t("trends.tvBadge") : t("trends.filmBadge")}
                       </span>
                     </div>
                     <div className="absolute top-2 left-2">
