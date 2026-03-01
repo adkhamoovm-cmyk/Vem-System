@@ -45,6 +45,7 @@ const labels: Record<string, Record<string, { label: string; desc: string }>> = 
 export function SupportWidget() {
   const { locale } = useI18n();
   const [open, setOpen] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [hasMoved, setHasMoved] = useState(false);
@@ -80,6 +81,8 @@ export function SupportWidget() {
       setOpen(prev => !prev);
     }
   }, [hasMoved]);
+
+  if (dismissed) return null;
 
   const t = labels[locale] || labels.en;
 
@@ -153,7 +156,17 @@ export function SupportWidget() {
       </div>
 
       {!open && (
-        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse" />
+        <>
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background animate-pulse" />
+          <button
+            onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
+            className="absolute -bottom-1 -right-1 w-5 h-5 bg-muted border border-border rounded-full flex items-center justify-center hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
+            data-testid="button-dismiss-support"
+            title={locale === "ru" ? "Скрыть" : locale === "en" ? "Hide" : "Yopish"}
+          >
+            <X className="w-2.5 h-2.5 text-muted-foreground" />
+          </button>
+        </>
       )}
     </div>
   );
