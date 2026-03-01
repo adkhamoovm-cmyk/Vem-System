@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
+import { QRCodeSVG } from "qrcode.react";
 
 const UZS_RATE = 12100;
 
@@ -250,21 +251,38 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                           <span className="text-primary text-xs font-semibold">{req.exchangeName || "USDT"}</span>
                           <span className="text-muted-foreground text-[10px] ml-auto">{req.networkType || "BEP20"}</span>
                         </div>
-                        <div className="px-3.5 py-3">
-                          <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">{t("profile.walletAddressLabel")}</p>
-                          <div className="flex items-center gap-2">
-                            <code className="text-emerald-500 dark:text-emerald-400 text-xs font-mono flex-1 break-all leading-relaxed">{req.walletAddress}</code>
-                            <button
-                              onClick={() => copyToClipboard(req.walletAddress || "", `wallet-${req.id}`)}
-                              className="shrink-0 w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center hover:border-[#4ADE80] transition-colors"
-                              data-testid={`button-copy-wallet-${req.id}`}
-                            >
-                              {copiedField === `wallet-${req.id}` ? (
-                                <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
-                              ) : (
-                                <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                              )}
-                            </button>
+                        <div className="px-3.5 py-3 space-y-3">
+                          {req.walletAddress && (
+                            <div className="flex flex-col items-center gap-3">
+                              <div className="bg-white p-3 rounded-xl shadow-sm" data-testid={`qr-code-${req.id}`}>
+                                <QRCodeSVG
+                                  value={req.walletAddress}
+                                  size={160}
+                                  bgColor="#ffffff"
+                                  fgColor="#000000"
+                                  level="H"
+                                  includeMargin={false}
+                                />
+                              </div>
+                              <p className="text-muted-foreground text-[10px]" data-testid={`text-qr-instruction-${req.id}`}>{t("profile.scanQrCode")}</p>
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">{t("profile.walletAddressLabel")}</p>
+                            <div className="flex items-center gap-2">
+                              <code className="text-emerald-500 dark:text-emerald-400 text-xs font-mono flex-1 break-all leading-relaxed">{req.walletAddress}</code>
+                              <button
+                                onClick={() => copyToClipboard(req.walletAddress || "", `wallet-${req.id}`)}
+                                className="shrink-0 w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center hover:border-[#4ADE80] transition-colors"
+                                data-testid={`button-copy-wallet-${req.id}`}
+                              >
+                                {copiedField === `wallet-${req.id}` ? (
+                                  <CheckCircle className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                                ) : (
+                                  <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                                )}
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
