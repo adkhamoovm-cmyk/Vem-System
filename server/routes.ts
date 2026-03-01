@@ -606,7 +606,13 @@ function showGuide(browser) {
         baseDate = new Date(user.vipExpiresAt);
       }
       const expiresAt = new Date(baseDate);
-      expiresAt.setDate(expiresAt.getDate() + pkg.durationDays);
+      let workDaysAdded = 0;
+      while (workDaysAdded < pkg.durationDays) {
+        expiresAt.setDate(expiresAt.getDate() + 1);
+        if (expiresAt.getDay() !== 0) {
+          workDaysAdded++;
+        }
+      }
 
       if (refundAmount > 0) {
         await storage.addBalanceHistory({ userId, type: "commission", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (depozitning oqlanmagan qismi)` });
@@ -640,8 +646,9 @@ function showGuide(browser) {
         }
       }
 
+      const totalCalendarDays = Math.ceil((expiresAt.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
       const refundMsg = refundAmount > 0 ? ` Oldingi VIP dan ${refundAmount.toFixed(2)} USDT qaytarildi.` : "";
-      res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} kun ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}` });
+      res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} ish kuni (${totalCalendarDays} kun) ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}` });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

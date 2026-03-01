@@ -13,6 +13,21 @@ const levelIcons: Record<number, typeof Shield> = {
   6: Flame, 7: Rocket, 8: Target, 9: Sparkles, 10: Crown,
 };
 
+function workDaysToCalendarDays(workDays: number): number {
+  let calendarDays = 0;
+  let counted = 0;
+  const start = new Date();
+  const d = new Date(start);
+  while (counted < workDays) {
+    d.setDate(d.getDate() + 1);
+    calendarDays++;
+    if (d.getDay() !== 0) {
+      counted++;
+    }
+  }
+  return calendarDays;
+}
+
 const levelColors: Record<number, { primary: string; bg: string; gradient: string; border: string }> = {
   0: { primary: "#78909C", bg: "#ECEFF1", gradient: "from-[#90A4AE] to-[#607D8B]", border: "border-[#B0BEC5]" },
   1: { primary: "#cd7f32", bg: "#FFF3E0", gradient: "from-[#cd7f32] to-[#a0622b]", border: "border-[#cd7f32]/30" },
@@ -262,7 +277,7 @@ export default function VipPage() {
                   <div className="mt-2 flex items-center justify-between bg-card rounded-lg px-3 py-1.5">
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-muted-foreground text-[10px]">{t("vip.duration", { days: pkg.durationDays })}</span>
+                      <span className="text-muted-foreground text-[10px]">{t("vip.duration", { days: workDaysToCalendarDays(pkg.durationDays) })} ({pkg.durationDays} {t("vip.workDays")})</span>
                     </div>
                     <span className="text-[10px] font-semibold" style={{ color: isLocked ? "#bbb" : colors.primary }}>
                       {isLocked ? t("common.locked") : t("common.open")}
