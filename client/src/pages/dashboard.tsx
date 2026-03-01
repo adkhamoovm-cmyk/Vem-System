@@ -528,15 +528,15 @@ export default function DashboardPage() {
               <div className="grid grid-cols-3 gap-2">
                 <div className="bg-emerald-500/8 rounded-xl p-2.5 text-center border border-emerald-500/15">
                   <p className="text-foreground font-bold text-base">{referralStats?.level1.count || 0}</p>
-                  <p className="text-muted-foreground text-[9px] mt-0.5">1-darajali</p>
+                  <p className="text-muted-foreground text-[9px] mt-0.5">{t("dashboard.level1")}</p>
                 </div>
                 <div className="bg-blue-500/8 rounded-xl p-2.5 text-center border border-blue-500/15">
                   <p className="text-foreground font-bold text-base">{referralStats?.level2.count || 0}</p>
-                  <p className="text-muted-foreground text-[9px] mt-0.5">2-darajali</p>
+                  <p className="text-muted-foreground text-[9px] mt-0.5">{t("dashboard.level2")}</p>
                 </div>
                 <div className="bg-purple-500/8 rounded-xl p-2.5 text-center border border-purple-500/15">
                   <p className="text-foreground font-bold text-base">{referralStats?.level3.count || 0}</p>
-                  <p className="text-muted-foreground text-[9px] mt-0.5">3-darajali</p>
+                  <p className="text-muted-foreground text-[9px] mt-0.5">{t("dashboard.level3")}</p>
                 </div>
               </div>
               {totalReferralBonus > 0 && (
@@ -546,7 +546,7 @@ export default function DashboardPage() {
                 </div>
               )}
               {totalReferrals === 0 && (
-                <p className="text-muted-foreground text-xs text-center mt-2">Hali referal yo'q — taklif qiling!</p>
+                <p className="text-muted-foreground text-xs text-center mt-2">{t("dashboard.noReferrals")}</p>
               )}
             </div>
           </Link>
@@ -570,11 +570,11 @@ export default function DashboardPage() {
                     <p className="text-foreground font-bold text-sm">${totalInvested.toFixed(2)}</p>
                   </div>
                   <div className="bg-emerald-500/8 rounded-xl p-2.5 border border-emerald-500/15">
-                    <p className="text-muted-foreground text-[9px] mb-1">Jami daromad</p>
+                    <p className="text-muted-foreground text-[9px] mb-1">{t("dashboard.fundTotalEarned")}</p>
                     <p className="text-emerald-500 font-bold text-sm">+${totalEarnedFromFund.toFixed(2)}</p>
                   </div>
                   <div className="bg-blue-500/8 rounded-xl p-2.5 border border-blue-500/15">
-                    <p className="text-muted-foreground text-[9px] mb-1">Kunlik</p>
+                    <p className="text-muted-foreground text-[9px] mb-1">{t("dashboard.fundDaily")}</p>
                     <p className="text-blue-500 font-bold text-sm">+${totalDailyProfit.toFixed(2)}</p>
                   </div>
                 </div>

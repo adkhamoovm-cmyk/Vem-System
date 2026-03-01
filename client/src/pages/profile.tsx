@@ -127,7 +127,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                 onClick={handleClose}
                 data-testid="button-deposit-success-close"
               >
-                {locale === "uz" ? "Yopish" : locale === "ru" ? "Закрыть" : "Close"}
+                {t("common.close")}
               </Button>
               <Button
                 className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
@@ -239,9 +239,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
                     <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
                       <p className="text-amber-500 text-xs font-semibold">
                         {cryptoNetwork === "TRC20"
-                          ? (locale === "ru" ? "Внимание: Отправляйте только через сеть TRC20! Средства, отправленные через другую сеть, будут потеряны."
-                            : locale === "en" ? "Attention: Only send via TRC20 network! Funds sent via other networks will be lost."
-                            : "Diqqat: Faqat TRC20 tarmog'idan yuboring! Boshqa tarmoqdan yuborilgan mablag' yo'qoladi.")
+                          ? t("profile.attentionTrc20Deposit")
                           : t("profile.attentionTrc20")}
                       </p>
                     </div>
@@ -730,7 +728,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
                 onClick={handleWithdrawClose}
                 data-testid="button-withdraw-success-close"
               >
-                {locale === "uz" ? "Yopish" : locale === "ru" ? "Закрыть" : "Close"}
+                {t("common.close")}
               </Button>
               <Button
                 className="flex-1"
@@ -869,9 +867,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
               {withdrawType === "crypto" && (
                 <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
                   <p className="text-amber-500 text-xs font-semibold">
-                    {locale === "ru" ? "Внимание: Вывод крипто только через сеть BSC (BEP20)! Средства, отправленные через другую сеть, будут потеряны."
-                      : locale === "en" ? "Attention: Crypto withdrawal only via BSC (BEP20) network! Funds sent via wrong network will be lost."
-                      : "Diqqat: Kripto faqat BSC (BEP20) tarmoq orqali yechiladi! Noto'g'ri tarmoqdan yuborilgan mablag' yo'qoladi."}
+                    {t("profile.attentionBep20Withdrawal")}
                   </p>
                 </div>
               )}
