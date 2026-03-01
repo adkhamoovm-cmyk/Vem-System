@@ -906,9 +906,15 @@ function showGuide(browser) {
       const allPlans = await storage.getFundPlans();
       const enriched = userInvestments.map(inv => {
         const planName = inv.planName || allPlans.find(p => p.id === inv.fundPlanId)?.name || "Fund";
-        const endTime = inv.endDate ? Math.min(Date.now(), new Date(inv.endDate).getTime()) : Date.now();
-        const daysPassed = Math.max(0, Math.floor((endTime - new Date(inv.startDate).getTime()) / (1000 * 60 * 60 * 24)));
-        const totalEarned = (Number(inv.dailyProfit) * daysPassed);
+        const now = Date.now();
+        const startMs = new Date(inv.startDate).getTime();
+        const endMs = inv.endDate ? new Date(inv.endDate).getTime() : null;
+        const currentMs = endMs ? Math.min(now, endMs) : now;
+        const elapsedDays = Math.floor((currentMs - startMs) / (1000 * 60 * 60 * 24));
+        const daysPassed = Math.max(1, elapsedDays + 1);
+        const maxDays = endMs ? Math.max(1, Math.round((endMs - startMs) / (1000 * 60 * 60 * 24))) : Infinity;
+        const effectiveDays = Math.min(daysPassed, maxDays);
+        const totalEarned = (Number(inv.dailyProfit) * effectiveDays);
         return {
           ...inv,
           totalEarned: totalEarned.toFixed(2),
