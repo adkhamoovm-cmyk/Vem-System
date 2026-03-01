@@ -198,7 +198,7 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-background/70 to-transparent" />
             <div className={`absolute bottom-6 left-4 right-4 z-10 transition-all duration-500 ${isTransitioning ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
               <div className="flex items-center gap-2 mb-1">
-                <span className="bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded">{heroVideo.category}</span>
+                <span className="bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded">{heroVideo.category === "Tele-shou" ? t("trends.teleShow") : t("trends.trailer")}</span>
                 <div className="flex items-center gap-0.5">
                   <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
                   <span className="text-white/90 text-xs">{heroVideo.rating}</span>
