@@ -1258,85 +1258,18 @@ export default function ProfilePage() {
         <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
           <h3 className="text-foreground font-bold text-sm px-4 pt-4 pb-2">{t("profile.myServices")}</h3>
           <div className="divide-y divide-border">
-            <div>
-              <button onClick={() => setShowFinanceService(!showFinanceService)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-service">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
-                    <Landmark className="w-4 h-4 text-[#3B82F6]" />
-                  </div>
-                  <div>
-                    <span className="text-foreground text-sm">{t("profile.financeService")}</span>
-                    <p className="text-muted-foreground text-[10px]">{bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")} · {usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
-                  </div>
+            <button onClick={() => setShowFinanceService(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-service">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#3B82F6]/20 flex items-center justify-center">
+                  <Landmark className="w-4 h-4 text-[#3B82F6]" />
                 </div>
-                {showFinanceService ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-              </button>
-              {showFinanceService && (
-                <div className="px-4 pb-4 space-y-3">
-                  {bankCard ? (
-                    <div className="bg-gradient-to-br from-[#dbeafe] to-[#bfdbfe] dark:from-[#1e3a5f] dark:to-[#0f2440] rounded-xl p-4 border border-[#93c5fd] dark:border-[#2a4a6f] relative overflow-hidden" data-testid="card-bank-linked">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4 text-[#2563eb] dark:text-[#60A5FA]" />
-                          <span className="text-[#2563eb] dark:text-[#60A5FA] text-xs font-semibold uppercase tracking-wider">{bankCard.bankName}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-[#1e3a5f] dark:text-white font-mono text-sm tracking-widest" data-testid="text-card-number">
-                          {showCardNumber
-                            ? bankCard.cardNumber
-                            : `${bankCard.cardNumber?.slice(0, 4)} •••• •••• ${bankCard.cardNumber?.slice(-4)}`}
-                        </p>
-                        <button onClick={() => setShowCardNumber(!showCardNumber)} className="text-[#2563eb] dark:text-[#60A5FA] hover:text-foreground transition-colors" data-testid="button-toggle-card">
-                          {showCardNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                      <p className="text-[#3b82f6] dark:text-[#8ab4f8] text-xs mt-2">{bankCard.holderName}</p>
-                    </div>
-                  ) : (
-                    <button onClick={() => setShowAddBankCard(true)} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#3B82F6] transition-colors" data-testid="button-add-bank-card">
-                      <CreditCard className="w-4 h-4 text-[#3B82F6]" />
-                      <span className="text-muted-foreground text-sm">{t("profile.linkBankCard")}</span>
-                    </button>
-                  )}
-                  {usdtWallet ? (
-                    <div className="bg-gradient-to-br from-[#dcfce7] to-[#bbf7d0] dark:from-[#1a2e1a] dark:to-[#0f1f0f] rounded-xl p-4 border border-[#86efac] dark:border-[#2a4a2a] relative overflow-hidden" data-testid="card-usdt-linked">
-                      <div className="absolute top-0 right-0 w-24 h-24 bg-[#4ADE80]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">{usdtWallet.exchangeName} · BEP20</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                          <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-[#14532d] dark:text-white font-mono text-xs tracking-wider" data-testid="text-wallet-address">
-                          {showWalletAddress
-                            ? usdtWallet.walletAddress
-                            : `${usdtWallet.walletAddress?.slice(0, 6)}••••••${usdtWallet.walletAddress?.slice(-6)}`}
-                        </p>
-                        <button onClick={() => setShowWalletAddress(!showWalletAddress)} className="text-emerald-600 dark:text-emerald-400 hover:text-foreground transition-colors" data-testid="button-toggle-wallet">
-                          {showWalletAddress ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button onClick={() => setShowAddUsdtWallet(true)} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#4ADE80] transition-colors" data-testid="button-add-usdt-wallet">
-                      <Wallet className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-                      <span className="text-muted-foreground text-sm">{t("profile.addWallet")}</span>
-                    </button>
-                  )}
+                <div>
+                  <span className="text-foreground text-sm">{t("profile.financeService")}</span>
+                  <p className="text-muted-foreground text-[10px]">{bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")} · {usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
                 </div>
-              )}
-            </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
 
             <button onClick={() => setShowFinanceHistory(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-finance-history">
               <div className="flex items-center gap-3">
@@ -1391,99 +1324,25 @@ export default function ProfilePage() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
 
-            <div>
-              <button onClick={() => setShowChangePassword(!showChangePassword)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-password">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/20 flex items-center justify-center">
-                    <Lock className="w-4 h-4 text-[#F59E0B]" />
-                  </div>
-                  <span className="text-foreground text-sm">{t("profile.changeLoginPassword")}</span>
+            <button onClick={() => setShowChangePassword(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-password">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#F59E0B]/20 flex items-center justify-center">
+                  <Lock className="w-4 h-4 text-[#F59E0B]" />
                 </div>
-                {showChangePassword ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-              </button>
-              {showChangePassword && (
-                <div className="px-4 pb-4 space-y-3">
-                  <div>
-                    <label className="text-muted-foreground text-xs">{t("profile.currentPassword")}</label>
-                    <Input
-                      type="password"
-                      value={currentPwd}
-                      onChange={(e) => setCurrentPwd(e.target.value)}
-                      placeholder={t("profile.currentPasswordPlaceholder")}
-                      className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11"
-                      data-testid="input-current-password"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-muted-foreground text-xs">{t("profile.newPassword")}</label>
-                    <Input
-                      type="password"
-                      value={newPwd}
-                      onChange={(e) => setNewPwd(e.target.value)}
-                      placeholder={t("profile.newPasswordPlaceholder")}
-                      className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11"
-                      data-testid="input-new-password"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => changePasswordMutation.mutate()}
-                    disabled={!currentPwd || newPwd.length < 6 || changePasswordMutation.isPending}
-                    className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
-                    data-testid="button-save-password"
-                  >
-                    {changePasswordMutation.isPending ? t("profile.saving") : t("profile.changePassword")}
-                  </Button>
-                </div>
-              )}
-            </div>
+                <span className="text-foreground text-sm">{t("profile.changeLoginPassword")}</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
 
-            <div>
-              <button onClick={() => setShowChangeFundPwd(!showChangeFundPwd)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-fund-password">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/20 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-[#A78BFA]" />
-                  </div>
-                  <span className="text-foreground text-sm">{t("profile.changeFundPasswordMenu")}</span>
+            <button onClick={() => setShowChangeFundPwd(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-change-fund-password">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#A78BFA]/20 flex items-center justify-center">
+                  <Shield className="w-4 h-4 text-[#A78BFA]" />
                 </div>
-                {showChangeFundPwd ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronRight className="w-4 h-4 text-muted-foreground" />}
-              </button>
-              {showChangeFundPwd && (
-                <div className="px-4 pb-4 space-y-3">
-                  <div>
-                    <label className="text-muted-foreground text-xs">{t("profile.currentFundPassword")}</label>
-                    <Input
-                      type="password"
-                      value={currentFundPwd}
-                      onChange={(e) => setCurrentFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder={t("profile.currentFundPwdPlaceholder")}
-                      maxLength={6}
-                      className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]"
-                      data-testid="input-current-fund-password"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-muted-foreground text-xs">{t("profile.newFundPassword")}</label>
-                    <Input
-                      type="password"
-                      value={newFundPwd}
-                      onChange={(e) => setNewFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                      placeholder={t("profile.newFundPwdPlaceholder")}
-                      maxLength={6}
-                      className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]"
-                      data-testid="input-new-fund-password"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => changeFundPwdMutation.mutate()}
-                    disabled={currentFundPwd.length !== 6 || newFundPwd.length !== 6 || changeFundPwdMutation.isPending}
-                    className="w-full bg-gradient-to-r from-violet-400 to-violet-500 text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50"
-                    data-testid="button-save-fund-password"
-                  >
-                    {changeFundPwdMutation.isPending ? t("profile.saving") : t("profile.changeFundPasswordMenu")}
-                  </Button>
-                </div>
-              )}
-            </div>
+                <span className="text-foreground text-sm">{t("profile.changeFundPasswordMenu")}</span>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </button>
 
             <button onClick={() => navigate("/help")} className="flex items-center justify-between px-4 py-3.5 w-full text-left" data-testid="menu-support">
               <div className="flex items-center gap-3">
@@ -1578,6 +1437,148 @@ export default function ProfilePage() {
                 </div>
                 <p className="text-foreground font-bold text-sm" data-testid="text-secret-balance">{balance.toFixed(2)} USDT</p>
               </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showFinanceService} onOpenChange={setShowFinanceService}>
+          <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="finance-service-desc">
+            <div className="relative bg-gradient-to-br from-[#3B82F6]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
+              <button onClick={() => setShowFinanceService(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center" data-testid="button-close-finance-service">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/20 flex items-center justify-center">
+                  <Landmark className="w-5 h-5 text-[#3B82F6]" />
+                </div>
+                <div>
+                  <h2 className="text-foreground font-bold text-base">{t("profile.financeService")}</h2>
+                  <p id="finance-service-desc" className="text-muted-foreground text-xs">{bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")} · {usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 space-y-3">
+              {bankCard ? (
+                <div className="bg-gradient-to-br from-[#dbeafe] to-[#bfdbfe] dark:from-[#1e3a5f] dark:to-[#0f2440] rounded-xl p-4 border border-[#93c5fd] dark:border-[#2a4a6f] relative overflow-hidden" data-testid="card-bank-linked">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-[#2563eb] dark:text-[#60A5FA]" />
+                      <span className="text-[#2563eb] dark:text-[#60A5FA] text-xs font-semibold uppercase tracking-wider">{bankCard.bankName}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[#1e3a5f] dark:text-white font-mono text-sm tracking-widest" data-testid="text-card-number">
+                      {showCardNumber ? bankCard.cardNumber : `${bankCard.cardNumber?.slice(0, 4)} •••• •••• ${bankCard.cardNumber?.slice(-4)}`}
+                    </p>
+                    <button onClick={() => setShowCardNumber(!showCardNumber)} className="text-[#2563eb] dark:text-[#60A5FA]" data-testid="button-toggle-card">
+                      {showCardNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <p className="text-[#3b82f6] dark:text-[#8ab4f8] text-xs mt-2">{bankCard.holderName}</p>
+                </div>
+              ) : (
+                <button onClick={() => { setShowFinanceService(false); setShowAddBankCard(true); }} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#3B82F6] transition-colors" data-testid="button-add-bank-card">
+                  <CreditCard className="w-4 h-4 text-[#3B82F6]" />
+                  <span className="text-muted-foreground text-sm">{t("profile.linkBankCard")}</span>
+                </button>
+              )}
+              {usdtWallet ? (
+                <div className="bg-gradient-to-br from-[#dcfce7] to-[#bbf7d0] dark:from-[#1a2e1a] dark:to-[#0f1f0f] rounded-xl p-4 border border-[#86efac] dark:border-[#2a4a2a] relative overflow-hidden" data-testid="card-usdt-linked">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#4ADE80]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider">{usdtWallet.exchangeName} · BEP20</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[#14532d] dark:text-white font-mono text-xs tracking-wider" data-testid="text-wallet-address">
+                      {showWalletAddress ? usdtWallet.walletAddress : `${usdtWallet.walletAddress?.slice(0, 6)}••••••${usdtWallet.walletAddress?.slice(-6)}`}
+                    </p>
+                    <button onClick={() => setShowWalletAddress(!showWalletAddress)} className="text-emerald-600 dark:text-emerald-400" data-testid="button-toggle-wallet">
+                      {showWalletAddress ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={() => { setShowFinanceService(false); setShowAddUsdtWallet(true); }} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#4ADE80] transition-colors" data-testid="button-add-usdt-wallet">
+                  <Wallet className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                  <span className="text-muted-foreground text-sm">{t("profile.addWallet")}</span>
+                </button>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showChangePassword} onOpenChange={(open) => { setShowChangePassword(open); if (!open) { setCurrentPwd(""); setNewPwd(""); } }}>
+          <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="change-pwd-desc">
+            <div className="relative bg-gradient-to-br from-[#F59E0B]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
+              <button onClick={() => setShowChangePassword(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center" data-testid="button-close-change-password">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#F59E0B]/20 flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-[#F59E0B]" />
+                </div>
+                <div>
+                  <h2 className="text-foreground font-bold text-base">{t("profile.changeLoginPassword")}</h2>
+                  <p id="change-pwd-desc" className="text-muted-foreground text-xs">{t("profile.changePasswordDesc") || t("profile.changeLoginPassword")}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 space-y-3">
+              <div>
+                <label className="text-muted-foreground text-xs">{t("profile.currentPassword")}</label>
+                <Input type="password" value={currentPwd} onChange={(e) => setCurrentPwd(e.target.value)} placeholder={t("profile.currentPasswordPlaceholder")} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11" data-testid="input-current-password" />
+              </div>
+              <div>
+                <label className="text-muted-foreground text-xs">{t("profile.newPassword")}</label>
+                <Input type="password" value={newPwd} onChange={(e) => setNewPwd(e.target.value)} placeholder={t("profile.newPasswordPlaceholder")} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11" data-testid="input-new-password" />
+              </div>
+              <Button onClick={() => changePasswordMutation.mutate()} disabled={!currentPwd || newPwd.length < 6 || changePasswordMutation.isPending} className="w-full bg-[#F59E0B] hover:bg-[#D97706] text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50" data-testid="button-save-password">
+                {changePasswordMutation.isPending ? t("profile.saving") : t("profile.changePassword")}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={showChangeFundPwd} onOpenChange={(open) => { setShowChangeFundPwd(open); if (!open) { setCurrentFundPwd(""); setNewFundPwd(""); } }}>
+          <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="change-fund-pwd-desc">
+            <div className="relative bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
+              <button onClick={() => setShowChangeFundPwd(false)} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-muted flex items-center justify-center" data-testid="button-close-change-fund-password">
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/20 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-[#A78BFA]" />
+                </div>
+                <div>
+                  <h2 className="text-foreground font-bold text-base">{t("profile.changeFundPasswordMenu")}</h2>
+                  <p id="change-fund-pwd-desc" className="text-muted-foreground text-xs">6 {t("profile.digit") || "xonali PIN kod"}</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-4 space-y-3">
+              <div>
+                <label className="text-muted-foreground text-xs">{t("profile.currentFundPassword")}</label>
+                <Input type="password" value={currentFundPwd} onChange={(e) => setCurrentFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={t("profile.currentFundPwdPlaceholder")} maxLength={6} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]" data-testid="input-current-fund-password" />
+              </div>
+              <div>
+                <label className="text-muted-foreground text-xs">{t("profile.newFundPassword")}</label>
+                <Input type="password" value={newFundPwd} onChange={(e) => setNewFundPwd(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={t("profile.newFundPwdPlaceholder")} maxLength={6} className="mt-1 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]" data-testid="input-new-fund-password" />
+              </div>
+              <Button onClick={() => changeFundPwdMutation.mutate()} disabled={currentFundPwd.length !== 6 || newFundPwd.length !== 6 || changeFundPwdMutation.isPending} className="w-full bg-gradient-to-r from-violet-400 to-violet-500 text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 disabled:opacity-50" data-testid="button-save-fund-password">
+                {changeFundPwdMutation.isPending ? t("profile.saving") : t("profile.changeFundPasswordMenu")}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
