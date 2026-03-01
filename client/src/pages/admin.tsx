@@ -7,7 +7,7 @@ import {
   Shield, Ban, Trash2, Edit, Check, X, Eye, Search, AlertTriangle,
   Trophy, ChevronDown, ChevronRight, Wallet, CreditCard, Globe, Plus,
   RefreshCw, DollarSign, Activity, TrendingUp, UserPlus, MessageSquare, Mail, Copy,
-  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown
+  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown, Megaphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import { useI18n, getVipName } from "@/lib/i18n";
 const UZS_RATE = 12100;
 
 
-type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor" | "vip-manage" | "promo";
+type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor" | "vip-manage" | "promo" | "broadcasts";
 
 function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: User[]; deposits: DepositRequest[]; withdrawals: WithdrawalRequest[] }) {
   const { t, locale } = useI18n();
@@ -1640,6 +1640,123 @@ function PromoCodesTab() {
   );
 }
 
+function BroadcastsTab() {
+  const { toast } = useToast();
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+
+  const { data: broadcastList = [], isLoading } = useQuery<any[]>({
+    queryKey: ["/api/admin/broadcasts"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/admin/broadcasts", { title, message });
+    },
+    onSuccess: () => {
+      toast({ title: "Xabar yuborildi" });
+      setTitle("");
+      setMessage("");
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/broadcasts"] });
+    },
+    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest("DELETE", `/api/admin/broadcasts/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "O'chirildi" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/broadcasts"] });
+    },
+    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center gap-2.5 p-4 border-b border-border bg-primary/5">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Megaphone className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-foreground font-bold text-sm">Yangi Xabar Yuborish</h3>
+            <p className="text-muted-foreground text-[11px]">Barcha foydalanuvchilarga broadcasting</p>
+          </div>
+        </div>
+        <div className="p-4 space-y-3">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sarlavha</label>
+            <Input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="Xabar sarlavhasi..."
+              className="bg-muted border-border text-foreground h-10 text-sm"
+              data-testid="input-broadcast-title"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Xabar matni</label>
+            <textarea
+              value={message}
+              onChange={e => setMessage(e.target.value)}
+              placeholder="Xabar matnini kiriting..."
+              rows={4}
+              className="w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-primary"
+              data-testid="input-broadcast-message"
+            />
+          </div>
+          <Button
+            onClick={() => createMutation.mutate()}
+            disabled={!title.trim() || !message.trim() || createMutation.isPending}
+            className="w-full bg-primary text-primary-foreground font-bold rounded-xl h-10 text-sm"
+            data-testid="button-send-broadcast"
+          >
+            {createMutation.isPending ? "Yuborilmoqda..." : "Barcha foydalanuvchilarga yuborish"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="p-4 border-b border-border">
+          <h3 className="text-foreground font-bold text-sm">Yuborilgan Xabarlar ({broadcastList.length})</h3>
+        </div>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-20">
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : broadcastList.length === 0 ? (
+          <div className="p-8 text-center text-muted-foreground text-sm">Hali xabar yuborilmagan</div>
+        ) : (
+          <div className="divide-y divide-border">
+            {broadcastList.map((b: any) => (
+              <div key={b.id} className="p-4 flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <Megaphone className="w-3.5 h-3.5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-foreground text-sm font-semibold">{b.title}</p>
+                  <p className="text-muted-foreground text-[11px] mt-0.5 line-clamp-2">{b.message}</p>
+                  <p className="text-muted-foreground text-[10px] mt-1">{new Date(b.createdAt).toLocaleString("uz-UZ")}</p>
+                </div>
+                <button
+                  onClick={() => deleteMutation.mutate(b.id)}
+                  disabled={deleteMutation.isPending}
+                  className="text-red-500 hover:text-red-600 transition-colors p-1 shrink-0"
+                  data-testid={`button-delete-broadcast-${b.id}`}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function StatusBadge({ status }: { status: string }) {
   const { t } = useI18n();
   const colors: Record<string, string> = { pending: "#FFB300", approved: "hsl(var(--emerald-500, 142 71% 45%))", rejected: "hsl(var(--primary))", completed: "hsl(var(--emerald-500, 142 71% 45%))" };
@@ -1673,6 +1790,7 @@ export default function AdminPage() {
     { id: "settings", label: t("admin.settings"), icon: Settings },
     { id: "vip-manage", label: t("admin.vipManagement"), icon: Crown },
     { id: "promo", label: t("admin.promoCodes"), icon: Mail },
+    { id: "broadcasts", label: "Broadcasting", icon: Megaphone },
   ];
   const financeTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
     { id: "deposits", label: t("admin.deposits"), icon: ArrowDownCircle, badge: pendingDeposits || undefined },
@@ -1753,6 +1871,7 @@ export default function AdminPage() {
         {tab === "settings" && <SettingsTab />}
         {tab === "vip-manage" && <VipManageTab />}
         {tab === "promo" && <PromoCodesTab />}
+        {tab === "broadcasts" && <BroadcastsTab />}
       </div>
     </div>
   );

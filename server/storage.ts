@@ -1,7 +1,7 @@
 import { eq, and, sql, desc, gte, sum } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages, platformSettings } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage, PlatformSetting } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages, platformSettings, broadcasts, broadcastReads } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage, PlatformSetting, Broadcast, InsertBroadcast } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -95,6 +95,11 @@ export interface IStorage {
   getPlatformSettings(): Promise<PlatformSetting[]>;
   getPlatformSetting(key: string): Promise<string | null>;
   upsertPlatformSetting(key: string, value: string): Promise<void>;
+  createBroadcast(data: InsertBroadcast): Promise<Broadcast>;
+  getAllBroadcasts(): Promise<Broadcast[]>;
+  deleteBroadcast(id: string): Promise<void>;
+  getUnreadBroadcasts(userId: string): Promise<Broadcast[]>;
+  markBroadcastRead(broadcastId: string, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -628,6 +633,34 @@ export class DatabaseStorage implements IStorage {
     await db.insert(platformSettings)
       .values({ key, value, updatedAt: new Date() })
       .onConflictDoUpdate({ target: platformSettings.key, set: { value, updatedAt: new Date() } });
+  }
+
+  async createBroadcast(data: InsertBroadcast): Promise<Broadcast> {
+    const [b] = await db.insert(broadcasts).values(data).returning();
+    return b;
+  }
+
+  async getAllBroadcasts(): Promise<Broadcast[]> {
+    return db.select().from(broadcasts).orderBy(desc(broadcasts.createdAt));
+  }
+
+  async deleteBroadcast(id: string): Promise<void> {
+    await db.delete(broadcastReads).where(eq(broadcastReads.broadcastId, id));
+    await db.delete(broadcasts).where(eq(broadcasts.id, id));
+  }
+
+  async getUnreadBroadcasts(userId: string): Promise<Broadcast[]> {
+    const readIds = await db.select({ broadcastId: broadcastReads.broadcastId })
+      .from(broadcastReads).where(eq(broadcastReads.userId, userId));
+    const readSet = new Set(readIds.map(r => r.broadcastId));
+    const all = await db.select().from(broadcasts).orderBy(desc(broadcasts.createdAt));
+    return all.filter(b => !readSet.has(b.id));
+  }
+
+  async markBroadcastRead(broadcastId: string, userId: string): Promise<void> {
+    await db.insert(broadcastReads)
+      .values({ broadcastId, userId })
+      .onConflictDoNothing();
   }
 }
 

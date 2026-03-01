@@ -1475,6 +1475,55 @@ function showGuide(browser) {
     }
   });
 
+  app.get("/api/broadcasts/unread", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const unread = await storage.getUnreadBroadcasts(userId);
+      res.json(unread);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/broadcasts/:id/read", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      await storage.markBroadcastRead(req.params.id, userId);
+      res.json({ ok: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/broadcasts", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const all = await storage.getAllBroadcasts();
+      res.json(all);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/broadcasts", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { title, message } = req.body;
+      if (!title || !message) return res.status(400).json({ message: "Sarlavha va xabar majburiy" });
+      const b = await storage.createBroadcast({ title, message });
+      res.json(b);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/admin/broadcasts/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      await storage.deleteBroadcast(req.params.id);
+      res.json({ ok: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   async function processDailyProfits() {
     try {
       const activeInvestments = await storage.getActiveInvestments();

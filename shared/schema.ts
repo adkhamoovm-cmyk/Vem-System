@@ -239,6 +239,25 @@ export const insertPromoCodeSchema = createInsertSchema(promoCodes).omit({
   createdAt: true,
 });
 
+export const broadcasts = pgTable("broadcasts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  message: text("message").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const broadcastReads = pgTable("broadcast_reads", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  broadcastId: varchar("broadcast_id").notNull(),
+  userId: varchar("user_id").notNull(),
+  readAt: timestamp("read_at").defaultNow(),
+});
+
+export const insertBroadcastSchema = createInsertSchema(broadcasts).omit({ id: true, createdAt: true });
+
+export type Broadcast = typeof broadcasts.$inferSelect;
+export type InsertBroadcast = z.infer<typeof insertBroadcastSchema>;
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
 export type InsertDepositRequest = z.infer<typeof insertDepositRequestSchema>;
