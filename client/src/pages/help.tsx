@@ -42,7 +42,7 @@ export default function HelpPage() {
     { q: t("help.faqQ1"), a: t("help.faqA1"), category: "earning", icon: DollarSign, color: "#10B981" },
     { q: t("help.faqQ2"), a: t("help.faqA2"), category: "earning", icon: Zap, color: "#10B981" },
     { q: t("help.faqQ3"), a: t("help.faqA3"), category: "withdrawal", icon: ArrowUpDown, color: "#3B82F6" },
-    { q: t("help.faqQ4"), a: t("help.faqA4"), category: "withdrawal", icon: Clock, color: "#3B82F6", highlight: true },
+    { q: t("help.faqQ4"), a: t("help.faqA4"), category: "withdrawal", icon: Clock, color: "#3B82F6" },
     { q: t("help.faqQ5"), a: t("help.faqA5"), category: "vip", icon: Award, color: "#F59E0B" },
     { q: t("help.faqQ6"), a: t("help.faqA6"), category: "vip", icon: TrendingUp, color: "#F59E0B" },
     { q: t("help.faqQ7"), a: t("help.faqA7"), category: "referral", icon: UserPlus, color: "#8B5CF6" },
@@ -166,7 +166,7 @@ export default function HelpPage() {
             return (
               <div
                 key={globalIndex}
-                className={`border-b border-border/50 last:border-b-0 ${faq.highlight ? "bg-amber-500/5" : ""}`}
+                className="border-b border-border/50 last:border-b-0"
                 data-testid={`faq-item-${globalIndex}`}
               >
                 <button
@@ -178,7 +178,7 @@ export default function HelpPage() {
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: faq.color + "12" }}>
                       <faq.icon className="w-3.5 h-3.5" style={{ color: faq.color }} />
                     </div>
-                    <span className={`text-[13px] font-medium leading-snug ${faq.highlight ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}>
+                    <span className="text-[13px] font-medium leading-snug text-foreground">
                       {faq.q}
                     </span>
                   </div>
