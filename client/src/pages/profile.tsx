@@ -1601,7 +1601,7 @@ export default function ProfilePage() {
         </Dialog>
 
         <Dialog open={showChangeFundPwd} onOpenChange={(open) => { setShowChangeFundPwd(open); if (!open) { setCurrentFundPwd(""); setNewFundPwd(""); } }}>
-          <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden" aria-describedby="change-fund-pwd-desc">
+          <DialogContent className="bg-background border-border p-0 max-w-md w-full rounded-2xl overflow-hidden !top-[5%] !translate-y-0" aria-describedby="change-fund-pwd-desc">
             <div className="bg-gradient-to-br from-[#A78BFA]/20 via-card to-card px-4 pt-5 pb-4 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-[#A78BFA]/20 flex items-center justify-center">
