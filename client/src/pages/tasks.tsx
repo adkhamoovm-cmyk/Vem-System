@@ -277,6 +277,41 @@ export default function TasksPage() {
     pickNextVideo();
   };
 
+  if (isSunday()) {
+    return (
+      <div className="p-4 flex flex-col gap-4">
+        {user && (
+          <div className="bg-primary rounded-2xl p-4 text-primary-foreground shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+                <Coffee className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Crown className="w-3.5 h-3.5 text-primary-foreground/80" />
+                  <span className="text-primary-foreground/80 text-xs font-medium">
+                    {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
+                  </span>
+                </div>
+                <p className="text-sm font-semibold">{t("tasks.sunday")}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        <div className="bg-card rounded-2xl p-8 border border-border text-center">
+          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-5">
+            <Coffee className="w-10 h-10 text-primary" />
+          </div>
+          <h3 className="text-foreground font-bold text-xl mb-2">{t("tasks.sunday")}</h3>
+          <p className="text-muted-foreground text-sm mb-3">{t("tasks.sundayDesc")}</p>
+          <div className="bg-primary/10 rounded-xl px-4 py-2.5 inline-block">
+            <p className="text-primary text-xs font-semibold">{t("tasks.sundayNote")}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4">
         {user && (
@@ -331,18 +366,6 @@ export default function TasksPage() {
 
         <h2 className="text-foreground font-bold text-sm mb-3">{t("tasks.todayTasks")}</h2>
 
-        {isSunday() ? (
-          <div className="space-y-3">
-            <div className="bg-card rounded-2xl p-8 border border-border text-center">
-              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Coffee className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-foreground font-bold text-lg mb-2">{t("tasks.sunday")}</h3>
-              <p className="text-muted-foreground text-sm mb-1">{t("tasks.sundayDesc")}</p>
-              <p className="text-muted-foreground text-xs">{t("tasks.sundayNote")}</p>
-            </div>
-          </div>
-        ) : (
         <div className="space-y-3">
           <div className="bg-card rounded-2xl overflow-hidden border border-border">
             <div className="relative aspect-video">
@@ -395,7 +418,6 @@ export default function TasksPage() {
             </p>
           </div>
         </div>
-        )}
 
         {activeVideoId && (
           <VideoPlayerModal
