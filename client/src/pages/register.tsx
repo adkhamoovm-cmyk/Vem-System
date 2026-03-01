@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -308,6 +308,35 @@ export default function RegisterPage() {
   const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
   const [showCountryList, setShowCountryList] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [hasReadTerms, setHasReadTerms] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const termsScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleTermsScroll = useCallback(() => {
+    const el = termsScrollRef.current;
+    if (!el) return;
+    const scrolled = el.scrollTop;
+    const total = el.scrollHeight - el.clientHeight;
+    const progress = total > 0 ? Math.min((scrolled / total) * 100, 100) : 100;
+    setScrollProgress(progress);
+    if (progress >= 95) {
+      setHasReadTerms(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showTerms) {
+      setScrollProgress(0);
+      setTimeout(() => {
+        const el = termsScrollRef.current;
+        if (el) {
+          el.scrollTop = 0;
+          const total = el.scrollHeight - el.clientHeight;
+          if (total <= 0) setHasReadTerms(true);
+        }
+      }, 100);
+    }
+  }, [showTerms]);
 
   const params = new URLSearchParams(window.location.search);
   const refCode = params.get("ref") || "";
@@ -529,20 +558,46 @@ export default function RegisterPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <div className="bg-muted rounded-xl p-3 border border-border">
-                        <label className="flex items-start gap-3 cursor-pointer">
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                            className="mt-0.5 border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                            data-testid="checkbox-age-confirm"
-                          />
-                          <span className="text-muted-foreground text-xs leading-relaxed">
+                      <div className={`rounded-xl p-3 border transition-all duration-300 ${hasReadTerms ? "bg-muted border-border" : "bg-muted/50 border-dashed border-border/60"}`}>
+                        <div className="flex items-start gap-3">
+                          <div className="relative mt-0.5">
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={(checked) => {
+                                if (!hasReadTerms && checked) {
+                                  setShowTerms(true);
+                                  return;
+                                }
+                                field.onChange(checked);
+                              }}
+                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              data-testid="checkbox-age-confirm"
+                            />
+                          </div>
+                          <span className="text-muted-foreground text-xs leading-relaxed flex-1">
                             <strong>{t("auth.ageConfirm")}</strong>. {t("auth.ageResponsibility")}
-                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }} className="text-primary font-semibold ml-1 underline" data-testid="link-terms">{t("auth.termsOfUse")}</button> {" "}
-                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }} className="text-primary font-semibold underline" data-testid="link-privacy">{t("auth.privacyPolicy")}</button>{t("auth.readAndAccept")}
+                            <button
+                              type="button"
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }}
+                              className="text-primary font-semibold ml-1 underline"
+                              data-testid="link-terms"
+                            >{t("auth.termsOfUse")}</button>{" "}
+                            <button
+                              type="button"
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }}
+                              className="text-primary font-semibold underline"
+                              data-testid="link-privacy"
+                            >{t("auth.privacyPolicy")}</button>{t("auth.readAndAccept")}
                           </span>
-                        </label>
+                        </div>
+                        {!hasReadTerms && (
+                          <div className="mt-2.5 flex items-center gap-2 text-[11px] text-amber-500 dark:text-amber-400">
+                            <FileText className="w-3.5 h-3.5 shrink-0" />
+                            <span>
+                              {locale === "uz" ? "Rozilik bildirish uchun avval shartlarni to'liq o'qing" : locale === "ru" ? "Прочитайте условия до конца, чтобы принять их" : "Read the terms fully before accepting"}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -579,24 +634,52 @@ export default function RegisterPage() {
       {showTerms && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" data-testid="terms-modal">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTerms(false)} />
-          <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+          <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300 shadow-2xl">
+
             <div className="flex items-center justify-between p-5 pb-3 border-b border-border shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
                   <FileText className="w-5 h-5 text-primary" />
                 </div>
-                <h3 className="text-base font-bold text-foreground">{termsContent[locale]?.title || termsContent.en.title}</h3>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground leading-tight">{termsContent[locale]?.title || termsContent.en.title}</h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    {locale === "uz" ? "O'qib bo'lgach qabul qilish tugmasi faollashadi" : locale === "ru" ? "Кнопка активируется после прочтения" : "Button activates after reading"}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setShowTerms(false)}
-                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
                 data-testid="button-close-terms"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="overflow-y-auto p-5 space-y-4 flex-1">
+            <div className="px-5 pt-2 pb-1 shrink-0">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-[11px] text-muted-foreground">
+                  {locale === "uz" ? "O'qish jarayoni" : locale === "ru" ? "Прогресс чтения" : "Reading progress"}
+                </span>
+                <span className={`text-[11px] font-semibold ${hasReadTerms ? "text-green-500" : "text-primary"}`}>
+                  {Math.round(scrollProgress)}%
+                </span>
+              </div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${hasReadTerms ? "bg-green-500" : "bg-primary"}`}
+                  style={{ width: `${scrollProgress}%` }}
+                />
+              </div>
+            </div>
+
+            <div
+              ref={termsScrollRef}
+              onScroll={handleTermsScroll}
+              className="overflow-y-auto px-5 pb-5 pt-3 space-y-4 flex-1"
+              data-testid="terms-scroll-area"
+            >
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {locale === "uz" && "VEM Media Video Orqali Daromad Topish Platformasiga xush kelibsiz. Platformadan ro'yxatdan o'tishdan oldin, iltimos, quyidagi Foydalanish Shartlarini diqqat bilan o'qib chiqing."}
                 {locale === "ru" && "Добро пожаловать на платформу VEM Media для заработка через просмотр видео. Перед регистрацией, пожалуйста, внимательно ознакомьтесь с нижеследующими Условиями использования."}
@@ -604,20 +687,42 @@ export default function RegisterPage() {
               </p>
 
               {(termsContent[locale] || termsContent.en).sections.map((section, i) => (
-                <div key={i} className="space-y-1.5">
+                <div key={i} className="space-y-1.5 p-3 rounded-xl bg-muted/50 border border-border/50">
                   <h4 className="text-sm font-bold text-foreground">{section.heading}</h4>
                   <p className="text-muted-foreground text-[13px] leading-relaxed whitespace-pre-line">{section.text}</p>
                 </div>
               ))}
+
+              <div className="h-2" />
             </div>
 
-            <div className="p-4 pt-3 border-t border-border shrink-0">
+            <div className="p-4 pt-3 border-t border-border shrink-0 space-y-2">
+              {!hasReadTerms && (
+                <div className="flex items-center justify-center gap-2 text-[12px] text-amber-500 dark:text-amber-400 py-1">
+                  <FileText className="w-3.5 h-3.5 shrink-0" />
+                  <span>
+                    {locale === "uz" ? "Qabul qilish uchun pastga qadar o'qing" : locale === "ru" ? "Прокрутите вниз, чтобы принять" : "Scroll to the bottom to accept"}
+                  </span>
+                </div>
+              )}
               <button
-                onClick={() => setShowTerms(false)}
-                className="w-full bg-primary text-white font-semibold h-11 rounded-xl text-sm transition-colors hover:bg-primary/90"
+                onClick={() => {
+                  if (!hasReadTerms) return;
+                  form.setValue("ageConfirm", true);
+                  setShowTerms(false);
+                }}
+                disabled={!hasReadTerms}
+                className={`w-full font-semibold h-11 rounded-xl text-sm transition-all duration-300 ${
+                  hasReadTerms
+                    ? "bg-primary text-white hover:bg-primary/90 shadow-md cursor-pointer"
+                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
+                }`}
                 data-testid="button-accept-terms"
               >
-                {locale === "uz" ? "Tushunarli" : locale === "ru" ? "Понятно" : "I Understand"}
+                {hasReadTerms
+                  ? (locale === "uz" ? "O'qidim va roziman" : locale === "ru" ? "Прочитал и согласен" : "I have read and agree")
+                  : (locale === "uz" ? "O'qishni davom eting..." : locale === "ru" ? "Читайте дальше..." : "Keep reading...")
+                }
               </button>
             </div>
           </div>
