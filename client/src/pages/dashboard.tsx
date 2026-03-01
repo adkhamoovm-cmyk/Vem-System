@@ -151,7 +151,9 @@ export default function DashboardPage() {
 
   // Fund investments
   const activeInvestments = (investments || []);
-  const totalInvested = activeInvestments.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
+  const totalInvested = activeInvestments.reduce((sum, inv) => sum + Number((inv as any).investedAmount || 0), 0);
+  const totalEarnedFromFund = activeInvestments.reduce((sum, inv) => sum + Number((inv as any).totalEarned || 0), 0);
+  const totalDailyProfit = activeInvestments.reduce((sum, inv) => sum + Number((inv as any).dailyProfit || 0), 0);
 
   const tvShows = videos?.filter(v => v.category === "Tele-shou") || [];
   const trailers = videos?.filter(v => v.category === "Treyler") || [];
@@ -561,17 +563,26 @@ export default function DashboardPage() {
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-violet-500/8 rounded-xl p-3 border border-violet-500/15">
-                    <p className="text-muted-foreground text-[9px] uppercase tracking-wider mb-1">{t("dashboard.fundTotalInvested")}</p>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  <div className="bg-violet-500/8 rounded-xl p-2.5 border border-violet-500/15">
+                    <p className="text-muted-foreground text-[9px] mb-1">{t("dashboard.fundTotalInvested")}</p>
                     <p className="text-foreground font-bold text-sm">${totalInvested.toFixed(2)}</p>
-                    <p className="text-muted-foreground text-[10px]">{formatUZS(totalInvested)} UZS</p>
                   </div>
-                  <div className="bg-emerald-500/8 rounded-xl p-3 border border-emerald-500/15">
-                    <p className="text-muted-foreground text-[9px] uppercase tracking-wider mb-1">Faol rejalar</p>
-                    <p className="text-foreground font-bold text-sm">{activeInvestments.length}</p>
-                    <p className="text-muted-foreground text-[10px]">{t("dashboard.fundActiveCount")}</p>
+                  <div className="bg-emerald-500/8 rounded-xl p-2.5 border border-emerald-500/15">
+                    <p className="text-muted-foreground text-[9px] mb-1">Jami daromad</p>
+                    <p className="text-emerald-500 font-bold text-sm">+${totalEarnedFromFund.toFixed(2)}</p>
                   </div>
+                  <div className="bg-blue-500/8 rounded-xl p-2.5 border border-blue-500/15">
+                    <p className="text-muted-foreground text-[9px] mb-1">Kunlik</p>
+                    <p className="text-blue-500 font-bold text-sm">+${totalDailyProfit.toFixed(2)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {activeInvestments.map((inv) => (
+                    <span key={(inv as any).id} className="text-[10px] bg-violet-500/10 text-violet-500 px-2 py-0.5 rounded-full font-semibold border border-violet-500/20">
+                      {(inv as any).planName} · ${Number((inv as any).investedAmount).toFixed(0)}
+                    </span>
+                  ))}
                 </div>
               </div>
             </Link>
