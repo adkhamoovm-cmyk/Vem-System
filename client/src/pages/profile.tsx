@@ -612,6 +612,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
     withdrawalStartHour: number;
     withdrawalEndHour: number;
     maxDailyWithdrawals: number;
+    withdrawalEnabled: boolean;
   }>({ queryKey: ["/api/platform-settings"] });
 
   const commissionPercent = platformSettings?.withdrawalCommissionPercent ?? 10;
@@ -619,6 +620,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
   const minWithdrawalBank = platformSettings?.minWithdrawalBank ?? 2;
   const withdrawalStartHour = platformSettings?.withdrawalStartHour ?? 11;
   const withdrawalEndHour = platformSettings?.withdrawalEndHour ?? 17;
+  const withdrawalEnabled = platformSettings?.withdrawalEnabled !== false;
 
   const balance = Number(user.balance);
   const numAmount = Number(amount) || 0;
@@ -673,6 +675,21 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
         </div>
 
         <div className="px-5 pb-5 space-y-4 pt-4">
+          {!withdrawalEnabled && (
+            <div className="bg-red-500/10 rounded-xl p-3.5 border border-red-500/30 flex items-start gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <Lock className="w-4 h-4 text-red-500" />
+              </div>
+              <div>
+                <p className="text-red-500 text-xs font-semibold">
+                  {locale === "ru" ? "Вывод средств временно приостановлен" : locale === "en" ? "Withdrawals temporarily suspended" : "Pul yechish vaqtincha to'xtatilgan"}
+                </p>
+                <p className="text-red-400/70 text-[11px] mt-0.5">
+                  {locale === "ru" ? "Пожалуйста, попробуйте позже" : locale === "en" ? "Please try again later" : "Iltimos, keyinroq urinib ko'ring"}
+                </p>
+              </div>
+            </div>
+          )}
           {isSundayNow && (
             <div className="bg-primary/5 rounded-xl p-3.5 border border-primary/20 flex items-start gap-2.5">
               <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
@@ -876,7 +893,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
 
               <Button
                 onClick={() => withdrawMutation.mutate()}
-                disabled={!selectedMethodId || numAmount < minAmount || numAmount > balance || fundPassword.length !== 6 || !isWithdrawTime || withdrawMutation.isPending}
+                disabled={!withdrawalEnabled || !selectedMethodId || numAmount < minAmount || numAmount > balance || fundPassword.length !== 6 || !isWithdrawTime || withdrawMutation.isPending}
                 className="w-full bg-primary text-primary-foreground font-bold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-primary/10"
                 data-testid="button-submit-withdraw"
               >

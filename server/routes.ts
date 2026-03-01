@@ -922,6 +922,12 @@ function showGuide(browser) {
       const settingsRows = await storage.getPlatformSettings();
       const settingsMap: Record<string, string> = {};
       for (const r of settingsRows) settingsMap[r.key] = r.value;
+
+      const withdrawalEnabled = settingsMap["withdrawal_enabled"] !== "false";
+      if (!withdrawalEnabled) {
+        return res.status(400).json({ message: "Pul yechish vaqtincha to'xtatilgan. Iltimos, keyinroq urinib ko'ring." });
+      }
+
       const commissionPercent = Number(settingsMap["withdrawal_commission_percent"] ?? "10");
       const minWithdrawalUsdt = Number(settingsMap["min_withdrawal_usdt"] ?? "3");
       const minWithdrawalBank = Number(settingsMap["min_withdrawal_bank"] ?? "2");
@@ -1422,6 +1428,7 @@ function showGuide(browser) {
         withdrawalStartHour: Number(map["withdrawal_start_hour"] ?? "11"),
         withdrawalEndHour: Number(map["withdrawal_end_hour"] ?? "17"),
         maxDailyWithdrawals: Number(map["max_daily_withdrawals"] ?? "1"),
+        withdrawalEnabled: map["withdrawal_enabled"] !== "false",
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1440,6 +1447,7 @@ function showGuide(browser) {
         withdrawalStartHour: map["withdrawal_start_hour"] ?? "11",
         withdrawalEndHour: map["withdrawal_end_hour"] ?? "17",
         maxDailyWithdrawals: map["max_daily_withdrawals"] ?? "1",
+        withdrawalEnabled: map["withdrawal_enabled"] !== "false",
       });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1448,7 +1456,7 @@ function showGuide(browser) {
 
   app.post("/api/admin/platform-settings", requireAdmin, async (req: Request, res: Response) => {
     try {
-      const { withdrawalCommissionPercent, minWithdrawalUsdt, minWithdrawalBank, withdrawalStartHour, withdrawalEndHour, maxDailyWithdrawals } = req.body;
+      const { withdrawalCommissionPercent, minWithdrawalUsdt, minWithdrawalBank, withdrawalStartHour, withdrawalEndHour, maxDailyWithdrawals, withdrawalEnabled } = req.body;
       const updates: [string, string][] = [
         ["withdrawal_commission_percent", String(withdrawalCommissionPercent)],
         ["min_withdrawal_usdt", String(minWithdrawalUsdt)],
@@ -1456,6 +1464,7 @@ function showGuide(browser) {
         ["withdrawal_start_hour", String(withdrawalStartHour)],
         ["withdrawal_end_hour", String(withdrawalEndHour)],
         ["max_daily_withdrawals", String(maxDailyWithdrawals)],
+        ["withdrawal_enabled", withdrawalEnabled === false ? "false" : "true"],
       ];
       for (const [key, value] of updates) {
         await storage.upsertPlatformSetting(key, value);

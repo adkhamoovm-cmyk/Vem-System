@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, VipPackage, PromoCode } from "@shared/schema";
 import { useI18n, getVipName } from "@/lib/i18n";
@@ -730,6 +731,7 @@ function WithdrawalSettingsPanel() {
   const [startHour, setStartHour] = useState("");
   const [endHour, setEndHour] = useState("");
   const [maxDaily, setMaxDaily] = useState("");
+  const [withdrawalEnabled, setWithdrawalEnabled] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
   const { data: settings, isLoading } = useQuery<any>({
@@ -743,6 +745,7 @@ function WithdrawalSettingsPanel() {
     setStartHour(String(settings.withdrawalStartHour));
     setEndHour(String(settings.withdrawalEndHour));
     setMaxDaily(String(settings.maxDailyWithdrawals));
+    setWithdrawalEnabled(settings.withdrawalEnabled !== false);
     setInitialized(true);
   }
 
@@ -755,6 +758,7 @@ function WithdrawalSettingsPanel() {
         withdrawalStartHour: Number(startHour),
         withdrawalEndHour: Number(endHour),
         maxDailyWithdrawals: Number(maxDaily),
+        withdrawalEnabled,
       });
     },
     onSuccess: () => {
@@ -780,6 +784,27 @@ function WithdrawalSettingsPanel() {
       </div>
 
       <div className="p-4 space-y-4">
+        <div className={`flex items-center justify-between p-3.5 rounded-xl border ${withdrawalEnabled ? "bg-emerald-500/10 border-emerald-500/30" : "bg-red-500/10 border-red-500/30"}`}>
+          <div className="flex items-center gap-2.5">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${withdrawalEnabled ? "bg-emerald-500/20" : "bg-red-500/20"}`}>
+              {withdrawalEnabled ? <Unlock className="w-4 h-4 text-emerald-500" /> : <Lock className="w-4 h-4 text-red-500" />}
+            </div>
+            <div>
+              <p className={`text-sm font-bold ${withdrawalEnabled ? "text-emerald-500" : "text-red-500"}`}>
+                {withdrawalEnabled ? "Yechish YOQILGAN" : "Yechish O'CHIRILGAN"}
+              </p>
+              <p className="text-muted-foreground text-[11px]">
+                {withdrawalEnabled ? "Barcha foydalanuvchilar yechish qila oladi" : "Hech kim yechish qila olmaydi"}
+              </p>
+            </div>
+          </div>
+          <Switch
+            checked={withdrawalEnabled}
+            onCheckedChange={setWithdrawalEnabled}
+            data-testid="toggle-withdrawal-enabled"
+          />
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
