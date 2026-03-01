@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare } from "lucide-react";
+import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare, Coffee } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { User, Video, VipPackage } from "@shared/schema";
 import { useI18n, getVipName } from "@/lib/i18n";
@@ -260,34 +260,48 @@ export default function DashboardPage() {
           </div>
 
           <div className="bg-card rounded-2xl p-4 border border-border">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-primary" />
-                <span className="text-foreground text-sm font-semibold">{t("dashboard.todayTasks")}</span>
+            {new Date().getDay() === 0 ? (
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                  <Coffee className="w-5 h-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-foreground text-sm font-semibold">{t("tasks.sunday")}</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">{t("tasks.sundayNote")}</p>
+                </div>
               </div>
-              <span className="text-primary text-sm font-bold" data-testid="text-tasks-progress">
-                {user.dailyTasksCompleted} / {user.dailyTasksLimit}
-              </span>
-            </div>
-            <Progress
-              value={tasksProgress}
-              className="h-2 bg-muted rounded-full"
-              data-testid="progress-tasks"
-            />
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-muted-foreground text-xs">
-                {user.vipLevel < 0
-                  ? t("common.notEmployee")
-                  : user.dailyTasksCompleted < user.dailyTasksLimit
-                    ? t("dashboard.videosLeft", { count: user.dailyTasksLimit - user.dailyTasksCompleted })
-                    : t("dashboard.limitReached")}
-              </p>
-              <Link href="/tasks">
-                <span className="text-primary text-xs font-semibold flex items-center gap-0.5 cursor-pointer" data-testid="link-start-tasks">
-                  {t("dashboard.start")} <ChevronRight className="w-3 h-3" />
-                </span>
-              </Link>
-            </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Zap className="w-4 h-4 text-primary" />
+                    <span className="text-foreground text-sm font-semibold">{t("dashboard.todayTasks")}</span>
+                  </div>
+                  <span className="text-primary text-sm font-bold" data-testid="text-tasks-progress">
+                    {user.dailyTasksCompleted} / {user.dailyTasksLimit}
+                  </span>
+                </div>
+                <Progress
+                  value={tasksProgress}
+                  className="h-2 bg-muted rounded-full"
+                  data-testid="progress-tasks"
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <p className="text-muted-foreground text-xs">
+                    {user.vipLevel < 0
+                      ? t("common.notEmployee")
+                      : user.dailyTasksCompleted < user.dailyTasksLimit
+                        ? t("dashboard.videosLeft", { count: user.dailyTasksLimit - user.dailyTasksCompleted })
+                        : t("dashboard.limitReached")}
+                  </p>
+                  <Link href="/tasks">
+                    <span className="text-primary text-xs font-semibold flex items-center gap-0.5 cursor-pointer" data-testid="link-start-tasks">
+                      {t("dashboard.start")} <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
