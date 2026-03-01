@@ -81,6 +81,8 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/balance-history"] });
       setSubmitted(true);
     },
     onError: (error: Error) => {
@@ -683,6 +685,7 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/balance-history"] });
       setSubmitted(true);
     },
     onError: (error: Error) => {
