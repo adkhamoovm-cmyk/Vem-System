@@ -44,21 +44,25 @@ export default function HelpPage() {
 
   return (
     <div className="p-4 space-y-4">
-        <div className="bg-gradient-to-br from-[#3B82F6] via-[#2563EB] to-[#1d4ed8] rounded-2xl p-5 text-foreground shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <HelpCircle className="w-6 h-6" />
-            </div>
-            <div>
-              <h2 className="font-bold text-lg">{t("help.title")}</h2>
-              <p className="text-foreground/70 text-xs">{t("help.subtitle")}</p>
-            </div>
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20">
+          <div className="absolute inset-0 opacity-[0.07]">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-28 h-28 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
           </div>
-          <p className="text-foreground/60 text-[11px] leading-relaxed">
-            {t("help.description")}
-          </p>
+          <div className="relative">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-lg">
+                <HelpCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-lg text-white">{t("help.title")}</h2>
+                <p className="text-white/60 text-xs">{t("help.subtitle")}</p>
+              </div>
+            </div>
+            <p className="text-white/50 text-[11px] leading-relaxed">
+              {t("help.description")}
+            </p>
+          </div>
         </div>
 
         {helpSections.map((section, i) => (

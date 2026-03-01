@@ -102,34 +102,37 @@ export default function VipPage() {
   const sortedPackages = [...(packages || [])].sort((a, b) => a.level - b.level);
 
   return (
-    <div className="p-4">
-        <div className="bg-primary rounded-2xl p-5 text-primary-foreground shadow-xl mb-4 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-8 translate-x-8" />
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Crown className="w-6 h-6" />
+    <div className="p-4 space-y-4">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20">
+          <div className="absolute inset-0 opacity-[0.07]">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-28 h-28 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
+          </div>
+          <div className="relative flex items-center gap-3">
+            <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-lg">
+              <Crown className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="font-bold text-lg">{t("vip.title")}</h2>
-              <p className="text-primary-foreground/70 text-xs">{t("vip.subtitle")}</p>
+              <h2 className="font-bold text-lg text-white">{t("vip.title")}</h2>
+              <p className="text-white/60 text-xs">{t("vip.subtitle")}</p>
             </div>
           </div>
           {user && (
-            <div className="mt-3 bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-primary-foreground/80 text-xs">{t("vip.currentLevel")}</span>
-                <span className="font-bold text-sm">{user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}</span>
+            <div className="relative mt-4 grid grid-cols-2 gap-3">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/10">
+                <p className="text-white/50 text-[10px] uppercase tracking-widest">{t("vip.currentLevel")}</p>
+                <p className="text-white font-bold text-sm mt-1">{user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}</p>
               </div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-primary-foreground/80 text-xs">{t("common.balance")}:</span>
-                <span className="font-bold text-sm">${Number(user.balance).toFixed(2)}</span>
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/10">
+                <p className="text-white/50 text-[10px] uppercase tracking-widest">{t("common.balance")}</p>
+                <p className="text-white font-bold text-sm mt-1">${Number(user.balance).toFixed(2)}</p>
               </div>
             </div>
           )}
         </div>
 
         {user && user.vipLevel < 0 && (
-          <div className="bg-card rounded-2xl border border-[#78909C]/30 overflow-hidden mb-4" data-testid="stajyor-request-section">
+          <div className="bg-card rounded-2xl border border-[#78909C]/30 overflow-hidden" data-testid="stajyor-request-section">
             <div className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] p-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -257,29 +260,29 @@ export default function VipPage() {
                   </div>
 
                   <div className="mt-3 grid grid-cols-3 gap-2">
-                    <div className="bg-card rounded-xl p-2.5 text-center">
-                      <Film className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-0.5" />
+                    <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.primary + "08", borderColor: colors.primary + "15" }}>
+                      <Film className="w-3.5 h-3.5 mx-auto mb-0.5" style={{ color: colors.primary }} />
                       <p className="text-foreground font-bold text-xs">{pkg.dailyTasks} {t("common.pcs")}</p>
                       <p className="text-muted-foreground text-[9px]">{t("common.dailyVideo")}</p>
                     </div>
-                    <div className="bg-card rounded-xl p-2.5 text-center">
-                      <DollarSign className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-0.5" />
+                    <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.primary + "08", borderColor: colors.primary + "15" }}>
+                      <DollarSign className="w-3.5 h-3.5 mx-auto mb-0.5" style={{ color: colors.primary }} />
                       <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.perVideoReward).toFixed(2)}</p>
                       <p className="text-muted-foreground text-[9px]">{t("common.perVideo")}</p>
                     </div>
-                    <div className="bg-card rounded-xl p-2.5 text-center">
-                      <TrendingUp className="w-3.5 h-3.5 text-muted-foreground mx-auto mb-0.5" />
+                    <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.primary + "08", borderColor: colors.primary + "15" }}>
+                      <TrendingUp className="w-3.5 h-3.5 mx-auto mb-0.5" style={{ color: colors.primary }} />
                       <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.dailyEarning).toFixed(2)}</p>
                       <p className="text-muted-foreground text-[9px]">{t("common.dailyEarning")}</p>
                     </div>
                   </div>
 
-                  <div className="mt-2 flex items-center justify-between bg-card rounded-lg px-3 py-1.5">
-                    <div className="flex items-center gap-1">
+                  <div className="mt-2 flex items-center justify-between bg-muted/30 rounded-lg px-3 py-2">
+                    <div className="flex items-center gap-1.5">
                       <Calendar className="w-3 h-3 text-muted-foreground" />
                       <span className="text-muted-foreground text-[10px]">{t("vip.duration", { days: workDaysToCalendarDays(pkg.durationDays) })} ({pkg.durationDays} {t("vip.workDays")})</span>
                     </div>
-                    <span className="text-[10px] font-semibold" style={{ color: isLocked ? "#bbb" : colors.primary }}>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: isLocked ? "#999" : colors.primary, backgroundColor: isLocked ? "#9991a0" : colors.primary + "15" }}>
                       {isLocked ? t("common.locked") : t("common.open")}
                     </span>
                   </div>

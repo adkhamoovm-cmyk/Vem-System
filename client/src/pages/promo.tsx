@@ -50,23 +50,27 @@ export default function PromoPage() {
 
   return (
     <div className="p-4 space-y-5">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard">
-            <button className="text-muted-foreground hover:text-foreground transition-colors" data-testid="button-back-promo">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-          </Link>
-          <h1 className="text-foreground font-bold text-lg">{t("promo.title")}</h1>
-        </div>
-
-        <div className="bg-gradient-to-br from-[#EF4444]/10 to-[#F97316]/10 dark:from-[#EF4444]/20 dark:to-[#F97316]/20 rounded-2xl p-5 border border-[#EF4444]/20 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#EF4444] to-[#F97316] rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-            <Mail className="w-8 h-8 text-white" />
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20">
+          <div className="absolute inset-0 opacity-[0.07]">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+            <div className="absolute bottom-0 left-0 w-28 h-28 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
           </div>
-          <h2 className="text-foreground font-bold text-lg mb-1">{t("promo.enterCode")}</h2>
-          <p className="text-muted-foreground text-xs">
-            {t("promo.codeDescription")}
-          </p>
+          <div className="relative">
+            <Link href="/dashboard">
+              <button className="text-white/60 hover:text-white transition-colors mb-3" data-testid="button-back-promo">
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            </Link>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-lg">
+                <Mail className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-white font-bold text-lg">{t("promo.enterCode")}</h2>
+                <p className="text-white/60 text-xs">{t("promo.codeDescription")}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="bg-card rounded-2xl p-4 border border-border space-y-3">

@@ -270,65 +270,68 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm">
-            <div className="bg-gradient-to-r from-primary/8 via-primary/4 to-transparent p-4 pb-3">
-              <div className="flex items-center justify-between">
+          <div className="relative rounded-2xl overflow-hidden shadow-lg">
+            <div className="bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-4 pb-3 relative">
+              <div className="absolute inset-0 opacity-[0.07]">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+                <div className="absolute bottom-0 left-0 w-20 h-20 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
+              </div>
+              <div className="relative flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                  <div className="w-10 h-10 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
                     <VipIcon level={user.vipLevel} className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-medium">
+                    <span className="text-white/60 text-[10px] uppercase tracking-widest font-medium">
                       {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
                     </span>
-                    <p className="text-foreground text-xs font-medium">UID: {user.numericId || "—"}</p>
+                    <p className="text-white/80 text-xs font-medium">UID: {user.numericId || "—"}</p>
                   </div>
                 </div>
                 <Link href="/vip">
-                  <span className="bg-gradient-to-r from-primary to-blue-600 text-white text-[10px] px-3 py-1.5 rounded-lg font-semibold cursor-pointer shadow-sm shadow-primary/20 active:scale-95 transition-transform" data-testid="link-upgrade-vip">
+                  <span className="bg-white/15 backdrop-blur-sm text-white text-[10px] px-3 py-1.5 rounded-lg font-semibold cursor-pointer border border-white/10 active:scale-95 transition-transform" data-testid="link-upgrade-vip">
                     {t("dashboard.upgrade")}
                   </span>
                 </Link>
               </div>
-            </div>
-
-            <div className="p-4 pt-3">
-              <div className="mb-3">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-muted-foreground text-[10px] uppercase tracking-wider flex items-center gap-1">
+              <div className="relative mt-4 mb-1">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-white/40 text-[10px] uppercase tracking-widest flex items-center gap-1">
                     <ArrowRightLeft className="w-3 h-3" />
                     {t("dashboard.exchange")}
                   </span>
-                  <span className="text-muted-foreground text-[9px]">{t("dashboard.rate", { rate: UZS_RATE.toLocaleString() })}</span>
+                  <span className="text-white/30 text-[9px]">{t("dashboard.rate", { rate: UZS_RATE.toLocaleString() })}</span>
                 </div>
                 <div className="flex items-end justify-between" data-testid="text-balance">
                   <div>
-                    <p className="text-foreground font-bold text-2xl tracking-tight">{balance.toFixed(2)} <span className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">USDT</span></p>
-                    <p className="text-muted-foreground text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
+                    <p className="text-white font-bold text-3xl tracking-tight">{balance.toFixed(2)} <span className="text-emerald-300 text-sm font-semibold">USDT</span></p>
+                    <p className="text-white/50 text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
                   </div>
                   <div className="text-right space-y-1">
-                    <div className="flex items-center gap-1 text-emerald-500 dark:text-emerald-400 text-xs justify-end">
+                    <div className="flex items-center gap-1 text-emerald-300 text-xs justify-end">
                       <TrendingUp className="w-3 h-3" />
                       <span>+{dailyPotential.toFixed(2)}/{t("common.day")}</span>
                     </div>
                     {todayEarned > 0 && (
-                      <div className="flex items-center gap-1 bg-emerald-500/10 rounded-lg px-2 py-0.5 justify-end">
-                        <CheckCheck className="w-3 h-3 text-emerald-500" />
-                        <span className="text-emerald-500 dark:text-emerald-400 text-[10px] font-semibold">+{todayEarned.toFixed(2)} {t("common.today")}</span>
+                      <div className="flex items-center gap-1 bg-white/10 rounded-lg px-2 py-0.5 justify-end border border-white/10">
+                        <CheckCheck className="w-3 h-3 text-emerald-300" />
+                        <span className="text-emerald-300 text-[10px] font-semibold">+{todayEarned.toFixed(2)} {t("common.today")}</span>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
+            </div>
 
+            <div className="bg-card border-t border-border/30 p-4">
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-muted/40 rounded-xl p-3">
-                  <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("dashboard.earnings")}</span>
+                <div className="bg-emerald-500/5 dark:bg-emerald-500/8 rounded-xl p-3 border border-emerald-500/10">
+                  <span className="text-muted-foreground text-[9px] uppercase tracking-widest">{t("dashboard.earnings")}</span>
                   <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-earnings">{Number(user.totalEarnings).toFixed(2)} USDT</p>
                   <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalEarnings))} UZS</p>
                 </div>
-                <div className="bg-muted/40 rounded-xl p-3">
-                  <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("common.deposit")}</span>
+                <div className="bg-blue-500/5 dark:bg-blue-500/8 rounded-xl p-3 border border-blue-500/10">
+                  <span className="text-muted-foreground text-[9px] uppercase tracking-widest">{t("common.deposit")}</span>
                   <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-deposit">{Number(user.totalDeposit).toFixed(2)} USDT</p>
                   <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalDeposit))} UZS</p>
                 </div>
@@ -339,8 +342,8 @@ export default function DashboardPage() {
           <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
             {new Date().getDay() === 0 ? (
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
-                  <Coffee className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 bg-gradient-to-br from-amber-500/15 to-orange-500/10 rounded-xl flex items-center justify-center shrink-0">
+                  <Coffee className="w-5 h-5 text-amber-500" />
                 </div>
                 <div className="flex-1">
                   <p className="text-foreground text-sm font-semibold">{t("tasks.sunday")}</p>
@@ -351,12 +354,12 @@ export default function DashboardPage() {
               <>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary/15 to-blue-500/10 rounded-lg flex items-center justify-center">
                       <Zap className="w-4 h-4 text-primary" />
                     </div>
                     <span className="text-foreground text-sm font-semibold">{t("dashboard.todayTasks")}</span>
                   </div>
-                  <span className="text-primary text-sm font-bold bg-primary/10 px-2.5 py-0.5 rounded-lg" data-testid="text-tasks-progress">
+                  <span className="text-primary text-sm font-bold bg-primary/10 px-2.5 py-0.5 rounded-lg border border-primary/15" data-testid="text-tasks-progress">
                     {user.dailyTasksCompleted} / {user.dailyTasksLimit}
                   </span>
                 </div>
@@ -376,7 +379,7 @@ export default function DashboardPage() {
                         : t("dashboard.limitReached")}
                   </p>
                   <Link href="/tasks">
-                    <span className="text-primary text-xs font-semibold flex items-center gap-0.5 cursor-pointer bg-primary/8 px-2.5 py-1 rounded-lg hover:bg-primary/15 transition-colors" data-testid="link-start-tasks">
+                    <span className="text-white text-xs font-semibold flex items-center gap-0.5 cursor-pointer bg-gradient-to-r from-primary to-blue-600 px-3 py-1.5 rounded-lg shadow-sm shadow-primary/20 active:scale-95 transition-transform" data-testid="link-start-tasks">
                       {t("dashboard.start")} <ChevronRight className="w-3 h-3" />
                     </span>
                   </Link>
@@ -492,24 +495,29 @@ export default function DashboardPage() {
           )}
 
           {currentPkg && (
-            <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-blue-500/5 rounded-2xl p-4 border border-primary/15 shadow-sm">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center">
-                  <Star className="w-3.5 h-3.5 text-white" />
+            <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center shadow-sm">
+                    <Star className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <span className="text-foreground text-xs font-bold">{t("dashboard.vipFeatures")}</span>
                 </div>
-                <span className="text-foreground text-xs font-bold">{t("dashboard.vipFeatures")}</span>
+                {vipDaysLeft !== null && vipDaysLeft > 0 && (
+                  <span className="text-muted-foreground text-[10px] bg-muted/50 px-2 py-0.5 rounded-lg">{vipDaysLeft} {t("common.day")}</span>
+                )}
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <div className="text-center bg-card/60 rounded-xl p-2.5 backdrop-blur-sm">
+                <div className="text-center bg-gradient-to-b from-primary/8 to-primary/3 rounded-xl p-2.5 border border-primary/10">
                   <p className="text-primary font-bold text-base">{currentPkg.dailyTasks}</p>
                   <p className="text-muted-foreground text-[9px]">{t("common.dailyVideo")}</p>
                 </div>
-                <div className="text-center bg-card/60 rounded-xl p-2.5 backdrop-blur-sm">
-                  <p className="text-primary font-bold text-base">${Number(currentPkg.perVideoReward).toFixed(2)}</p>
+                <div className="text-center bg-gradient-to-b from-emerald-500/8 to-emerald-500/3 rounded-xl p-2.5 border border-emerald-500/10">
+                  <p className="text-emerald-500 font-bold text-base">${Number(currentPkg.perVideoReward).toFixed(2)}</p>
                   <p className="text-muted-foreground text-[9px]">{t("common.perVideo")}</p>
                 </div>
-                <div className="text-center bg-card/60 rounded-xl p-2.5 backdrop-blur-sm">
-                  <p className="text-primary font-bold text-base">${Number(currentPkg.dailyEarning).toFixed(2)}</p>
+                <div className="text-center bg-gradient-to-b from-blue-500/8 to-blue-500/3 rounded-xl p-2.5 border border-blue-500/10">
+                  <p className="text-blue-500 font-bold text-base">${Number(currentPkg.dailyEarning).toFixed(2)}</p>
                   <p className="text-muted-foreground text-[9px]">{t("common.dailyEarning")}</p>
                 </div>
               </div>
