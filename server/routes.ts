@@ -437,6 +437,23 @@ function showGuide(browser) {
     res.json({ verified: !!req.session.adminPinVerified });
   });
 
+  app.post("/api/admin/change-pin", pinRateLimiter, requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { currentPin, newPin } = req.body;
+      const adminPin = process.env.ADMIN_PIN || "077077";
+      if (currentPin !== adminPin) {
+        return res.status(400).json({ message: "Joriy PIN kod noto'g'ri" });
+      }
+      if (!newPin || newPin.length !== 6 || !/^\d{6}$/.test(newPin)) {
+        return res.status(400).json({ message: "Yangi PIN kod 6 ta raqamdan iborat bo'lishi kerak" });
+      }
+      process.env.ADMIN_PIN = newPin;
+      res.json({ message: "PIN kod muvaffaqiyatli o'zgartirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
+    }
+  });
+
   app.post("/api/auth/logout", (req: Request, res: Response) => {
     req.session.destroy(() => {
       res.json({ message: "Chiqish muvaffaqiyatli" });

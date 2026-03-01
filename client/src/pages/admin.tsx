@@ -972,6 +972,81 @@ function WithdrawalSettingsPanel() {
   );
 }
 
+function PinChangeSection() {
+  const { t } = useI18n();
+  const { toast } = useToast();
+  const [currentPin, setCurrentPin] = useState("");
+  const [newPin, setNewPin] = useState("");
+  const [confirmPin, setConfirmPin] = useState("");
+
+  const changePinMutation = useMutation({
+    mutationFn: async () => {
+      if (newPin !== confirmPin) {
+        throw new Error(t("admin.pinMismatch"));
+      }
+      await apiRequest("POST", "/api/admin/change-pin", { currentPin, newPin });
+    },
+    onSuccess: () => {
+      toast({ title: t("admin.pinChanged") });
+      setCurrentPin("");
+      setNewPin("");
+      setConfirmPin("");
+    },
+    onError: (err: any) => {
+      toast({ title: err.message || t("common.error"), variant: "destructive" });
+    },
+  });
+
+  return (
+    <div className="bg-card rounded-xl p-4 border border-border space-y-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Lock className="w-4 h-4 text-primary" />
+        <h3 className="text-foreground font-bold text-sm">{t("admin.changePin")}</h3>
+      </div>
+      <Input
+        type="password"
+        maxLength={6}
+        inputMode="numeric"
+        value={currentPin}
+        onChange={(e) => setCurrentPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        placeholder={t("admin.currentPin")}
+        className="bg-card border-border text-foreground h-9 text-sm font-mono"
+        data-testid="input-current-pin"
+      />
+      <Input
+        type="password"
+        maxLength={6}
+        inputMode="numeric"
+        value={newPin}
+        onChange={(e) => setNewPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        placeholder={t("admin.newPin")}
+        className="bg-card border-border text-foreground h-9 text-sm font-mono"
+        data-testid="input-new-pin"
+      />
+      <Input
+        type="password"
+        maxLength={6}
+        inputMode="numeric"
+        value={confirmPin}
+        onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        placeholder={t("admin.confirmNewPin")}
+        className="bg-card border-border text-foreground h-9 text-sm font-mono"
+        data-testid="input-confirm-pin"
+      />
+      <Button
+        size="sm"
+        onClick={() => changePinMutation.mutate()}
+        disabled={changePinMutation.isPending || currentPin.length !== 6 || newPin.length !== 6 || confirmPin.length !== 6}
+        className="bg-primary text-foreground h-8 text-xs w-full"
+        data-testid="button-change-pin"
+      >
+        {changePinMutation.isPending ? <RefreshCw className="w-3 h-3 mr-1 animate-spin" /> : <Lock className="w-3 h-3 mr-1" />}
+        {t("admin.changePin")}
+      </Button>
+    </div>
+  );
+}
+
 function SettingsTab() {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -1024,6 +1099,8 @@ function SettingsTab() {
 
   return (
     <div className="space-y-4">
+      <PinChangeSection />
+
       <WithdrawalSettingsPanel />
 
       <div className="flex items-center justify-between">
