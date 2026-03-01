@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
-import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare, Coffee } from "lucide-react";
+import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare, Coffee, AlertTriangle, CalendarDays, CheckCheck, ArrowUpRight, ArrowDownRight, Sprout, RefreshCw, Clock } from "lucide-react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { User, Video, VipPackage } from "@shared/schema";
+import type { User, Video, VipPackage, Investment, BalanceHistory } from "@shared/schema";
 import { useI18n, getVipName } from "@/lib/i18n";
 
 const UZS_RATE = 12100;
@@ -91,6 +91,18 @@ export default function DashboardPage() {
     queryKey: ["/api/vip-packages"],
   });
 
+  const { data: balanceHistory } = useQuery<BalanceHistory[]>({
+    queryKey: ["/api/balance-history"],
+  });
+
+  const { data: referralStats } = useQuery<{ level1: { count: number; commission: string }; level2: { count: number; commission: string }; level3: { count: number; commission: string } }>({
+    queryKey: ["/api/referrals/stats"],
+  });
+
+  const { data: investments } = useQuery<Investment[]>({
+    queryKey: ["/api/investments"],
+  });
+
   const [showInstallModal, setShowInstallModal] = useState(false);
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
@@ -114,6 +126,32 @@ export default function DashboardPage() {
   const perVideo = currentPkg ? Number(currentPkg.perVideoReward) : 0;
   const dailyPotential = currentPkg ? Number(currentPkg.dailyEarning) : 0;
   const balance = Number(user.balance);
+
+  // VIP expiry
+  const vipDaysLeft = user.vipExpiresAt
+    ? Math.ceil((new Date(user.vipExpiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+
+  // Today's earnings
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayEarned = (balanceHistory || [])
+    .filter(h => h.type === "earning" && h.createdAt?.toString().slice(0, 10) === todayStr)
+    .reduce((sum, h) => sum + Number(h.amount), 0);
+
+  // Referral totals
+  const totalReferrals = referralStats
+    ? (referralStats.level1.count + referralStats.level2.count + referralStats.level3.count)
+    : 0;
+  const totalReferralBonus = referralStats
+    ? (Number(referralStats.level1.commission) + Number(referralStats.level2.commission) + Number(referralStats.level3.commission))
+    : 0;
+
+  // Recent transactions (last 4)
+  const recentTx = (balanceHistory || []).slice(0, 4);
+
+  // Fund investments
+  const activeInvestments = (investments || []);
+  const totalInvested = activeInvestments.reduce((sum, inv) => sum + Number(inv.amount || 0), 0);
 
   const tvShows = videos?.filter(v => v.category === "Tele-shou") || [];
   const trailers = videos?.filter(v => v.category === "Treyler") || [];
@@ -202,6 +240,43 @@ export default function DashboardPage() {
         )}
 
         <div className="px-4 -mt-1 space-y-5 pb-6">
+
+          {/* 1. VIP Expiry Warning */}
+          {vipDaysLeft !== null && user.vipLevel > 0 && vipDaysLeft <= 15 && (
+            <div className={`rounded-2xl p-3.5 border flex items-center gap-3 ${
+              vipDaysLeft <= 0
+                ? "bg-red-500/10 border-red-500/30"
+                : vipDaysLeft <= 5
+                ? "bg-red-500/10 border-red-500/30"
+                : "bg-amber-500/10 border-amber-500/30"
+            }`}>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                vipDaysLeft <= 5 ? "bg-red-500/20" : "bg-amber-500/20"
+              }`}>
+                <AlertTriangle className={`w-5 h-5 ${vipDaysLeft <= 5 ? "text-red-500" : "text-amber-500"}`} />
+              </div>
+              <div className="flex-1">
+                <p className={`text-sm font-bold ${vipDaysLeft <= 5 ? "text-red-500" : "text-amber-500"}`}>
+                  {vipDaysLeft <= 0 ? t("dashboard.vipExpired") : t("dashboard.vipExpiresSoon")}
+                </p>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  {vipDaysLeft > 0
+                    ? t("dashboard.vipExpiresIn", { days: String(vipDaysLeft) })
+                    : getVipName(user.vipLevel, locale)}
+                </p>
+              </div>
+              <Link href="/vip">
+                <button className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 ${
+                  vipDaysLeft <= 5
+                    ? "bg-red-500 text-white"
+                    : "bg-amber-500 text-white"
+                }`} data-testid="button-renew-vip">
+                  {t("dashboard.renewVip")}
+                </button>
+              </Link>
+            </div>
+          )}
+
           <div className="bg-card rounded-2xl p-4 border border-border">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -236,11 +311,17 @@ export default function DashboardPage() {
                   <p className="text-foreground font-bold text-2xl tracking-tight">{balance.toFixed(2)} <span className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">USDT</span></p>
                   <p className="text-muted-foreground text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
                 </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-emerald-500 dark:text-emerald-400 text-xs">
+                <div className="text-right space-y-1">
+                  <div className="flex items-center gap-1 text-emerald-500 dark:text-emerald-400 text-xs justify-end">
                     <TrendingUp className="w-3 h-3" />
                     <span>+{dailyPotential.toFixed(2)}/kun</span>
                   </div>
+                  {todayEarned > 0 && (
+                    <div className="flex items-center gap-1 bg-emerald-500/10 rounded-full px-2 py-0.5 justify-end">
+                      <CheckCheck className="w-3 h-3 text-emerald-500" />
+                      <span className="text-emerald-500 dark:text-emerald-400 text-[10px] font-semibold">+{todayEarned.toFixed(2)} bugun</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -428,6 +509,138 @@ export default function DashboardPage() {
               </div>
             </div>
           )}
+
+          {/* 3. Referral Mini-Widget */}
+          <Link href="/referral">
+            <div className="bg-card rounded-2xl p-4 border border-border cursor-pointer hover:border-primary/40 transition-colors" data-testid="referral-mini-widget">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-emerald-500/15 rounded-lg flex items-center justify-center">
+                    <Users className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <span className="text-foreground font-bold text-sm">{t("dashboard.referralMini")}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-emerald-500/8 rounded-xl p-2.5 text-center border border-emerald-500/15">
+                  <p className="text-foreground font-bold text-base">{referralStats?.level1.count || 0}</p>
+                  <p className="text-muted-foreground text-[9px] mt-0.5">1-darajali</p>
+                </div>
+                <div className="bg-blue-500/8 rounded-xl p-2.5 text-center border border-blue-500/15">
+                  <p className="text-foreground font-bold text-base">{referralStats?.level2.count || 0}</p>
+                  <p className="text-muted-foreground text-[9px] mt-0.5">2-darajali</p>
+                </div>
+                <div className="bg-purple-500/8 rounded-xl p-2.5 text-center border border-purple-500/15">
+                  <p className="text-foreground font-bold text-base">{referralStats?.level3.count || 0}</p>
+                  <p className="text-muted-foreground text-[9px] mt-0.5">3-darajali</p>
+                </div>
+              </div>
+              {totalReferralBonus > 0 && (
+                <div className="mt-3 flex items-center justify-between bg-emerald-500/8 rounded-xl px-3 py-2 border border-emerald-500/15">
+                  <span className="text-muted-foreground text-xs">{t("dashboard.referralBonus")}</span>
+                  <span className="text-emerald-500 font-bold text-sm">+{totalReferralBonus.toFixed(2)} USDT</span>
+                </div>
+              )}
+              {totalReferrals === 0 && (
+                <p className="text-muted-foreground text-xs text-center mt-2">Hali referal yo'q — taklif qiling!</p>
+              )}
+            </div>
+          </Link>
+
+          {/* 4. VEM Fund Widget */}
+          {activeInvestments.length > 0 && (
+            <Link href="/fund">
+              <div className="bg-card rounded-2xl p-4 border border-border cursor-pointer hover:border-primary/40 transition-colors" data-testid="fund-mini-widget">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-violet-500/15 rounded-lg flex items-center justify-center">
+                      <Sprout className="w-4 h-4 text-violet-500" />
+                    </div>
+                    <span className="text-foreground font-bold text-sm">{t("dashboard.fundWidget")}</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-violet-500/8 rounded-xl p-3 border border-violet-500/15">
+                    <p className="text-muted-foreground text-[9px] uppercase tracking-wider mb-1">{t("dashboard.fundTotalInvested")}</p>
+                    <p className="text-foreground font-bold text-sm">${totalInvested.toFixed(2)}</p>
+                    <p className="text-muted-foreground text-[10px]">{formatUZS(totalInvested)} UZS</p>
+                  </div>
+                  <div className="bg-emerald-500/8 rounded-xl p-3 border border-emerald-500/15">
+                    <p className="text-muted-foreground text-[9px] uppercase tracking-wider mb-1">Faol rejalar</p>
+                    <p className="text-foreground font-bold text-sm">{activeInvestments.length}</p>
+                    <p className="text-muted-foreground text-[10px]">{t("dashboard.fundActiveCount")}</p>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          )}
+
+          {/* 5. Recent Transactions */}
+          <div className="bg-card rounded-2xl p-4 border border-border">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-500/15 rounded-lg flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-blue-500" />
+                </div>
+                <span className="text-foreground font-bold text-sm">{t("dashboard.recentActivity")}</span>
+              </div>
+              <Link href="/profile">
+                <span className="text-muted-foreground text-xs flex items-center gap-0.5">
+                  {t("dashboard.viewAll")} <ChevronRight className="w-3 h-3" />
+                </span>
+              </Link>
+            </div>
+            {recentTx.length === 0 ? (
+              <p className="text-muted-foreground text-xs text-center py-4">{t("dashboard.noActivity")}</p>
+            ) : (
+              <div className="space-y-2">
+                {recentTx.map((tx) => {
+                  const isPositive = Number(tx.amount) >= 0;
+                  const typeLabels: Record<string, string> = {
+                    earning: t("dashboard.txEarning"),
+                    deposit: t("dashboard.txDeposit"),
+                    withdrawal: t("dashboard.txWithdrawal"),
+                    vip_purchase: t("dashboard.txVipPurchase"),
+                    fund_invest: t("dashboard.txFundInvest"),
+                    fund_profit: t("dashboard.txFundProfit"),
+                    commission: t("dashboard.txCommission"),
+                  };
+                  const typeColors: Record<string, string> = {
+                    earning: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                    deposit: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+                    withdrawal: "bg-red-500/10 text-red-500",
+                    vip_purchase: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+                    fund_invest: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+                    fund_profit: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                    commission: "bg-gray-500/10 text-gray-500",
+                  };
+                  const dateStr = tx.createdAt
+                    ? new Date(tx.createdAt).toLocaleDateString("uz-UZ", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+                    : "";
+                  return (
+                    <div key={tx.id} className="flex items-center gap-3" data-testid={`tx-row-${tx.id}`}>
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${typeColors[tx.type] || "bg-muted text-muted-foreground"}`}>
+                        {isPositive
+                          ? <ArrowUpRight className="w-4 h-4" />
+                          : <ArrowDownRight className="w-4 h-4" />
+                        }
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-foreground text-xs font-semibold">{typeLabels[tx.type] || tx.type}</p>
+                        <p className="text-muted-foreground text-[10px] truncate">{dateStr}</p>
+                      </div>
+                      <span className={`text-sm font-bold shrink-0 ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
+                        {isPositive ? "+" : ""}{Number(tx.amount).toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
         </div>
       </div>
 
