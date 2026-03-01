@@ -375,26 +375,30 @@ export default function RegisterPage() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+      </div>
       <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
-          className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
+          className="w-10 h-10 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
           data-testid="button-theme-toggle-register"
         >
           {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
         </button>
       </div>
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-5">
           <img src={vemLogo} alt="VEM" className="pro-logo h-14 mx-auto" />
           <p className="text-muted-foreground text-sm mt-0.5">{t("auth.welcome")}</p>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
-          <div className="flex items-center gap-2 mb-5">
-            <div className="w-1 h-5 bg-primary rounded-full" />
+        <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-border/50">
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="w-1.5 h-5 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
             <h2 className="text-lg font-bold text-foreground">{t("auth.register")}</h2>
           </div>
 
@@ -609,7 +613,7 @@ export default function RegisterPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-primary text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg text-base mt-1"
+                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg shadow-primary/20 text-base mt-1 active:scale-[0.98] transition-transform"
                 disabled={registerMutation.isPending}
                 data-testid="button-register"
               >

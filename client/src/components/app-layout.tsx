@@ -41,9 +41,9 @@ function BroadcastModal() {
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="w-full max-w-sm bg-card rounded-2xl border border-border shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-300">
-        <div className="bg-gradient-to-r from-primary/20 to-purple-500/20 px-4 py-3 border-b border-border flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-            <Megaphone className="w-4 h-4 text-primary" />
+        <div className="bg-gradient-to-r from-primary/20 via-purple-500/10 to-primary/5 px-4 py-3 border-b border-border flex items-center gap-2.5">
+          <div className="w-9 h-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <Megaphone className="w-4.5 h-4.5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-foreground font-bold text-sm truncate">{current.title}</p>
@@ -63,7 +63,7 @@ function BroadcastModal() {
         <div className="px-4 pb-4">
           <button
             onClick={handleClose}
-            className="w-full bg-primary text-primary-foreground rounded-xl h-10 text-sm font-semibold flex items-center justify-center gap-2 active:opacity-90"
+            className="w-full bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl h-10 text-sm font-semibold flex items-center justify-center gap-2 active:opacity-90 transition-all shadow-lg shadow-primary/20"
             data-testid="button-broadcast-read"
           >
             {locale === "ru" ? "Понял(а)" : locale === "en" ? "Got it" : "Tushunarli"}
@@ -113,24 +113,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background pb-20">
       <BroadcastModal />
 
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">
           <div className="flex items-center gap-1">
-            <img src={vemLogo} alt="VEM" loading="eager" className="h-16 object-contain" style={{filter: "drop-shadow(0px 2px 6px rgba(79, 107, 255, 0.3))"}} />
+            <img src={vemLogo} alt="VEM" loading="eager" className="h-16 object-contain" style={{filter: "drop-shadow(0px 2px 8px rgba(79, 107, 255, 0.35))"}} />
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <LanguageSwitcher compact />
             <button
               onClick={toggleTheme}
-              className="text-muted-foreground hover:text-foreground transition-colors p-1"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
               data-testid="button-theme-toggle"
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button
               onClick={() => logoutMutation.mutate()}
-              className="text-muted-foreground hover:text-foreground transition-colors p-1"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all"
               data-testid="button-logout"
             >
               <LogOut className="w-4 h-4" />
@@ -143,59 +143,67 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {showSupportWidget && <SupportWidget />}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
-        <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-1 relative">
-          {sideNavItems.map((item) => {
-            const active = location === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <button
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors min-w-[48px] ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                  data-testid={item.testId}
-                >
-                  <item.icon className={`w-5 h-5 ${active ? "stroke-[2.5]" : ""}`} />
-                  <span className="text-[10px] font-medium">{item.title}</span>
-                </button>
-              </Link>
-            );
-          })}
+      <nav className="fixed bottom-0 left-0 right-0 z-50">
+        <div className="bg-card/90 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)]">
+          <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2 relative">
+            {sideNavItems.map((item) => {
+              const active = location === item.href;
+              return (
+                <Link key={item.href} href={item.href}>
+                  <button
+                    className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all min-w-[52px] ${
+                      active
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    data-testid={item.testId}
+                  >
+                    <item.icon className={`w-5 h-5 transition-all ${active ? "stroke-[2.5]" : ""}`} />
+                    <span className={`text-[10px] font-medium transition-all ${active ? "font-semibold" : ""}`}>{item.title}</span>
+                    {active && <div className="w-4 h-0.5 bg-primary rounded-full mt-0.5" />}
+                  </button>
+                </Link>
+              );
+            })}
 
-          <Link href="/tasks">
-            <button
-              className="flex flex-col items-center -mt-7 relative"
-              data-testid="nav-vazifalar"
-            >
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95 bg-primary ${
-                isTasksActive
-                  ? "shadow-[0_4px_15px_hsl(var(--primary)/0.4)]"
-                  : "shadow-[0_4px_15px_hsl(var(--primary)/0.25)]"
-              }`}>
-                <PlayCircle className="w-7 h-7 text-primary-foreground stroke-[2]" />
-              </div>
-              <span className={`text-[10px] font-semibold mt-0.5 ${isTasksActive ? "text-primary" : "text-muted-foreground"}`}>
-                {t("nav.tasks")}
-              </span>
-            </button>
-          </Link>
+            <Link href="/tasks">
+              <button
+                className="flex flex-col items-center -mt-8 relative"
+                data-testid="nav-vazifalar"
+              >
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all active:scale-95 bg-gradient-to-br from-primary to-blue-600 ${
+                  isTasksActive
+                    ? "shadow-[0_4px_20px_hsl(var(--primary)/0.45)] animate-pulse-glow"
+                    : "shadow-[0_4px_15px_hsl(var(--primary)/0.3)]"
+                }`}>
+                  <PlayCircle className="w-7 h-7 text-white stroke-[2]" />
+                </div>
+                <span className={`text-[10px] font-semibold mt-1 ${isTasksActive ? "text-primary" : "text-muted-foreground"}`}>
+                  {t("nav.tasks")}
+                </span>
+              </button>
+            </Link>
 
-          {rightNavItems.map((item) => {
-            const active = location === item.href;
-            return (
-              <Link key={item.href} href={item.href}>
-                <button
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors min-w-[48px] ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                  data-testid={item.testId}
-                >
-                  <item.icon className={`w-5 h-5 ${active ? "stroke-[2.5]" : ""}`} />
-                  <span className="text-[10px] font-medium">{item.title}</span>
-                </button>
-              </Link>
-            );
-          })}
+            {rightNavItems.map((item) => {
+              const active = location === item.href;
+              return (
+                <Link key={item.href} href={item.href}>
+                  <button
+                    className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all min-w-[52px] ${
+                      active
+                        ? "text-primary"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                    data-testid={item.testId}
+                  >
+                    <item.icon className={`w-5 h-5 transition-all ${active ? "stroke-[2.5]" : ""}`} />
+                    <span className={`text-[10px] font-medium transition-all ${active ? "font-semibold" : ""}`}>{item.title}</span>
+                    {active && <div className="w-4 h-0.5 bg-primary rounded-full mt-0.5" />}
+                  </button>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </nav>
     </div>

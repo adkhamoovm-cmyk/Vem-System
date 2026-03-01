@@ -177,26 +177,31 @@ export default function LoginPage() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-60 h-60 bg-blue-500/3 rounded-full blur-3xl" />
+      </div>
       <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
-          className="w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
+          className="w-10 h-10 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
           data-testid="button-theme-toggle-login"
         >
           {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
         </button>
       </div>
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <img src={vemLogo} alt="VEM" className="pro-logo h-16 mx-auto" />
-          <p className="text-muted-foreground mt-1 text-sm">{t("auth.welcome")}</p>
+          <p className="text-muted-foreground mt-2 text-sm">{t("auth.welcome")}</p>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 shadow-lg border border-border">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="w-1 h-5 bg-primary rounded-full" />
+        <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-border/50">
+          <div className="flex items-center gap-2.5 mb-6">
+            <div className="w-1.5 h-5 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
             <h2 className="text-lg font-bold text-foreground">{t("auth.login")}</h2>
           </div>
 
@@ -315,7 +320,7 @@ export default function LoginPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-primary text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg text-base"
+                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg shadow-primary/20 text-base active:scale-[0.98] transition-transform"
                 disabled={loginMutation.isPending}
                 data-testid="button-login"
               >
@@ -430,7 +435,7 @@ export default function LoginPage() {
                   </div>
                   <Button
                     onClick={handleResetStep1}
-                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold h-12 rounded-xl shadow-lg shadow-primary/20 text-base active:scale-[0.98] transition-transform"
                     disabled={resetLoading || resetPhone.length < 5}
                     data-testid="button-reset-next-1"
                   >
@@ -488,7 +493,7 @@ export default function LoginPage() {
                   </div>
                   <Button
                     onClick={handleResetStep2}
-                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold h-12 rounded-xl shadow-lg shadow-primary/20 text-base active:scale-[0.98] transition-transform"
                     disabled={resetLoading || resetPin.length !== 6}
                     data-testid="button-reset-next-2"
                   >
@@ -532,7 +537,7 @@ export default function LoginPage() {
                   </div>
                   <Button
                     onClick={handleResetStep3}
-                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold h-12 rounded-xl shadow-lg shadow-primary/20 text-base active:scale-[0.98] transition-transform"
                     disabled={resetLoading || !resetAnswer.trim()}
                     data-testid="button-reset-next-3"
                   >
@@ -567,7 +572,7 @@ export default function LoginPage() {
                   </div>
                   <Button
                     onClick={handleResetStep4}
-                    className="w-full bg-primary text-white font-semibold h-12 rounded-xl shadow-lg text-base"
+                    className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold h-12 rounded-xl shadow-lg shadow-primary/20 text-base active:scale-[0.98] transition-transform"
                     disabled={resetLoading || resetNewPass.length < 6}
                     data-testid="button-reset-password"
                   >

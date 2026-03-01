@@ -105,8 +105,11 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-muted-foreground text-xs animate-pulse">{t("common.loading")}</p>
         </div>
+      </div>
     );
   }
 
@@ -121,18 +124,15 @@ export default function DashboardPage() {
   const dailyPotential = currentPkg ? Number(currentPkg.dailyEarning) : 0;
   const balance = Number(user.balance);
 
-  // VIP expiry
   const vipDaysLeft = user.vipExpiresAt
     ? Math.ceil((new Date(user.vipExpiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
     : null;
 
-  // Today's earnings
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayEarned = (balanceHistory || [])
     .filter(h => h.type === "earning" && h.createdAt?.toString().slice(0, 10) === todayStr)
     .reduce((sum, h) => sum + Number(h.amount), 0);
 
-  // Referral totals
   const totalReferrals = referralStats
     ? (referralStats.level1.count + referralStats.level2.count + referralStats.level3.count)
     : 0;
@@ -140,10 +140,8 @@ export default function DashboardPage() {
     ? (Number(referralStats.level1.commission) + Number(referralStats.level2.commission) + Number(referralStats.level3.commission))
     : 0;
 
-  // Recent transactions (last 4)
   const recentTx = (balanceHistory || []).slice(0, 4);
 
-  // Fund investments
   const activeInvestments = (investments || []);
   const totalInvested = activeInvestments.reduce((sum, inv) => sum + Number(inv.investedAmount || 0), 0);
   const totalEarnedFromFund = activeInvestments.reduce((sum, inv) => sum + Number((inv as Record<string, unknown>).totalEarned || 0), 0);
@@ -174,59 +172,59 @@ export default function DashboardPage() {
   const heroVideo = allVideos[heroIndex];
 
   const quickActions = [
-    { title: t("dashboard.quickTasks"), href: "/tasks", icon: PlayCircle, color: "#3B82F6", bg: "#3B82F6" },
-    { title: t("dashboard.quickFund"), href: "/fund", icon: Wallet, color: "#6B7280", bg: "#6B7280" },
-    { title: t("dashboard.quickInvite"), href: "/referral", icon: Users, color: "#4ADE80", bg: "#4ADE80" },
-    { title: t("dashboard.quickVip"), href: "/vip", icon: Crown, color: "#A855F7", bg: "#A855F7" },
-    { title: t("dashboard.quickHelp"), href: "/help", icon: HelpCircle, color: "#3B82F6", bg: "#3B82F6" },
-    { title: t("dashboard.quickApp"), href: "#install-app", icon: Download, color: "#10B981", bg: "#10B981" },
-    { title: t("dashboard.quickPromo"), href: "/promo", icon: Mail, color: "#EF4444", bg: "#EF4444" },
+    { title: t("dashboard.quickTasks"), href: "/tasks", icon: PlayCircle, gradient: "from-blue-500 to-blue-600" },
+    { title: t("dashboard.quickFund"), href: "/fund", icon: Wallet, gradient: "from-violet-500 to-purple-600" },
+    { title: t("dashboard.quickInvite"), href: "/referral", icon: Users, gradient: "from-emerald-500 to-green-600" },
+    { title: t("dashboard.quickVip"), href: "/vip", icon: Crown, gradient: "from-amber-500 to-orange-600" },
+    { title: t("dashboard.quickHelp"), href: "/help", icon: HelpCircle, gradient: "from-cyan-500 to-blue-500" },
+    { title: t("dashboard.quickApp"), href: "#install-app", icon: Download, gradient: "from-teal-500 to-emerald-600" },
+    { title: t("dashboard.quickPromo"), href: "/promo", icon: Mail, gradient: "from-rose-500 to-red-600" },
   ];
 
   return (
     <>
     <div className="bg-background min-h-screen -mt-0">
         {heroVideo && (
-          <div className="relative w-full h-[280px] overflow-hidden">
+          <div className="relative w-full h-[300px] overflow-hidden">
             <img
               src={heroVideo.thumbnail}
               alt={heroVideo.title}
-              className={`w-full h-full object-cover transition-all duration-500 ${isTransitioning ? "opacity-0 scale-105" : "opacity-100 scale-100"}`}
+              className={`w-full h-full object-cover transition-all duration-700 ${isTransitioning ? "opacity-0 scale-110" : "opacity-100 scale-100"}`}
               data-testid="hero-poster"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/70 to-transparent" />
-            <div className={`absolute bottom-6 left-4 right-4 z-10 transition-all duration-500 ${isTransitioning ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded">{heroVideo.category === "Tele-shou" ? t("trends.teleShow") : t("trends.trailer")}</span>
-                <div className="flex items-center gap-0.5">
-                  <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
-                  <span className="text-white/90 text-xs">{heroVideo.rating}</span>
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/20 to-transparent" />
+            <div className={`absolute bottom-6 left-4 right-4 z-10 transition-all duration-700 ${isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-gradient-to-r from-primary to-blue-600 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-md shadow-sm">{heroVideo.category === "Tele-shou" ? t("trends.teleShow") : t("trends.trailer")}</span>
+                <div className="flex items-center gap-0.5 bg-black/30 backdrop-blur-sm rounded-md px-1.5 py-0.5">
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  <span className="text-white/90 text-[10px] font-medium">{heroVideo.rating}</span>
                 </div>
               </div>
-              <h2 className="text-white font-bold text-xl leading-tight mb-2">{heroVideo.title}</h2>
-              <p className="text-white/60 text-xs mb-3">{heroVideo.actors}</p>
-              <div className="flex gap-2">
+              <h2 className="text-white font-bold text-xl leading-tight mb-1.5 drop-shadow-lg">{heroVideo.title}</h2>
+              <p className="text-white/50 text-xs mb-3">{heroVideo.actors}</p>
+              <div className="flex gap-2.5">
                 <Link href="/tasks">
-                  <button className="flex items-center gap-1.5 bg-white text-black font-bold text-xs px-5 py-2.5 rounded-md cursor-pointer" data-testid="button-hero-play">
+                  <button className="flex items-center gap-2 bg-white text-black font-bold text-xs px-5 py-2.5 rounded-lg cursor-pointer shadow-lg shadow-white/10 active:scale-95 transition-transform" data-testid="button-hero-play">
                     <Play className="w-4 h-4 fill-black" />
                     {t("dashboard.watch")}
                   </button>
                 </Link>
                 <Link href="/trends">
-                  <button className="flex items-center gap-1.5 bg-white/20 text-white font-medium text-xs px-4 py-2.5 rounded-md backdrop-blur-sm cursor-pointer" data-testid="button-hero-info">
+                  <button className="flex items-center gap-1.5 bg-white/15 text-white font-medium text-xs px-4 py-2.5 rounded-lg backdrop-blur-md cursor-pointer border border-white/10 active:scale-95 transition-transform" data-testid="button-hero-info">
                     {t("dashboard.details")}
                   </button>
                 </Link>
               </div>
             </div>
             {allVideos.length > 1 && (
-              <div className="absolute bottom-2 right-4 z-10 flex gap-1">
+              <div className="absolute bottom-2.5 right-4 z-10 flex gap-1.5">
                 {allVideos.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => { setIsTransitioning(true); setTimeout(() => { setHeroIndex(i); setIsTransitioning(false); }, 300); }}
-                    className={`h-1 rounded-full transition-all duration-300 ${i === heroIndex ? "w-5 bg-primary" : "w-1.5 bg-foreground/30"}`}
+                    className={`h-1 rounded-full transition-all duration-500 ${i === heroIndex ? "w-6 bg-primary shadow-sm shadow-primary/30" : "w-1.5 bg-white/30"}`}
                     data-testid={`hero-dot-${i}`}
                   />
                 ))}
@@ -235,19 +233,18 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="px-4 -mt-1 space-y-5 pb-6">
+        <div className="px-4 -mt-1 space-y-4 pb-6">
 
-          {/* 1. VIP Expiry Warning */}
           {vipDaysLeft !== null && user.vipLevel > 0 && vipDaysLeft <= 15 && (
-            <div className={`rounded-2xl p-3.5 border flex items-center gap-3 ${
+            <div className={`rounded-2xl p-3.5 flex items-center gap-3 ${
               vipDaysLeft <= 0
-                ? "bg-red-500/10 border-red-500/30"
+                ? "bg-red-500/8 border border-red-500/20"
                 : vipDaysLeft <= 5
-                ? "bg-red-500/10 border-red-500/30"
-                : "bg-amber-500/10 border-amber-500/30"
+                ? "bg-red-500/8 border border-red-500/20"
+                : "bg-amber-500/8 border border-amber-500/20"
             }`}>
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
-                vipDaysLeft <= 5 ? "bg-red-500/20" : "bg-amber-500/20"
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                vipDaysLeft <= 5 ? "bg-red-500/15" : "bg-amber-500/15"
               }`}>
                 <AlertTriangle className={`w-5 h-5 ${vipDaysLeft <= 5 ? "text-red-500" : "text-amber-500"}`} />
               </div>
@@ -262,10 +259,10 @@ export default function DashboardPage() {
                 </p>
               </div>
               <Link href="/vip">
-                <button className={`text-xs font-bold px-3 py-1.5 rounded-full shrink-0 ${
+                <button className={`text-xs font-bold px-3.5 py-2 rounded-xl shrink-0 transition-all active:scale-95 ${
                   vipDaysLeft <= 5
-                    ? "bg-red-500 text-white"
-                    : "bg-amber-500 text-white"
+                    ? "bg-red-500 text-white shadow-lg shadow-red-500/20"
+                    : "bg-amber-500 text-white shadow-lg shadow-amber-500/20"
                 }`} data-testid="button-renew-vip">
                   {t("dashboard.renewVip")}
                 </button>
@@ -273,73 +270,76 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="bg-card rounded-2xl p-4 border border-border">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <Crown className="w-4 h-4 text-primary-foreground" />
-                </div>
-                <div>
-                  <span className="text-muted-foreground text-[9px] uppercase tracking-wider flex items-center gap-1">
-                    {user.vipLevel >= 0 && <VipIcon level={user.vipLevel} className="w-3 h-3 text-primary" />}
-                    {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
-                  </span>
-                  <p className="text-foreground text-xs font-medium">UID: {user.numericId || "—"}</p>
-                </div>
-              </div>
-              <Link href="/vip">
-                <span className="bg-primary/20 text-primary text-[10px] px-3 py-1 rounded-full font-semibold cursor-pointer" data-testid="link-upgrade-vip">
-                  {t("dashboard.upgrade")}
-                </span>
-              </Link>
-            </div>
-
-            <div className="bg-card rounded-xl p-3 mb-3">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-muted-foreground text-[10px] uppercase tracking-wider flex items-center gap-1">
-                  <ArrowRightLeft className="w-3 h-3" />
-                  {t("dashboard.exchange")}
-                </span>
-                <span className="text-muted-foreground text-[9px]">{t("dashboard.rate", { rate: UZS_RATE.toLocaleString() })}</span>
-              </div>
-              <div className="flex items-end justify-between" data-testid="text-balance">
-                <div>
-                  <p className="text-foreground font-bold text-2xl tracking-tight">{balance.toFixed(2)} <span className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">USDT</span></p>
-                  <p className="text-muted-foreground text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
-                </div>
-                <div className="text-right space-y-1">
-                  <div className="flex items-center gap-1 text-emerald-500 dark:text-emerald-400 text-xs justify-end">
-                    <TrendingUp className="w-3 h-3" />
-                    <span>+{dailyPotential.toFixed(2)}/{t("common.day")}</span>
+          <div className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm">
+            <div className="bg-gradient-to-r from-primary/8 via-primary/4 to-transparent p-4 pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                    <VipIcon level={user.vipLevel} className="w-5 h-5 text-white" />
                   </div>
-                  {todayEarned > 0 && (
-                    <div className="flex items-center gap-1 bg-emerald-500/10 rounded-full px-2 py-0.5 justify-end">
-                      <CheckCheck className="w-3 h-3 text-emerald-500" />
-                      <span className="text-emerald-500 dark:text-emerald-400 text-[10px] font-semibold">+{todayEarned.toFixed(2)} {t("common.today")}</span>
-                    </div>
-                  )}
+                  <div>
+                    <span className="text-muted-foreground text-[10px] uppercase tracking-wider font-medium">
+                      {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
+                    </span>
+                    <p className="text-foreground text-xs font-medium">UID: {user.numericId || "—"}</p>
+                  </div>
                 </div>
+                <Link href="/vip">
+                  <span className="bg-gradient-to-r from-primary to-blue-600 text-white text-[10px] px-3 py-1.5 rounded-lg font-semibold cursor-pointer shadow-sm shadow-primary/20 active:scale-95 transition-transform" data-testid="link-upgrade-vip">
+                    {t("dashboard.upgrade")}
+                  </span>
+                </Link>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-card rounded-xl p-3">
-                <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("dashboard.earnings")}</span>
-                <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-earnings">{Number(user.totalEarnings).toFixed(2)} USDT</p>
-                <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalEarnings))} UZS</p>
+            <div className="p-4 pt-3">
+              <div className="mb-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-muted-foreground text-[10px] uppercase tracking-wider flex items-center gap-1">
+                    <ArrowRightLeft className="w-3 h-3" />
+                    {t("dashboard.exchange")}
+                  </span>
+                  <span className="text-muted-foreground text-[9px]">{t("dashboard.rate", { rate: UZS_RATE.toLocaleString() })}</span>
+                </div>
+                <div className="flex items-end justify-between" data-testid="text-balance">
+                  <div>
+                    <p className="text-foreground font-bold text-2xl tracking-tight">{balance.toFixed(2)} <span className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">USDT</span></p>
+                    <p className="text-muted-foreground text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
+                  </div>
+                  <div className="text-right space-y-1">
+                    <div className="flex items-center gap-1 text-emerald-500 dark:text-emerald-400 text-xs justify-end">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+{dailyPotential.toFixed(2)}/{t("common.day")}</span>
+                    </div>
+                    {todayEarned > 0 && (
+                      <div className="flex items-center gap-1 bg-emerald-500/10 rounded-lg px-2 py-0.5 justify-end">
+                        <CheckCheck className="w-3 h-3 text-emerald-500" />
+                        <span className="text-emerald-500 dark:text-emerald-400 text-[10px] font-semibold">+{todayEarned.toFixed(2)} {t("common.today")}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="bg-card rounded-xl p-3">
-                <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("common.deposit")}</span>
-                <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-deposit">{Number(user.totalDeposit).toFixed(2)} USDT</p>
-                <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalDeposit))} UZS</p>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-muted/40 rounded-xl p-3">
+                  <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("dashboard.earnings")}</span>
+                  <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-earnings">{Number(user.totalEarnings).toFixed(2)} USDT</p>
+                  <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalEarnings))} UZS</p>
+                </div>
+                <div className="bg-muted/40 rounded-xl p-3">
+                  <span className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("common.deposit")}</span>
+                  <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-deposit">{Number(user.totalDeposit).toFixed(2)} USDT</p>
+                  <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalDeposit))} UZS</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl p-4 border border-border">
+          <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
             {new Date().getDay() === 0 ? (
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center shrink-0">
                   <Coffee className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1">
@@ -351,19 +351,23 @@ export default function DashboardPage() {
               <>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-primary" />
+                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-primary" />
+                    </div>
                     <span className="text-foreground text-sm font-semibold">{t("dashboard.todayTasks")}</span>
                   </div>
-                  <span className="text-primary text-sm font-bold" data-testid="text-tasks-progress">
+                  <span className="text-primary text-sm font-bold bg-primary/10 px-2.5 py-0.5 rounded-lg" data-testid="text-tasks-progress">
                     {user.dailyTasksCompleted} / {user.dailyTasksLimit}
                   </span>
                 </div>
-                <Progress
-                  value={tasksProgress}
-                  className="h-2 bg-muted rounded-full"
-                  data-testid="progress-tasks"
-                />
-                <div className="flex items-center justify-between mt-2">
+                <div className="relative">
+                  <Progress
+                    value={tasksProgress}
+                    className="h-2.5 bg-muted/50 rounded-full"
+                    data-testid="progress-tasks"
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-2.5">
                   <p className="text-muted-foreground text-xs">
                     {user.vipLevel < 0
                       ? t("common.notEmployee")
@@ -372,7 +376,7 @@ export default function DashboardPage() {
                         : t("dashboard.limitReached")}
                   </p>
                   <Link href="/tasks">
-                    <span className="text-primary text-xs font-semibold flex items-center gap-0.5 cursor-pointer" data-testid="link-start-tasks">
+                    <span className="text-primary text-xs font-semibold flex items-center gap-0.5 cursor-pointer bg-primary/8 px-2.5 py-1 rounded-lg hover:bg-primary/15 transition-colors" data-testid="link-start-tasks">
                       {t("dashboard.start")} <ChevronRight className="w-3 h-3" />
                     </span>
                   </Link>
@@ -381,7 +385,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
             {quickActions.map((item) => (
               item.href === "#install-app" ? (
                 <button key={item.href} onClick={() => {
@@ -392,18 +396,18 @@ export default function DashboardPage() {
                     setShowInstallModal(true);
                   }
                 }} className="flex flex-col items-center gap-1.5 shrink-0" data-testid={`quick-${item.title.toLowerCase()}`}>
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: item.bg + "20" }}>
-                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${item.gradient} shadow-sm active:scale-95 transition-transform`}>
+                    <item.icon className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-muted-foreground text-[10px] font-medium text-center leading-tight">{item.title}</span>
+                  <span className="text-muted-foreground text-[10px] font-medium text-center leading-tight max-w-[56px]">{item.title}</span>
                 </button>
               ) : (
                 <Link key={item.href} href={item.href}>
                   <div className="flex flex-col items-center gap-1.5 cursor-pointer shrink-0" data-testid={`quick-${item.title.toLowerCase()}`}>
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ backgroundColor: item.bg + "20" }}>
-                      <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-gradient-to-br ${item.gradient} shadow-sm active:scale-95 transition-transform`}>
+                      <item.icon className="w-5 h-5 text-white" />
                     </div>
-                    <span className="text-muted-foreground text-[10px] font-medium text-center leading-tight">{item.title}</span>
+                    <span className="text-muted-foreground text-[10px] font-medium text-center leading-tight max-w-[56px]">{item.title}</span>
                   </div>
                 </Link>
               )
@@ -414,10 +418,12 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
-                  <Tv className="w-4 h-4 text-primary" />
+                  <div className="w-6 h-6 bg-red-500/10 rounded-md flex items-center justify-center">
+                    <Tv className="w-3.5 h-3.5 text-red-500" />
+                  </div>
                   {t("dashboard.tvShows")}
                 </h3>
-                <Link href="/trends" className="text-muted-foreground text-xs">
+                <Link href="/trends" className="text-muted-foreground text-xs hover:text-foreground transition-colors">
                   {t("dashboard.viewAll")} <ChevronRight className="w-3 h-3 inline" />
                 </Link>
               </div>
@@ -425,19 +431,19 @@ export default function DashboardPage() {
                 {tvShows.map((video) => (
                   <Link key={video.id} href="/tasks">
                     <div className="relative w-32 shrink-0 cursor-pointer group" data-testid={`tv-show-${video.id}`}>
-                      <div className="w-32 h-48 rounded-lg overflow-hidden bg-card shadow-lg">
-                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-lg" />
+                      <div className="w-32 h-48 rounded-xl overflow-hidden bg-card shadow-md">
+                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent rounded-xl" />
                       </div>
                       <div className="absolute top-2 left-2">
-                        <span className="bg-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded">
+                        <span className="bg-gradient-to-r from-red-500 to-red-600 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-md shadow-sm">
                           TOP
                         </span>
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                      <div className="absolute bottom-0 left-0 right-0 p-2.5">
                         <h4 className="text-white font-bold text-[11px] leading-tight line-clamp-2">{video.title}</h4>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <Star className="w-2.5 h-2.5 fill-yellow-500 text-yellow-500" />
+                        <div className="flex items-center gap-1 mt-1">
+                          <Star className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" />
                           <span className="text-white/70 text-[9px]">{video.rating}</span>
                         </div>
                       </div>
@@ -452,10 +458,12 @@ export default function DashboardPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
-                  <Film className="w-4 h-4 text-primary" />
+                  <div className="w-6 h-6 bg-primary/10 rounded-md flex items-center justify-center">
+                    <Film className="w-3.5 h-3.5 text-primary" />
+                  </div>
                   {t("dashboard.trailers")}
                 </h3>
-                <Link href="/trends" className="text-muted-foreground text-xs">
+                <Link href="/trends" className="text-muted-foreground text-xs hover:text-foreground transition-colors">
                   {t("dashboard.viewAll")} <ChevronRight className="w-3 h-3 inline" />
                 </Link>
               </div>
@@ -463,16 +471,16 @@ export default function DashboardPage() {
                 {trailers.map((video) => (
                   <Link key={video.id} href="/tasks">
                     <div className="relative w-56 shrink-0 cursor-pointer group" data-testid={`trailer-${video.id}`}>
-                      <div className="w-56 h-32 rounded-lg overflow-hidden bg-card shadow-lg">
-                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent rounded-lg" />
+                      <div className="w-56 h-32 rounded-xl overflow-hidden bg-card shadow-md">
+                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent rounded-xl" />
                       </div>
                       <div className="absolute top-2 right-2">
-                        <div className="bg-black/60 backdrop-blur-sm rounded-full w-8 h-8 flex items-center justify-center">
-                          <Play className="w-4 h-4 text-white fill-white" />
+                        <div className="bg-black/50 backdrop-blur-md rounded-full w-8 h-8 flex items-center justify-center border border-white/10 group-hover:bg-primary/80 transition-colors">
+                          <Play className="w-3.5 h-3.5 text-white fill-white" />
                         </div>
                       </div>
-                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                      <div className="absolute bottom-0 left-0 right-0 p-2.5">
                         <h4 className="text-white font-bold text-xs leading-tight">{video.title}</h4>
                         <p className="text-white/50 text-[9px] mt-0.5">{video.actors?.split(",")[0]}</p>
                       </div>
@@ -484,56 +492,57 @@ export default function DashboardPage() {
           )}
 
           {currentPkg && (
-            <div className="bg-primary/10 rounded-2xl p-4 border border-primary/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Star className="w-4 h-4 text-primary" />
-                <span className="text-foreground/80 text-xs font-bold">{t("dashboard.vipFeatures")}</span>
+            <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-blue-500/5 rounded-2xl p-4 border border-primary/15 shadow-sm">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 bg-gradient-to-br from-primary to-blue-600 rounded-lg flex items-center justify-center">
+                  <Star className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-foreground text-xs font-bold">{t("dashboard.vipFeatures")}</span>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <div className="text-center">
-                  <p className="text-primary font-bold text-sm">{currentPkg.dailyTasks}</p>
+                <div className="text-center bg-card/60 rounded-xl p-2.5 backdrop-blur-sm">
+                  <p className="text-primary font-bold text-base">{currentPkg.dailyTasks}</p>
                   <p className="text-muted-foreground text-[9px]">{t("common.dailyVideo")}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-primary font-bold text-sm">${Number(currentPkg.perVideoReward).toFixed(2)}</p>
+                <div className="text-center bg-card/60 rounded-xl p-2.5 backdrop-blur-sm">
+                  <p className="text-primary font-bold text-base">${Number(currentPkg.perVideoReward).toFixed(2)}</p>
                   <p className="text-muted-foreground text-[9px]">{t("common.perVideo")}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-primary font-bold text-sm">${Number(currentPkg.dailyEarning).toFixed(2)}</p>
+                <div className="text-center bg-card/60 rounded-xl p-2.5 backdrop-blur-sm">
+                  <p className="text-primary font-bold text-base">${Number(currentPkg.dailyEarning).toFixed(2)}</p>
                   <p className="text-muted-foreground text-[9px]">{t("common.dailyEarning")}</p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* 3. Referral Mini-Widget */}
           <Link href="/referral">
-            <div className="bg-card rounded-2xl p-4 border border-border cursor-pointer hover:border-primary/40 transition-colors" data-testid="referral-mini-widget">
+            <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm cursor-pointer hover:border-emerald-500/30 transition-all group" data-testid="referral-mini-widget">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-emerald-500/15 rounded-lg flex items-center justify-center">
-                    <Users className="w-4 h-4 text-emerald-500" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center shadow-sm shadow-emerald-500/15">
+                    <Users className="w-4.5 h-4.5 text-white" />
                   </div>
                   <span className="text-foreground font-bold text-sm">{t("dashboard.referralMini")}</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all" />
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <div className="bg-emerald-500/8 rounded-xl p-2.5 text-center border border-emerald-500/15">
+                <div className="bg-emerald-500/8 rounded-xl p-2.5 text-center border border-emerald-500/10">
                   <p className="text-foreground font-bold text-base">{referralStats?.level1.count || 0}</p>
                   <p className="text-muted-foreground text-[9px] mt-0.5">{t("dashboard.level1")}</p>
                 </div>
-                <div className="bg-blue-500/8 rounded-xl p-2.5 text-center border border-blue-500/15">
+                <div className="bg-blue-500/8 rounded-xl p-2.5 text-center border border-blue-500/10">
                   <p className="text-foreground font-bold text-base">{referralStats?.level2.count || 0}</p>
                   <p className="text-muted-foreground text-[9px] mt-0.5">{t("dashboard.level2")}</p>
                 </div>
-                <div className="bg-purple-500/8 rounded-xl p-2.5 text-center border border-purple-500/15">
+                <div className="bg-purple-500/8 rounded-xl p-2.5 text-center border border-purple-500/10">
                   <p className="text-foreground font-bold text-base">{referralStats?.level3.count || 0}</p>
                   <p className="text-muted-foreground text-[9px] mt-0.5">{t("dashboard.level3")}</p>
                 </div>
               </div>
               {totalReferralBonus > 0 && (
-                <div className="mt-3 flex items-center justify-between bg-emerald-500/8 rounded-xl px-3 py-2 border border-emerald-500/15">
+                <div className="mt-3 flex items-center justify-between bg-emerald-500/8 rounded-xl px-3 py-2 border border-emerald-500/10">
                   <span className="text-muted-foreground text-xs">{t("dashboard.referralBonus")}</span>
                   <span className="text-emerald-500 font-bold text-sm">+{totalReferralBonus.toFixed(2)} USDT</span>
                 </div>
@@ -544,36 +553,35 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          {/* 4. VEM Fund Widget */}
           {activeInvestments.length > 0 && (
             <Link href="/fund">
-              <div className="bg-card rounded-2xl p-4 border border-border cursor-pointer hover:border-primary/40 transition-colors" data-testid="fund-mini-widget">
+              <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm cursor-pointer hover:border-violet-500/30 transition-all group" data-testid="fund-mini-widget">
                 <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-violet-500/15 rounded-lg flex items-center justify-center">
-                      <Sprout className="w-4 h-4 text-violet-500" />
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm shadow-violet-500/15">
+                      <Sprout className="w-4.5 h-4.5 text-white" />
                     </div>
                     <span className="text-foreground font-bold text-sm">{t("dashboard.fundWidget")}</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-violet-500 group-hover:translate-x-0.5 transition-all" />
                 </div>
                 <div className="grid grid-cols-3 gap-2 mb-2">
-                  <div className="bg-violet-500/8 rounded-xl p-2.5 border border-violet-500/15">
+                  <div className="bg-violet-500/8 rounded-xl p-2.5 border border-violet-500/10">
                     <p className="text-muted-foreground text-[9px] mb-1">{t("dashboard.fundTotalInvested")}</p>
                     <p className="text-foreground font-bold text-sm">${totalInvested.toFixed(2)}</p>
                   </div>
-                  <div className="bg-emerald-500/8 rounded-xl p-2.5 border border-emerald-500/15">
+                  <div className="bg-emerald-500/8 rounded-xl p-2.5 border border-emerald-500/10">
                     <p className="text-muted-foreground text-[9px] mb-1">{t("dashboard.fundTotalEarned")}</p>
                     <p className="text-emerald-500 font-bold text-sm">+${totalEarnedFromFund.toFixed(2)}</p>
                   </div>
-                  <div className="bg-blue-500/8 rounded-xl p-2.5 border border-blue-500/15">
+                  <div className="bg-blue-500/8 rounded-xl p-2.5 border border-blue-500/10">
                     <p className="text-muted-foreground text-[9px] mb-1">{t("dashboard.fundDaily")}</p>
                     <p className="text-blue-500 font-bold text-sm">+${totalDailyProfit.toFixed(2)}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   {activeInvestments.map((inv) => (
-                    <span key={(inv as any).id} className="text-[10px] bg-violet-500/10 text-violet-500 px-2 py-0.5 rounded-full font-semibold border border-violet-500/20">
+                    <span key={(inv as any).id} className="text-[10px] bg-violet-500/10 text-violet-400 px-2 py-0.5 rounded-lg font-semibold border border-violet-500/15">
                       {(inv as any).planName} · ${Number((inv as any).investedAmount).toFixed(0)}
                     </span>
                   ))}
@@ -582,25 +590,24 @@ export default function DashboardPage() {
             </Link>
           )}
 
-          {/* 5. Recent Transactions */}
-          <div className="bg-card rounded-2xl p-4 border border-border">
+          <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-500/15 rounded-lg flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-blue-500" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-sm shadow-blue-500/15">
+                  <Clock className="w-4.5 h-4.5 text-white" />
                 </div>
                 <span className="text-foreground font-bold text-sm">{t("dashboard.recentActivity")}</span>
               </div>
               <Link href="/profile?tab=history">
-                <span className="text-muted-foreground text-xs flex items-center gap-0.5">
+                <span className="text-muted-foreground text-xs flex items-center gap-0.5 hover:text-foreground transition-colors">
                   {t("dashboard.viewAll")} <ChevronRight className="w-3 h-3" />
                 </span>
               </Link>
             </div>
             {recentTx.length === 0 ? (
-              <p className="text-muted-foreground text-xs text-center py-4">{t("dashboard.noActivity")}</p>
+              <p className="text-muted-foreground text-xs text-center py-6">{t("dashboard.noActivity")}</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {recentTx.map((tx) => {
                   const isPositive = Number(tx.amount) >= 0;
                   const typeLabels: Record<string, string> = {
@@ -626,8 +633,8 @@ export default function DashboardPage() {
                     : "";
                   return (
                     <Link href="/profile?tab=history" key={tx.id}>
-                      <div className="flex items-center gap-3 hover:bg-muted/50 rounded-xl px-1 py-0.5 transition-colors cursor-pointer" data-testid={`tx-row-${tx.id}`}>
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${typeColors[tx.type] || "bg-muted text-muted-foreground"}`}>
+                      <div className="flex items-center gap-3 hover:bg-muted/30 rounded-xl px-2 py-2 transition-colors cursor-pointer" data-testid={`tx-row-${tx.id}`}>
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${typeColors[tx.type] || "bg-muted text-muted-foreground"}`}>
                           {isPositive
                             ? <ArrowUpRight className="w-4 h-4" />
                             : <ArrowDownRight className="w-4 h-4" />
@@ -668,7 +675,7 @@ export default function DashboardPage() {
             ],
             android: [
               "Chrome brauzerini oching va VEM saytiga kiring",
-              "Yuqori o'ng burchakdagi ⋮ menyuni bosing",
+              "Yuqori o'ng burchakdagi \u22EE menyuni bosing",
               "«Bosh ekranga qo'shish» yoki «Ilovani o'rnatish» ni tanlang",
               "«O'rnatish» tugmasini bosing — VEM bosh ekranda paydo bo'ladi"
             ],
@@ -689,7 +696,7 @@ export default function DashboardPage() {
             ],
             android: [
               "Откройте браузер Chrome и зайдите на сайт VEM",
-              "Нажмите меню ⋮ в правом верхнем углу",
+              "Нажмите меню \u22EE в правом верхнем углу",
               "Выберите «Добавить на главный экран» или «Установить приложение»",
               "Нажмите «Установить» — VEM появится на главном экране"
             ],
@@ -710,7 +717,7 @@ export default function DashboardPage() {
             ],
             android: [
               "Open Chrome browser and go to the VEM website",
-              "Tap the ⋮ menu in the top right corner",
+              "Tap the \u22EE menu in the top right corner",
               "Select \"Add to Home screen\" or \"Install app\"",
               "Tap \"Install\" — VEM will appear on your home screen"
             ],
@@ -729,8 +736,8 @@ export default function DashboardPage() {
           <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-md max-h-[80vh] flex flex-col animate-in slide-in-from-bottom duration-300">
             <div className="flex items-center justify-between p-4 pb-2 shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                  <Download className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
+                  <Download className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-foreground">{txt.title}</h3>
@@ -749,8 +756,8 @@ export default function DashboardPage() {
             <div className="overflow-y-auto p-4 pt-2 flex-1">
               <div className="space-y-2.5">
                 {steps.map((step, i) => (
-                  <div key={i} className="flex items-start gap-3 bg-muted/50 rounded-xl p-3">
-                    <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0">{i + 1}</div>
+                  <div key={i} className="flex items-start gap-3 bg-muted/30 rounded-xl p-3 border border-border/50">
+                    <div className="w-6 h-6 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0">{i + 1}</div>
                     <p className="text-[13px] text-foreground/80 leading-relaxed">{step}</p>
                   </div>
                 ))}
@@ -760,7 +767,7 @@ export default function DashboardPage() {
             <div className="p-4 pt-2 shrink-0">
               <button
                 onClick={() => setShowInstallModal(false)}
-                className="w-full bg-primary text-white font-semibold h-11 rounded-xl text-sm"
+                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold h-11 rounded-xl text-sm shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
                 data-testid="button-close-install-bottom"
               >
                 {txt.close}
