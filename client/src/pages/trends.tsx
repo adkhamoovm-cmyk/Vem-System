@@ -223,9 +223,9 @@ export default function TrendsPage() {
       result.sort((a, b) => Number(b.rating || 0) - Number(a.rating || 0));
     } else if (sortKey === "newest") {
       result.sort((a, b) => {
-        const ay = Number((a.releaseDate || "").split(/[-\/]/).pop() || 0);
-        const by = Number((b.releaseDate || "").split(/[-\/]/).pop() || 0);
-        return by - ay;
+        const ad = new Date(a.releaseDate || "1970-01-01").getTime();
+        const bd = new Date(b.releaseDate || "1970-01-01").getTime();
+        return bd - ad;
       });
     } else if (sortKey === "duration") {
       result.sort((a, b) => Number(b.duration || 0) - Number(a.duration || 0));
@@ -243,9 +243,9 @@ export default function TrendsPage() {
     if (!videos) return [];
     return [...videos]
       .sort((a, b) => {
-        const ay = Number((a.releaseDate || "").split(/[-\/]/).pop() || 0);
-        const by = Number((b.releaseDate || "").split(/[-\/]/).pop() || 0);
-        return by - ay;
+        const ad = new Date(a.releaseDate || "1970-01-01").getTime();
+        const bd = new Date(b.releaseDate || "1970-01-01").getTime();
+        return bd - ad;
       })
       .slice(0, 8);
   }, [videos]);
@@ -261,7 +261,7 @@ export default function TrendsPage() {
     duration: t("trends.sortDuration"),
   };
 
-  const activeSortKeys: SortKey[] = ["rating", "newest"];
+  const activeSortKeys: SortKey[] = ["rating", "newest", "duration"];
 
   return (
     <div className="p-4 space-y-4 pb-6">
