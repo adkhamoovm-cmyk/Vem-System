@@ -27,11 +27,13 @@ function formatUZS(usd: number): string {
 function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User }) {
   const { toast } = useToast();
   const { t, locale, translateServerMessage } = useI18n();
+  const [, setLocation] = useLocation();
   const [paymentType, setPaymentType] = useState<"crypto" | "local" | null>(null);
   const [cryptoNetwork, setCryptoNetwork] = useState<"TRC20" | "BEP20" | null>(null);
   const [amount, setAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: depositRequisites = [] } = useQuery<DepositSetting[]>({
@@ -77,14 +79,9 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
       }
       return res.json();
     },
-    onSuccess: (data: any) => {
-      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/deposits"] });
-      onClose();
-      setPaymentType(null);
-      setCryptoNetwork(null);
-      setAmount("");
-      setReceiptFile(null);
+      setSubmitted(true);
     },
     onError: (error: Error) => {
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
@@ -93,6 +90,7 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
 
   const handleClose = () => {
     onClose();
+    setSubmitted(false);
     setPaymentType(null);
     setCryptoNetwork(null);
     setAmount("");
@@ -104,6 +102,42 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="bg-card border-border max-w-md rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto" aria-describedby="deposit-desc">
+        {submitted ? (
+          <div className="flex flex-col items-center justify-center px-6 py-10 text-center gap-5">
+            <div className="w-20 h-20 rounded-full bg-emerald-500/15 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-emerald-500" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-lg font-bold text-foreground">{t("profile.depositSuccessTitle")}</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t("profile.depositSuccessMsg")}</p>
+            </div>
+            <div className="w-full rounded-xl bg-amber-500/10 border border-amber-500/30 px-4 py-3 flex items-start gap-2.5">
+              <Clock className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
+              <p className="text-xs text-amber-600 dark:text-amber-400 text-left leading-relaxed">
+                {locale === "uz" ? "Tekshiruv vaqti: 1–24 soat. Qayta ariza yubormaslik uchun iltimos sabr bilan kuting." : locale === "ru" ? "Время проверки: 1–24 часа. Пожалуйста, подождите и не отправляйте повторную заявку." : "Review time: 1–24 hours. Please wait patiently and do not resubmit."}
+              </p>
+            </div>
+            <div className="flex gap-3 w-full">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={handleClose}
+                data-testid="button-deposit-success-close"
+              >
+                {locale === "uz" ? "Yopish" : locale === "ru" ? "Закрыть" : "Close"}
+              </Button>
+              <Button
+                className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white"
+                onClick={() => { handleClose(); setLocation("/profile?tab=history"); }}
+                data-testid="button-deposit-success-history"
+              >
+                <History className="w-4 h-4 mr-1.5" />
+                {t("profile.viewFinanceHistory")}
+              </Button>
+            </div>
+          </div>
+        ) : (
+        <>
         <div className="bg-gradient-to-r from-[#4ADE80]/20 to-[#22C55E]/10 px-5 py-4 border-b border-border">
           <DialogHeader>
             <DialogTitle className="text-foreground flex items-center gap-2.5 text-base">
@@ -372,6 +406,8 @@ function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => v
             </div>
           )}
         </div>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -600,10 +636,12 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
 function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean; onClose: () => void; user: User; paymentMethods: PaymentMethod[] }) {
   const { toast } = useToast();
   const { t, locale, translateServerMessage } = useI18n();
+  const [, setLocation] = useLocation();
   const [withdrawType, setWithdrawType] = useState<"card" | "crypto" | null>(null);
   const [selectedMethodId, setSelectedMethodId] = useState("");
   const [amount, setAmount] = useState("");
   const [fundPassword, setFundPassword] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
   const { data: platformSettings } = useQuery<{
     withdrawalCommissionPercent: number;
@@ -642,26 +680,66 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
       });
       return res.json();
     },
-    onSuccess: (data: any) => {
-      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/withdrawals"] });
-      onClose();
-      setAmount("");
-      setFundPassword("");
-      setSelectedMethodId("");
-      setWithdrawType(null);
+      setSubmitted(true);
     },
     onError: (error: Error) => {
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
 
+  const handleWithdrawClose = () => {
+    onClose();
+    setSubmitted(false);
+    setAmount("");
+    setFundPassword("");
+    setSelectedMethodId("");
+    setWithdrawType(null);
+  };
+
   if (!open) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleWithdrawClose}>
       <DialogContent className="bg-card border-border max-w-md rounded-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto" aria-describedby="withdraw-desc">
+        {submitted ? (
+          <div className="flex flex-col items-center justify-center px-6 py-10 text-center gap-5">
+            <div className="w-20 h-20 rounded-full bg-primary/15 flex items-center justify-center">
+              <CheckCircle className="w-10 h-10 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <h2 className="text-lg font-bold text-foreground">{t("profile.withdrawSuccessTitle")}</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">{t("profile.withdrawSuccessMsg")}</p>
+            </div>
+            <div className="w-full rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-3 flex items-start gap-2.5">
+              <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 text-left leading-relaxed">
+                {locale === "uz" ? "Ariza moliyaviy bo'limga yuborildi. Tekshiruv vaqti: 1–24 soat." : locale === "ru" ? "Заявка передана в финансовый отдел. Время обработки: 1–24 часа." : "Request sent to the financial department. Processing time: 1–24 hours."}
+              </p>
+            </div>
+            <div className="flex gap-3 w-full">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={handleWithdrawClose}
+                data-testid="button-withdraw-success-close"
+              >
+                {locale === "uz" ? "Yopish" : locale === "ru" ? "Закрыть" : "Close"}
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => { handleWithdrawClose(); setLocation("/profile?tab=history"); }}
+                data-testid="button-withdraw-success-history"
+              >
+                <History className="w-4 h-4 mr-1.5" />
+                {t("profile.viewFinanceHistory")}
+              </Button>
+            </div>
+          </div>
+        ) : (
+        <>
         <div className="bg-gradient-to-r from-primary/20 to-primary/10 px-5 py-4 border-b border-border">
           <DialogHeader>
             <DialogTitle className="text-foreground flex items-center gap-2.5 text-base">
@@ -905,6 +983,8 @@ function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean;
             );
           })()}
         </div>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );
