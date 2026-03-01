@@ -7,7 +7,7 @@ import {
   Shield, Ban, Trash2, Edit, Check, X, Eye, Search, AlertTriangle,
   Trophy, ChevronDown, ChevronRight, Wallet, CreditCard, Globe, Plus,
   RefreshCw, DollarSign, Activity, TrendingUp, UserPlus, MessageSquare, Mail, Copy,
-  Smartphone, Monitor, Lock, Unlock
+  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -722,6 +722,196 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
   );
 }
 
+function WithdrawalSettingsPanel() {
+  const { toast } = useToast();
+  const [commission, setCommission] = useState("");
+  const [minUsdt, setMinUsdt] = useState("");
+  const [minBank, setMinBank] = useState("");
+  const [startHour, setStartHour] = useState("");
+  const [endHour, setEndHour] = useState("");
+  const [maxDaily, setMaxDaily] = useState("");
+  const [initialized, setInitialized] = useState(false);
+
+  const { data: settings, isLoading } = useQuery<any>({
+    queryKey: ["/api/admin/platform-settings"],
+  });
+
+  if (settings && !initialized) {
+    setCommission(String(settings.withdrawalCommissionPercent));
+    setMinUsdt(String(settings.minWithdrawalUsdt));
+    setMinBank(String(settings.minWithdrawalBank));
+    setStartHour(String(settings.withdrawalStartHour));
+    setEndHour(String(settings.withdrawalEndHour));
+    setMaxDaily(String(settings.maxDailyWithdrawals));
+    setInitialized(true);
+  }
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      await apiRequest("POST", "/api/admin/platform-settings", {
+        withdrawalCommissionPercent: Number(commission),
+        minWithdrawalUsdt: Number(minUsdt),
+        minWithdrawalBank: Number(minBank),
+        withdrawalStartHour: Number(startHour),
+        withdrawalEndHour: Number(endHour),
+        maxDailyWithdrawals: Number(maxDaily),
+      });
+    },
+    onSuccess: () => {
+      toast({ title: "Sozlamalar saqlandi" });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/platform-settings"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/platform-settings"] });
+    },
+    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+  });
+
+  if (isLoading) return <div className="h-20 flex items-center justify-center"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+
+  return (
+    <div className="bg-card rounded-xl border border-border overflow-hidden mb-4">
+      <div className="flex items-center gap-2.5 p-4 border-b border-border bg-primary/5">
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <ArrowUpDown className="w-4 h-4 text-primary" />
+        </div>
+        <div>
+          <h3 className="text-foreground font-bold text-sm">Pul Yechish Sozlamalari</h3>
+          <p className="text-muted-foreground text-[11px]">Komissiya, minimal miqdor va ish vaqtini boshqaring</p>
+        </div>
+      </div>
+
+      <div className="p-4 space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Percent className="w-3 h-3" /> Komissiya foizi (%)
+            </label>
+            <div className="relative">
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="0.5"
+                value={commission}
+                onChange={e => setCommission(e.target.value)}
+                className="bg-muted border-border text-foreground h-10 text-sm pr-8"
+                data-testid="input-withdrawal-commission"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">%</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.withdrawalCommissionPercent}%</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <DollarSign className="w-3 h-3" /> Kunlik max yechish soni
+            </label>
+            <Input
+              type="number"
+              min="1"
+              max="10"
+              value={maxDaily}
+              onChange={e => setMaxDaily(e.target.value)}
+              className="bg-muted border-border text-foreground h-10 text-sm"
+              data-testid="input-max-daily-withdrawals"
+            />
+            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.maxDailyWithdrawals} marta/kun</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <Globe className="w-3 h-3 text-yellow-500" /> Minimal USDT yechish
+            </label>
+            <div className="relative">
+              <Input
+                type="number"
+                min="0"
+                step="0.5"
+                value={minUsdt}
+                onChange={e => setMinUsdt(e.target.value)}
+                className="bg-muted border-border text-foreground h-10 text-sm pr-14"
+                data-testid="input-min-withdrawal-usdt"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">USDT</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.minWithdrawalUsdt} USDT</p>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <CreditCard className="w-3 h-3 text-blue-500" /> Minimal Bank yechish
+            </label>
+            <div className="relative">
+              <Input
+                type="number"
+                min="0"
+                step="0.5"
+                value={minBank}
+                onChange={e => setMinBank(e.target.value)}
+                className="bg-muted border-border text-foreground h-10 text-sm pr-14"
+                data-testid="input-min-withdrawal-bank"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">USDT</span>
+            </div>
+            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.minWithdrawalBank} USDT</p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Clock className="w-3 h-3" /> Yechish ish vaqti (soat, UTC+5)
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground">Boshlanish soati</p>
+              <Input
+                type="number"
+                min="0"
+                max="23"
+                value={startHour}
+                onChange={e => setStartHour(e.target.value)}
+                className="bg-muted border-border text-foreground h-10 text-sm"
+                data-testid="input-withdrawal-start-hour"
+              />
+            </div>
+            <div className="space-y-1">
+              <p className="text-[10px] text-muted-foreground">Tugash soati</p>
+              <Input
+                type="number"
+                min="0"
+                max="23"
+                value={endHour}
+                onChange={e => setEndHour(e.target.value)}
+                className="bg-muted border-border text-foreground h-10 text-sm"
+                data-testid="input-withdrawal-end-hour"
+              />
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.withdrawalStartHour}:00 — {settings?.withdrawalEndHour}:00</p>
+        </div>
+
+        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-[11px] text-amber-600 dark:text-amber-400">
+          <strong>Eslatma:</strong> O'zgarishlar darhol kuchga kiradi. Foydalanuvchilar keyingi yechish so'rovida yangi sozlamalarni ko'radi.
+        </div>
+
+        <Button
+          onClick={() => saveMutation.mutate()}
+          disabled={saveMutation.isPending}
+          className="w-full bg-primary text-white h-10 text-sm font-semibold"
+          data-testid="button-save-withdrawal-settings"
+        >
+          {saveMutation.isPending ? (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <><Check className="w-4 h-4 mr-2" /> Sozlamalarni Saqlash</>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function SettingsTab() {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -774,6 +964,8 @@ function SettingsTab() {
 
   return (
     <div className="space-y-4">
+      <WithdrawalSettingsPanel />
+
       <div className="flex items-center justify-between">
         <h3 className="text-foreground font-bold text-sm">{t("admin.depositRequisites")}</h3>
         <Button size="sm" onClick={() => { resetForm(); setShowForm(true); }} className="bg-primary text-foreground text-xs rounded-lg h-8" data-testid="button-add-deposit-setting">

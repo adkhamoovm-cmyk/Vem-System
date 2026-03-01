@@ -1,7 +1,7 @@
 import { eq, and, sql, desc, gte, sum } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages, platformSettings } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage, PlatformSetting } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -92,6 +92,9 @@ export interface IStorage {
   getUserPromoCodeUsage(userId: string, promoCodeId: string): Promise<PromoCodeUsage | undefined>;
   getPromoCodeUsages(promoCodeId: string): Promise<(PromoCodeUsage & { userPhone?: string })[]>;
   deletePromoCode(id: string): Promise<void>;
+  getPlatformSettings(): Promise<PlatformSetting[]>;
+  getPlatformSetting(key: string): Promise<string | null>;
+  upsertPlatformSetting(key: string, value: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -610,6 +613,21 @@ export class DatabaseStorage implements IStorage {
   async deletePromoCode(id: string): Promise<void> {
     await db.delete(promoCodeUsages).where(eq(promoCodeUsages.promoCodeId, id));
     await db.delete(promoCodes).where(eq(promoCodes.id, id));
+  }
+
+  async getPlatformSettings(): Promise<PlatformSetting[]> {
+    return db.select().from(platformSettings);
+  }
+
+  async getPlatformSetting(key: string): Promise<string | null> {
+    const [row] = await db.select().from(platformSettings).where(eq(platformSettings.key, key));
+    return row ? row.value : null;
+  }
+
+  async upsertPlatformSetting(key: string, value: string): Promise<void> {
+    await db.insert(platformSettings)
+      .values({ key, value, updatedAt: new Date() })
+      .onConflictDoUpdate({ target: platformSettings.key, set: { value, updatedAt: new Date() } });
   }
 }
 

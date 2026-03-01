@@ -919,6 +919,16 @@ function showGuide(browser) {
         await storage.updateUserFundPassword(user.id, user.fundPassword, fundPassword);
       }
 
+      const settingsRows = await storage.getPlatformSettings();
+      const settingsMap: Record<string, string> = {};
+      for (const r of settingsRows) settingsMap[r.key] = r.value;
+      const commissionPercent = Number(settingsMap["withdrawal_commission_percent"] ?? "10");
+      const minWithdrawalUsdt = Number(settingsMap["min_withdrawal_usdt"] ?? "3");
+      const minWithdrawalBank = Number(settingsMap["min_withdrawal_bank"] ?? "2");
+      const withdrawalStartHour = Number(settingsMap["withdrawal_start_hour"] ?? "11");
+      const withdrawalEndHour = Number(settingsMap["withdrawal_end_hour"] ?? "17");
+      const maxDailyWithdrawals = Number(settingsMap["max_daily_withdrawals"] ?? "1");
+
       const uzbOffset = 5 * 60 * 60 * 1000;
       const uzbNow = new Date(Date.now() + uzbOffset);
       const uzbDay = uzbNow.getUTCDay();
@@ -927,8 +937,8 @@ function showGuide(browser) {
       if (uzbDay === 0) {
         return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Pul yechish faqat Dushanba-Shanba kunlari mumkin." });
       }
-      if (uzbHour < 11 || uzbHour >= 17) {
-        return res.status(400).json({ message: "Pul yechish faqat 11:00 dan 17:00 gacha mumkin" });
+      if (uzbHour < withdrawalStartHour || uzbHour >= withdrawalEndHour) {
+        return res.status(400).json({ message: `Pul yechish faqat ${withdrawalStartHour}:00 dan ${withdrawalEndHour}:00 gacha mumkin` });
       }
       const todayStr = uzbNow.toISOString().split("T")[0];
       const todayWithdrawals = await storage.getUserWithdrawalRequests(userId);
@@ -937,16 +947,16 @@ function showGuide(browser) {
         const wDate = wUzb.toISOString().split("T")[0];
         return wDate === todayStr;
       });
-      if (withdrawalsToday.length >= 1) {
-        return res.status(400).json({ message: "Kuniga faqat 1 marta pul yechish mumkin. Ertaga qayta urinib ko'ring." });
+      if (withdrawalsToday.length >= maxDailyWithdrawals) {
+        return res.status(400).json({ message: `Kuniga faqat ${maxDailyWithdrawals} marta pul yechish mumkin. Ertaga qayta urinib ko'ring.` });
       }
 
       const numAmount = Number(amount);
       const method = (await storage.getUserPaymentMethods(userId)).find(m => m.id === paymentMethodId);
       const isCrypto = method?.type === "usdt";
-      const minAmount = isCrypto ? 3 : 2;
+      const minAmount = isCrypto ? minWithdrawalUsdt : minWithdrawalBank;
       if (isNaN(numAmount) || numAmount < minAmount) {
-        return res.status(400).json({ message: isCrypto ? "Kripto uchun minimal yechish miqdori: 3 USDT" : "Minimal yechish miqdori: 2 USDT" });
+        return res.status(400).json({ message: isCrypto ? `Kripto uchun minimal yechish miqdori: ${minWithdrawalUsdt} USDT` : `Minimal yechish miqdori: ${minWithdrawalBank} USDT` });
       }
 
       const balance = Number(user.balance);
@@ -958,7 +968,7 @@ function showGuide(browser) {
         return res.status(400).json({ message: "To'lov usuli topilmadi" });
       }
 
-      const commission = numAmount * 0.10;
+      const commission = numAmount * (commissionPercent / 100);
       const netAmount = numAmount - commission;
 
       const methodLabel = isCrypto
@@ -1395,6 +1405,62 @@ function showGuide(browser) {
     try {
       const settings = await storage.getDepositSettings();
       res.json(settings.filter((s: any) => s.isActive));
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/platform-settings", requireAuth, async (_req: Request, res: Response) => {
+    try {
+      const rows = await storage.getPlatformSettings();
+      const map: Record<string, string> = {};
+      for (const r of rows) map[r.key] = r.value;
+      res.json({
+        withdrawalCommissionPercent: Number(map["withdrawal_commission_percent"] ?? "10"),
+        minWithdrawalUsdt: Number(map["min_withdrawal_usdt"] ?? "3"),
+        minWithdrawalBank: Number(map["min_withdrawal_bank"] ?? "2"),
+        withdrawalStartHour: Number(map["withdrawal_start_hour"] ?? "11"),
+        withdrawalEndHour: Number(map["withdrawal_end_hour"] ?? "17"),
+        maxDailyWithdrawals: Number(map["max_daily_withdrawals"] ?? "1"),
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/platform-settings", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const rows = await storage.getPlatformSettings();
+      const map: Record<string, string> = {};
+      for (const r of rows) map[r.key] = r.value;
+      res.json({
+        withdrawalCommissionPercent: map["withdrawal_commission_percent"] ?? "10",
+        minWithdrawalUsdt: map["min_withdrawal_usdt"] ?? "3",
+        minWithdrawalBank: map["min_withdrawal_bank"] ?? "2",
+        withdrawalStartHour: map["withdrawal_start_hour"] ?? "11",
+        withdrawalEndHour: map["withdrawal_end_hour"] ?? "17",
+        maxDailyWithdrawals: map["max_daily_withdrawals"] ?? "1",
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/admin/platform-settings", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { withdrawalCommissionPercent, minWithdrawalUsdt, minWithdrawalBank, withdrawalStartHour, withdrawalEndHour, maxDailyWithdrawals } = req.body;
+      const updates: [string, string][] = [
+        ["withdrawal_commission_percent", String(withdrawalCommissionPercent)],
+        ["min_withdrawal_usdt", String(minWithdrawalUsdt)],
+        ["min_withdrawal_bank", String(minWithdrawalBank)],
+        ["withdrawal_start_hour", String(withdrawalStartHour)],
+        ["withdrawal_end_hour", String(withdrawalEndHour)],
+        ["max_daily_withdrawals", String(maxDailyWithdrawals)],
+      ];
+      for (const [key, value] of updates) {
+        await storage.upsertPlatformSetting(key, value);
+      }
+      res.json({ message: "Sozlamalar saqlandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

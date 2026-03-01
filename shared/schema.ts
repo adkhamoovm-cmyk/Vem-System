@@ -205,6 +205,14 @@ export const insertWithdrawalRequestSchema = createInsertSchema(withdrawalReques
   reviewedAt: true,
 });
 
+export const platformSettings = pgTable("platform_settings", {
+  key: text("key").primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export type PlatformSetting = typeof platformSettings.$inferSelect;
+
 export const promoCodes = pgTable("promo_codes", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   code: text("code").notNull().unique(),
