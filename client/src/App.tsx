@@ -21,7 +21,7 @@ import HelpPage from "@/pages/help";
 import PromoPage from "@/pages/promo";
 import type { User } from "@shared/schema";
 
-function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
+function ProtectedRoute({ component: Component }: { component: () => JSX.Element | null }) {
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),

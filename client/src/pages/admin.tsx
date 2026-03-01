@@ -279,12 +279,12 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <div className="bg-card rounded-xl p-3 border border-[#FFB300]/30">
               <p className="text-muted-foreground text-xs mb-2">{t("admin.selectVipLevel")}</p>
               <div className="flex flex-wrap gap-1.5">
-                {Object.entries(vipNames).map(([lvl, name]) => (
-                  <button key={lvl} onClick={() => setNewVipLevel(Number(lvl))}
-                    className={`px-3 py-1.5 rounded-lg text-xs border ${Number(lvl) === newVipLevel ? "bg-[#FFB300]/20 border-[#FFB300] text-[#FFB300]" : "bg-background border-border text-muted-foreground"}`}
+                {Array.from({ length: 11 }, (_, i) => i).map((lvl) => (
+                  <button key={lvl} onClick={() => setNewVipLevel(lvl)}
+                    className={`px-3 py-1.5 rounded-lg text-xs border ${lvl === newVipLevel ? "bg-[#FFB300]/20 border-[#FFB300] text-[#FFB300]" : "bg-background border-border text-muted-foreground"}`}
                     data-testid={`button-vip-${lvl}`}
                   >
-                    {name}
+                    {getVipName(lvl, locale)}
                   </button>
                 ))}
               </div>

@@ -1511,7 +1511,7 @@ function showGuide(browser) {
   app.post("/api/broadcasts/:id/read", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
-      await storage.markBroadcastRead(req.params.id, userId);
+      await storage.markBroadcastRead(String(req.params.id), userId);
       res.json({ ok: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1540,7 +1540,7 @@ function showGuide(browser) {
 
   app.delete("/api/admin/broadcasts/:id", requireAdmin, async (req: Request, res: Response) => {
     try {
-      await storage.deleteBroadcast(req.params.id);
+      await storage.deleteBroadcast(String(req.params.id));
       res.json({ ok: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

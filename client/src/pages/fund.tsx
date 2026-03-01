@@ -121,7 +121,7 @@ export default function FundPage() {
 
   // Calculate when active investment expires
   const activeExpiry = activeInvestments[0]?.endDate
-    ? new Date(activeInvestments[0].endDate as string)
+    ? new Date(String(activeInvestments[0].endDate))
     : null;
   const daysUntilExpiry = activeExpiry
     ? Math.max(0, Math.ceil((activeExpiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
