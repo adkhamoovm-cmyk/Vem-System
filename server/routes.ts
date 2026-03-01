@@ -707,13 +707,32 @@ function showGuide(browser) {
   app.post("/api/fund/invest", requireAuth, withdrawRateLimiter, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
-      const { fundPlanId, amount } = req.body;
+      const { fundPlanId, amount, fundPassword } = req.body;
 
       const user = await storage.getUser(userId);
       if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
 
       if (user.isBanned) {
         return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
+      }
+
+      // Verify fund password (financial PIN)
+      if (!fundPassword) {
+        return res.status(400).json({ message: "Moliya kodi kiritilishi shart" });
+      }
+      if (!user.fundPassword) {
+        return res.status(400).json({ message: "Moliya kodi sozlanmagan. Profildan avval sozlang." });
+      }
+      const isPinValid = await comparePasswords(fundPassword, user.fundPassword);
+      if (!isPinValid) {
+        return res.status(400).json({ message: "Moliya kodi noto'g'ri" });
+      }
+
+      // Check max 1 active investment
+      const existingInvestments = await storage.getUserInvestments(userId);
+      const hasActive = existingInvestments.some(i => i.status === "active");
+      if (hasActive) {
+        return res.status(400).json({ message: "Sizda allaqachon faol investitsiya mavjud. Muddat tugagandan so'ng yangi investitsiya qo'sha olasiz." });
       }
 
       const plan = await storage.getFundPlan(fundPlanId);
