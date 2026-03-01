@@ -3,6 +3,28 @@ import { vipPackages, videos, fundPlans } from "@shared/schema";
 import { sql, eq } from "drizzle-orm";
 
 export async function seedDatabase() {
+  const indexes = [
+    'CREATE INDEX IF NOT EXISTS idx_task_history_user_id ON task_history(user_id)',
+    'CREATE INDEX IF NOT EXISTS idx_task_history_completed_at ON task_history(completed_at)',
+    'CREATE INDEX IF NOT EXISTS idx_referrals_referrer_id ON referrals(referrer_id)',
+    'CREATE INDEX IF NOT EXISTS idx_referrals_referred_id ON referrals(referred_id)',
+    'CREATE INDEX IF NOT EXISTS idx_investments_user_id ON investments(user_id)',
+    'CREATE INDEX IF NOT EXISTS idx_investments_status ON investments(status)',
+    'CREATE INDEX IF NOT EXISTS idx_deposit_requests_user_id ON deposit_requests(user_id)',
+    'CREATE INDEX IF NOT EXISTS idx_deposit_requests_status ON deposit_requests(status)',
+    'CREATE INDEX IF NOT EXISTS idx_withdrawal_requests_user_id ON withdrawal_requests(user_id)',
+    'CREATE INDEX IF NOT EXISTS idx_withdrawal_requests_status ON withdrawal_requests(status)',
+    'CREATE INDEX IF NOT EXISTS idx_balance_history_user_id ON balance_history(user_id)',
+    'CREATE INDEX IF NOT EXISTS idx_balance_history_created_at ON balance_history(created_at)',
+    'CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users(referred_by)',
+    'CREATE INDEX IF NOT EXISTS idx_users_last_login_ip ON users(last_login_ip)',
+    'CREATE INDEX IF NOT EXISTS idx_payment_methods_user_id ON payment_methods(user_id)',
+    'CREATE INDEX IF NOT EXISTS idx_stajyor_requests_user_id ON stajyor_requests(user_id)',
+  ];
+  for (const idx of indexes) {
+    await db.execute(sql.raw(idx));
+  }
+
   await db.execute(sql`DELETE FROM ${vipPackages}`);
   await db.insert(vipPackages).values([
     {

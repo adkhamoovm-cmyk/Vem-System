@@ -758,6 +758,7 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
 }
 
 function WithdrawalSettingsPanel() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [commission, setCommission] = useState("");
   const [minUsdt, setMinUsdt] = useState("");
@@ -796,11 +797,11 @@ function WithdrawalSettingsPanel() {
       });
     },
     onSuccess: () => {
-      toast({ title: "Sozlamalar saqlandi" });
+      toast({ title: t("admin.saved") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/platform-settings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/platform-settings"] });
     },
-    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+    onError: (e: any) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   if (isLoading) return <div className="h-20 flex items-center justify-center"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -812,8 +813,8 @@ function WithdrawalSettingsPanel() {
           <ArrowUpDown className="w-4 h-4 text-primary" />
         </div>
         <div>
-          <h3 className="text-foreground font-bold text-sm">Pul Yechish Sozlamalari</h3>
-          <p className="text-muted-foreground text-[11px]">Komissiya, minimal miqdor va ish vaqtini boshqaring</p>
+          <h3 className="text-foreground font-bold text-sm">{t("admin.withdrawalSettings")}</h3>
+          <p className="text-muted-foreground text-[11px]">{t("admin.withdrawalSettingsDesc")}</p>
         </div>
       </div>
 
@@ -963,7 +964,7 @@ function WithdrawalSettingsPanel() {
           {saveMutation.isPending ? (
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           ) : (
-            <><Check className="w-4 h-4 mr-2" /> Sozlamalarni Saqlash</>
+            <><Check className="w-4 h-4 mr-2" /> {t("admin.saveSettings")}</>
           )}
         </Button>
       </div>
@@ -1752,6 +1753,7 @@ function PromoCodesTab() {
 }
 
 function BroadcastsTab() {
+  const { t } = useI18n();
   const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
@@ -1792,8 +1794,8 @@ function BroadcastsTab() {
             <Megaphone className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <h3 className="text-foreground font-bold text-sm">Yangi Xabar Yuborish</h3>
-            <p className="text-muted-foreground text-[11px]">Barcha foydalanuvchilarga broadcasting</p>
+            <h3 className="text-foreground font-bold text-sm">{t("admin.sendNewBroadcast")}</h3>
+            <p className="text-muted-foreground text-[11px]">{t("admin.broadcastDesc")}</p>
           </div>
         </div>
         <div className="p-4 space-y-3">

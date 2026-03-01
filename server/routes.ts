@@ -431,11 +431,15 @@ function showGuide(browser) {
   });
 
   app.get("/api/admin/pin-status", requireAuth, async (req: Request, res: Response) => {
-    const user = await storage.getUser(req.session.userId!);
-    if (!user || !user.isAdmin) {
-      return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.isAdmin) {
+        return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
+      }
+      res.json({ verified: !!req.session.adminPinVerified });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
     }
-    res.json({ verified: !!req.session.adminPinVerified });
   });
 
   app.post("/api/admin/change-pin", pinRateLimiter, requireAdmin, async (req: Request, res: Response) => {
