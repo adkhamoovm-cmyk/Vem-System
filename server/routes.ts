@@ -62,6 +62,7 @@ const uploadAvatar = multer({
 declare module "express-session" {
   interface SessionData {
     userId: string;
+    adminPinVerified: boolean;
   }
 }
 
@@ -79,6 +80,9 @@ async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   const user = await storage.getUser(req.session.userId);
   if (!user || !user.isAdmin) {
     return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
+  }
+  if (!req.session.adminPinVerified) {
+    return res.status(403).json({ message: "PIN_REQUIRED" });
   }
   next();
 }
@@ -109,6 +113,16 @@ const authRateLimiter = rateLimit({
   message: { message: "Juda ko'p urinish. 15 daqiqa kuting." },
   standardHeaders: true,
   legacyHeaders: false,
+});
+
+const pinRateLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 5,
+  message: { message: "Juda ko'p urinish. 5 daqiqa kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => req.session?.userId || req.ip || "unknown",
+  validate: false,
 });
 
 const apiRateLimiter = rateLimit({
@@ -392,6 +406,35 @@ function showGuide(browser) {
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
     }
+  });
+
+  app.post("/api/admin/verify-pin", pinRateLimiter, requireAuth, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser(req.session.userId!);
+      if (!user || !user.isAdmin) {
+        return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
+      }
+      const { pin } = req.body;
+      const adminPin = process.env.ADMIN_PIN;
+      if (!adminPin) {
+        return res.status(500).json({ message: "Admin PIN sozlanmagan" });
+      }
+      if (pin !== adminPin) {
+        return res.status(400).json({ message: "PIN kod noto'g'ri" });
+      }
+      req.session.adminPinVerified = true;
+      res.json({ message: "PIN tasdiqlandi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/pin-status", requireAuth, async (req: Request, res: Response) => {
+    const user = await storage.getUser(req.session.userId!);
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
+    }
+    res.json({ verified: !!req.session.adminPinVerified });
   });
 
   app.post("/api/auth/logout", (req: Request, res: Response) => {

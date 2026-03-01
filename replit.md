@@ -4,6 +4,7 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-03-01: **Admin PIN gate**: 6-digit PIN required before accessing admin panel (env var ADMIN_PIN); session-based verification; rate limited (5 attempts/5min); PIN input UI with auto-advance, paste support; 3-language translations
 - 2026-03-01: **Crypto deposit QR code**: Added `qrcode.react` library; wallet address QR code auto-generated in crypto deposit modal (TRC20/BEP20); shown above address with scan/copy prompt; 3-language translations
 - 2026-03-01: **Bug fixes**: Investment totalEarned double-counting fixed (now uses dailyProfit × daysPassed with endDate cap); withdrawal daily limit excludes rejected requests; payment method null check moved before usage; dashboard hardcoded /kun & bugun replaced with i18n; admin IP "null" → "—"
 - 2026-03-01: **Optimization round**: Accessibility fixes (dialog aria-describedby), lazy loading for all images, CSV export for admin users list, country name translations in Trends (25+ countries uz/ru/en), remaining i18n hardcoded text fixed (dashboard referral/fund widgets, profile deposit/withdrawal warnings, close buttons)

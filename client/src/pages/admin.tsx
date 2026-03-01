@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -7,7 +7,7 @@ import {
   Shield, Ban, Trash2, Edit, Check, X, Eye, Search, AlertTriangle,
   Trophy, ChevronDown, ChevronRight, Wallet, CreditCard, Globe, Plus,
   RefreshCw, DollarSign, Activity, TrendingUp, UserPlus, MessageSquare, Mail, Copy,
-  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown, Megaphone, Download
+  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown, Megaphone, Download, KeyRound
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1803,17 +1803,163 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+function AdminPinGate({ onVerified }: { onVerified: () => void }) {
+  const { t, translateServerMessage } = useI18n();
+  const { toast } = useToast();
+  const [pin, setPin] = useState(["", "", "", "", "", ""]);
+  const [error, setError] = useState("");
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    inputRefs.current[0]?.focus();
+  }, []);
+
+  const verifyMutation = useMutation({
+    mutationFn: async (pinCode: string) => {
+      const res = await apiRequest("POST", "/api/admin/verify-pin", { pin: pinCode });
+      return res.json();
+    },
+    onSuccess: () => {
+      onVerified();
+    },
+    onError: (err: Error) => {
+      setError(translateServerMessage(err.message));
+      setPin(["", "", "", "", "", ""]);
+      inputRefs.current[0]?.focus();
+    },
+  });
+
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newPin = [...pin];
+    newPin[index] = value.slice(-1);
+    setPin(newPin);
+    setError("");
+
+    if (value && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+
+    if (newPin.every(d => d !== "") && index === 5) {
+      verifyMutation.mutate(newPin.join(""));
+    }
+  };
+
+  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !pin[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (pasted.length === 6) {
+      const newPin = pasted.split("");
+      setPin(newPin);
+      inputRefs.current[5]?.focus();
+      verifyMutation.mutate(pasted);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-8">
+          <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <KeyRound className="w-10 h-10 text-primary" />
+          </div>
+          <h1 className="text-xl font-bold text-foreground">{t("admin.pinTitle")}</h1>
+          <p className="text-muted-foreground text-sm mt-2">{t("admin.pinDesc")}</p>
+        </div>
+
+        <div className="bg-card rounded-2xl p-6 border border-border shadow-lg">
+          <div className="flex justify-center gap-3 mb-4">
+            {pin.map((digit, i) => (
+              <input
+                key={i}
+                ref={el => { inputRefs.current[i] = el; }}
+                type="password"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={1}
+                value={digit}
+                onChange={e => handleChange(i, e.target.value)}
+                onKeyDown={e => handleKeyDown(i, e)}
+                onPaste={i === 0 ? handlePaste : undefined}
+                className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-background text-foreground outline-none transition-colors ${
+                  error ? "border-red-500" : digit ? "border-primary" : "border-border"
+                } focus:border-primary`}
+                data-testid={`input-admin-pin-${i}`}
+              />
+            ))}
+          </div>
+
+          {error && (
+            <p className="text-red-500 text-xs text-center mb-3" data-testid="text-pin-error">{error}</p>
+          )}
+
+          <Button
+            onClick={() => {
+              const code = pin.join("");
+              if (code.length === 6) verifyMutation.mutate(code);
+            }}
+            disabled={pin.some(d => d === "") || verifyMutation.isPending}
+            className="w-full h-12 rounded-xl text-sm font-semibold"
+            data-testid="button-verify-pin"
+          >
+            {verifyMutation.isPending ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>{t("admin.pinVerify")}</>
+            )}
+          </Button>
+        </div>
+
+        <div className="text-center mt-4">
+          <a href="/dashboard" className="text-muted-foreground text-xs hover:text-foreground transition-colors" data-testid="link-back-from-pin">
+            {t("admin.backToSite")}
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { t } = useI18n();
   const [tab, setTab] = useState<Tab>("dashboard");
+  const [pinVerified, setPinVerified] = useState(false);
 
-  const { data: allUsers = [], isLoading: usersLoading } = useQuery<User[]>({ queryKey: ["/api/admin/users"] });
-  const { data: deposits = [], isLoading: depositsLoading } = useQuery<DepositRequest[]>({ queryKey: ["/api/admin/deposits"] });
-  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<(WithdrawalRequest & { paymentMethod?: PaymentMethod | null })[]>({ queryKey: ["/api/admin/withdrawals"] });
+  const { data: pinStatus, isLoading: pinLoading } = useQuery<{ verified: boolean }>({
+    queryKey: ["/api/admin/pin-status"],
+  });
+
+  useEffect(() => {
+    if (pinStatus?.verified) {
+      setPinVerified(true);
+    }
+  }, [pinStatus]);
+
+  const { data: allUsers = [], isLoading: usersLoading } = useQuery<User[]>({
+    queryKey: ["/api/admin/users"],
+    enabled: pinVerified,
+  });
+  const { data: deposits = [], isLoading: depositsLoading } = useQuery<DepositRequest[]>({
+    queryKey: ["/api/admin/deposits"],
+    enabled: pinVerified,
+  });
+  const { data: withdrawals = [], isLoading: withdrawalsLoading } = useQuery<(WithdrawalRequest & { paymentMethod?: PaymentMethod | null })[]>({
+    queryKey: ["/api/admin/withdrawals"],
+    enabled: pinVerified,
+  });
 
   const pendingDeposits = deposits.filter(d => d.status === "pending").length;
   const pendingWithdrawals = withdrawals.filter(w => w.status === "pending").length;
-  const { data: stajyorRequests = [] } = useQuery<StajyorRequest[]>({ queryKey: ["/api/admin/stajyor-requests"] });
+  const { data: stajyorRequests = [] } = useQuery<StajyorRequest[]>({
+    queryKey: ["/api/admin/stajyor-requests"],
+    enabled: pinVerified,
+  });
   const pendingStajyor = stajyorRequests.filter(r => r.status === "pending").length;
 
   const techTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
@@ -1831,6 +1977,18 @@ export default function AdminPage() {
     { id: "deposits", label: t("admin.deposits"), icon: ArrowDownCircle, badge: pendingDeposits || undefined },
     { id: "withdrawals", label: t("admin.withdrawals"), icon: ArrowUpCircle, badge: pendingWithdrawals || undefined },
   ];
+
+  if (pinLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!pinVerified) {
+    return <AdminPinGate onVerified={() => setPinVerified(true)} />;
+  }
 
   if (usersLoading || depositsLoading || withdrawalsLoading) {
     return (

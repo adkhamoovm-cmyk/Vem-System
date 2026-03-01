@@ -42,6 +42,7 @@ waitForPort = 5000
 
 [userenv.shared]
 TZ = "Asia/Tashkent"
+ADMIN_PIN = "077077"
 
 [agent]
 expertMode = true
