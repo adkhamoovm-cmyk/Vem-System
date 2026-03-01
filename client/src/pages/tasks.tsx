@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -226,8 +226,8 @@ export default function TasksPage() {
     queryKey: ["/api/vip-packages"],
   });
 
-  const [watchedToday, setWatchedToday] = useState<Set<string>>(new Set());
-  const [shuffledVideos, setShuffledVideos] = useState<string[]>(() => {
+  const watchedTodayRef = useRef<Set<string>>(new Set());
+  const [shuffledVideos] = useState<string[]>(() => {
     const arr = [...youtubeVideos];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -235,19 +235,21 @@ export default function TasksPage() {
     }
     return arr;
   });
-  const [videoIndex, setVideoIndex] = useState(0);
+  const videoIndexRef = useRef(0);
 
-  const getNextUnwatched = (startIdx: number): string => {
+  const getNextUnwatched = (excludeId?: string): string => {
+    const watched = watchedTodayRef.current;
     for (let i = 0; i < shuffledVideos.length; i++) {
-      const idx = (startIdx + i) % shuffledVideos.length;
-      if (!watchedToday.has(shuffledVideos[idx])) {
-        setVideoIndex(idx + 1);
-        return shuffledVideos[idx];
+      const idx = (videoIndexRef.current + i) % shuffledVideos.length;
+      const vid = shuffledVideos[idx];
+      if (!watched.has(vid) && vid !== excludeId) {
+        videoIndexRef.current = idx + 1;
+        return vid;
       }
     }
-    setWatchedToday(new Set());
+    watchedTodayRef.current = new Set();
     const randomIdx = Math.floor(Math.random() * shuffledVideos.length);
-    setVideoIndex(randomIdx + 1);
+    videoIndexRef.current = randomIdx + 1;
     return shuffledVideos[randomIdx];
   };
 
@@ -262,21 +264,19 @@ export default function TasksPage() {
   const noPrivilege = user && user.vipLevel < 0;
   const isLimitReached = user ? user.dailyTasksCompleted >= user.dailyTasksLimit : false;
 
-  const pickNextVideo = () => {
-    setNextVideoId(getNextUnwatched(videoIndex));
-  };
-
   const handleStartTask = () => {
     if (!hasVip || isLimitReached) return;
     setActiveVideoId(nextVideoId);
   };
 
   const handleCloseVideo = () => {
-    if (activeVideoId) {
-      setWatchedToday(prev => new Set(prev).add(activeVideoId));
+    const justWatched = activeVideoId;
+    if (justWatched) {
+      watchedTodayRef.current.add(justWatched);
     }
     setActiveVideoId(null);
-    pickNextVideo();
+    const next = getNextUnwatched(justWatched || undefined);
+    setNextVideoId(next);
   };
 
   if (isSunday()) {
