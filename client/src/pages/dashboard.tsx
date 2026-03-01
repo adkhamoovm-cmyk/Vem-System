@@ -597,7 +597,7 @@ export default function DashboardPage() {
                 </div>
                 <span className="text-foreground font-bold text-sm">{t("dashboard.recentActivity")}</span>
               </div>
-              <Link href="/profile">
+              <Link href="/profile?tab=history">
                 <span className="text-muted-foreground text-xs flex items-center gap-0.5">
                   {t("dashboard.viewAll")} <ChevronRight className="w-3 h-3" />
                 </span>
@@ -631,21 +631,23 @@ export default function DashboardPage() {
                     ? new Date(tx.createdAt).toLocaleDateString("uz-UZ", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
                     : "";
                   return (
-                    <div key={tx.id} className="flex items-center gap-3" data-testid={`tx-row-${tx.id}`}>
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${typeColors[tx.type] || "bg-muted text-muted-foreground"}`}>
-                        {isPositive
-                          ? <ArrowUpRight className="w-4 h-4" />
-                          : <ArrowDownRight className="w-4 h-4" />
-                        }
+                    <Link href="/profile?tab=history" key={tx.id}>
+                      <div className="flex items-center gap-3 hover:bg-muted/50 rounded-xl px-1 py-0.5 transition-colors cursor-pointer" data-testid={`tx-row-${tx.id}`}>
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${typeColors[tx.type] || "bg-muted text-muted-foreground"}`}>
+                          {isPositive
+                            ? <ArrowUpRight className="w-4 h-4" />
+                            : <ArrowDownRight className="w-4 h-4" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-foreground text-xs font-semibold">{typeLabels[tx.type] || tx.type}</p>
+                          <p className="text-muted-foreground text-[10px] truncate">{dateStr}</p>
+                        </div>
+                        <span className={`text-sm font-bold shrink-0 ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
+                          {isPositive ? "+" : ""}{Number(tx.amount).toFixed(2)}
+                        </span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-foreground text-xs font-semibold">{typeLabels[tx.type] || tx.type}</p>
-                        <p className="text-muted-foreground text-[10px] truncate">{dateStr}</p>
-                      </div>
-                      <span className={`text-sm font-bold shrink-0 ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
-                        {isPositive ? "+" : ""}{Number(tx.amount).toFixed(2)}
-                      </span>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>

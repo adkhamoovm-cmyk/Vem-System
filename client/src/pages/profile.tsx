@@ -1051,7 +1051,7 @@ function PinInput({ value, onChange, error, testId }: { value: string; onChange:
 export default function ProfilePage() {
   const { toast } = useToast();
   const { t, locale, translateServerMessage } = useI18n();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSecretInfo, setShowSecretInfo] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
@@ -1059,7 +1059,12 @@ export default function ProfilePage() {
   const [showAddBankCard, setShowAddBankCard] = useState(false);
   const [showAddUsdtWallet, setShowAddUsdtWallet] = useState(false);
   const [historyFilter, setHistoryFilter] = useState<"all" | "deposit" | "withdrawal" | "earning" | "fund_invest" | "vip_purchase" | "admin_adjust" | "commission">("all");
-  const [showFinanceHistory, setShowFinanceHistory] = useState(false);
+  const [showFinanceHistory, setShowFinanceHistory] = useState(() => {
+    if (typeof window !== "undefined") {
+      return new URLSearchParams(window.location.search).get("tab") === "history";
+    }
+    return false;
+  });
   const [showFinanceService, setShowFinanceService] = useState(false);
   const [showCardNumber, setShowCardNumber] = useState(false);
   const [showWalletAddress, setShowWalletAddress] = useState(false);
