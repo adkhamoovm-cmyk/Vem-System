@@ -402,69 +402,94 @@ export default function TasksPage() {
           </div>
         )}
 
-        <div>
-          <h2 className="text-foreground font-bold text-sm mb-3 px-0.5">{t("tasks.todayTasks")}</h2>
-
-          <div className="bg-card rounded-2xl overflow-hidden border border-border shadow-sm">
-            <div className="relative aspect-video">
-              <img
-                src={`https://img.youtube.com/vi/${nextVideoId}/maxresdefault.jpg`}
-                alt="Video preview"
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-              <div className="absolute top-3 right-3">
-                <div className="bg-black/50 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10 flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-emerald-400 text-xs font-bold">+${perVideoReward.toFixed(2)}</span>
+        {isLimitReached ? (
+          <div className="bg-card rounded-2xl border border-border overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-500/5" />
+            <div className="relative p-8 text-center">
+              <div className="relative inline-block mb-5">
+                <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping" style={{ animationDuration: "3s" }} />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/20">
+                  <CheckCircle className="w-10 h-10 text-white" />
                 </div>
               </div>
-              <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-white font-bold text-base mb-1 drop-shadow-lg">{t("tasks.videoTask")}</p>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-2.5 py-1 border border-white/10">
-                    <Clock className="w-3 h-3 text-white/70" />
-                    <span className="text-white/70 text-[10px] font-medium">{t("tasks.watchSeconds", { seconds: TIMER_DURATION })}</span>
+              <h3 className="text-foreground font-bold text-lg mb-2">{t("tasks.allTasksDone")}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-5 max-w-xs mx-auto">{t("tasks.allTasksDoneDesc")}</p>
+              <Link href="/vip">
+                <Button
+                  className="bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 px-8 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+                  data-testid="button-upgrade-vip"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  {t("tasks.upgradeVip")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div>
+              <h2 className="text-foreground font-bold text-sm mb-3 px-0.5">{t("tasks.todayTasks")}</h2>
+
+              <div className="bg-card rounded-2xl overflow-hidden border border-border shadow-sm">
+                <div className="relative aspect-video">
+                  <img
+                    src={`https://img.youtube.com/vi/${nextVideoId}/maxresdefault.jpg`}
+                    alt="Video preview"
+                    loading="lazy"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  <div className="absolute top-3 right-3">
+                    <div className="bg-black/50 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10 flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-emerald-400 text-xs font-bold">+${perVideoReward.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="text-white font-bold text-base mb-1 drop-shadow-lg">{t("tasks.videoTask")}</p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-2.5 py-1 border border-white/10">
+                        <Clock className="w-3 h-3 text-white/70" />
+                        <span className="text-white/70 text-[10px] font-medium">{t("tasks.watchSeconds", { seconds: TIMER_DURATION })}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                <div className="p-4">
+                  <Button
+                    onClick={handleStartTask}
+                    disabled={!hasVip}
+                    className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+                    data-testid="button-start-task"
+                  >
+                    {noPrivilege ? (
+                      t("tasks.noPrivilege")
+                    ) : !hasVip ? (
+                      t("tasks.vipRequired")
+                    ) : (
+                      <>
+                        <Play className="w-5 h-5 mr-2" fill="white" fillOpacity={0.8} />
+                        {t("tasks.startTask")}
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
 
-            <div className="p-4">
-              <Button
-                onClick={handleStartTask}
-                disabled={!hasVip || isLimitReached}
-                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
-                data-testid="button-start-task"
-              >
-                {noPrivilege ? (
-                  t("tasks.noPrivilege")
-                ) : isLimitReached ? (
-                  <>{t("tasks.dailyLimitDone")}</>
-                ) : !hasVip ? (
-                  t("tasks.vipRequired")
-                ) : (
-                  <>
-                    <Play className="w-5 h-5 mr-2" fill="white" fillOpacity={0.8} />
-                    {t("tasks.startTask")}
-                  </>
-                )}
-              </Button>
+            <div className="bg-card rounded-2xl p-4 border border-border">
+              <div className="flex items-center gap-2.5 justify-center">
+                <div className="w-5 h-5 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Clock className="w-3 h-3 text-primary" />
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  {t("tasks.eachButton", { seconds: TIMER_DURATION })}
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-2xl p-4 border border-border">
-          <div className="flex items-center gap-2.5 justify-center">
-            <div className="w-5 h-5 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Clock className="w-3 h-3 text-primary" />
-            </div>
-            <p className="text-muted-foreground text-xs">
-              {t("tasks.eachButton", { seconds: TIMER_DURATION })}
-            </p>
-          </div>
-        </div>
+          </>
+        )}
 
         {activeVideoId && (
           <VideoPlayerModal
