@@ -678,17 +678,13 @@ function showGuide(browser) {
     try {
       const userId = req.session.userId!;
       const userInvestments = await storage.getUserInvestments(userId);
-      const history = await storage.getUserBalanceHistory(userId);
-      const fundProfits = history.filter(h => h.type === "fund_profit" || (h.type === "earning" && h.description?.includes("Fond")));
 
       const allPlans = await storage.getFundPlans();
       const enriched = userInvestments.map(inv => {
         const planName = inv.planName || allPlans.find(p => p.id === inv.fundPlanId)?.name || "Fund";
-        const profitEntries = fundProfits.filter(h =>
-          new Date(h.createdAt) >= new Date(inv.startDate)
-        );
-        const totalEarned = profitEntries.reduce((sum, h) => sum + Number(h.amount), 0);
-        const daysPassed = Math.floor((Date.now() - new Date(inv.startDate).getTime()) / (1000 * 60 * 60 * 24));
+        const endTime = inv.endDate ? Math.min(Date.now(), new Date(inv.endDate).getTime()) : Date.now();
+        const daysPassed = Math.max(0, Math.floor((endTime - new Date(inv.startDate).getTime()) / (1000 * 60 * 60 * 24)));
+        const totalEarned = (Number(inv.dailyProfit) * daysPassed);
         return {
           ...inv,
           totalEarned: totalEarned.toFixed(2),
@@ -966,6 +962,7 @@ function showGuide(browser) {
       const todayStr = uzbNow.toISOString().split("T")[0];
       const todayWithdrawals = await storage.getUserWithdrawalRequests(userId);
       const withdrawalsToday = todayWithdrawals.filter(w => {
+        if (w.status === "rejected") return false;
         const wUzb = new Date(new Date(w.createdAt).getTime() + uzbOffset);
         const wDate = wUzb.toISOString().split("T")[0];
         return wDate === todayStr;
@@ -976,7 +973,10 @@ function showGuide(browser) {
 
       const numAmount = Number(amount);
       const method = (await storage.getUserPaymentMethods(userId)).find(m => m.id === paymentMethodId);
-      const isCrypto = method?.type === "usdt";
+      if (!method) {
+        return res.status(400).json({ message: "To'lov usuli topilmadi" });
+      }
+      const isCrypto = method.type === "usdt";
       const minAmount = isCrypto ? minWithdrawalUsdt : minWithdrawalBank;
       if (isNaN(numAmount) || numAmount < minAmount) {
         return res.status(400).json({ message: isCrypto ? `Kripto uchun minimal yechish miqdori: ${minWithdrawalUsdt} USDT` : `Minimal yechish miqdori: ${minWithdrawalBank} USDT` });
@@ -985,10 +985,6 @@ function showGuide(browser) {
       const balance = Number(user.balance);
       if (balance < numAmount) {
         return res.status(400).json({ message: "Balansingiz yetarli emas" });
-      }
-
-      if (!method) {
-        return res.status(400).json({ message: "To'lov usuli topilmadi" });
       }
 
       const commission = numAmount * (commissionPercent / 100);
@@ -1555,7 +1551,7 @@ function showGuide(browser) {
         if (inv.lastProfitDate === today) continue;
 
         const plan = await storage.getFundPlan(inv.fundPlanId);
-        const planName = (inv as any).planName || plan?.name || "Fund";
+        const planName = inv.planName || plan?.name || "Fund";
 
         await storage.updateUserBalance(inv.userId, inv.dailyProfit);
         await storage.updateInvestmentLastProfitDate(inv.id, today);

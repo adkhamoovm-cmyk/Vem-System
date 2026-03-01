@@ -1249,7 +1249,7 @@ function MultiAccountsTab() {
           >
             <div className="flex items-center gap-2 flex-wrap">
               <Globe className="w-4 h-4 text-red-400 shrink-0" />
-              <span className="text-foreground text-xs font-mono">{g.ip || "null"}</span>
+              <span className="text-foreground text-xs font-mono">{g.ip || "—"}</span>
               <span className="px-2 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-400 font-bold">
                 {g.count} {t("admin.accounts")}
               </span>

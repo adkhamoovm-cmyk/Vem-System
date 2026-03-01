@@ -152,9 +152,9 @@ export default function DashboardPage() {
 
   // Fund investments
   const activeInvestments = (investments || []);
-  const totalInvested = activeInvestments.reduce((sum, inv) => sum + Number((inv as any).investedAmount || 0), 0);
-  const totalEarnedFromFund = activeInvestments.reduce((sum, inv) => sum + Number((inv as any).totalEarned || 0), 0);
-  const totalDailyProfit = activeInvestments.reduce((sum, inv) => sum + Number((inv as any).dailyProfit || 0), 0);
+  const totalInvested = activeInvestments.reduce((sum, inv) => sum + Number(inv.investedAmount || 0), 0);
+  const totalEarnedFromFund = activeInvestments.reduce((sum, inv) => sum + Number((inv as Record<string, unknown>).totalEarned || 0), 0);
+  const totalDailyProfit = activeInvestments.reduce((sum, inv) => sum + Number(inv.dailyProfit || 0), 0);
 
   const tvShows = videos?.filter(v => v.category === "Tele-shou") || [];
   const trailers = videos?.filter(v => v.category === "Treyler") || [];
@@ -317,12 +317,12 @@ export default function DashboardPage() {
                 <div className="text-right space-y-1">
                   <div className="flex items-center gap-1 text-emerald-500 dark:text-emerald-400 text-xs justify-end">
                     <TrendingUp className="w-3 h-3" />
-                    <span>+{dailyPotential.toFixed(2)}/kun</span>
+                    <span>+{dailyPotential.toFixed(2)}/{t("common.day")}</span>
                   </div>
                   {todayEarned > 0 && (
                     <div className="flex items-center gap-1 bg-emerald-500/10 rounded-full px-2 py-0.5 justify-end">
                       <CheckCheck className="w-3 h-3 text-emerald-500" />
-                      <span className="text-emerald-500 dark:text-emerald-400 text-[10px] font-semibold">+{todayEarned.toFixed(2)} bugun</span>
+                      <span className="text-emerald-500 dark:text-emerald-400 text-[10px] font-semibold">+{todayEarned.toFixed(2)} {t("common.today")}</span>
                     </div>
                   )}
                 </div>
