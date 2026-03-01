@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal } from "lucide-react";
+import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal, ChevronRight, ArrowUpRight } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
@@ -28,24 +28,25 @@ function workDaysToCalendarDays(workDays: number): number {
   return calendarDays;
 }
 
-const levelColors: Record<number, { primary: string; bg: string; gradient: string; border: string }> = {
-  0: { primary: "#78909C", bg: "#ECEFF1", gradient: "from-[#90A4AE] to-[#607D8B]", border: "border-[#B0BEC5]" },
-  1: { primary: "#cd7f32", bg: "#FFF3E0", gradient: "from-[#cd7f32] to-[#a0622b]", border: "border-[#cd7f32]/30" },
-  2: { primary: "#78909C", bg: "#ECEFF1", gradient: "from-[#90A4AE] to-[#607D8B]", border: "border-[#90A4AE]/30" },
-  3: { primary: "#FFB300", bg: "#FFF8E1", gradient: "from-[#FFB300] to-[#FF8F00]", border: "border-[#FFB300]/30" },
-  4: { primary: "#42A5F5", bg: "#E3F2FD", gradient: "from-[#42A5F5] to-[#1976D2]", border: "border-[#42A5F5]/30" },
-  5: { primary: "#AB47BC", bg: "#F3E5F5", gradient: "from-[#AB47BC] to-[#7B1FA2]", border: "border-[#AB47BC]/30" },
-  6: { primary: "#E53935", bg: "#FFEBEE", gradient: "from-[#E53935] to-[#B71C1C]", border: "border-[#E53935]/30" },
-  7: { primary: "#00897B", bg: "#E0F2F1", gradient: "from-[#00897B] to-[#004D40]", border: "border-[#00897B]/30" },
-  8: { primary: "#5C6BC0", bg: "#E8EAF6", gradient: "from-[#5C6BC0] to-[#283593]", border: "border-[#5C6BC0]/30" },
-  9: { primary: "#F4511E", bg: "#FBE9E7", gradient: "from-[#F4511E] to-[#BF360C]", border: "border-[#F4511E]/30" },
-  10: { primary: "#FFD700", bg: "#FFFDE7", gradient: "from-[#FFD700] to-[#FF8F00]", border: "border-[#FFD700]/30" },
+const levelColors: Record<number, { primary: string; bg: string; gradient: string; border: string; glow: string }> = {
+  0: { primary: "#78909C", bg: "#78909C10", gradient: "from-[#90A4AE] to-[#607D8B]", border: "border-[#B0BEC5]/20", glow: "shadow-[#78909C]/10" },
+  1: { primary: "#cd7f32", bg: "#cd7f3210", gradient: "from-[#cd7f32] to-[#a0622b]", border: "border-[#cd7f32]/20", glow: "shadow-[#cd7f32]/10" },
+  2: { primary: "#78909C", bg: "#78909C10", gradient: "from-[#90A4AE] to-[#607D8B]", border: "border-[#90A4AE]/20", glow: "shadow-[#78909C]/10" },
+  3: { primary: "#FFB300", bg: "#FFB30010", gradient: "from-[#FFB300] to-[#FF8F00]", border: "border-[#FFB300]/20", glow: "shadow-[#FFB300]/10" },
+  4: { primary: "#42A5F5", bg: "#42A5F510", gradient: "from-[#42A5F5] to-[#1976D2]", border: "border-[#42A5F5]/20", glow: "shadow-[#42A5F5]/10" },
+  5: { primary: "#AB47BC", bg: "#AB47BC10", gradient: "from-[#AB47BC] to-[#7B1FA2]", border: "border-[#AB47BC]/20", glow: "shadow-[#AB47BC]/10" },
+  6: { primary: "#E53935", bg: "#E5393510", gradient: "from-[#E53935] to-[#B71C1C]", border: "border-[#E53935]/20", glow: "shadow-[#E53935]/10" },
+  7: { primary: "#00897B", bg: "#00897B10", gradient: "from-[#00897B] to-[#004D40]", border: "border-[#00897B]/20", glow: "shadow-[#00897B]/10" },
+  8: { primary: "#5C6BC0", bg: "#5C6BC010", gradient: "from-[#5C6BC0] to-[#283593]", border: "border-[#5C6BC0]/20", glow: "shadow-[#5C6BC0]/10" },
+  9: { primary: "#F4511E", bg: "#F4511E10", gradient: "from-[#F4511E] to-[#BF360C]", border: "border-[#F4511E]/20", glow: "shadow-[#F4511E]/10" },
+  10: { primary: "#FFD700", bg: "#FFD70010", gradient: "from-[#FFD700] to-[#FF8F00]", border: "border-[#FFD700]/20", glow: "shadow-[#FFD700]/10" },
 };
 
 export default function VipPage() {
   const { t, locale, translateServerMessage } = useI18n();
   const { toast } = useToast();
   const [stajyorMsg, setStajyorMsg] = useState("");
+  const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
 
   const { data: packages, isLoading } = useQuery<VipPackage[]>({
     queryKey: ["/api/vip-packages"],
@@ -94,234 +95,319 @@ export default function VipPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        </div>
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
     );
   }
 
   const sortedPackages = [...(packages || [])].sort((a, b) => a.level - b.level);
 
   return (
-    <div className="p-4 space-y-4">
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20">
-          <div className="absolute inset-0 opacity-[0.07]">
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
-            <div className="absolute bottom-0 left-0 w-28 h-28 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
-          </div>
-          <div className="relative flex items-center gap-3">
+    <div className="px-4 py-4 space-y-4 pb-24">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20" data-testid="vip-header">
+        <div className="absolute inset-0 opacity-[0.07]">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-0 w-28 h-28 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
+        </div>
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10 shadow-lg">
               <Crown className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="font-bold text-lg text-white">{t("vip.title")}</h2>
-              <p className="text-white/60 text-xs">{t("vip.subtitle")}</p>
+              <h1 className="text-lg font-bold text-white">{t("vip.title")}</h1>
+              <p className="text-white/50 text-xs">{t("vip.subtitle")}</p>
             </div>
           </div>
           {user && (
-            <div className="relative mt-4 grid grid-cols-2 gap-3">
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/10">
-                <p className="text-white/50 text-[10px] uppercase tracking-widest">{t("vip.currentLevel")}</p>
-                <p className="text-white font-bold text-sm mt-1">{user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] text-white/50 uppercase tracking-wider">{t("vip.currentLevel")}</p>
+                <p className="text-sm font-bold text-white mt-0.5">
+                  {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
+                </p>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-3.5 border border-white/10">
-                <p className="text-white/50 text-[10px] uppercase tracking-widest">{t("common.balance")}</p>
-                <p className="text-white font-bold text-sm mt-1">${Number(user.balance).toFixed(2)}</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 border border-white/5">
+                <p className="text-[10px] text-white/50 uppercase tracking-wider">{t("common.balance")}</p>
+                <p className="text-sm font-bold text-white mt-0.5">${Number(user.balance).toFixed(2)}</p>
               </div>
             </div>
           )}
         </div>
+      </div>
 
-        {user && user.vipLevel < 0 && (
-          <div className="bg-card rounded-2xl border border-[#78909C]/30 overflow-hidden" data-testid="stajyor-request-section">
-            <div className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Send className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-sm">{t("vip.stajyorActivation")}</h3>
-                  <p className="text-white/70 text-[11px]">{t("vip.stajyorDesc")}</p>
-                </div>
+      {user && user.vipLevel < 0 && (
+        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden shadow-sm" data-testid="stajyor-request-section">
+          <div className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] px-4 py-3.5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+                <Send className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-sm">{t("vip.stajyorActivation")}</h3>
+                <p className="text-white/60 text-[11px]">{t("vip.stajyorDesc")}</p>
               </div>
             </div>
-
-            <div className="p-4">
-              {stajyorRequests.some(r => r.status === "pending") ? (
-                <div className="bg-[#FFB300]/10 rounded-xl p-4 border border-[#FFB300]/20 text-center">
-                  <Clock className="w-8 h-8 text-[#FFB300] mx-auto mb-2" />
-                  <p className="text-[#FFB300] font-semibold text-sm">{t("vip.requestSent")}</p>
-                  <p className="text-muted-foreground text-xs mt-1">{t("vip.adminChecking")}</p>
-                </div>
-              ) : stajyorRequests.some(r => r.status === "rejected") && !stajyorRequests.some(r => r.status === "pending") ? (
-                <div className="space-y-3">
-                  <div className="bg-destructive/10 rounded-xl p-3 border border-destructive/20">
-                    <p className="text-destructive text-xs">{t("vip.previousRejected")}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <input
-                        value={stajyorMsg}
-                        onChange={(e) => setStajyorMsg(e.target.value)}
-                        placeholder={t("vip.writeMessage")}
-                        className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#78909C]"
-                        data-testid="input-stajyor-message"
-                      />
-                    </div>
-                    <Button
-                      onClick={() => stajyorMutation.mutate()}
-                      disabled={stajyorMutation.isPending}
-                      className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl h-10 px-5 font-semibold"
-                      data-testid="button-send-stajyor"
-                    >
-                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> {t("common.send")}</>}
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="bg-card rounded-xl p-3 space-y-1.5 text-xs text-muted-foreground">
-                    <p>{t("vip.stajyorInfo1")}</p>
-                    <p>{t("vip.stajyorInfo2")}</p>
-                    <p className="text-primary">{t("vip.stajyorInfo3")}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <input
-                        value={stajyorMsg}
-                        onChange={(e) => setStajyorMsg(e.target.value)}
-                        placeholder={t("vip.writeMessage")}
-                        className="w-full bg-card border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-[#78909C]"
-                        data-testid="input-stajyor-message"
-                      />
-                    </div>
-                    <Button
-                      onClick={() => stajyorMutation.mutate()}
-                      disabled={stajyorMutation.isPending}
-                      className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl h-10 px-5 font-semibold"
-                      data-testid="button-send-stajyor"
-                    >
-                      {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1" /> {t("common.send")}</>}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
-        )}
 
+          <div className="p-4">
+            {stajyorRequests.some(r => r.status === "pending") ? (
+              <div className="bg-amber-500/8 rounded-xl p-4 border border-amber-500/15 text-center">
+                <div className="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mx-auto mb-2.5">
+                  <Clock className="w-6 h-6 text-amber-500" />
+                </div>
+                <p className="text-amber-500 font-bold text-sm">{t("vip.requestSent")}</p>
+                <p className="text-muted-foreground text-xs mt-1">{t("vip.adminChecking")}</p>
+              </div>
+            ) : stajyorRequests.some(r => r.status === "rejected") && !stajyorRequests.some(r => r.status === "pending") ? (
+              <div className="space-y-3">
+                <div className="bg-red-500/8 rounded-xl p-3 border border-red-500/15">
+                  <p className="text-red-500 text-xs font-medium">{t("vip.previousRejected")}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      value={stajyorMsg}
+                      onChange={(e) => setStajyorMsg(e.target.value)}
+                      placeholder={t("vip.writeMessage")}
+                      className="w-full bg-transparent border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                      data-testid="input-stajyor-message"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => stajyorMutation.mutate()}
+                    disabled={stajyorMutation.isPending}
+                    className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl px-5 font-bold shadow-md"
+                    data-testid="button-send-stajyor"
+                  >
+                    {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1.5" /> {t("common.send")}</>}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+                    <div className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-primary text-[10px] font-bold">1</span>
+                    </div>
+                    <p className="leading-relaxed">{t("vip.stajyorInfo1")}</p>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs text-muted-foreground">
+                    <div className="w-5 h-5 rounded-md bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-primary text-[10px] font-bold">2</span>
+                    </div>
+                    <p className="leading-relaxed">{t("vip.stajyorInfo2")}</p>
+                  </div>
+                  <div className="flex items-start gap-2.5 text-xs">
+                    <div className="w-5 h-5 rounded-md bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <CheckCircle className="w-3 h-3 text-emerald-500" />
+                    </div>
+                    <p className="text-primary leading-relaxed font-medium">{t("vip.stajyorInfo3")}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      value={stajyorMsg}
+                      onChange={(e) => setStajyorMsg(e.target.value)}
+                      placeholder={t("vip.writeMessage")}
+                      className="w-full bg-transparent border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+                      data-testid="input-stajyor-message"
+                    />
+                  </div>
+                  <Button
+                    onClick={() => stajyorMutation.mutate()}
+                    disabled={stajyorMutation.isPending}
+                    className="bg-gradient-to-r from-[#90A4AE] to-[#607D8B] text-white rounded-xl px-5 font-bold shadow-md"
+                    data-testid="button-send-stajyor"
+                  >
+                    {stajyorMutation.isPending ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Send className="w-4 h-4 mr-1.5" /> {t("common.send")}</>}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+          <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center">
+            <Crown className="w-3.5 h-3.5 text-primary" />
+          </div>
+          {t("vip.allPackages")}
+        </h2>
         <div className="space-y-3">
           {sortedPackages.map((pkg) => {
             const colors = levelColors[pkg.level] || levelColors[1];
             const isCurrentLevel = user?.vipLevel === pkg.level;
             const isLocked = pkg.isLocked;
             const canBuy = !isCurrentLevel && !isLocked && user && Number(user.balance) >= Number(pkg.price);
+            const isExpanded = expandedPkg === pkg.id;
 
             return (
               <div
                 key={pkg.id}
-                className={`bg-card rounded-2xl border shadow-sm overflow-hidden transition-all ${
-                  isCurrentLevel ? "ring-2 ring-primary/30 border-primary/20" : isLocked ? "border-border opacity-75" : "border-border"
+                className={`bg-card rounded-2xl border overflow-hidden shadow-sm transition-all ${
+                  isCurrentLevel
+                    ? `ring-1 ${colors.border} shadow-md ${colors.glow}`
+                    : isLocked
+                    ? "border-border/30 opacity-60"
+                    : "border-border/50"
                 }`}
                 data-testid={`card-vip-${pkg.level}`}
               >
                 {isCurrentLevel && (
-                  <div className="bg-primary px-4 py-1.5 text-center">
-                    <span className="text-primary-foreground text-[10px] font-bold uppercase tracking-wider">
+                  <div className={`bg-gradient-to-r ${colors.gradient} px-4 py-1.5 text-center`}>
+                    <span className="text-white text-[10px] font-bold uppercase tracking-widest">
                       {t("vip.currentPackage")}
                     </span>
                   </div>
                 )}
 
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-3">
+                <div
+                  className="p-4 cursor-pointer"
+                  onClick={() => setExpandedPkg(isExpanded ? null : pkg.id)}
+                  data-testid={`toggle-vip-${pkg.level}`}
+                >
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
-                        style={{ backgroundColor: colors.bg }}
+                        className="w-11 h-11 rounded-xl flex items-center justify-center border"
+                        style={{ backgroundColor: colors.bg, borderColor: colors.primary + "20" }}
                       >
-                        {(() => { const Icon = levelIcons[pkg.level] || (isLocked ? Lock : Crown); return <Icon className="w-6 h-6" style={{ color: colors.primary }} />; })()}
+                        {(() => { const Icon = levelIcons[pkg.level] || (isLocked ? Lock : Crown); return <Icon className="w-5 h-5" style={{ color: colors.primary }} />; })()}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-foreground font-bold">{pkg.name === "Stajyor" ? getVipName(0, locale) : pkg.name}</h3>
-                          {isLocked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
+                          <h3 className="text-foreground font-bold text-sm">{pkg.name === "Stajyor" ? getVipName(0, locale) : pkg.name}</h3>
+                          {isLocked && <Lock className="w-3 h-3 text-muted-foreground" />}
+                          {isCurrentLevel && (
+                            <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider" style={{ backgroundColor: colors.primary + "15", color: colors.primary }}>
+                              {t("common.active")}
+                            </span>
+                          )}
                         </div>
-                        <p className="text-muted-foreground text-xs mt-0.5">{pkg.level === 0 ? t("vip.descStajyor") : t("vip.descDaily", { count: pkg.dailyTasks })}</p>
+                        <p className="text-muted-foreground text-[11px] mt-0.5">
+                          {pkg.level === 0 ? t("vip.descStajyor") : t("vip.descDaily", { count: pkg.dailyTasks })}
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-lg font-bold" style={{ color: colors.primary }}>
-                        {Number(pkg.price) === 0 ? t("common.free") : `$${Number(pkg.price).toLocaleString()}`}
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <p className="text-base font-bold" style={{ color: colors.primary }}>
+                          {Number(pkg.price) === 0 ? t("common.free") : `$${Number(pkg.price).toLocaleString()}`}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground font-medium">
+                          +${Number(pkg.dailyEarning).toFixed(2)}/{t("common.days")}
+                        </p>
                       </div>
-                      {Number(pkg.price) > 0 && <span className="text-muted-foreground text-[10px]">{t("vip.guarantee")}</span>}
+                      <ChevronRight
+                        className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`}
+                      />
                     </div>
                   </div>
-
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.primary + "08", borderColor: colors.primary + "15" }}>
-                      <Film className="w-3.5 h-3.5 mx-auto mb-0.5" style={{ color: colors.primary }} />
-                      <p className="text-foreground font-bold text-xs">{pkg.dailyTasks} {t("common.pcs")}</p>
-                      <p className="text-muted-foreground text-[9px]">{t("common.dailyVideo")}</p>
-                    </div>
-                    <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.primary + "08", borderColor: colors.primary + "15" }}>
-                      <DollarSign className="w-3.5 h-3.5 mx-auto mb-0.5" style={{ color: colors.primary }} />
-                      <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.perVideoReward).toFixed(2)}</p>
-                      <p className="text-muted-foreground text-[9px]">{t("common.perVideo")}</p>
-                    </div>
-                    <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.primary + "08", borderColor: colors.primary + "15" }}>
-                      <TrendingUp className="w-3.5 h-3.5 mx-auto mb-0.5" style={{ color: colors.primary }} />
-                      <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.dailyEarning).toFixed(2)}</p>
-                      <p className="text-muted-foreground text-[9px]">{t("common.dailyEarning")}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-2 flex items-center justify-between bg-muted/30 rounded-lg px-3 py-2">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-muted-foreground text-[10px]">{t("vip.duration", { days: workDaysToCalendarDays(pkg.durationDays) })} ({pkg.durationDays} {t("vip.workDays")})</span>
-                    </div>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ color: isLocked ? "#999" : colors.primary, backgroundColor: isLocked ? "#9991a0" : colors.primary + "15" }}>
-                      {isLocked ? t("common.locked") : t("common.open")}
-                    </span>
-                  </div>
-
-                  {!isCurrentLevel && !isLocked && Number(pkg.price) > 0 && (
-                    <Button
-                      className={`w-full mt-3 font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-10 shadow-md text-white bg-gradient-to-r ${colors.gradient}`}
-                      disabled={purchaseMutation.isPending || !canBuy}
-                      onClick={() => purchaseMutation.mutate(pkg.id)}
-                      data-testid={`button-buy-vip-${pkg.level}`}
-                    >
-                      {purchaseMutation.isPending ? t("vip.buying") : canBuy ? t("vip.buyNow") : t("vip.needAmount", { amount: Number(pkg.price).toLocaleString() })}
-                    </Button>
-                  )}
-
-                  {isLocked && (
-                    <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-card rounded-xl">
-                      <Lock className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-muted-foreground text-sm font-medium">{t("common.locked")}</span>
-                    </div>
-                  )}
-
-                  {isCurrentLevel && (
-                    <div className="mt-3 flex items-center justify-center gap-2 py-2.5 bg-[#4CAF50]/10 rounded-xl">
-                      <CheckCircle className="w-4 h-4 text-[#4CAF50]" />
-                      <span className="text-[#4CAF50] text-sm font-semibold">{t("common.active")}</span>
-                    </div>
-                  )}
                 </div>
+
+                {isExpanded && (
+                  <div className="px-4 pb-4 space-y-3 animate-in slide-in-from-top-2 duration-200">
+                    <div className="h-px bg-border/50" />
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.bg, borderColor: colors.primary + "15" }}>
+                        <Film className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: colors.primary }} />
+                        <p className="text-foreground font-bold text-xs">{pkg.dailyTasks}</p>
+                        <p className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("common.dailyVideo")}</p>
+                      </div>
+                      <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.bg, borderColor: colors.primary + "15" }}>
+                        <DollarSign className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: colors.primary }} />
+                        <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.perVideoReward).toFixed(2)}</p>
+                        <p className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("common.perVideo")}</p>
+                      </div>
+                      <div className="rounded-xl p-2.5 text-center border" style={{ backgroundColor: colors.bg, borderColor: colors.primary + "15" }}>
+                        <TrendingUp className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: colors.primary }} />
+                        <p className="font-bold text-xs" style={{ color: colors.primary }}>${Number(pkg.dailyEarning).toFixed(2)}</p>
+                        <p className="text-muted-foreground text-[9px] uppercase tracking-wider">{t("common.dailyEarning")}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between bg-muted/30 rounded-xl px-3 py-2.5 border border-border/30">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        <span className="text-muted-foreground text-[11px]">
+                          {t("vip.duration", { days: workDaysToCalendarDays(pkg.durationDays) })} ({pkg.durationDays} {t("vip.workDays")})
+                        </span>
+                      </div>
+                      <span
+                        className="text-[10px] font-bold px-2 py-0.5 rounded-full border"
+                        style={{
+                          color: isLocked ? "var(--muted-foreground)" : colors.primary,
+                          backgroundColor: isLocked ? "transparent" : colors.bg,
+                          borderColor: isLocked ? "var(--border)" : colors.primary + "20",
+                        }}
+                      >
+                        {isLocked ? t("common.locked") : t("common.open")}
+                      </span>
+                    </div>
+
+                    {Number(pkg.price) > 0 && (
+                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground bg-muted/20 rounded-lg px-3 py-2 border border-border/20">
+                        <Shield className="w-3.5 h-3.5 shrink-0" />
+                        <span>{t("vip.guarantee")}</span>
+                      </div>
+                    )}
+
+                    {!isCurrentLevel && !isLocked && Number(pkg.price) > 0 && (
+                      <Button
+                        className={`w-full font-bold rounded-xl shadow-md text-white bg-gradient-to-r ${colors.gradient} no-default-hover-elevate no-default-active-elevate`}
+                        disabled={purchaseMutation.isPending || !canBuy}
+                        onClick={() => purchaseMutation.mutate(pkg.id)}
+                        data-testid={`button-buy-vip-${pkg.level}`}
+                      >
+                        {purchaseMutation.isPending
+                          ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          : canBuy
+                          ? <><ArrowUpRight className="w-4 h-4 mr-1.5" /> {t("vip.buyNow")}</>
+                          : t("vip.needAmount", { amount: Number(pkg.price).toLocaleString() })
+                        }
+                      </Button>
+                    )}
+
+                    {isLocked && (
+                      <div className="flex items-center justify-center gap-2 py-2.5 bg-muted/20 rounded-xl border border-border/20">
+                        <Lock className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-muted-foreground text-sm font-medium">{t("common.locked")}</span>
+                      </div>
+                    )}
+
+                    {isCurrentLevel && (
+                      <div className="flex items-center justify-center gap-2 py-2.5 rounded-xl border" style={{ backgroundColor: colors.primary + "08", borderColor: colors.primary + "15" }}>
+                        <CheckCircle className="w-4 h-4" style={{ color: colors.primary }} />
+                        <span className="text-sm font-bold" style={{ color: colors.primary }}>{t("common.active")}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
+      </div>
 
-        <div className="mt-4 bg-primary/10 rounded-2xl p-4 border border-primary/20">
-          <p className="text-primary text-xs leading-relaxed">
-            <strong>{t("vip.important")}</strong> {t("vip.importantNote")}
+      <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10">
+        <div className="flex items-start gap-2.5">
+          <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+            <Shield className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <p className="text-primary/80 text-xs leading-relaxed">
+            <span className="font-bold text-primary">{t("vip.important")}</span>{" "}
+            {t("vip.importantNote")}
           </p>
         </div>
       </div>
+    </div>
   );
 }
