@@ -45,12 +45,14 @@ function AdminDashboard({ users: allUsers, deposits, withdrawals }: { users: Use
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
       {stats.map((s, i) => (
-        <div key={i} className="bg-card rounded-xl p-4 border border-border">
-          <div className="flex items-center gap-2 mb-2">
-            <s.icon className="w-4 h-4" style={{ color: s.color }} />
-            <span className="text-muted-foreground text-[10px] uppercase tracking-wider">{s.label}</span>
+        <div key={i} className="bg-card rounded-xl p-4 border border-border/50 hover:border-border transition-colors" data-testid={`stat-${i}`}>
+          <div className="flex items-center gap-2 mb-2.5">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: s.color + "15" }}>
+              <s.icon className="w-4 h-4" style={{ color: s.color }} />
+            </div>
           </div>
-          <p className="text-foreground font-bold text-lg" data-testid={`stat-${i}`}>{s.value}</p>
+          <p className="text-foreground font-bold text-xl tracking-tight">{s.value}</p>
+          <p className="text-muted-foreground text-[10px] uppercase tracking-widest mt-1">{s.label}</p>
         </div>
       ))}
     </div>
@@ -502,43 +504,43 @@ function UsersTab({ users: allUsers }: { users: User[] }) {
         <span className="text-muted-foreground text-xs whitespace-nowrap">{t("admin.count", { count: String(filtered.length) })}</span>
       </div>
 
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+      <div className="bg-card rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-border bg-card">
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">{t("admin.phone")}</th>
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">VIP</th>
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">{t("common.balance")}</th>
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">IP</th>
-                <th className="text-left text-muted-foreground font-medium py-2.5 px-3">{t("admin.status")}</th>
-                <th className="text-right text-muted-foreground font-medium py-2.5 px-3">{t("admin.actions")}</th>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left text-muted-foreground font-semibold py-3 px-3 text-[10px] uppercase tracking-widest">{t("admin.phone")}</th>
+                <th className="text-left text-muted-foreground font-semibold py-3 px-3 text-[10px] uppercase tracking-widest">VIP</th>
+                <th className="text-left text-muted-foreground font-semibold py-3 px-3 text-[10px] uppercase tracking-widest">{t("common.balance")}</th>
+                <th className="text-left text-muted-foreground font-semibold py-3 px-3 text-[10px] uppercase tracking-widest">IP</th>
+                <th className="text-left text-muted-foreground font-semibold py-3 px-3 text-[10px] uppercase tracking-widest">{t("admin.status")}</th>
+                <th className="text-right text-muted-foreground font-semibold py-3 px-3 text-[10px] uppercase tracking-widest">{t("admin.actions")}</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((u) => (
-                <tr key={u.id} className="border-b border-border hover:bg-muted/50">
-                  <td className="py-2.5 px-3">
+                <tr key={u.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                  <td className="py-3 px-3">
                     <p className="text-foreground font-medium">{u.phone}</p>
                     <p className="text-muted-foreground text-[10px]">UID: {u.numericId?.slice(0, 8) || "—"}</p>
                   </td>
-                  <td className="py-2.5 px-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/20 text-primary">
+                  <td className="py-3 px-3">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/15 text-primary border border-primary/20">
                       {getVipName(u.vipLevel, locale)}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 text-emerald-500 dark:text-emerald-400 font-mono">{Number(u.balance).toFixed(2)}</td>
-                  <td className="py-2.5 px-3 text-muted-foreground font-mono text-[10px]">{u.lastLoginIp || "—"}</td>
-                  <td className="py-2.5 px-3">
+                  <td className="py-3 px-3 text-emerald-500 dark:text-emerald-400 font-mono font-semibold">{Number(u.balance).toFixed(2)}</td>
+                  <td className="py-3 px-3 text-muted-foreground font-mono text-[10px]">{u.lastLoginIp || "—"}</td>
+                  <td className="py-3 px-3">
                     <div className="flex gap-1">
-                      {u.isBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-primary/20 text-primary">BAN</span>}
-                      {u.withdrawalBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#FFB300]/20 text-[#FFB300]">W-BAN</span>}
-                      {!u.isBanned && !u.withdrawalBanned && <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#4ADE80]/20 text-emerald-500 dark:text-emerald-400">OK</span>}
+                      {u.isBanned && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-red-500/15 text-red-500 border border-red-500/20">BAN</span>}
+                      {u.withdrawalBanned && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/15 text-amber-500 border border-amber-500/20">W-BAN</span>}
+                      {!u.isBanned && !u.withdrawalBanned && <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-500 border border-emerald-500/20">OK</span>}
                     </div>
                   </td>
-                  <td className="py-2.5 px-3 text-right">
+                  <td className="py-3 px-3 text-right">
                     <Button size="sm" onClick={() => setSelectedUserId(u.id)} variant="ghost"
-                      className="text-[#3B82F6] h-7 px-2 text-xs" data-testid={`button-view-user-${u.id}`}
+                      className="text-primary h-7 px-2.5 text-xs rounded-lg hover:bg-primary/10" data-testid={`button-view-user-${u.id}`}
                     >
                       <Eye className="w-3 h-3 mr-1" /> {t("admin.view")}
                     </Button>
@@ -583,10 +585,17 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         {(["all", "pending", "approved", "rejected"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              filter === f
+                ? f === "pending" ? "bg-amber-500/15 text-amber-500 border border-amber-500/20" :
+                  f === "approved" ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/20" :
+                  f === "rejected" ? "bg-red-500/15 text-red-500 border border-red-500/20" :
+                  "bg-primary/15 text-primary border border-primary/20"
+                : "text-muted-foreground hover:bg-muted/50 border border-transparent"
+            }`}
             data-testid={`button-filter-${f}`}
           >
             {filterLabels[f]}
@@ -600,17 +609,21 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
         {filtered.map(d => {
           const user = userMap[d.userId];
           return (
-            <div key={d.id} className="bg-card rounded-xl p-4 border border-border">
+            <div key={d.id} className="bg-card rounded-xl p-4 border border-border/50 hover:border-border transition-colors shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <ArrowDownCircle className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
-                    <span className="text-foreground font-semibold text-sm">{Number(d.amount).toFixed(2)} {d.currency}</span>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                      <ArrowDownCircle className="w-3.5 h-3.5 text-emerald-500" />
+                    </div>
+                    <span className="text-foreground font-bold text-sm">{Number(d.amount).toFixed(2)} {d.currency}</span>
                     <StatusBadge status={d.status} />
                   </div>
-                  <p className="text-muted-foreground text-xs">{t("admin.user")}: {user?.phone || d.userId.slice(0, 8)}</p>
-                  <p className="text-muted-foreground text-xs">{t("admin.paymentType")}: {d.paymentType === "crypto" ? t("admin.crypto") : t("admin.local")}</p>
-                  <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(d.createdAt).toLocaleString()}</p>
+                  <div className="ml-9 space-y-0.5">
+                    <p className="text-muted-foreground text-xs">{t("admin.user")}: <span className="text-foreground font-medium">{user?.phone || d.userId.slice(0, 8)}</span></p>
+                    <p className="text-muted-foreground text-xs">{t("admin.paymentType")}: {d.paymentType === "crypto" ? t("admin.crypto") : t("admin.local")}</p>
+                    <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(d.createdAt).toLocaleString()}</p>
+                  </div>
                   {d.receiptUrl && (
                     <div className="mt-2 cursor-pointer" onClick={() => setViewReceipt(d.receiptUrl)} data-testid={`receipt-thumbnail-${d.id}`}>
                       <img
@@ -625,10 +638,10 @@ function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRequest[]
                 </div>
                 {d.status === "pending" && (
                   <div className="flex gap-1.5">
-                    <Button size="sm" onClick={() => approveMutation.mutate(d.id)} className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-deposit-${d.id}`}>
+                    <Button size="sm" onClick={() => approveMutation.mutate(d.id)} className="bg-emerald-500 hover:bg-emerald-600 text-white h-8 text-xs rounded-lg shadow-sm" data-testid={`button-approve-deposit-${d.id}`}>
                       <Check className="w-3 h-3 mr-1" /> {t("common.confirm")}
                     </Button>
-                    <Button size="sm" onClick={() => rejectMutation.mutate(d.id)} className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-deposit-${d.id}`}>
+                    <Button size="sm" onClick={() => rejectMutation.mutate(d.id)} className="bg-red-500 hover:bg-red-600 text-white h-8 text-xs rounded-lg shadow-sm" data-testid={`button-reject-deposit-${d.id}`}>
                       <X className="w-3 h-3 mr-1" /> {t("admin.reject")}
                     </Button>
                   </div>
@@ -687,10 +700,17 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         {(["all", "pending", "approved", "rejected"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              filter === f
+                ? f === "pending" ? "bg-amber-500/15 text-amber-500 border border-amber-500/20" :
+                  f === "approved" ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/20" :
+                  f === "rejected" ? "bg-red-500/15 text-red-500 border border-red-500/20" :
+                  "bg-primary/15 text-primary border border-primary/20"
+                : "text-muted-foreground hover:bg-muted/50 border border-transparent"
+            }`}
             data-testid={`button-filter-w-${f}`}
           >
             {filterLabels[f]}
@@ -705,20 +725,24 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
           const user = userMap[w.userId];
           const pm = w.paymentMethod;
           return (
-            <div key={w.id} className="bg-card rounded-xl p-4 border border-border">
+            <div key={w.id} className="bg-card rounded-xl p-4 border border-border/50 hover:border-border transition-colors shadow-sm">
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <ArrowUpCircle className="w-4 h-4 text-primary" />
-                    <span className="text-foreground font-semibold text-sm">{Number(w.amount).toFixed(2)} USDT</span>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center">
+                      <ArrowUpCircle className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <span className="text-foreground font-bold text-sm">{Number(w.amount).toFixed(2)} USDT</span>
                     <StatusBadge status={w.status} />
                   </div>
-                  <p className="text-muted-foreground text-xs">{t("admin.user")}: {user?.phone || w.userId.slice(0, 8)}</p>
-                  <p className="text-muted-foreground text-xs">{t("admin.commission")}: {Number(w.commission).toFixed(2)} USDT | {t("admin.net")}: {Number(w.netAmount).toFixed(2)} USDT</p>
+                  <div className="ml-9 space-y-0.5">
+                    <p className="text-muted-foreground text-xs">{t("admin.user")}: <span className="text-foreground font-medium">{user?.phone || w.userId.slice(0, 8)}</span></p>
+                    <p className="text-muted-foreground text-xs">{t("admin.commission")}: {Number(w.commission).toFixed(2)} USDT | {t("admin.net")}: {Number(w.netAmount).toFixed(2)} USDT</p>
+                  </div>
                   {pm && (
-                    <div className="mt-2 p-2.5 bg-card rounded-lg border border-border">
+                    <div className="mt-2 ml-9 p-2.5 bg-muted/30 rounded-lg border border-border/50">
                       <div className="flex items-center gap-1.5 mb-1">
-                        {pm.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />}
+                        {pm.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-blue-500" /> : <Wallet className="w-3.5 h-3.5 text-emerald-500" />}
                         <span className="text-foreground text-xs font-medium">{pm.type === "bank" ? t("admin.bankCard") : t("admin.usdtWallet")}</span>
                       </div>
                       {pm.type === "bank" ? (
@@ -735,15 +759,15 @@ function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: (Withdr
                       )}
                     </div>
                   )}
-                  {!pm && <p className="text-primary text-xs mt-1">{t("admin.noRequisites")}</p>}
-                  <p className="text-muted-foreground text-xs mt-1">{t("admin.date")}: {new Date(w.createdAt).toLocaleString()}</p>
+                  {!pm && <p className="text-red-400 text-xs mt-1 ml-9">{t("admin.noRequisites")}</p>}
+                  <p className="text-muted-foreground text-xs mt-1 ml-9">{t("admin.date")}: {new Date(w.createdAt).toLocaleString()}</p>
                 </div>
                 {w.status === "pending" && (
                   <div className="flex gap-1.5">
-                    <Button size="sm" onClick={() => approveMutation.mutate(w.id)} className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-withdrawal-${w.id}`}>
+                    <Button size="sm" onClick={() => approveMutation.mutate(w.id)} className="bg-emerald-500 hover:bg-emerald-600 text-white h-8 text-xs rounded-lg shadow-sm" data-testid={`button-approve-withdrawal-${w.id}`}>
                       <Check className="w-3 h-3 mr-1" /> {t("common.confirm")}
                     </Button>
-                    <Button size="sm" onClick={() => rejectMutation.mutate(w.id)} className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-withdrawal-${w.id}`}>
+                    <Button size="sm" onClick={() => rejectMutation.mutate(w.id)} className="bg-red-500 hover:bg-red-600 text-white h-8 text-xs rounded-lg shadow-sm" data-testid={`button-reject-withdrawal-${w.id}`}>
                       <X className="w-3 h-3 mr-1" /> {t("admin.reject")}
                     </Button>
                   </div>
@@ -1446,10 +1470,17 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
         <h3 className="text-foreground font-bold text-sm">{t("admin.stajyorRequests")}</h3>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-1.5">
         {(["all", "pending", "approved", "rejected"] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${filter === f ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground"}`}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              filter === f
+                ? f === "pending" ? "bg-amber-500/15 text-amber-500 border border-amber-500/20" :
+                  f === "approved" ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/20" :
+                  f === "rejected" ? "bg-red-500/15 text-red-500 border border-red-500/20" :
+                  "bg-primary/15 text-primary border border-primary/20"
+                : "text-muted-foreground hover:bg-muted/50 border border-transparent"
+            }`}
             data-testid={`button-filter-stajyor-${f}`}
           >
             {filterLabels[f]}
@@ -1463,32 +1494,36 @@ function StajyorTab({ users: allUsers }: { users: User[] }) {
         {filtered.map(r => {
           const user = userMap[r.userId];
           return (
-            <div key={r.id} className="bg-card rounded-xl p-4 border border-border" data-testid={`stajyor-request-${r.id}`}>
+            <div key={r.id} className="bg-card rounded-xl p-4 border border-border/50 hover:border-border transition-colors shadow-sm" data-testid={`stajyor-request-${r.id}`}>
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <UserPlus className="w-4 h-4 text-[#78909C]" />
-                    <span className="text-foreground font-semibold text-sm">{user?.phone || r.userId.slice(0, 8)}</span>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
+                      <UserPlus className="w-3.5 h-3.5 text-blue-500" />
+                    </div>
+                    <span className="text-foreground font-bold text-sm">{user?.phone || r.userId.slice(0, 8)}</span>
                     <StatusBadge status={r.status} />
                   </div>
                   {r.message && (
-                    <div className="flex items-start gap-1.5 mt-1.5 bg-card rounded-lg p-2 border border-border">
+                    <div className="flex items-start gap-1.5 mt-1.5 ml-9 bg-muted/30 rounded-lg p-2.5 border border-border/50">
                       <MessageSquare className="w-3 h-3 text-muted-foreground mt-0.5 shrink-0" />
                       <p className="text-foreground text-xs">{r.message}</p>
                     </div>
                   )}
-                  <p className="text-muted-foreground text-xs mt-1">UID: {user?.numericId?.slice(0, 10) || "—"}</p>
-                  <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(r.createdAt).toLocaleString()}</p>
+                  <div className="ml-9 space-y-0.5 mt-1">
+                    <p className="text-muted-foreground text-xs">UID: {user?.numericId?.slice(0, 10) || "—"}</p>
+                    <p className="text-muted-foreground text-xs">{t("admin.date")}: {new Date(r.createdAt).toLocaleString()}</p>
+                  </div>
                 </div>
                 {r.status === "pending" && (
                   <div className="flex gap-1.5">
                     <Button size="sm" onClick={() => approveMutation.mutate(r.id)}
-                      className="bg-[#4ADE80] text-black h-8 text-xs rounded-lg" data-testid={`button-approve-stajyor-${r.id}`}
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white h-8 text-xs rounded-lg shadow-sm" data-testid={`button-approve-stajyor-${r.id}`}
                     >
                       <Check className="w-3 h-3 mr-1" /> {t("admin.activate")}
                     </Button>
                     <Button size="sm" onClick={() => rejectMutation.mutate(r.id)}
-                      className="bg-primary text-foreground h-8 text-xs rounded-lg" data-testid={`button-reject-stajyor-${r.id}`}
+                      className="bg-red-500 hover:bg-red-600 text-white h-8 text-xs rounded-lg shadow-sm" data-testid={`button-reject-stajyor-${r.id}`}
                     >
                       <X className="w-3 h-3 mr-1" /> {t("admin.reject")}
                     </Button>
@@ -1527,26 +1562,26 @@ function VipManageTab() {
       <p className="text-muted-foreground text-xs mb-4">{t("admin.vipManageDesc")}</p>
       <div className="space-y-2">
         {sorted.map((pkg) => (
-          <div key={pkg.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between">
+          <div key={pkg.id} className="bg-card rounded-xl p-4 border border-border/50 hover:border-border transition-colors shadow-sm flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${pkg.isLocked ? "bg-primary/20" : "bg-[#4ADE80]/20"}`}>
-                <Crown className={`w-5 h-5 ${pkg.isLocked ? "text-primary" : "text-emerald-500 dark:text-emerald-400"}`} />
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${pkg.isLocked ? "bg-red-500/15" : "bg-emerald-500/15"}`}>
+                <Crown className={`w-5 h-5 ${pkg.isLocked ? "text-red-500" : "text-emerald-500"}`} />
               </div>
               <div>
-                <p className="text-foreground text-sm font-semibold">{pkg.name}</p>
+                <p className="text-foreground text-sm font-bold">{pkg.name}</p>
                 <p className="text-muted-foreground text-xs">
-                  {t("admin.price")}: ${Number(pkg.price).toFixed(0)} | {t("admin.dailyLabel")}: {pkg.dailyTasks} {t("admin.tasksLabel")} | {t("admin.perVideo")}: ${Number(pkg.perVideoReward).toFixed(2)}
+                  {t("admin.price")}: <span className="text-foreground font-medium">${Number(pkg.price).toFixed(0)}</span> | {t("admin.dailyLabel")}: {pkg.dailyTasks} {t("admin.tasksLabel")} | {t("admin.perVideo")}: ${Number(pkg.perVideoReward).toFixed(2)}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-medium ${pkg.isLocked ? "text-primary" : "text-emerald-500 dark:text-emerald-400"}`}>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${pkg.isLocked ? "bg-red-500/15 text-red-500 border-red-500/20" : "bg-emerald-500/15 text-emerald-500 border-emerald-500/20"}`}>
                 {pkg.isLocked ? t("admin.closed") : t("common.open")}
               </span>
               <Button
                 size="sm"
                 onClick={() => toggleLockMutation.mutate({ id: pkg.id, locked: !pkg.isLocked })}
-                className={`text-xs rounded-lg h-8 px-3 ${pkg.isLocked ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
+                className={`text-xs rounded-lg h-8 px-3 shadow-sm ${pkg.isLocked ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-red-500 hover:bg-red-600 text-white"}`}
                 data-testid={`button-toggle-vip-${pkg.level}`}
               >
                 {pkg.isLocked ? t("admin.unlock") : t("admin.lock")}
@@ -1872,10 +1907,15 @@ function BroadcastsTab() {
 
 function StatusBadge({ status }: { status: string }) {
   const { t } = useI18n();
-  const colors: Record<string, string> = { pending: "#FFB300", approved: "hsl(var(--emerald-500, 142 71% 45%))", rejected: "hsl(var(--primary))", completed: "hsl(var(--emerald-500, 142 71% 45%))" };
+  const styles: Record<string, string> = {
+    pending: "bg-amber-500/15 text-amber-500 border-amber-500/20",
+    approved: "bg-emerald-500/15 text-emerald-500 border-emerald-500/20",
+    rejected: "bg-red-500/15 text-red-500 border-red-500/20",
+    completed: "bg-emerald-500/15 text-emerald-500 border-emerald-500/20",
+  };
   const labels: Record<string, string> = { pending: t("common.pending"), approved: t("common.approved"), rejected: t("common.rejected"), completed: t("common.completed") };
   return (
-    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ backgroundColor: `${colors[status]}20`, color: colors[status] }}>
+    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${styles[status] || "bg-muted text-muted-foreground border-border"}`}>
       {labels[status] || status}
     </span>
   );
@@ -1941,17 +1981,21 @@ function AdminPinGate({ onVerified }: { onVerified: () => void }) {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+      <div className="absolute inset-0 opacity-[0.02]">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white rounded-full" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-white rounded-full" />
+      </div>
+      <div className="relative w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <KeyRound className="w-10 h-10 text-primary" />
+          <div className="w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-4 border border-white/10 shadow-2xl">
+            <KeyRound className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-foreground">{t("admin.pinTitle")}</h1>
-          <p className="text-muted-foreground text-sm mt-2">{t("admin.pinDesc")}</p>
+          <h1 className="text-xl font-bold text-white">{t("admin.pinTitle")}</h1>
+          <p className="text-white/50 text-sm mt-2">{t("admin.pinDesc")}</p>
         </div>
 
-        <div className="bg-card rounded-2xl p-6 border border-border shadow-lg">
+        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl">
           <div className="flex justify-center gap-3 mb-4">
             {pin.map((digit, i) => (
               <input
@@ -1965,16 +2009,18 @@ function AdminPinGate({ onVerified }: { onVerified: () => void }) {
                 onChange={e => handleChange(i, e.target.value)}
                 onKeyDown={e => handleKeyDown(i, e)}
                 onPaste={i === 0 ? handlePaste : undefined}
-                className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-background text-foreground outline-none transition-colors ${
-                  error ? "border-red-500" : digit ? "border-primary" : "border-border"
-                } focus:border-primary`}
+                className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-white/5 text-white outline-none transition-all ${
+                  error ? "border-red-500" : digit ? "border-primary shadow-sm shadow-primary/20" : "border-white/15"
+                } focus:border-primary focus:shadow-sm focus:shadow-primary/20`}
                 data-testid={`input-admin-pin-${i}`}
               />
             ))}
           </div>
 
           {error && (
-            <p className="text-red-500 text-xs text-center mb-3" data-testid="text-pin-error">{error}</p>
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 mb-3">
+              <p className="text-red-400 text-xs text-center" data-testid="text-pin-error">{error}</p>
+            </div>
           )}
 
           <Button
@@ -1983,7 +2029,7 @@ function AdminPinGate({ onVerified }: { onVerified: () => void }) {
               if (code.length === 6) verifyMutation.mutate(code);
             }}
             disabled={pin.some(d => d === "") || verifyMutation.isPending}
-            className="w-full h-12 rounded-xl text-sm font-semibold"
+            className="w-full h-12 rounded-xl text-sm font-semibold bg-gradient-to-r from-primary to-blue-600 text-white shadow-lg shadow-primary/20"
             data-testid="button-verify-pin"
           >
             {verifyMutation.isPending ? (
@@ -1995,7 +2041,7 @@ function AdminPinGate({ onVerified }: { onVerified: () => void }) {
         </div>
 
         <div className="text-center mt-4">
-          <a href="/dashboard" className="text-muted-foreground text-xs hover:text-foreground transition-colors" data-testid="link-back-from-pin">
+          <a href="/dashboard" className="text-white/40 text-xs hover:text-white/70 transition-colors" data-testid="link-back-from-pin">
             {t("admin.backToSite")}
           </a>
         </div>
@@ -2078,53 +2124,72 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-card border-b border-border px-4 py-3">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-primary" />
-            <h1 className="text-foreground font-bold text-lg">{t("admin.title")}</h1>
+      <div className="relative bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border-b border-white/10">
+        <div className="absolute inset-0 opacity-[0.03]">
+          <div className="absolute top-0 right-0 w-60 h-60 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+          <div className="absolute bottom-0 left-1/4 w-32 h-32 bg-white rounded-full translate-y-1/2" />
+        </div>
+        <div className="relative max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/10">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-white font-bold text-lg tracking-tight">{t("admin.title")}</h1>
+                <p className="text-white/40 text-[10px] uppercase tracking-widest">Control Panel</p>
+              </div>
+            </div>
+            <a href="/dashboard" className="text-white/50 text-xs hover:text-white transition-colors bg-white/5 px-3 py-1.5 rounded-lg border border-white/10" data-testid="link-back-to-site">
+              {t("admin.backToSite")}
+            </a>
           </div>
-          <a href="/dashboard" className="text-muted-foreground text-xs hover:text-foreground transition-colors" data-testid="link-back-to-site">
-            {t("admin.backToSite")}
-          </a>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto p-4">
-        <div className="space-y-2 pb-3 mb-4">
+        <div className="bg-card rounded-xl border border-border/50 p-3 mb-4 space-y-3">
           <div>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">{t("admin.techSection")}</p>
-            <div className="flex flex-wrap gap-2">
+            <p className="text-muted-foreground text-[9px] uppercase tracking-widest mb-2 px-1 font-semibold">{t("admin.techSection")}</p>
+            <div className="flex flex-wrap gap-1.5">
               {techTabs.map(tb => (
                 <button key={tb.id} onClick={() => setTab(tb.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
-                    tab === tb.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                    tab === tb.id
+                      ? "bg-gradient-to-r from-primary to-blue-600 text-white shadow-sm shadow-primary/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                   data-testid={`tab-${tb.id}`}
                 >
                   <tb.icon className="w-3.5 h-3.5" />
                   {tb.label}
                   {tb.badge !== undefined && tb.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{tb.badge}</span>
+                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
+                      tab === tb.id ? "bg-white/20 text-white" : "bg-red-500/15 text-red-500"
+                    }`}>{tb.badge}</span>
                   )}
                 </button>
               ))}
             </div>
           </div>
-          <div>
-            <p className="text-muted-foreground text-[10px] uppercase tracking-widest mb-1.5 px-1">{t("admin.financeSection")}</p>
-            <div className="flex flex-wrap gap-2">
+          <div className="border-t border-border/50 pt-3">
+            <p className="text-muted-foreground text-[9px] uppercase tracking-widest mb-2 px-1 font-semibold">{t("admin.financeSection")}</p>
+            <div className="flex flex-wrap gap-1.5">
               {financeTabs.map(tb => (
                 <button key={tb.id} onClick={() => setTab(tb.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap border transition-colors ${
-                    tab === tb.id ? "bg-primary/20 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                    tab === tb.id
+                      ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm shadow-emerald-500/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                   data-testid={`tab-${tb.id}`}
                 >
                   <tb.icon className="w-3.5 h-3.5" />
                   {tb.label}
                   {tb.badge !== undefined && tb.badge > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 rounded-full text-[9px] bg-primary text-foreground font-bold">{tb.badge}</span>
+                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
+                      tab === tb.id ? "bg-white/20 text-white" : "bg-red-500/15 text-red-500"
+                    }`}>{tb.badge}</span>
                   )}
                 </button>
               ))}
