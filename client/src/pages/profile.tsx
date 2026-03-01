@@ -1253,7 +1253,7 @@ export default function ProfilePage() {
               })()}
             </div>
             <button onClick={copyId} className="flex items-center gap-1 mt-0.5 group" data-testid="button-copy-id">
-              <span className="text-muted-foreground text-xs">ID: {user.numericId || "—"}</span>
+              <span className="text-muted-foreground text-xs">UID: {user.numericId || "—"}</span>
               <Copy className="w-3 h-3 text-muted-foreground group-hover:text-primary" />
             </button>
           </div>

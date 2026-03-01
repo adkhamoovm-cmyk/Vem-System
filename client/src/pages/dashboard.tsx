@@ -291,7 +291,7 @@ export default function DashboardPage() {
                     {user.vipLevel >= 0 && <VipIcon level={user.vipLevel} className="w-3 h-3 text-primary" />}
                     {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
                   </span>
-                  <p className="text-foreground text-xs font-medium">ID: {user.numericId || "—"}</p>
+                  <p className="text-foreground text-xs font-medium">UID: {user.numericId || "—"}</p>
                 </div>
               </div>
               <Link href="/vip">
