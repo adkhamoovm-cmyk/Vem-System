@@ -107,8 +107,8 @@ function VideoPlayerModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" data-testid="modal-video">
-      <div className="w-full max-w-lg bg-card rounded-2xl overflow-hidden border border-border shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4" data-testid="modal-video">
+      <div className="w-full max-w-lg bg-card rounded-2xl overflow-hidden border border-border/50 shadow-2xl shadow-black/40">
         <div className="relative aspect-video bg-black">
           {!started ? (
             <div className="relative w-full h-full">
@@ -119,15 +119,19 @@ function VideoPlayerModal({
                 className="w-full h-full object-cover"
                 data-testid="img-thumbnail"
               />
-              <div className="absolute inset-0 bg-black/30 flex flex-col items-center justify-center">
-                <Button
-                  onClick={() => setStarted(true)}
-                  className="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/30 no-default-hover-elevate no-default-active-elevate cursor-pointer"
-                  data-testid="button-play"
-                >
-                  <Play className="w-7 h-7 text-primary-foreground ml-1" />
-                </Button>
-                <span className="text-white/90 text-xs mt-3 font-medium drop-shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10 flex flex-col items-center justify-center">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" style={{ animationDuration: "2s" }} />
+                  <Button
+                    onClick={() => setStarted(true)}
+                    className="relative w-18 h-18 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center shadow-2xl shadow-primary/40 no-default-hover-elevate no-default-active-elevate cursor-pointer active:scale-95 transition-transform"
+                    style={{ width: "72px", height: "72px" }}
+                    data-testid="button-play"
+                  >
+                    <Play className="w-8 h-8 text-white ml-1" fill="white" fillOpacity={0.9} />
+                  </Button>
+                </div>
+                <span className="text-white text-xs mt-4 font-medium drop-shadow-lg bg-black/40 backdrop-blur-sm px-4 py-1.5 rounded-full">
                   {t("tasks.pressToStart")}
                 </span>
               </div>
@@ -142,40 +146,49 @@ function VideoPlayerModal({
                 data-testid="video-iframe"
               />
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
-                <div className="bg-black/70 backdrop-blur-sm rounded-full px-3 py-1.5 flex items-center gap-2">
-                  <Clock className="w-3 h-3 text-primary" />
-                  <span className="text-white text-xs font-mono font-bold" data-testid="text-timer">
+                <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/10">
+                  <Clock className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-white text-xs font-mono font-bold tracking-wide" data-testid="text-timer">
                     {t("tasks.timeLeft", { time: timeLeft })}
                   </span>
                 </div>
-                <div className="bg-black/70 backdrop-blur-sm rounded-full px-3 py-1.5">
-                  <span className="text-primary font-bold text-xs">+${perVideoReward.toFixed(2)}</span>
+                <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 border border-white/10">
+                  <span className="text-emerald-400 font-bold text-xs">+${perVideoReward.toFixed(2)}</span>
                 </div>
               </div>
               <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
-                <div className="h-1 bg-white/20">
+                <div className="h-1.5 bg-white/10">
                   <div
-                    className="h-full bg-primary transition-all duration-1000"
+                    className="h-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-1000 shadow-sm shadow-primary/50"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
               </div>
             </>
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-card to-background gap-3">
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
-                <CheckCircle className="w-8 h-8 text-white" />
+            <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-b from-emerald-500/10 via-card to-card gap-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500/20 rounded-full animate-ping" style={{ animationDuration: "1.5s" }} />
+                <div className="relative w-20 h-20 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-full flex items-center justify-center shadow-xl shadow-emerald-500/30">
+                  <CheckCircle className="w-10 h-10 text-white" />
+                </div>
               </div>
-              <span className="text-foreground font-bold text-lg">{t("tasks.completed")}</span>
+              <div className="text-center">
+                <span className="text-foreground font-bold text-lg">{t("tasks.completed")}</span>
+                <p className="text-emerald-500 dark:text-emerald-400 font-bold text-2xl mt-1">+${perVideoReward.toFixed(2)}</p>
+              </div>
             </div>
           )}
         </div>
 
         <div className="p-4 space-y-3">
           {started && !completed && (
-            <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
+            <div className="bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-xl p-3.5 border border-primary/20">
               <div className="flex items-center justify-between">
-                <span className="text-muted-foreground text-xs">{t("tasks.dontClose")}</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                  <span className="text-muted-foreground text-xs">{t("tasks.dontClose")}</span>
+                </div>
                 <span className="text-primary font-bold text-sm">+${perVideoReward.toFixed(2)}</span>
               </div>
             </div>
@@ -183,13 +196,12 @@ function VideoPlayerModal({
 
           {completed && (
             <>
-              <div className="bg-emerald-500/10 rounded-xl p-4 border border-emerald-500/20 text-center">
-                <p className="text-emerald-500 dark:text-emerald-400 font-bold text-lg">+${perVideoReward.toFixed(2)}</p>
-                <p className="text-emerald-500/70 dark:text-emerald-400/70 text-xs mt-0.5">{t("tasks.taskDoneBalance")}</p>
+              <div className="bg-gradient-to-r from-emerald-500/10 to-emerald-600/5 rounded-xl p-4 border border-emerald-500/20 text-center">
+                <p className="text-emerald-500 dark:text-emerald-400 text-xs font-medium">{t("tasks.taskDoneBalance")}</p>
               </div>
               <Button
                 onClick={onClose}
-                className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-10"
+                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
                 data-testid="button-close-video"
               >
                 {t("tasks.continue")}
@@ -201,7 +213,7 @@ function VideoPlayerModal({
             <Button
               onClick={onClose}
               variant="ghost"
-              className="w-full text-muted-foreground hover:text-foreground text-xs h-8"
+              className="w-full text-muted-foreground text-xs h-9 rounded-xl"
               data-testid="button-cancel-video"
               disabled={started && timeLeft > 0}
             >
@@ -283,72 +295,96 @@ export default function TasksPage() {
     return (
       <div className="p-4 flex flex-col gap-4">
         {user && (
-          <div className="bg-primary rounded-2xl p-4 text-primary-foreground shadow-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                <Coffee className="w-5 h-5 text-primary-foreground" />
+          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-4 shadow-xl shadow-primary/20">
+            <div className="absolute inset-0 opacity-[0.07]">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+            </div>
+            <div className="relative flex items-center gap-3">
+              <div className="w-11 h-11 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+                <Coffee className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
-                  <Crown className="w-3.5 h-3.5 text-primary-foreground/80" />
-                  <span className="text-primary-foreground/80 text-xs font-medium">
+                  <Crown className="w-3.5 h-3.5 text-white/70" />
+                  <span className="text-white/70 text-xs font-medium">
                     {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
                   </span>
                 </div>
-                <p className="text-sm font-semibold">{t("tasks.sunday")}</p>
+                <p className="text-sm font-semibold text-white">{t("tasks.sunday")}</p>
               </div>
             </div>
           </div>
         )}
-        <div className="bg-card rounded-2xl p-8 border border-border text-center">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-5">
-            <Coffee className="w-10 h-10 text-primary" />
-          </div>
-          <h3 className="text-foreground font-bold text-xl mb-2">{t("tasks.sunday")}</h3>
-          <p className="text-muted-foreground text-sm mb-3">{t("tasks.sundayDesc")}</p>
-          <div className="bg-primary/10 rounded-xl px-4 py-2.5 inline-block">
-            <p className="text-primary text-xs font-semibold">{t("tasks.sundayNote")}</p>
+        <div className="bg-card rounded-2xl p-8 border border-border text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5" />
+          <div className="relative">
+            <div className="w-20 h-20 bg-gradient-to-br from-amber-500/15 to-orange-500/10 rounded-full flex items-center justify-center mx-auto mb-5 shadow-lg shadow-amber-500/10">
+              <Coffee className="w-10 h-10 text-amber-500" />
+            </div>
+            <h3 className="text-foreground font-bold text-xl mb-2">{t("tasks.sunday")}</h3>
+            <p className="text-muted-foreground text-sm mb-4 leading-relaxed">{t("tasks.sundayDesc")}</p>
+            <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl px-4 py-3 inline-block border border-amber-500/20">
+              <p className="text-amber-600 dark:text-amber-400 text-xs font-semibold">{t("tasks.sundayNote")}</p>
+            </div>
           </div>
         </div>
       </div>
     );
   }
 
+  const progressPercent = user && user.dailyTasksLimit > 0 ? (user.dailyTasksCompleted / user.dailyTasksLimit) * 100 : 0;
+
   return (
-    <div className="p-4">
+    <div className="p-4 space-y-4">
         {user && (
-          <div className="bg-primary rounded-2xl p-4 text-primary-foreground shadow-lg mb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <Crown className="w-4 h-4 text-primary-foreground/80" />
-                  <span className="text-primary-foreground/80 text-xs font-medium">
-                    {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
-                  </span>
-                </div>
-                <p className="text-sm font-semibold">
-                  {t("tasks.perVideo")}: <span className="text-lg font-bold">${perVideoReward.toFixed(2)}</span>
-                </p>
-              </div>
-              <div className="text-right">
-                <span className="text-primary-foreground/80 text-xs">{t("tasks.tasksLabel")}</span>
-                <p className="text-lg font-bold" data-testid="text-task-count">
-                  {user.dailyTasksCompleted} / {user.dailyTasksLimit}
-                </p>
-              </div>
+          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 shadow-xl shadow-primary/20">
+            <div className="absolute inset-0 opacity-[0.07]">
+              <div className="absolute top-0 right-0 w-36 h-36 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
             </div>
-            <Progress
-              value={user.dailyTasksLimit > 0 ? (user.dailyTasksCompleted / user.dailyTasksLimit) * 100 : 0}
-              className="h-1.5 bg-white/20 mt-3 rounded-full"
-            />
+            <div className="relative p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+                    <Crown className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-white/60 text-[10px] uppercase tracking-widest font-medium">
+                      {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
+                    </span>
+                    <p className="text-white font-semibold text-sm mt-0.5">
+                      {t("tasks.perVideo")}: <span className="text-xl font-bold">${perVideoReward.toFixed(2)}</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-2.5 border border-white/10">
+                  <span className="text-white/50 text-[10px] uppercase tracking-widest">{t("tasks.tasksLabel")}</span>
+                  <p className="text-white text-xl font-bold" data-testid="text-task-count">
+                    {user.dailyTasksCompleted}<span className="text-white/40 font-normal mx-0.5">/</span>{user.dailyTasksLimit}
+                  </p>
+                </div>
+              </div>
+              <div className="bg-white/10 rounded-full overflow-hidden h-2">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-white/60 to-white/90 transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+              {isLimitReached && (
+                <div className="mt-3 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-300" />
+                  <span className="text-white/80 text-xs font-medium">{t("tasks.dailyLimitDone")}</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
         {noPrivilege && (
-          <div className="bg-primary/10 rounded-2xl p-4 border border-primary/20 mb-4">
+          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/5 rounded-2xl p-4 border border-amber-500/20">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center shrink-0">
-                <Lock className="w-5 h-5 text-primary" />
+              <div className="w-11 h-11 bg-gradient-to-br from-amber-500/20 to-orange-500/10 rounded-2xl flex items-center justify-center shrink-0">
+                <Lock className="w-5 h-5 text-amber-500" />
               </div>
               <div className="flex-1">
                 <p className="text-foreground text-sm font-semibold">{t("tasks.noPrivilege")}</p>
@@ -356,7 +392,7 @@ export default function TasksPage() {
               </div>
               <Link href="/vip">
                 <Button
-                  className="bg-primary text-primary-foreground text-xs no-default-hover-elevate no-default-active-elevate rounded-xl h-8 px-4"
+                  className="bg-gradient-to-r from-primary to-blue-600 text-white text-xs no-default-hover-elevate no-default-active-elevate rounded-xl h-9 px-5 shadow-lg shadow-primary/20 active:scale-95 transition-transform"
                   data-testid="button-go-vip"
                 >
                   {t("tasks.getVip")}
@@ -366,10 +402,10 @@ export default function TasksPage() {
           </div>
         )}
 
-        <h2 className="text-foreground font-bold text-sm mb-3">{t("tasks.todayTasks")}</h2>
+        <div>
+          <h2 className="text-foreground font-bold text-sm mb-3 px-0.5">{t("tasks.todayTasks")}</h2>
 
-        <div className="space-y-3">
-          <div className="bg-card rounded-2xl overflow-hidden border border-border">
+          <div className="bg-card rounded-2xl overflow-hidden border border-border shadow-sm">
             <div className="relative aspect-video">
               <img
                 src={`https://img.youtube.com/vi/${nextVideoId}/maxresdefault.jpg`}
@@ -377,46 +413,54 @@ export default function TasksPage() {
                 loading="lazy"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute top-3 right-3">
+                <div className="bg-black/50 backdrop-blur-md rounded-full px-3 py-1.5 border border-white/10 flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-emerald-400 text-xs font-bold">+${perVideoReward.toFixed(2)}</span>
+                </div>
+              </div>
               <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-white font-bold text-sm mb-1">{t("tasks.videoTask")}</p>
-                <p className="text-white/60 text-xs">{t("tasks.watchTrailer")}</p>
+                <p className="text-white font-bold text-base mb-1 drop-shadow-lg">{t("tasks.videoTask")}</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-sm rounded-full px-2.5 py-1 border border-white/10">
+                    <Clock className="w-3 h-3 text-white/70" />
+                    <span className="text-white/70 text-[10px] font-medium">{t("tasks.watchSeconds", { seconds: TIMER_DURATION })}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
             <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-primary" />
-                  <span className="text-muted-foreground text-xs">{t("tasks.watchSeconds", { seconds: TIMER_DURATION })}</span>
-                </div>
-                <span className="text-primary text-sm font-bold">+${perVideoReward.toFixed(2)}</span>
-              </div>
-
               <Button
                 onClick={handleStartTask}
                 disabled={!hasVip || isLimitReached}
-                className="w-full bg-primary text-primary-foreground font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 text-sm disabled:opacity-50"
+                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 text-sm disabled:opacity-40 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
                 data-testid="button-start-task"
               >
                 {noPrivilege ? (
                   t("tasks.noPrivilege")
                 ) : isLimitReached ? (
-                  t("tasks.dailyLimitDone")
+                  <>{t("tasks.dailyLimitDone")}</>
                 ) : !hasVip ? (
                   t("tasks.vipRequired")
                 ) : (
                   <>
-                    <Play className="w-4 h-4 mr-2" />
+                    <Play className="w-5 h-5 mr-2" fill="white" fillOpacity={0.8} />
                     {t("tasks.startTask")}
                   </>
                 )}
               </Button>
             </div>
           </div>
+        </div>
 
-          <div className="bg-card rounded-2xl p-4 border border-border">
-            <p className="text-muted-foreground text-xs text-center">
+        <div className="bg-card rounded-2xl p-4 border border-border">
+          <div className="flex items-center gap-2.5 justify-center">
+            <div className="w-5 h-5 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Clock className="w-3 h-3 text-primary" />
+            </div>
+            <p className="text-muted-foreground text-xs">
               {t("tasks.eachButton", { seconds: TIMER_DURATION })}
             </p>
           </div>
