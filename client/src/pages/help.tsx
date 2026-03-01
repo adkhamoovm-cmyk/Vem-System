@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, Users, Headphones, ExternalLink, HelpCircle, ChevronDown } from "lucide-react";
+import { MessageCircle, Users, Headphones, ExternalLink, HelpCircle, ChevronDown, TrendingUp } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export default function HelpPage() {
@@ -35,6 +35,7 @@ export default function HelpPage() {
     { q: t("help.faqQ4"), a: t("help.faqA4") },
     { q: t("help.faqQ5"), a: t("help.faqA5") },
     { q: t("help.faqQ6"), a: t("help.faqA6") },
+    { q: t("help.faqQ7"), a: t("help.faqA7"), highlight: true },
   ];
 
   const toggleFaq = (index: number) => {
@@ -107,27 +108,38 @@ export default function HelpPage() {
           </div>
           <div className="border-t border-border">
             {faqItems.map((faq, i) => (
-              <div key={i} className="border-b border-border last:border-b-0" data-testid={`faq-item-${i}`}>
+              <div
+                key={i}
+                className={`border-b border-border last:border-b-0 ${(faq as any).highlight ? "bg-amber-500/5" : ""}`}
+                data-testid={`faq-item-${i}`}
+              >
                 <button
                   onClick={() => toggleFaq(i)}
                   className="w-full flex items-center justify-between px-4 py-3.5 text-left hover:bg-muted/50 transition-colors"
                   data-testid={`faq-toggle-${i}`}
                 >
-                  <span className="text-foreground text-[13px] font-medium pr-3 leading-snug">{faq.q}</span>
+                  <div className="flex items-center gap-2 pr-3 flex-1">
+                    {(faq as any).highlight && (
+                      <TrendingUp className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    )}
+                    <span className={`text-[13px] font-medium leading-snug ${(faq as any).highlight ? "text-amber-600 dark:text-amber-400" : "text-foreground"}`}>
+                      {faq.q}
+                    </span>
+                  </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-300 ${
-                      openFaq === i ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 shrink-0 transition-transform duration-300 ${
+                      (faq as any).highlight ? "text-amber-500" : "text-muted-foreground"
+                    } ${openFaq === i ? "rotate-180" : ""}`}
                   />
                 </button>
                 <div
                   className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                    openFaq === i ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                    openFaq === i ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
                   }`}
                 >
                   <div className="px-4 pb-4 pt-0">
-                    <div className="bg-muted/50 rounded-xl p-3.5">
-                      <p className="text-muted-foreground text-[12px] leading-relaxed">{faq.a}</p>
+                    <div className={`rounded-xl p-3.5 ${(faq as any).highlight ? "bg-amber-500/10 border border-amber-500/20" : "bg-muted/50"}`}>
+                      <p className="text-muted-foreground text-[12px] leading-relaxed whitespace-pre-line">{faq.a}</p>
                     </div>
                   </div>
                 </div>
