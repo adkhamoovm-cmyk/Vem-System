@@ -932,6 +932,7 @@ function showGuide(browser) {
           dailyTasks: pkg.dailyTasks,
           durationDays: pkg.durationDays,
           perVideoReward: pkg.perVideoReward,
+          refundAmount: refundAmount > 0 ? refundAmount.toFixed(2) : null,
         }
       });
     } catch (error: any) {

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Crown, Rocket, TrendingUp, Star, Sparkles, Zap, X } from "lucide-react";
+import { Crown, Rocket, TrendingUp, Star, Sparkles, Zap, X, ArrowDownLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 
@@ -10,6 +10,7 @@ interface CelebrationData {
   dailyTasks?: number;
   durationDays?: number;
   perVideoReward?: string;
+  refundAmount?: string | null;
   planName?: string;
   amount?: number;
   dailyProfit?: string;
@@ -290,6 +291,18 @@ export default function CelebrationModal({ data, onClose }: CelebrationModalProp
                   </div>
                   <span className="text-sm font-bold text-white">{data.durationDays} {t("celebration.workDays")}</span>
                 </div>
+
+                {data.refundAmount && (
+                  <div className="flex items-center justify-between py-2.5 px-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20" data-testid="celebration-stat-refund">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center">
+                        <ArrowDownLeft className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-sm text-emerald-300">{t("celebration.refund")}</span>
+                    </div>
+                    <span className="text-sm font-bold text-emerald-400">+{data.refundAmount} USDT</span>
+                  </div>
+                )}
               </>
             )}
 

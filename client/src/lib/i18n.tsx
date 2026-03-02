@@ -1032,6 +1032,7 @@ const translations: Record<Locale, any> = {
       dailyProfit: "Kunlik daromad",
       roi: "Daromad foizi",
       day: "kun",
+      refund: "Oqlanmagan qism qaytarildi",
       continue: "Davom etish",
     },
     notifications: {
@@ -1913,6 +1914,7 @@ const translations: Record<Locale, any> = {
       dailyProfit: "Дневной доход",
       roi: "Процент дохода",
       day: "день",
+      refund: "Возврат неокупленной суммы",
       continue: "Продолжить",
     },
     notifications: {
@@ -2794,6 +2796,7 @@ const translations: Record<Locale, any> = {
       dailyProfit: "Daily profit",
       roi: "ROI rate",
       day: "day",
+      refund: "Unrecouped amount refunded",
       continue: "Continue",
     },
     notifications: {
