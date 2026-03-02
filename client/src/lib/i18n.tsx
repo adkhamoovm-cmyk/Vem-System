@@ -29,9 +29,9 @@ function getNestedValue(obj: any, path: string): string | undefined {
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("vem-locale") as Locale) || "uz";
+      return (localStorage.getItem("vem-locale") as Locale) || "ru";
     }
-    return "uz";
+    return "ru";
   });
 
   useEffect(() => {
