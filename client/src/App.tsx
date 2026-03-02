@@ -11,8 +11,7 @@ import type { User } from "@shared/schema";
 import { lazy, Suspense, useEffect } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 
-const LoginPage = lazy(() => import("@/pages/login"));
-const RegisterPage = lazy(() => import("@/pages/register"));
+const AuthPage = lazy(() => import("@/pages/auth"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
 const TasksPage = lazy(() => import("@/pages/tasks"));
 const ReferralPage = lazy(() => import("@/pages/referral"));
@@ -113,10 +112,10 @@ function Router() {
         <Redirect to="/login" />
       </Route>
       <Route path="/login">
-        {() => <AuthRoute component={LoginPage} />}
+        {() => <AuthRoute component={AuthPage} />}
       </Route>
       <Route path="/register">
-        {() => <AuthRoute component={RegisterPage} />}
+        {() => <AuthRoute component={AuthPage} />}
       </Route>
       <Route path="/dashboard">
         {() => <ProtectedRoute component={DashboardPage} />}
