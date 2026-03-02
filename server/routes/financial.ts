@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { storage } from "../storage";
-import { requireAuth, withdrawRateLimiter, sendNotification, uploadReceipt, comparePasswords } from "../lib/helpers";
+import { requireAuth, withdrawRateLimiter, sendNotification, uploadReceipt, comparePasswords, validateBody, financialSchemas } from "../lib/helpers";
 
 const router = Router();
 
@@ -46,7 +46,7 @@ router.get("/api/investments", requireAuth, async (req: Request, res: Response) 
   }
 });
 
-router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, async (req: Request, res: Response) => {
+router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, validateBody(financialSchemas.invest), async (req: Request, res: Response) => {
   try {
     const userId = req.session.userId!;
     const { fundPlanId, amount, fundPassword } = req.body;
@@ -56,10 +56,6 @@ router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, async (req: Re
 
     if (user.isBanned) {
       return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
-    }
-
-    if (!fundPassword) {
-      return res.status(400).json({ message: "Moliya kodi kiritilishi shart" });
     }
     if (!user.fundPassword) {
       return res.status(400).json({ message: "Moliya kodi sozlanmagan. Profildan avval sozlang." });
@@ -237,7 +233,7 @@ router.get("/api/deposits", requireAuth, async (req: Request, res: Response) => 
   }
 });
 
-router.post("/api/withdraw", requireAuth, withdrawRateLimiter, async (req: Request, res: Response) => {
+router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(financialSchemas.withdraw), async (req: Request, res: Response) => {
   try {
     const userId = req.session.userId!;
     const { paymentMethodId, amount, fundPassword } = req.body;

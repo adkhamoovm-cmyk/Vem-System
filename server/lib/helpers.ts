@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs";
 import rateLimit from "express-rate-limit";
 import webpush from "web-push";
+import { z, ZodSchema } from "zod";
 
 const vapidPublic = process.env.VAPID_PUBLIC_KEY || "";
 const vapidPrivate = process.env.VAPID_PRIVATE_KEY || "";
@@ -184,6 +185,48 @@ declare module "express-session" {
     resetVerifyType: string;
   }
 }
+
+export function validateBody(schema: ZodSchema) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      const firstError = result.error.errors[0];
+      return res.status(400).json({ message: firstError.message || "Noto'g'ri ma'lumotlar" });
+    }
+    req.body = result.data;
+    next();
+  };
+}
+
+export const authSchemas = {
+  register: z.object({
+    phone: z.string().min(5, "Telefon raqami kerak").max(20),
+    password: z.string().min(6, "Parol kamida 6 ta belgi"),
+    fundPassword: z.string().length(6, "PIN kod 6 ta raqam bo'lishi kerak").regex(/^\d{6}$/, "PIN faqat raqamlardan iborat"),
+    referralCode: z.string().optional(),
+    captchaVerified: z.boolean().optional(),
+  }),
+  login: z.object({
+    phone: z.string().min(5, "Telefon raqami kerak"),
+    password: z.string().min(1, "Parol kerak"),
+  }),
+};
+
+export const financialSchemas = {
+  invest: z.object({
+    fundPlanId: z.string().min(1),
+    amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Summa musbat bo'lishi kerak")),
+    fundPassword: z.string().min(1, "Fond paroli kerak"),
+  }),
+  withdraw: z.object({
+    amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Summa musbat bo'lishi kerak")),
+    paymentMethodId: z.string().min(1),
+    fundPassword: z.string().min(1, "Fond paroli kerak"),
+    currency: z.enum(["USDT", "UZS"]).optional(),
+  }),
+};
+
+export { z };
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {

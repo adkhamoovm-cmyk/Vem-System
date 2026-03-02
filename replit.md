@@ -96,18 +96,27 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - Auth: Session-based with scrypt password hashing
 
 ## Project Architecture
-- `client/src/pages/` - Login, Register, Dashboard, Tasks, Trends, Referral, VIP, Profile, Fund, Admin pages
-- `client/src/components/app-layout.tsx` - Shared layout with TikTok-style bottom nav (5 tabs, raised center Vazifalar button)
-- `server/routes.ts` - Orchestrator: session middleware, rate limiting, mounts all sub-routers
-- `server/routes/auth.ts` - Auth routes (register, login, logout, password reset, admin PIN)
+### Backend
+- `server/routes.ts` (70 lines) - Orchestrator: session middleware, rate limiting, mounts all sub-routers
+- `server/routes/auth.ts` - Auth routes (register, login, logout, password reset, admin PIN) + Zod validation
 - `server/routes/user.ts` - User routes (tasks, VIP purchase, referrals, profile, sessions)
-- `server/routes/financial.ts` - Financial routes (fund plans, investments, deposits, withdrawals, balance history)
+- `server/routes/financial.ts` - Financial routes (fund plans, investments, deposits, withdrawals) + Zod validation
 - `server/routes/admin.ts` - Admin routes (user management, deposit/withdrawal approval, settings, broadcasts, promo codes, stajyor)
 - `server/routes/system.ts` - System routes (notifications, push subscriptions, download-app)
-- `server/lib/helpers.ts` - Shared utilities (auth middleware, rate limiters, password hashing, multer configs, notifications, webpush)
-- `server/storage.ts` - Database storage layer (DatabaseStorage class)
-- `server/seed.ts` - Seed data for 11 VIP packages, 40 videos (20 TV shows + 20 trailers), 4 fund plans
-- `shared/schema.ts` - Drizzle schemas (users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings)
+- `server/lib/helpers.ts` (327 lines) - Shared utilities (auth/validation middleware, rate limiters, password hashing, multer configs, notifications, webpush, Zod schemas)
+- `server/storage.ts` - Database storage layer (DatabaseStorage class, optimized queries)
+- `server/seed.ts` - Seed data for 11 VIP packages, 40 videos, 4 fund plans
+- `shared/schema.ts` - Drizzle schemas
+
+### Frontend
+- `client/src/pages/admin.tsx` (183 lines) - Admin orchestrator, imports 13 sub-components from admin/
+- `client/src/pages/admin/` - 13 tab components (dashboard, users, deposits, withdrawals, settings, stajyor, broadcasts, promo-codes, etc.)
+- `client/src/pages/profile.tsx` (506 lines) - Profile orchestrator, imports 7 sub-components from profile/
+- `client/src/pages/profile/` - 7 modal components (deposit, withdraw, sessions, payment-methods, financial-history, info-modals, pin-input)
+- `client/src/pages/` - Dashboard, Tasks, Trends, Referral, VIP, Fund, Auth, Help, Promo, Notifications pages
+- `client/src/lib/i18n.tsx` (186 lines) - I18n provider, hook, server message translation
+- `client/src/lib/locales/` - uz.json, ru.json, en.json (~960 lines each, ~450 keys per language)
+- `client/src/components/` - App layout, celebration modal, language switcher, support widget, theme provider, error boundary
 
 ## Design
 - Dark Netflix-style theme: #0a0a0a background, #1a1a1a cards, #2a2a2a borders

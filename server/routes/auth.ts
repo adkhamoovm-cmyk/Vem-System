@@ -9,20 +9,18 @@ import {
   authRateLimiter,
   pinRateLimiter,
   sendNotification,
+  validateBody,
+  authSchemas,
 } from "../lib/helpers";
 import { requireAdmin } from "../lib/helpers";
 
 const router = Router();
 
-router.post("/api/auth/register", authRateLimiter, async (req: Request, res: Response) => {
+router.post("/api/auth/register", authRateLimiter, validateBody(authSchemas.register), async (req: Request, res: Response) => {
   try {
-    const { phone, password, fundPassword, referralCode, captcha } = req.body;
+    const { phone, password, fundPassword, referralCode, captchaVerified } = req.body;
 
-    if (!phone || !password || !fundPassword) {
-      return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
-    }
-
-    if (!captcha) {
+    if (!captchaVerified) {
       return res.status(400).json({ message: "Captchani tasdiqlang" });
     }
 
@@ -227,13 +225,10 @@ router.post("/api/auth/reset-password", authRateLimiter, async (req: Request, re
   }
 });
 
-router.post("/api/auth/login", authRateLimiter, async (req: Request, res: Response) => {
+router.post("/api/auth/login", authRateLimiter, validateBody(authSchemas.login), async (req: Request, res: Response) => {
   try {
-    const { phone, password, rememberMe } = req.body;
-
-    if (!phone || !password) {
-      return res.status(400).json({ message: "Telefon va parolni kiriting" });
-    }
+    const { phone, password } = req.body;
+    const rememberMe = req.body.rememberMe;
 
     const user = await storage.getUserByPhone(phone);
     if (!user) {

@@ -213,23 +213,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getReferralStats(userId: string) {
-    const getStats = async (level: number) => {
-      const result = await db.select({
-        count: sql<number>`count(*)`,
-        commission: sql<string>`COALESCE(SUM(${referrals.commission}::numeric), 0)`,
-      })
-        .from(referrals)
-        .where(and(eq(referrals.referrerId, userId), eq(referrals.level, level)));
-      return {
-        count: Number(result[0]?.count || 0),
-        commission: String(result[0]?.commission || "0"),
-      };
-    };
+    const results = await db.select({
+      level: referrals.level,
+      count: sql<number>`count(*)`,
+      commission: sql<string>`COALESCE(SUM(${referrals.commission}::numeric), 0)`,
+    })
+      .from(referrals)
+      .where(eq(referrals.referrerId, userId))
+      .groupBy(referrals.level);
 
+    const statsMap: Record<number, { count: number; commission: string }> = {};
+    for (const r of results) {
+      statsMap[r.level] = { count: Number(r.count), commission: String(r.commission) };
+    }
+    const empty = { count: 0, commission: "0" };
     return {
-      level1: await getStats(1),
-      level2: await getStats(2),
-      level3: await getStats(3),
+      level1: statsMap[1] || empty,
+      level2: statsMap[2] || empty,
+      level3: statsMap[3] || empty,
     };
   }
 
@@ -452,36 +453,39 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMultiAccountGroups(): Promise<{ ip: string; count: number; users: Pick<User, 'id' | 'phone' | 'numericId' | 'lastLoginIp' | 'lastUserAgent' | 'isBanned' | 'createdAt' | 'vipLevel'>[] }[]> {
-    const ipGroups = await db.select({
+    const duplicateIps = db.select({
       ip: users.lastLoginIp,
-      count: sql<number>`count(*)`,
     })
       .from(users)
       .where(sql`${users.lastLoginIp} IS NOT NULL AND ${users.lastLoginIp} != ''`)
       .groupBy(users.lastLoginIp)
       .having(sql`count(*) > 1`);
 
-    const result = [];
-    for (const g of ipGroups) {
-      const groupUsers = await db.select({
-        id: users.id,
-        phone: users.phone,
-        numericId: users.numericId,
-        lastLoginIp: users.lastLoginIp,
-        lastUserAgent: users.lastUserAgent,
-        isBanned: users.isBanned,
-        createdAt: users.createdAt,
-        vipLevel: users.vipLevel,
-      })
-        .from(users)
-        .where(eq(users.lastLoginIp, g.ip as string));
-      result.push({
-        ip: g.ip as string,
-        count: Number(g.count),
-        users: groupUsers,
-      });
+    const allGroupUsers = await db.select({
+      id: users.id,
+      phone: users.phone,
+      numericId: users.numericId,
+      lastLoginIp: users.lastLoginIp,
+      lastUserAgent: users.lastUserAgent,
+      isBanned: users.isBanned,
+      createdAt: users.createdAt,
+      vipLevel: users.vipLevel,
+    })
+      .from(users)
+      .where(sql`${users.lastLoginIp} IN (${duplicateIps})`);
+
+    const grouped = new Map<string, Pick<User, 'id' | 'phone' | 'numericId' | 'lastLoginIp' | 'lastUserAgent' | 'isBanned' | 'createdAt' | 'vipLevel'>[]>();
+    for (const u of allGroupUsers) {
+      const ip = u.lastLoginIp as string;
+      if (!grouped.has(ip)) grouped.set(ip, []);
+      grouped.get(ip)!.push(u);
     }
-    return result;
+
+    return Array.from(grouped.entries()).map(([ip, groupUsers]) => ({
+      ip,
+      count: groupUsers.length,
+      users: groupUsers,
+    }));
   }
   async createStajyorRequest(userId: string, message?: string): Promise<StajyorRequest> {
     const [req] = await db.insert(stajyorRequests).values({ userId, message: message || null }).returning();
@@ -632,13 +636,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPromoCodeUsages(promoCodeId: string): Promise<(PromoCodeUsage & { userPhone?: string })[]> {
-    const usages = await db.select().from(promoCodeUsages).where(eq(promoCodeUsages.promoCodeId, promoCodeId)).orderBy(desc(promoCodeUsages.usedAt));
-    const result = [];
-    for (const u of usages) {
-      const user = await this.getUser(u.userId);
-      result.push({ ...u, userPhone: user?.phone });
-    }
-    return result;
+    const results = await db.select({
+      id: promoCodeUsages.id,
+      promoCodeId: promoCodeUsages.promoCodeId,
+      userId: promoCodeUsages.userId,
+      amount: promoCodeUsages.amount,
+      usedAt: promoCodeUsages.usedAt,
+      userPhone: users.phone,
+    })
+      .from(promoCodeUsages)
+      .leftJoin(users, eq(promoCodeUsages.userId, users.id))
+      .where(eq(promoCodeUsages.promoCodeId, promoCodeId))
+      .orderBy(desc(promoCodeUsages.usedAt));
+    return results.map(r => ({
+      id: r.id,
+      promoCodeId: r.promoCodeId,
+      userId: r.userId,
+      amount: r.amount,
+      usedAt: r.usedAt,
+      userPhone: r.userPhone ?? undefined,
+    }));
   }
 
   async deletePromoCode(id: string): Promise<void> {
@@ -676,11 +693,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUnreadBroadcasts(userId: string): Promise<Broadcast[]> {
-    const readIds = await db.select({ broadcastId: broadcastReads.broadcastId })
-      .from(broadcastReads).where(eq(broadcastReads.userId, userId));
-    const readSet = new Set(readIds.map(r => r.broadcastId));
-    const all = await db.select().from(broadcasts).orderBy(desc(broadcasts.createdAt));
-    return all.filter(b => !readSet.has(b.id));
+    const readSubquery = db.select({ broadcastId: broadcastReads.broadcastId })
+      .from(broadcastReads)
+      .where(eq(broadcastReads.userId, userId));
+    return db.select().from(broadcasts)
+      .where(sql`${broadcasts.id} NOT IN (${readSubquery})`)
+      .orderBy(desc(broadcasts.createdAt));
   }
 
   async markBroadcastRead(broadcastId: string, userId: string): Promise<void> {
