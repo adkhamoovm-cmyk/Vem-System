@@ -1,5 +1,11 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+export function handleBannedRedirect() {
+  if (localStorage.getItem("vem-banned") === "1") return;
+  localStorage.setItem("vem-banned", "1");
+  window.dispatchEvent(new CustomEvent("vem-account-banned"));
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -9,8 +15,7 @@ async function throwIfResNotOk(res: Response) {
       if (json.message) message = json.message;
     } catch {}
     if (res.status === 403 && message === "ACCOUNT_BANNED") {
-      localStorage.setItem("vem-banned", "1");
-      window.location.href = "/auth";
+      handleBannedRedirect();
       throw new Error("ACCOUNT_BANNED");
     }
     throw new Error(message);
@@ -45,21 +50,6 @@ export const getQueryFn: <T>(options: {
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
-    }
-
-    if (res.status === 403) {
-      const text = await res.text();
-      try {
-        const json = JSON.parse(text);
-        if (json.message === "ACCOUNT_BANNED") {
-          localStorage.setItem("vem-banned", "1");
-          window.location.href = "/auth";
-          throw new Error("ACCOUNT_BANNED");
-        }
-      } catch (e) {
-        if (e instanceof Error && e.message === "ACCOUNT_BANNED") throw e;
-      }
-      throw new Error(`Request failed: ${res.status}`);
     }
 
     await throwIfResNotOk(res);

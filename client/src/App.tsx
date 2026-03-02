@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { queryClient, getQueryFn } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,7 +8,7 @@ import { I18nProvider } from "@/lib/i18n";
 import AppLayout from "@/components/app-layout";
 import NotFound from "@/pages/not-found";
 import type { User } from "@shared/schema";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 
 const LoginPage = lazy(() => import("@/pages/login"));
@@ -34,12 +34,16 @@ function PageLoader() {
 }
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { data: user, isLoading } = useQuery<User>({
+  const { data: user, isLoading, error } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   if (isLoading) return <PageLoader />;
+  if (error && error.message === "ACCOUNT_BANNED") {
+    localStorage.setItem("vem-banned", "1");
+    return <Redirect to="/login" />;
+  }
   if (!user) return <Redirect to="/login" />;
 
   return (
@@ -52,12 +56,16 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
 }
 
 function AdminRoute({ component: Component }: { component: React.ComponentType }) {
-  const { data: user, isLoading } = useQuery<User>({
+  const { data: user, isLoading, error } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   if (isLoading) return <PageLoader />;
+  if (error && error.message === "ACCOUNT_BANNED") {
+    localStorage.setItem("vem-banned", "1");
+    return <Redirect to="/login" />;
+  }
   if (!user || !user.isAdmin) return <Redirect to="/dashboard" />;
 
   return (
@@ -83,6 +91,19 @@ function AuthRoute({ component: Component }: { component: React.ComponentType })
       <Component />
     </Suspense>
   );
+}
+
+function BannedListener() {
+  const [, navigate] = useLocation();
+  useEffect(() => {
+    const handler = () => {
+      queryClient.clear();
+      navigate("/login");
+    };
+    window.addEventListener("vem-account-banned", handler);
+    return () => window.removeEventListener("vem-account-banned", handler);
+  }, [navigate]);
+  return null;
 }
 
 function Router() {
@@ -143,6 +164,7 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <Toaster />
+              <BannedListener />
               <Router />
             </TooltipProvider>
           </QueryClientProvider>
