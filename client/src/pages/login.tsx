@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Phone, Lock, Eye, EyeOff, ChevronDown, Sun, Moon, KeyRound, ArrowLeft, LogIn, Shield } from "lucide-react";
+import { Phone, Lock, Eye, EyeOff, ChevronDown, Sun, Moon, KeyRound, ArrowLeft, LogIn, Shield, Ban } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
@@ -49,7 +49,15 @@ export default function LoginPage() {
   const [resetVerifyType, setResetVerifyType] = useState<"card" | "crypto" | "referrer" | "">("");
   const [resetVerifyHint, setResetVerifyHint] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
+  const [showBannedAlert, setShowBannedAlert] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("vem_remember") === "true");
+
+  useEffect(() => {
+    if (localStorage.getItem("vem-banned") === "1") {
+      setShowBannedAlert(true);
+      localStorage.removeItem("vem-banned");
+    }
+  }, []);
   const [selectedCountry, setSelectedCountry] = useState(() => {
     const saved = localStorage.getItem("vem_country");
     if (saved) {
@@ -96,6 +104,10 @@ export default function LoginPage() {
       navigate("/dashboard");
     },
     onError: (error: Error) => {
+      if (error.message === "ACCOUNT_BANNED") {
+        setShowBannedAlert(true);
+        return;
+      }
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
@@ -219,6 +231,18 @@ export default function LoginPage() {
                 <h2 className="text-xl font-bold text-foreground tracking-tight">{t("auth.login")}</h2>
               </div>
             </div>
+
+            {showBannedAlert && (
+              <div className="mb-5 bg-red-500/10 border border-red-500/30 rounded-xl p-3.5 flex items-start gap-3" data-testid="alert-banned">
+                <div className="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                  <Ban className="w-5 h-5 text-red-500" />
+                </div>
+                <div>
+                  <p className="text-red-400 font-semibold text-sm mb-0.5">{t("auth.accountBanned")}</p>
+                  <p className="text-red-400/70 text-xs">{t("auth.accountBannedDesc")}</p>
+                </div>
+              </div>
+            )}
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-5">

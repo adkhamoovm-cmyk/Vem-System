@@ -187,9 +187,18 @@ declare module "express-session" {
   }
 }
 
-function requireAuth(req: Request, res: Response, next: NextFunction) {
+async function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {
     return res.status(401).json({ message: "Avtorizatsiya talab qilinadi" });
+  }
+  const user = await storage.getUser(req.session.userId);
+  if (user?.isBanned) {
+    return new Promise<void>((resolve) => {
+      req.session.destroy(() => {
+        res.status(403).json({ message: "ACCOUNT_BANNED" });
+        resolve();
+      });
+    });
   }
   next();
 }
@@ -485,7 +494,7 @@ function showGuide(browser) {
         return res.status(400).json({ message: "Telefon raqami yoki moliya paroli noto'g'ri" });
       }
       if (user.isBanned) {
-        return res.status(403).json({ message: "Sizning hisobingiz bloklangan. Texnik yordamga murojaat qiling." });
+        return res.status(403).json({ message: "ACCOUNT_BANNED" });
       }
       req.session.resetPhone = phone;
       req.session.resetStep = 1;
@@ -629,7 +638,7 @@ function showGuide(browser) {
       }
 
       if (user.isBanned) {
-        return res.status(403).json({ message: "Sizning hisobingiz bloklangan. Texnik yordamga murojaat qiling." });
+        return res.status(403).json({ message: "ACCOUNT_BANNED" });
       }
 
       const valid = await comparePasswords(password, user.password);
@@ -1530,6 +1539,12 @@ function showGuide(browser) {
     try {
       const { isBanned } = req.body;
       await storage.banUser(req.params.id as string, isBanned);
+      if (isBanned) {
+        await pool.query(
+          `DELETE FROM user_sessions WHERE (sess->>'userId') = $1`,
+          [req.params.id]
+        );
+      }
       res.json({ message: isBanned ? "Foydalanuvchi bloklandi" : "Foydalanuvchi blokdan chiqarildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

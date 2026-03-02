@@ -8,6 +8,11 @@ async function throwIfResNotOk(res: Response) {
       const json = JSON.parse(text);
       if (json.message) message = json.message;
     } catch {}
+    if (res.status === 403 && message === "ACCOUNT_BANNED") {
+      localStorage.setItem("vem-banned", "1");
+      window.location.href = "/auth";
+      throw new Error("ACCOUNT_BANNED");
+    }
     throw new Error(message);
   }
 }
@@ -40,6 +45,21 @@ export const getQueryFn: <T>(options: {
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {
       return null;
+    }
+
+    if (res.status === 403) {
+      const text = await res.text();
+      try {
+        const json = JSON.parse(text);
+        if (json.message === "ACCOUNT_BANNED") {
+          localStorage.setItem("vem-banned", "1");
+          window.location.href = "/auth";
+          throw new Error("ACCOUNT_BANNED");
+        }
+      } catch (e) {
+        if (e instanceof Error && e.message === "ACCOUNT_BANNED") throw e;
+      }
+      throw new Error(`Request failed: ${res.status}`);
     }
 
     await throwIfResNotOk(res);
