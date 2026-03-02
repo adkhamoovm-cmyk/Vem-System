@@ -1831,6 +1831,7 @@ export default function ProfilePage() {
                     vip_purchase: { icon: Crown, color: "#FFB300" },
                     fund_invest: { icon: Banknote, color: "#60A5FA" },
                     commission: { icon: Users, color: "#A78BFA" },
+                    refund: { icon: RotateCcw, color: "#34D399" },
                     admin_adjust: { icon: Settings, color: "hsl(var(--muted-foreground))" },
                   };
                   const config = typeIcons[h.type] || { icon: ScrollText, color: "hsl(var(--muted-foreground))" };
@@ -1851,6 +1852,7 @@ export default function ProfilePage() {
                     vip_purchase: () => { const name = extractName(desc); if (desc.includes("uzaytirildi")) return t("vip.historyVipExtend", { name }); return t("vip.historyVipPurchase", { name }); },
                     fund_invest: () => t("vip.historyFundInvest"),
                     commission: () => t("vip.historyCommission"),
+                    refund: () => t("vip.historyRefund"),
                     admin_adjust: () => t("vip.historyAdminAdjust"),
                     fund_profit: () => t("vip.historyFundProfit"),
                     fund_return: () => t("vip.historyFundReturn"),
