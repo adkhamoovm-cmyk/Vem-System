@@ -648,6 +648,8 @@ function showGuide(browser) {
       req.session.userId = user.id;
       const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
       const ua = req.headers["user-agent"] || "";
+      (req.session as any).ip = ip;
+      (req.session as any).userAgent = ua;
       await storage.updateUserLoginInfo(user.id, ip, ua);
       await storage.logSession({ userId: user.id, action: "login", ip, userAgent: ua });
       res.json({ user: { ...user, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined } });
@@ -2170,7 +2172,45 @@ function showGuide(browser) {
     try {
       const userId = req.session.userId!;
       const logs = await storage.getUserSessionLogs(userId, 50);
-      res.json(logs);
+
+      const activeSessions: Array<{ sid: string; ip: string; userAgent: string; lastActive: string; isCurrent: boolean }> = [];
+      const rows = await pool.query(
+        `SELECT sid, sess, expire FROM user_sessions WHERE (sess->>'userId') = $1 AND expire > NOW()`,
+        [userId]
+      );
+      for (const row of rows.rows) {
+        const sess = typeof row.sess === "string" ? JSON.parse(row.sess) : row.sess;
+        activeSessions.push({
+          sid: row.sid,
+          ip: sess.ip || "",
+          userAgent: sess.userAgent || "",
+          lastActive: row.expire,
+          isCurrent: row.sid === req.sessionID,
+        });
+      }
+
+      res.json({ logs, activeSessions });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/my-sessions/terminate", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const { sid } = req.body;
+      if (!sid) return res.status(400).json({ message: "Session ID kerak" });
+      if (sid === req.sessionID) return res.status(400).json({ message: "Joriy sessiyani o'chirish mumkin emas" });
+      const check = await pool.query(
+        `SELECT sid FROM user_sessions WHERE sid = $1 AND (sess->>'userId') = $2`,
+        [sid, userId]
+      );
+      if (check.rows.length === 0) return res.status(404).json({ message: "Sessiya topilmadi" });
+      await pool.query(`DELETE FROM user_sessions WHERE sid = $1`, [sid]);
+      const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
+      const ua = req.headers["user-agent"] || "";
+      try { await storage.logSession({ userId, action: "force_logout", ip, userAgent: ua }); } catch (_) {}
+      res.json({ message: "Sessiya tugatildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
