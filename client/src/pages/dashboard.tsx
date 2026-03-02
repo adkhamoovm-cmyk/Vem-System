@@ -233,7 +233,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="px-4 -mt-1 space-y-4 pb-6">
+        <div className="px-4 mt-4 space-y-4 pb-6">
 
           {vipDaysLeft !== null && user.vipLevel > 0 && vipDaysLeft <= 15 && (
             <div className={`rounded-2xl p-3.5 flex items-center gap-3 ${
