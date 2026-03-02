@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone, Sun, Moon, X, FileText } from "lucide-react";
+import { Lock, Shield, Eye, EyeOff, UserPlus, ChevronDown, CheckCircle, ArrowRight, Phone, Sun, Moon, X, FileText, Sparkles } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
@@ -75,13 +75,13 @@ function SliderCaptcha({ onVerified, t }: { onVerified: () => void; t: (key: str
   return (
     <div
       ref={trackRef}
-      className={`relative h-12 rounded-2xl select-none overflow-hidden transition-all duration-300 ${
+      className={`relative h-[52px] rounded-xl select-none overflow-hidden transition-all duration-500 ${
         verified
-          ? "bg-gradient-to-r from-green-500/20 to-emerald-500/20 shadow-[0_0_20px_rgba(34,197,94,0.15)]"
-          : "bg-muted"
+          ? "bg-gradient-to-r from-emerald-500/10 to-green-500/10"
+          : "bg-muted/50"
       }`}
       style={{
-        border: verified ? "1.5px solid rgba(34,197,94,0.4)" : "1.5px solid hsl(var(--border))",
+        border: verified ? "1.5px solid rgba(34,197,94,0.3)" : "1.5px solid hsl(var(--border) / 0.5)",
       }}
       onMouseMove={(e) => handleMove(e.clientX)}
       onMouseUp={handleEnd}
@@ -91,42 +91,42 @@ function SliderCaptcha({ onVerified, t }: { onVerified: () => void; t: (key: str
       data-testid="captcha-slider-track"
     >
       <div
-        className="absolute inset-y-0 left-0 rounded-2xl transition-all duration-100"
+        className="absolute inset-y-0 left-0 rounded-xl transition-all duration-100"
         style={{
           width: `${progress}%`,
           background: verified
-            ? "linear-gradient(90deg, rgba(34,197,94,0.25), rgba(16,185,129,0.25))"
-            : "linear-gradient(90deg, hsl(var(--primary) / 0.12), hsl(var(--primary) / 0.08))",
+            ? "linear-gradient(90deg, rgba(34,197,94,0.15), rgba(16,185,129,0.15))"
+            : "linear-gradient(90deg, hsl(var(--primary) / 0.08), hsl(var(--primary) / 0.04))",
         }}
       />
 
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         {verified ? (
-          <div className="flex items-center gap-1.5">
-            <CheckCircle className="w-4 h-4 text-green-400" />
-            <span className="text-sm font-semibold text-green-400 tracking-wide">{t("auth.captchaVerified")}</span>
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-4.5 h-4.5 text-emerald-500" />
+            <span className="text-sm font-semibold text-emerald-500 tracking-wide">{t("auth.captchaVerified")}</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <span className="text-[13px] text-muted-foreground font-medium tracking-wide">{t("auth.captchaSlide")}</span>
             <div className="flex -space-x-1">
-              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/60 animate-pulse" />
-              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/40 animate-pulse" style={{ animationDelay: "150ms" }} />
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/50 animate-pulse" />
+              <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/30 animate-pulse" style={{ animationDelay: "150ms" }} />
             </div>
           </div>
         )}
       </div>
 
       <div
-        className={`absolute top-1 w-10 h-10 rounded-xl flex items-center justify-center z-20 transition-all duration-150 ${
+        className={`absolute top-[5px] w-[42px] h-[42px] rounded-lg flex items-center justify-center z-20 transition-all duration-150 ${
           verified
-            ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-[0_2px_12px_rgba(34,197,94,0.4)]"
+            ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-lg shadow-emerald-500/30"
             : isDragging
-              ? "bg-primary text-white shadow-lg scale-105"
-              : "bg-card text-primary border border-border shadow-md"
+              ? "bg-gradient-to-br from-primary to-blue-600 text-white shadow-xl shadow-primary/30 scale-105"
+              : "bg-card text-primary border border-border/50 shadow-md"
         }`}
         style={{
-          left: `${sliderPos + 3}px`,
+          left: `${sliderPos + 4}px`,
           cursor: verified ? "default" : isDragging ? "grabbing" : "grab",
         }}
         onMouseDown={(e) => handleStart(e.clientX)}
@@ -176,7 +176,7 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
   };
 
   return (
-    <div className="flex gap-2 justify-center" data-testid="input-fund-password-pins">
+    <div className="flex gap-2.5 justify-center" data-testid="input-fund-password-pins">
       {[0, 1, 2, 3, 4, 5].map((i) => (
         <input
           key={i}
@@ -188,9 +188,9 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
           onChange={(e) => handleDigitChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}
-          className={`w-11 h-12 text-center text-lg font-bold rounded-xl border-2 bg-card outline-none transition-all
-            ${error ? "border-red-400 text-red-500" : digits[i]?.trim() ? "border-primary text-foreground" : "border-border text-foreground"}
-            focus:border-primary focus:ring-2 focus:ring-primary/20`}
+          className={`w-11 h-[52px] text-center text-lg font-bold rounded-xl border-2 bg-card/50 outline-none transition-all duration-200
+            ${error ? "border-red-400 text-red-500 shake" : digits[i]?.trim() ? "border-primary/60 text-foreground shadow-sm shadow-primary/10" : "border-border/40 text-foreground"}
+            focus:border-primary focus:ring-2 focus:ring-primary/15 focus:shadow-md focus:shadow-primary/10`}
           data-testid={`input-pin-${i}`}
         />
       ))}
@@ -389,306 +389,334 @@ export default function RegisterPage() {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 py-8 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full blur-[120px] opacity-25 bg-gradient-to-br from-purple-500 to-primary animate-[float_9s_ease-in-out_infinite]" />
+        <div className="absolute -bottom-32 -right-32 w-[400px] h-[400px] rounded-full blur-[100px] opacity-20 bg-gradient-to-tl from-blue-500 to-cyan-400 animate-[float_11s_ease-in-out_infinite_reverse]" />
+        <div className="absolute top-1/3 right-1/4 w-[300px] h-[300px] rounded-full blur-[140px] opacity-[0.06] bg-primary" />
+        <div className="absolute inset-0" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.03) 1px, transparent 0)',
+          backgroundSize: '40px 40px'
+        }} />
       </div>
+
       <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
-          className="w-10 h-10 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center text-foreground hover:bg-accent transition-all duration-300 shadow-sm"
+          className="w-10 h-10 rounded-xl bg-card/60 backdrop-blur-xl border border-border/30 flex items-center justify-center text-foreground hover:bg-card/80 transition-all duration-300 shadow-lg shadow-black/5"
           data-testid="button-theme-toggle-register"
         >
-          {theme === "dark" ? <Sun className="w-5 h-5 transition-transform duration-300 rotate-0" /> : <Moon className="w-5 h-5 transition-transform duration-300 rotate-0" />}
+          {theme === "dark" ? <Sun className="w-4.5 h-4.5 transition-transform duration-500" /> : <Moon className="w-4.5 h-4.5 transition-transform duration-500" />}
         </button>
       </div>
-      <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-5">
-          <img src={vemLogo} alt="VEM" className="pro-logo h-14 mx-auto" />
-          <p className="text-muted-foreground text-sm mt-0.5">{t("auth.welcome")}</p>
+
+      <div className="w-full max-w-[420px] relative z-10">
+        <div className="text-center mb-7">
+          <div className="relative inline-block">
+            <div className="absolute -inset-4 bg-primary/10 rounded-full blur-2xl opacity-60" />
+            <img src={vemLogo} alt="VEM" className="pro-logo h-16 mx-auto relative" />
+          </div>
+          <p className="text-muted-foreground text-sm mt-2 font-medium tracking-wide">{t("auth.welcome")}</p>
         </div>
 
-        <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-border/50">
-          <div className="flex items-center gap-2.5 mb-5">
-            <div className="w-1.5 h-5 bg-gradient-to-b from-primary to-blue-600 rounded-full" />
-            <h2 className="text-lg font-bold text-foreground">{t("auth.register")}</h2>
-          </div>
+        <div className="relative">
+          <div className="absolute -inset-[1px] rounded-[20px] bg-gradient-to-b from-border/60 via-border/20 to-border/60 pointer-events-none" />
+          <div className="relative bg-card/70 backdrop-blur-2xl rounded-[20px] p-7 shadow-2xl shadow-black/10">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/25">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-foreground tracking-tight">{t("auth.register")}</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("auth.welcome")}</p>
+              </div>
+            </div>
 
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.phone")}</FormLabel>
-                    <FormControl>
-                      <div className="flex gap-2">
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() => setShowCountryList(!showCountryList)}
-                            className="flex items-center gap-1.5 h-11 px-3 bg-card border border-border rounded-xl text-sm font-medium text-foreground whitespace-nowrap hover:border-primary/40 transition-colors"
-                            data-testid="button-country-code"
-                          >
-                            <span className="text-lg">{selectedCountry.flag}</span>
-                            <span className="text-sm">{selectedCountry.code}</span>
-                            <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${showCountryList ? "rotate-180" : ""}`} />
-                          </button>
-                          {showCountryList && (
-                            <>
-                              <div className="fixed inset-0 z-40" onClick={() => setShowCountryList(false)} />
-                              <div className="absolute top-full left-0 mt-1 w-72 max-h-60 overflow-y-auto bg-card border border-border rounded-xl shadow-xl z-50">
-                                {countryCodes.map((c) => (
-                                  <button
-                                    key={c.country + c.code}
-                                    type="button"
-                                    onClick={() => { setSelectedCountry(c); setShowCountryList(false); }}
-                                    className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-muted transition-colors ${
-                                      selectedCountry.country === c.country ? "bg-muted" : ""
-                                    }`}
-                                    data-testid={`option-country-${c.country}`}
-                                  >
-                                    <span className="text-lg">{c.flag}</span>
-                                    <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
-                                    <span className="text-muted-foreground text-xs">{c.code}</span>
-                                  </button>
-                                ))}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                        <div className="relative flex-1">
-                          <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input
-                            {...field}
-                            placeholder=""
-                            autoComplete="tel"
-                            className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
-                            data-testid="input-phone"
-                          />
-                        </div>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.loginPassword")}</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          {...field}
-                          type={showPassword ? "text" : "password"}
-                          autoComplete="new-password"
-                          placeholder={t("auth.minChars")}
-                          className="pl-10 pr-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
-                          data-testid="input-password"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="fundPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.fundPassword")}</FormLabel>
-                      <span className="text-[10px] text-muted-foreground">{t("auth.sixDigitPin")}</span>
-                    </div>
-                    <FormControl>
-                      <div>
-                        <div className="bg-primary/10 border border-primary/20 rounded-xl p-3.5">
-                          <div className="flex items-center gap-2 mb-2.5">
-                            <Shield className="w-4 h-4 text-primary" />
-                            <span className="text-primary text-xs font-semibold">{t("auth.createFundPin")}</span>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit((data) => registerMutation.mutate(data))} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground/70 text-xs font-semibold uppercase tracking-wider">{t("auth.phone")}</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-2">
+                          <div className="relative">
+                            <button
+                              type="button"
+                              onClick={() => setShowCountryList(!showCountryList)}
+                              className="flex items-center gap-1.5 h-12 px-3.5 bg-muted/50 border border-border/50 rounded-xl text-sm font-medium text-foreground whitespace-nowrap hover:border-primary/40 hover:bg-muted/80 transition-all duration-200"
+                              data-testid="button-country-code"
+                            >
+                              <span className="text-lg">{selectedCountry.flag}</span>
+                              <span className="text-sm font-semibold">{selectedCountry.code}</span>
+                              <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 ${showCountryList ? "rotate-180" : ""}`} />
+                            </button>
+                            {showCountryList && (
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowCountryList(false)} />
+                                <div className="absolute top-full left-0 mt-2 w-72 max-h-64 overflow-y-auto bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-black/20 z-50 py-1">
+                                  {countryCodes.map((c) => (
+                                    <button
+                                      key={c.country + c.code}
+                                      type="button"
+                                      onClick={() => { setSelectedCountry(c); setShowCountryList(false); }}
+                                      className={`flex items-center gap-3 w-full px-4 py-3 text-left text-sm hover:bg-primary/5 transition-colors ${
+                                        selectedCountry.country === c.country ? "bg-primary/10 text-primary" : ""
+                                      }`}
+                                      data-testid={`option-country-${c.country}`}
+                                    >
+                                      <span className="text-lg">{c.flag}</span>
+                                      <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
+                                      <span className="text-muted-foreground text-xs font-mono">{c.code}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </>
+                            )}
                           </div>
-                          <PinInput
-                            value={field.value}
-                            onChange={field.onChange}
-                            error={!!form.formState.errors.fundPassword}
-                          />
-                        </div>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="referralCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("auth.referralCode")} <span className="text-muted-foreground normal-case">({t("auth.optional")})</span></FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <UserPlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input
-                          {...field}
-                          placeholder={t("auth.enterReferral")}
-                          className="pl-10 h-11 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-primary/20 rounded-xl"
-                          data-testid="input-referral"
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="captcha"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <SliderCaptcha onVerified={() => field.onChange(true)} t={t} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="ageConfirm"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <div className={`rounded-xl p-3 border transition-all duration-300 ${hasReadTerms ? "bg-muted border-border" : "bg-muted/50 border-dashed border-border/60"}`}>
-                        <div className="flex items-start gap-3">
-                          <div className="relative mt-0.5">
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={(checked) => {
-                                if (!hasReadTerms && checked) {
-                                  setShowTerms(true);
-                                  return;
-                                }
-                                field.onChange(checked);
-                              }}
-                              className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                              data-testid="checkbox-age-confirm"
+                          <div className="relative flex-1 group">
+                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input
+                              {...field}
+                              placeholder=""
+                              autoComplete="tel"
+                              className="pl-11 h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl transition-all duration-200"
+                              data-testid="input-phone"
                             />
                           </div>
-                          <span className="text-muted-foreground text-xs leading-relaxed flex-1">
-                            <strong>{t("auth.ageConfirm")}</strong>. {t("auth.ageResponsibility")}
-                            <button
-                              type="button"
-                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }}
-                              className="text-primary font-semibold ml-1 underline"
-                              data-testid="link-terms"
-                            >{t("auth.termsOfUse")}</button>{" "}
-                            <button
-                              type="button"
-                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }}
-                              className="text-primary font-semibold underline"
-                              data-testid="link-privacy"
-                            >{t("auth.privacyPolicy")}</button>{t("auth.readAndAccept")}
-                          </span>
                         </div>
-                        {!hasReadTerms && (
-                          <div className="mt-2.5 flex items-center gap-2 text-[11px] text-amber-500 dark:text-amber-400">
-                            <FileText className="w-3.5 h-3.5 shrink-0" />
-                            <span>
-                              {t("auth.termsReadFirst")}
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground/70 text-xs font-semibold uppercase tracking-wider">{t("auth.loginPassword")}</FormLabel>
+                      <FormControl>
+                        <div className="relative group">
+                          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                          <Input
+                            {...field}
+                            type={showPassword ? "text" : "password"}
+                            autoComplete="new-password"
+                            placeholder={t("auth.minChars")}
+                            className="pl-11 pr-11 h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl transition-all duration-200"
+                            data-testid="input-password"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-0.5"
+                            data-testid="button-toggle-password"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="fundPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center justify-between">
+                        <FormLabel className="text-foreground/70 text-xs font-semibold uppercase tracking-wider">{t("auth.fundPassword")}</FormLabel>
+                        <span className="text-[10px] text-muted-foreground/60 font-medium">{t("auth.sixDigitPin")}</span>
+                      </div>
+                      <FormControl>
+                        <div className="relative">
+                          <div className="bg-gradient-to-br from-primary/[0.06] to-blue-500/[0.04] border border-primary/15 rounded-xl p-4">
+                            <div className="flex items-center gap-2.5 mb-3">
+                              <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <Shield className="w-3.5 h-3.5 text-primary" />
+                              </div>
+                              <span className="text-primary/80 text-xs font-semibold">{t("auth.createFundPin")}</span>
+                            </div>
+                            <PinInput
+                              value={field.value}
+                              onChange={field.onChange}
+                              error={!!form.formState.errors.fundPassword}
+                            />
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="referralCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground/70 text-xs font-semibold uppercase tracking-wider">
+                        {t("auth.referralCode")} <span className="text-muted-foreground/50 normal-case font-normal">({t("auth.optional")})</span>
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative group">
+                          <UserPlus className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                          <Input
+                            {...field}
+                            placeholder={t("auth.enterReferral")}
+                            className="pl-11 h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl transition-all duration-200"
+                            data-testid="input-referral"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="captcha"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <SliderCaptcha onVerified={() => field.onChange(true)} t={t} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="ageConfirm"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <div className={`rounded-xl p-3.5 border transition-all duration-300 ${
+                          hasReadTerms
+                            ? "bg-muted/30 border-border/40"
+                            : "bg-muted/20 border-dashed border-border/30"
+                        }`}>
+                          <div className="flex items-start gap-3">
+                            <div className="relative mt-0.5">
+                              <Checkbox
+                                checked={field.value}
+                                onCheckedChange={(checked) => {
+                                  if (!hasReadTerms && checked) {
+                                    setShowTerms(true);
+                                    return;
+                                  }
+                                  field.onChange(checked);
+                                }}
+                                className="border-border/50 data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-md"
+                                data-testid="checkbox-age-confirm"
+                              />
+                            </div>
+                            <span className="text-muted-foreground text-xs leading-relaxed flex-1">
+                              <strong className="text-foreground/80">{t("auth.ageConfirm")}</strong>. {t("auth.ageResponsibility")}
+                              <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }}
+                                className="text-primary/80 font-semibold ml-1 hover:text-primary transition-colors underline underline-offset-2"
+                                data-testid="link-terms"
+                              >{t("auth.termsOfUse")}</button>{" "}
+                              <button
+                                type="button"
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTerms(true); }}
+                                className="text-primary/80 font-semibold hover:text-primary transition-colors underline underline-offset-2"
+                                data-testid="link-privacy"
+                              >{t("auth.privacyPolicy")}</button>{t("auth.readAndAccept")}
                             </span>
                           </div>
-                        )}
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                          {!hasReadTerms && (
+                            <div className="mt-2.5 flex items-center gap-2 text-[11px] text-amber-500/80 dark:text-amber-400/80 pl-8">
+                              <FileText className="w-3.5 h-3.5 shrink-0" />
+                              <span>{t("auth.termsReadFirst")}</span>
+                            </div>
+                          )}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate h-12 rounded-xl shadow-lg shadow-primary/20 text-base mt-1 active:scale-[0.98] transition-transform"
-                disabled={registerMutation.isPending}
-                data-testid="button-register"
-              >
-                {registerMutation.isPending ? t("auth.registering") : t("auth.register")}
-              </Button>
-            </form>
-          </Form>
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] mt-1 active:scale-[0.98] transition-all duration-200 hover:shadow-primary/35 hover:brightness-110"
+                  disabled={registerMutation.isPending}
+                  data-testid="button-register"
+                >
+                  {registerMutation.isPending ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      {t("auth.registering")}
+                    </div>
+                  ) : t("auth.register")}
+                </Button>
+              </form>
+            </Form>
 
-          <div className="mt-5 text-center">
-            <p className="text-muted-foreground text-sm">
-              {t("auth.hasAccount")}{" "}
-              <Link href="/login" className="text-primary font-semibold" data-testid="link-login">
-                {t("auth.loginLink")}
-              </Link>
-            </p>
+            <div className="mt-6 pt-5 border-t border-border/30 text-center">
+              <p className="text-muted-foreground text-sm">
+                {t("auth.hasAccount")}{" "}
+                <Link href="/login" className="text-primary font-semibold hover:text-primary/80 transition-colors" data-testid="link-login">
+                  {t("auth.loginLink")}
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
 
-        <p className="text-center text-muted-foreground text-[10px] mt-4">
-          {t("common.copyright")}
-        </p>
+        <div className="flex items-center justify-center gap-2 mt-5">
+          <Shield className="w-3.5 h-3.5 text-muted-foreground/50" />
+          <p className="text-muted-foreground/50 text-[10px] tracking-wide">
+            {t("common.copyright")}
+          </p>
+        </div>
       </div>
 
       {showTerms && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" data-testid="terms-modal">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTerms(false)} onTouchMove={(e) => e.preventDefault()} />
-          <div className="relative bg-card border border-border rounded-t-3xl sm:rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300 shadow-2xl">
-
-            <div className="flex items-center justify-between p-5 pb-3 border-b border-border shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+          <div className="relative bg-card/95 backdrop-blur-2xl border border-border/50 rounded-t-[24px] sm:rounded-[24px] w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300 shadow-2xl shadow-black/30">
+            <div className="flex items-center justify-between p-5 pb-3 border-b border-border/30 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary/15 to-blue-500/10 rounded-xl flex items-center justify-center">
                   <FileText className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-sm font-bold text-foreground leading-tight">{termsContent[locale]?.title || termsContent.en.title}</h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {t("auth.termsButtonActivates")}
-                  </p>
+                  <p className="text-[11px] text-muted-foreground/60 mt-0.5">{t("auth.termsButtonActivates")}</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowTerms(false)}
-                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                className="w-9 h-9 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200 shrink-0"
                 data-testid="button-close-terms"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="px-5 pt-2 pb-1 shrink-0">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] text-muted-foreground">
-                  {t("auth.readingProgress")}
-                </span>
-                <span className={`text-[11px] font-semibold ${hasReadTerms ? "text-green-500" : "text-primary"}`}>
+            <div className="px-5 pt-3 pb-1 shrink-0">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] text-muted-foreground/60">{t("auth.readingProgress")}</span>
+                <span className={`text-[11px] font-bold ${hasReadTerms ? "text-emerald-500" : "text-primary"}`}>
                   {Math.round(scrollProgress)}%
                 </span>
               </div>
-              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+              <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-300 ${hasReadTerms ? "bg-green-500" : "bg-primary"}`}
+                  className={`h-full rounded-full transition-all duration-300 ${hasReadTerms ? "bg-gradient-to-r from-emerald-500 to-green-500" : "bg-gradient-to-r from-primary to-blue-500"}`}
                   style={{ width: `${scrollProgress}%` }}
                 />
               </div>
@@ -697,31 +725,25 @@ export default function RegisterPage() {
             <div
               ref={termsScrollRef}
               onScroll={handleTermsScroll}
-              className="overflow-y-auto px-5 pb-5 pt-3 space-y-4 flex-1 overscroll-contain"
+              className="overflow-y-auto px-5 pb-5 pt-3 space-y-3 flex-1 overscroll-contain"
               style={{ WebkitOverflowScrolling: "touch" }}
               data-testid="terms-scroll-area"
             >
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {t("auth.termsWelcomeText")}
-              </p>
-
+              <p className="text-muted-foreground text-sm leading-relaxed">{t("auth.termsWelcomeText")}</p>
               {(termsContent[locale] || termsContent.en).sections.map((section, i) => (
-                <div key={i} className="space-y-1.5 p-3 rounded-xl bg-muted/50 border border-border/50">
+                <div key={i} className="space-y-1.5 p-3.5 rounded-xl bg-muted/30 border border-border/30">
                   <h4 className="text-sm font-bold text-foreground">{section.heading}</h4>
                   <p className="text-muted-foreground text-[13px] leading-relaxed whitespace-pre-line">{section.text}</p>
                 </div>
               ))}
-
               <div className="h-2" />
             </div>
 
-            <div className="p-4 pt-3 border-t border-border shrink-0 space-y-2">
+            <div className="p-5 pt-3 border-t border-border/30 shrink-0 space-y-2.5">
               {!hasReadTerms && (
-                <div className="flex items-center justify-center gap-2 text-[12px] text-amber-500 dark:text-amber-400 py-1">
+                <div className="flex items-center justify-center gap-2 text-[12px] text-amber-500/80 dark:text-amber-400/80 py-0.5">
                   <FileText className="w-3.5 h-3.5 shrink-0" />
-                  <span>
-                    {t("auth.scrollToAccept")}
-                  </span>
+                  <span>{t("auth.scrollToAccept")}</span>
                 </div>
               )}
               <button
@@ -731,10 +753,10 @@ export default function RegisterPage() {
                   setShowTerms(false);
                 }}
                 disabled={!hasReadTerms}
-                className={`w-full font-semibold h-11 rounded-xl text-sm transition-all duration-300 ${
+                className={`w-full font-semibold h-[52px] rounded-xl text-sm transition-all duration-300 ${
                   hasReadTerms
-                    ? "bg-primary text-white hover:bg-primary/90 shadow-md cursor-pointer"
-                    : "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
+                    ? "bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white shadow-xl shadow-primary/25 hover:shadow-primary/35 cursor-pointer active:scale-[0.98]"
+                    : "bg-muted/50 text-muted-foreground cursor-not-allowed opacity-50"
                 }`}
                 data-testid="button-accept-terms"
               >
