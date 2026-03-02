@@ -1037,6 +1037,7 @@ function showGuide(browser) {
 
       await storage.updateUserBalance(userId, dailyProfit);
       await storage.addBalanceHistory({ userId, type: "fund_profit", amount: dailyProfit, description: `${plan.name} fond daromadi +${dailyProfit} USDT` });
+      sendNotification(userId, "system", `${plan.name} fondiga investitsiya`, `${investAmount} USDT investitsiya qilindi`);
 
       res.json({ investment, message: "Investitsiya muvaffaqiyatli amalga oshirildi!" });
     } catch (error: any) {
@@ -1497,6 +1498,7 @@ function showGuide(browser) {
 
       await storage.updateDepositStatus(deposit.id, "rejected");
       await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "rejected", amountInUSDT);
+      sendNotification(deposit.userId, "system", "Depozit rad etildi", `${deposit.amount} ${deposit.currency} depozit so'rovi rad etildi`);
       res.json({ message: "Depozit rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1543,6 +1545,7 @@ function showGuide(browser) {
       await storage.updateUserBalance(withdrawal.userId, withdrawal.amount);
       await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "rejected");
       await storage.addBalanceHistory({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `Yechish bekor qilindi — qaytarildi ${withdrawal.amount} USDT` });
+      sendNotification(withdrawal.userId, "system", "Pul yechish rad etildi", `${withdrawal.amount} USDT qaytarildi. So'rov rad etildi.`);
       res.json({ message: "Yechish rad etildi va balans qaytarildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1674,6 +1677,7 @@ function showGuide(browser) {
       stajyorExpiry.setDate(stajyorExpiry.getDate() + 3);
       await storage.setUserVipExpiry(request.userId, stajyorExpiry);
       await storage.setStajyorUsed(request.userId);
+      sendNotification(request.userId, "system", "Stajyor faollashtirildi!", "3 kunlik sinov davri boshlandi. Kuniga 3 ta video ko'ring!");
       res.json({ message: "Stajyor lavozimi faollashtirildi! (3 kun)" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1688,6 +1692,7 @@ function showGuide(browser) {
       if (request.status !== "pending") return res.status(400).json({ message: "Bu so'rov allaqachon ko'rib chiqilgan" });
 
       await storage.updateStajyorRequestStatus(request.id, "rejected");
+      sendNotification(request.userId, "system", "Stajyor so'rovi rad etildi", "So'rovingiz rad etildi. Iltimos qayta urinib ko'ring.");
       res.json({ message: "So'rov rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1796,6 +1801,16 @@ function showGuide(browser) {
       const { title, message } = req.body;
       if (!title || !message) return res.status(400).json({ message: "Sarlavha va xabar majburiy" });
       const b = await storage.createBroadcast({ title, message });
+
+      try {
+        const allUsers = await storage.getAllUsers();
+        for (const u of allUsers) {
+          sendNotification(u.id, "broadcast", title, message);
+        }
+      } catch (e) {
+        console.error("Broadcast notification error:", e);
+      }
+
       res.json(b);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1825,12 +1840,14 @@ function showGuide(browser) {
         await storage.updateUserBalance(inv.userId, inv.dailyProfit);
         await storage.updateInvestmentLastProfitDate(inv.id, today);
         await storage.addBalanceHistory({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
+        sendNotification(inv.userId, "task_reward", "Fond daromadi", `+${inv.dailyProfit} USDT ${planName} fondidan`);
 
         if (inv.endDate && new Date(inv.endDate) <= new Date()) {
           await storage.updateInvestmentStatus(inv.id, "completed");
           if (plan?.returnPrincipal) {
             await storage.updateUserBalance(inv.userId, inv.investedAmount);
             await storage.addBalanceHistory({ userId: inv.userId, type: "fund_return", amount: inv.investedAmount, description: `${planName} fond investitsiyasi qaytarildi — ${inv.investedAmount} USDT` });
+            sendNotification(inv.userId, "deposit_confirmed", "Fond investitsiyasi qaytarildi", `+${inv.investedAmount} USDT ${planName} fondidan qaytarildi`);
           }
         }
       }
@@ -1864,6 +1881,7 @@ function showGuide(browser) {
       await storage.incrementPromoCodeUsage(promo.id);
       await storage.updateUserBalance(req.session.userId!, promo.amount);
       await storage.addBalanceHistory({ userId: req.session.userId!, type: "earning", amount: promo.amount, description: `Promokod: ${promo.code}` });
+      sendNotification(req.session.userId!, "deposit_confirmed", "Promokod qabul qilindi", `+${promo.amount} USDT promokod orqali qo'shildi`);
 
       if (promo.isOneTime) {
         await storage.deactivatePromoCode(promo.id);
