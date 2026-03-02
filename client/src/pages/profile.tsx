@@ -9,17 +9,142 @@ import {
   Phone, CreditCard, Headphones, ScrollText, Settings,
   ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle, Clock, X, Building, Globe,
   History, TrendingUp, Banknote, Eye, EyeOff, Landmark, RotateCcw,
-  GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap, BellRing
+  GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap, BellRing,
+  Monitor, LogIn, Smartphone, Laptop, Tablet
 } from "lucide-react";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory } from "@shared/schema";
+import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, BalanceHistory, UserSessionLog } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 import { QRCodeSVG } from "qrcode.react";
 import { UZS_RATE, formatUZS } from "@/lib/utils";
+
+function parseDevice(ua: string | null): { name: string; icon: "phone" | "tablet" | "laptop" } {
+  if (!ua) return { name: "Unknown", icon: "laptop" };
+  const lower = ua.toLowerCase();
+  const isTablet = /ipad|tablet|tab/i.test(lower);
+  const isMobile = /mobile|android|iphone/i.test(lower);
+
+  let browser = "Browser";
+  if (/chrome/i.test(lower) && !/edg/i.test(lower)) browser = "Chrome";
+  else if (/safari/i.test(lower) && !/chrome/i.test(lower)) browser = "Safari";
+  else if (/firefox/i.test(lower)) browser = "Firefox";
+  else if (/edg/i.test(lower)) browser = "Edge";
+  else if (/opera|opr/i.test(lower)) browser = "Opera";
+
+  let os = "";
+  if (/iphone|ipad/i.test(lower)) os = "iOS";
+  else if (/android/i.test(lower)) os = "Android";
+  else if (/windows/i.test(lower)) os = "Windows";
+  else if (/mac/i.test(lower)) os = "macOS";
+  else if (/linux/i.test(lower)) os = "Linux";
+
+  const name = os ? `${browser} · ${os}` : browser;
+  if (isTablet) return { name, icon: "tablet" };
+  if (isMobile) return { name, icon: "phone" };
+  return { name, icon: "laptop" };
+}
+
+function SessionsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { t } = useI18n();
+  const { data: sessions = [], isLoading } = useQuery<UserSessionLog[]>({
+    queryKey: ["/api/my-sessions"],
+    enabled: open,
+    queryFn: async () => {
+      const res = await fetch("/api/my-sessions", { credentials: "include" });
+      if (!res.ok) return [];
+      return res.json();
+    },
+  });
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const day = d.getDate().toString().padStart(2, "0");
+    const mon = (d.getMonth() + 1).toString().padStart(2, "0");
+    const year = d.getFullYear();
+    const hours = d.getHours().toString().padStart(2, "0");
+    const mins = d.getMinutes().toString().padStart(2, "0");
+    return `${day}.${mon}.${year} ${hours}:${mins}`;
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="bg-background border-border p-0 max-w-md w-full h-[80vh] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col" aria-describedby="sessions-desc">
+        <DialogTitle className="sr-only">{t("profile.sessions")}</DialogTitle>
+        <div className="bg-gradient-to-br from-cyan-500/20 via-card to-card px-4 pt-5 pb-4 border-b border-border shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
+              <Monitor className="w-5 h-5 text-cyan-500" />
+            </div>
+            <div>
+              <h2 className="text-foreground font-bold text-base">{t("profile.sessions")}</h2>
+              <p id="sessions-desc" className="text-muted-foreground text-xs">{t("profile.sessionsDesc")}</p>
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3, 4, 5].map(i => (
+                <div key={i} className="bg-card rounded-xl p-3 border border-border/50 animate-pulse">
+                  <div className="flex gap-3">
+                    <div className="w-9 h-9 bg-muted rounded-lg" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-muted rounded w-24" />
+                      <div className="h-2.5 bg-muted rounded w-32" />
+                      <div className="h-2.5 bg-muted rounded w-20" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : sessions.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+              <Monitor className="w-10 h-10 mb-3 opacity-40" />
+              <p className="text-sm">{t("profile.sessionNoData")}</p>
+            </div>
+          ) : (
+            sessions.map((s) => {
+              const device = parseDevice(s.userAgent);
+              const DeviceIcon = device.icon === "phone" ? Smartphone : device.icon === "tablet" ? Tablet : Laptop;
+              const isLogin = s.action === "login";
+              return (
+                <div key={s.id} className="bg-card rounded-xl p-3 border border-border/50 hover:border-border transition-colors" data-testid={`session-${s.id}`}>
+                  <div className="flex gap-3">
+                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isLogin ? "bg-emerald-500/15" : "bg-red-500/15"}`}>
+                      {isLogin ? <LogIn className="w-4 h-4 text-emerald-500" /> : <LogOut className="w-4 h-4 text-red-500" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-xs font-semibold ${isLogin ? "text-emerald-500" : "text-red-500"}`}>
+                          {isLogin ? t("profile.sessionLogin") : t("profile.sessionLogout")}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">{formatDate(s.createdAt as any)}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <DeviceIcon className="w-3 h-3 text-muted-foreground shrink-0" />
+                        <span className="text-xs text-foreground/80 truncate">{device.name}</span>
+                      </div>
+                      {s.ip && (
+                        <div className="flex items-center gap-1.5">
+                          <Globe className="w-3 h-3 text-muted-foreground shrink-0" />
+                          <span className="text-[11px] text-muted-foreground font-mono">{s.ip}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function DepositModal({ open, onClose, user }: { open: boolean; onClose: () => void; user: User }) {
   const { toast } = useToast();
@@ -1091,6 +1216,7 @@ export default function ProfilePage() {
   const [showChangeFundPwd, setShowChangeFundPwd] = useState(false);
   const [currentFundPwd, setCurrentFundPwd] = useState("");
   const [newFundPwd, setNewFundPwd] = useState("");
+  const [showSessions, setShowSessions] = useState(false);
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications();
 
   const { data: user, isLoading } = useQuery<User>({
@@ -1490,6 +1616,18 @@ export default function ProfilePage() {
 
         <div className="space-y-2 animate-fade-up" style={{ animationDelay: "0.45s", animationFillMode: "both" }}>
           <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
+            <button onClick={() => setShowSessions(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-sessions">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500/20 to-teal-500/10 flex items-center justify-center">
+                  <Monitor className="w-4.5 h-4.5 text-cyan-500" />
+                </div>
+                <div>
+                  <span className="text-foreground text-sm font-medium block">{t("profile.sessions")}</span>
+                  <span className="text-muted-foreground text-[11px]">{t("profile.sessionsDesc")}</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+            </button>
             <button onClick={() => navigate("/help")} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-support">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center">
@@ -1948,6 +2086,8 @@ export default function ProfilePage() {
             </div>
           </DialogContent>
         </Dialog>
+
+        <SessionsModal open={showSessions} onClose={() => setShowSessions(false)} />
 
         {user && <DepositModal open={showDeposit} onClose={() => setShowDeposit(false)} user={user} />}
         {user && <WithdrawModal open={showWithdraw} onClose={() => setShowWithdraw(false)} user={user} paymentMethods={paymentMethods} />}

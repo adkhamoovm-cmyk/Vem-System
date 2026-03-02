@@ -730,7 +730,15 @@ function showGuide(browser) {
     }
   });
 
-  app.post("/api/auth/logout", (req: Request, res: Response) => {
+  app.post("/api/auth/logout", async (req: Request, res: Response) => {
+    const userId = req.session.userId;
+    if (userId) {
+      try {
+        const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
+        const ua = req.headers["user-agent"] || "";
+        await storage.logSession({ userId, action: "logout", ip, userAgent: ua });
+      } catch (_) {}
+    }
     req.session.destroy(() => {
       res.json({ message: "Chiqish muvaffaqiyatli" });
     });
@@ -2153,6 +2161,16 @@ function showGuide(browser) {
     try {
       await storage.deletePromoCode(req.params.id as string);
       res.json({ message: "Promokod o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/my-sessions", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const logs = await storage.getUserSessionLogs(userId, 50);
+      res.json(logs);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
