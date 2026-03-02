@@ -252,7 +252,10 @@ export default function AuthPage() {
   };
 
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetMounted, setResetMounted] = useState(false);
   const [resetStep, setResetStep] = useState(1);
+  const [resetStepDir, setResetStepDir] = useState<"forward" | "back">("forward");
+  const [resetAnimating, setResetAnimating] = useState(false);
   const [resetPhone, setResetPhone] = useState("");
   const [resetPin, setResetPin] = useState("");
   const [resetAnswer, setResetAnswer] = useState("");
@@ -262,6 +265,23 @@ export default function AuthPage() {
   const [resetLoading, setResetLoading] = useState(false);
   const [showCountryListReset, setShowCountryListReset] = useState(false);
   const [resetCountry, setResetCountry] = useState(countryCodes[0]);
+
+  useEffect(() => {
+    if (showResetPassword) {
+      requestAnimationFrame(() => setResetMounted(true));
+    } else {
+      setResetMounted(false);
+    }
+  }, [showResetPassword]);
+
+  const goToResetStep = (step: number, dir: "forward" | "back" = "forward") => {
+    setResetStepDir(dir);
+    setResetAnimating(true);
+    setTimeout(() => {
+      setResetStep(step);
+      setResetAnimating(false);
+    }, 150);
+  };
 
   const [loginCountry, setLoginCountry] = useState(() => {
     const saved = localStorage.getItem("vem_country");
@@ -398,7 +418,7 @@ export default function AuthPage() {
     try {
       const res = await apiRequest("POST", "/api/auth/reset-step1", { phone: resetCountry.code + resetPhone });
       const data = await res.json();
-      if (data.success) setResetStep(2);
+      if (data.success) goToResetStep(2, "forward");
     } catch (e: any) { toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }); }
     finally { setResetLoading(false); }
   };
@@ -409,7 +429,7 @@ export default function AuthPage() {
     try {
       const res = await apiRequest("POST", "/api/auth/reset-step2", { fundPassword: resetPin });
       const data = await res.json();
-      if (data.success) { setResetVerifyType(data.verifyType); setResetVerifyHint(data.verifyHint || ""); setResetStep(3); }
+      if (data.success) { setResetVerifyType(data.verifyType); setResetVerifyHint(data.verifyHint || ""); goToResetStep(3, "forward"); }
     } catch (e: any) { toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }); }
     finally { setResetLoading(false); }
   };
@@ -420,7 +440,7 @@ export default function AuthPage() {
     try {
       const res = await apiRequest("POST", "/api/auth/reset-step3", { answer: resetAnswer.trim() });
       const data = await res.json();
-      if (data.success) setResetStep(4);
+      if (data.success) goToResetStep(4, "forward");
     } catch (e: any) { toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }); }
     finally { setResetLoading(false); }
   };
@@ -948,22 +968,31 @@ export default function AuthPage() {
       </div>
 
       {showResetPassword && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowResetPassword(false)}>
-          <div className="relative w-full max-w-md" onClick={e => e.stopPropagation()}>
-            <div className="absolute -inset-[1px] rounded-[22px] bg-gradient-to-b from-border/60 via-border/20 to-border/60 pointer-events-none" />
-            <div className="relative bg-card/95 backdrop-blur-md rounded-[22px] p-7 shadow-2xl shadow-black/30">
+        <div
+          className={`fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all duration-300 ease-out ${resetMounted ? "bg-black/60 backdrop-blur-sm" : "bg-black/0 backdrop-blur-0"}`}
+          onClick={() => setShowResetPassword(false)}
+        >
+          <div
+            className={`relative w-full sm:max-w-md transition-all duration-300 ease-out ${resetMounted ? "translate-y-0 opacity-100 scale-100" : "translate-y-8 opacity-0 scale-95"}`}
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="absolute -inset-[1px] rounded-t-[22px] sm:rounded-[22px] bg-gradient-to-b from-primary/30 via-border/20 to-border/60 pointer-events-none" />
+            <div className="relative bg-card/95 backdrop-blur-xl rounded-t-[22px] sm:rounded-[22px] p-7 shadow-2xl shadow-black/40">
+
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/20 mx-auto mb-5 sm:hidden" />
+
               <div className="flex items-center gap-3 mb-5">
                 <button
                   onClick={async () => {
                     if (resetStep > 1) {
                       if (resetStep === 2) { try { await apiRequest("POST", "/api/auth/reset-cancel", {}); } catch {} }
-                      setResetStep(resetStep - 1);
+                      goToResetStep(resetStep - 1, "back");
                     } else {
                       try { await apiRequest("POST", "/api/auth/reset-cancel", {}); } catch {}
                       setShowResetPassword(false);
                     }
                   }}
-                  className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
+                  className="w-9 h-9 rounded-xl bg-muted/60 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted active:scale-90 transition-all duration-200"
                   data-testid="button-back-reset"
                 >
                   <ArrowLeft className="w-4 h-4" />
@@ -971,16 +1000,18 @@ export default function AuthPage() {
                 <div className="flex-1">
                   <h2 className="text-lg font-bold text-foreground">{t("auth.resetPassword")}</h2>
                 </div>
-                <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1.5 rounded-full">{resetStep}/4</span>
+                <span className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all duration-300 ${resetStep === 4 ? "text-emerald-500 bg-emerald-500/10" : "text-primary bg-primary/10"}`}>{resetStep}/4</span>
               </div>
 
               <div className="flex gap-1.5 mb-6">
                 {[1,2,3,4].map(s => (
-                  <div key={s} className="h-1 flex-1 rounded-full overflow-hidden bg-muted">
-                    <div className={`h-full rounded-full transition-all duration-500 ease-out ${s < resetStep ? "w-full bg-primary" : s === resetStep ? "w-full bg-gradient-to-r from-primary to-blue-500" : "w-0"}`} />
+                  <div key={s} className="h-1.5 flex-1 rounded-full overflow-hidden bg-muted/60">
+                    <div className={`h-full rounded-full transition-all duration-500 ease-out ${s < resetStep ? "w-full bg-primary" : s === resetStep ? "w-full bg-gradient-to-r from-primary to-blue-500 animate-pulse" : "w-0"}`} />
                   </div>
                 ))}
               </div>
+
+              <div className={`transition-all duration-200 ease-out ${resetAnimating ? (resetStepDir === "forward" ? "opacity-0 -translate-x-4" : "opacity-0 translate-x-4") : "opacity-100 translate-x-0"}`}>
 
               <p className="text-muted-foreground text-sm mb-5 leading-relaxed">
                 {resetStep === 1 && t("auth.resetStep1")}
@@ -1026,8 +1057,8 @@ export default function AuthPage() {
                       </div>
                     </div>
                   </div>
-                  <Button onClick={handleResetStep1} className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all" disabled={resetLoading || resetPhone.length < 5} data-testid="button-reset-next-1">
-                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.checking")}</div> : t("auth.next")}
+                  <Button onClick={handleResetStep1} className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all hover:shadow-primary/40" disabled={resetLoading || resetPhone.length < 5} data-testid="button-reset-next-1">
+                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.checking")}</div> : <span className="flex items-center gap-2">{t("auth.next")} <ArrowRight className="w-4 h-4" /></span>}
                   </Button>
                 </div>
               )}
@@ -1044,7 +1075,7 @@ export default function AuthPage() {
                     <label className="text-foreground/70 text-xs font-semibold uppercase tracking-wider block mb-2">{t("auth.fundPassword")}</label>
                     <div className="flex justify-center gap-2.5">
                       {[0,1,2,3,4,5].map(i => (
-                        <Input key={i} type="password" inputMode="numeric" maxLength={1} value={resetPin[i] || ""} className="w-12 h-14 text-center text-lg font-bold bg-muted/50 border-border/50 text-foreground rounded-xl focus:border-primary/60 focus:ring-2 focus:ring-primary/15" data-testid={`input-reset-pin-${i}`}
+                        <Input key={i} type="password" inputMode="numeric" maxLength={1} value={resetPin[i] || ""} className="w-12 h-14 text-center text-lg font-bold bg-muted/50 border-border/50 text-foreground rounded-xl focus:border-primary/60 focus:ring-2 focus:ring-primary/15 transition-all duration-200" data-testid={`input-reset-pin-${i}`}
                           onChange={e => {
                             const val = e.target.value.replace(/\D/g, "");
                             if (val.length <= 1) {
@@ -1058,8 +1089,8 @@ export default function AuthPage() {
                       ))}
                     </div>
                   </div>
-                  <Button onClick={handleResetStep2} className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all" disabled={resetLoading || resetPin.length !== 6} data-testid="button-reset-next-2">
-                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.checking")}</div> : t("auth.next")}
+                  <Button onClick={handleResetStep2} className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all hover:shadow-primary/40" disabled={resetLoading || resetPin.length !== 6} data-testid="button-reset-next-2">
+                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.checking")}</div> : <span className="flex items-center gap-2">{t("auth.next")} <ArrowRight className="w-4 h-4" /></span>}
                   </Button>
                 </div>
               )}
@@ -1068,7 +1099,7 @@ export default function AuthPage() {
                 <div className="space-y-4">
                   <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
                     <div className="flex items-start gap-2.5">
-                      <KeyRound className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                      <Shield className="w-4 h-4 text-primary mt-0.5 shrink-0" />
                       <p className="text-muted-foreground text-xs leading-relaxed">
                         {resetVerifyType === "card" && t("auth.verifyCardLast6")}
                         {resetVerifyType === "crypto" && t("auth.verifyCryptoFull")}
@@ -1084,14 +1115,19 @@ export default function AuthPage() {
                     </p>
                   )}
                   <Input value={resetAnswer} onChange={e => setResetAnswer(e.target.value)} placeholder={resetVerifyType === "card" ? "XXXXXX" : resetVerifyType === "crypto" ? "T..." : resetVerifyType === "referrer" && resetVerifyHint ? "+998..." : "2026-01-15"} className="h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl text-center tracking-wider font-mono" data-testid="input-reset-verify" />
-                  <Button onClick={handleResetStep3} className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all" disabled={resetLoading || !resetAnswer.trim()} data-testid="button-reset-next-3">
-                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.checking")}</div> : t("auth.next")}
+                  <Button onClick={handleResetStep3} className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all hover:shadow-primary/40" disabled={resetLoading || !resetAnswer.trim()} data-testid="button-reset-next-3">
+                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.checking")}</div> : <span className="flex items-center gap-2">{t("auth.next")} <ArrowRight className="w-4 h-4" /></span>}
                   </Button>
                 </div>
               )}
 
               {resetStep === 4 && (
                 <div className="space-y-4">
+                  <div className="flex justify-center mb-2">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-green-500/10 flex items-center justify-center">
+                      <CheckCircle className="w-8 h-8 text-emerald-500" />
+                    </div>
+                  </div>
                   <div>
                     <label className="text-foreground/70 text-xs font-semibold uppercase tracking-wider block mb-2">{t("auth.newPassword")}</label>
                     <div className="relative group">
@@ -1103,11 +1139,13 @@ export default function AuthPage() {
                     </div>
                     <p className="text-muted-foreground/60 text-[11px] mt-1.5 pl-1">{t("auth.minChars")}</p>
                   </div>
-                  <Button onClick={handleResetStep4} className="w-full bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all" disabled={resetLoading || resetNewPass.length < 6} data-testid="button-reset-password">
-                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.resetting")}</div> : t("auth.resetPassword")}
+                  <Button onClick={handleResetStep4} className="w-full bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 text-white font-semibold h-[52px] rounded-xl shadow-xl shadow-emerald-500/25 text-[15px] active:scale-[0.98] transition-all hover:shadow-emerald-500/40" disabled={resetLoading || resetNewPass.length < 6} data-testid="button-reset-password">
+                    {resetLoading ? <div className="flex items-center gap-2"><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />{t("auth.resetting")}</div> : <span className="flex items-center gap-2"><CheckCircle className="w-4 h-4" /> {t("auth.resetPassword")}</span>}
                   </Button>
                 </div>
               )}
+
+              </div>
 
               <div className="mt-5 text-center">
                 <button onClick={() => setShowResetPassword(false)} className="text-muted-foreground text-sm hover:text-foreground transition-colors" data-testid="link-back-to-login">
