@@ -922,7 +922,17 @@ function showGuide(browser) {
 
       const totalCalendarDays = Math.ceil((expiresAt.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
       const refundMsg = refundAmount > 0 ? ` Oldingi VIP dan ${refundAmount.toFixed(2)} USDT qaytarildi.` : "";
-      res.json({ message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} ish kuni (${totalCalendarDays} kun) ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}` });
+      res.json({ 
+        message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} ish kuni (${totalCalendarDays} kun) ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}`,
+        celebration: {
+          type: isExtension ? "vip_extended" : "vip_activated",
+          packageName: pkg.name,
+          level: pkg.level,
+          dailyTasks: pkg.dailyTasks,
+          durationDays: pkg.durationDays,
+          perVideoReward: pkg.perVideoReward,
+        }
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -1129,7 +1139,18 @@ function showGuide(browser) {
       await storage.addBalanceHistory({ userId, type: "fund_profit", amount: dailyProfit, description: `${plan.name} fond daromadi +${dailyProfit} USDT` });
       sendNotification(userId, "system", "fund_invested", "fund_invested", { name: plan.name, amount: String(investAmount) });
 
-      res.json({ investment, message: "Investitsiya muvaffaqiyatli amalga oshirildi!" });
+      res.json({ 
+        investment, 
+        message: "Investitsiya muvaffaqiyatli amalga oshirildi!",
+        celebration: {
+          type: "fund_invested",
+          planName: plan.name,
+          amount: investAmount,
+          dailyProfit,
+          dailyRoi: plan.dailyRoi,
+          durationDays: plan.durationDays,
+        }
+      });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

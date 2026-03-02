@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Wallet, Lock, TrendingUp, DollarSign, Infinity, ArrowRight, X, CheckCircle, Sprout, Gem, Trophy, AlertTriangle, ShieldAlert, KeyRound, ChevronRight, ChevronLeft, BarChart3, Calendar, ArrowUpRight } from "lucide-react";
 import type { User, FundPlan, Investment } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
+import CelebrationModal from "@/components/celebration-modal";
 
 const planIcons: Record<string, typeof Sprout> = {
   F1: Sprout, F2: Gem, F3: Trophy, F4: Infinity,
@@ -28,6 +29,7 @@ export default function FundPage() {
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState("");
   const [showWarning, setShowWarning] = useState(false);
+  const [celebrationData, setCelebrationData] = useState<any>(null);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -56,7 +58,11 @@ export default function FundPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/investments"] });
       queryClient.invalidateQueries({ queryKey: ["/api/balance-history"] });
       closeModal();
-      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
+      if (data.celebration) {
+        setCelebrationData(data.celebration);
+      } else {
+        toast({ title: t("common.success"), description: translateServerMessage(data.message) });
+      }
     },
     onError: (error: Error) => {
       setPin("");
@@ -591,6 +597,7 @@ export default function FundPage() {
           </div>
         </div>
       )}
+      <CelebrationModal data={celebrationData} onClose={() => setCelebrationData(null)} />
     </div>
   );
 }

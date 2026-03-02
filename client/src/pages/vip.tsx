@@ -7,6 +7,7 @@ import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send,
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
+import CelebrationModal from "@/components/celebration-modal";
 
 const levelIcons: Record<number, typeof Shield> = {
   0: Shield, 1: Medal, 2: Star, 3: Award, 4: Gem, 5: Zap,
@@ -47,6 +48,7 @@ export default function VipPage() {
   const { toast } = useToast();
   const [stajyorMsg, setStajyorMsg] = useState("");
   const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
+  const [celebrationData, setCelebrationData] = useState<any>(null);
 
   const { data: packages, isLoading } = useQuery<VipPackage[]>({
     queryKey: ["/api/vip-packages"],
@@ -70,7 +72,11 @@ export default function VipPage() {
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
-      toast({ title: t("common.success"), description: translateServerMessage(data.message) });
+      if (data.celebration) {
+        setCelebrationData(data.celebration);
+      } else {
+        toast({ title: t("common.success"), description: translateServerMessage(data.message) });
+      }
     },
     onError: (error: Error) => {
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
@@ -408,6 +414,7 @@ export default function VipPage() {
           </p>
         </div>
       </div>
+      <CelebrationModal data={celebrationData} onClose={() => setCelebrationData(null)} />
     </div>
   );
 }
