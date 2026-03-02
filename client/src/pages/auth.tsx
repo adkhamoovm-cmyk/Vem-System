@@ -244,6 +244,12 @@ export default function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showBannedAlert, setShowBannedAlert] = useState(false);
   const [rememberMe, setRememberMe] = useState(() => localStorage.getItem("vem_remember") === "true");
+  const [loginShake, setLoginShake] = useState(false);
+
+  const triggerShake = () => {
+    setLoginShake(true);
+    setTimeout(() => setLoginShake(false), 600);
+  };
 
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetStep, setResetStep] = useState(1);
@@ -341,6 +347,7 @@ export default function AuthPage() {
     },
     onError: (error: Error) => {
       if (error.message === "ACCOUNT_BANNED") { setShowBannedAlert(true); return; }
+      triggerShake();
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
   });
@@ -502,7 +509,7 @@ export default function AuthPage() {
                 )}
 
                 <Form {...loginForm}>
-                  <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className="space-y-5">
+                  <form onSubmit={loginForm.handleSubmit((data) => loginMutation.mutate(data))} className={`space-y-5 ${loginShake ? "shake" : ""}`}>
                     <FormField
                       control={loginForm.control}
                       name="phone"
@@ -575,10 +582,19 @@ export default function AuthPage() {
                     />
 
                     <div className="flex items-center justify-between pt-0.5">
-                      <label className="flex items-center gap-2.5 cursor-pointer group">
-                        <Checkbox checked={rememberMe} onCheckedChange={(val) => setRememberMe(val === true)} className="border-border/60 data-[state=checked]:bg-primary data-[state=checked]:border-primary rounded-md" data-testid="checkbox-remember-me" />
-                        <span className="text-muted-foreground text-sm group-hover:text-foreground transition-colors">{t("auth.rememberMe")}</span>
-                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setRememberMe(!rememberMe)}
+                        className="flex items-center gap-2.5 cursor-pointer group"
+                        data-testid="toggle-remember-me"
+                      >
+                        <div className={`relative w-10 h-[22px] rounded-full transition-all duration-300 ${rememberMe ? "bg-primary shadow-md shadow-primary/30" : "bg-muted border border-border/50"}`}>
+                          <div className={`absolute top-[3px] w-4 h-4 rounded-full shadow-sm transition-all duration-300 ${rememberMe ? "left-[22px] bg-white" : "left-[3px] bg-muted-foreground/40"}`} />
+                        </div>
+                        <span className={`text-sm transition-colors duration-200 ${rememberMe ? "text-foreground font-medium" : "text-muted-foreground group-hover:text-foreground"}`}>
+                          {t("auth.rememberMe")}
+                        </span>
+                      </button>
                       <button type="button" onClick={openResetModal} className="text-primary/80 text-sm font-medium hover:text-primary transition-colors" data-testid="link-forgot-password">
                         {t("auth.forgotPassword")}
                       </button>
