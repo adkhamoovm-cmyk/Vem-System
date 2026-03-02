@@ -82,6 +82,7 @@ export interface IStorage {
   setStajyorUsed(id: string): Promise<void>;
   addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
   getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
+  getUserBalanceHistoryPaginated(userId: string, limit: number, offset: number): Promise<{ data: BalanceHistory[]; total: number }>;
   getBalanceHistoryByType(userId: string, type: string): Promise<BalanceHistory[]>;
   updateWithdrawalHistoryStatus(userId: string, withdrawalId: string, newStatus: string): Promise<void>;
   updateDepositHistoryStatus(userId: string, amount: string, currency: string, newStatus: string, amountInUSDT: string): Promise<void>;
@@ -547,6 +548,14 @@ export class DatabaseStorage implements IStorage {
 
   async getUserBalanceHistory(userId: string): Promise<BalanceHistory[]> {
     return db.select().from(balanceHistory).where(eq(balanceHistory.userId, userId)).orderBy(desc(balanceHistory.createdAt));
+  }
+
+  async getUserBalanceHistoryPaginated(userId: string, limit: number, offset: number): Promise<{ data: BalanceHistory[]; total: number }> {
+    const [data, countResult] = await Promise.all([
+      db.select().from(balanceHistory).where(eq(balanceHistory.userId, userId)).orderBy(desc(balanceHistory.createdAt)).limit(limit).offset(offset),
+      db.select({ count: sql<number>`count(*)::int` }).from(balanceHistory).where(eq(balanceHistory.userId, userId)),
+    ]);
+    return { data, total: countResult[0]?.count || 0 };
   }
 
   async getBalanceHistoryByType(userId: string, type: string): Promise<BalanceHistory[]> {

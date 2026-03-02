@@ -1123,9 +1123,18 @@ export default function ProfilePage() {
   });
   const isWithdrawalGloballyEnabled = platformSettingsMain?.withdrawalEnabled !== false;
 
-  const { data: balHistory = [] } = useQuery<BalanceHistory[]>({
-    queryKey: ["/api/balance-history"],
+  const [historyPage, setHistoryPage] = useState(1);
+  const { data: balHistoryRes } = useQuery<{ data: BalanceHistory[]; total: number; totalPages: number }>({
+    queryKey: ["/api/balance-history", { page: historyPage, limit: 20 }],
+    queryFn: async () => {
+      const res = await fetch(`/api/balance-history?page=${historyPage}&limit=20`, { credentials: "include" });
+      if (res.status === 401) return { data: [], total: 0, totalPages: 1 };
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
   });
+  const balHistory = balHistoryRes?.data || [];
+  const historyTotalPages = balHistoryRes?.totalPages || 1;
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -1217,9 +1226,30 @@ export default function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="p-4 space-y-4 animate-pulse">
+        <div className="flex flex-col items-center gap-3 py-6">
+          <div className="w-20 h-20 rounded-full bg-muted" />
+          <div className="h-5 bg-muted rounded w-32" />
+          <div className="h-3 bg-muted rounded w-24" />
         </div>
+        <div className="h-24 bg-muted rounded-2xl" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="h-14 bg-muted rounded-xl" />
+          <div className="h-14 bg-muted rounded-xl" />
+        </div>
+        <div className="space-y-3">
+          {[1,2,3,4].map(i => (
+            <div key={i} className="flex items-center gap-3 px-2">
+              <div className="w-10 h-10 rounded-xl bg-muted shrink-0" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 bg-muted rounded w-28" />
+                <div className="h-2.5 bg-muted rounded w-20" />
+              </div>
+              <div className="w-5 h-5 rounded bg-muted" />
+            </div>
+          ))}
+        </div>
+      </div>
     );
   }
 
@@ -1890,6 +1920,31 @@ export default function ProfilePage() {
                   );
                 });
               })()}
+              {historyTotalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 py-4 px-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={historyPage <= 1}
+                    onClick={() => setHistoryPage(p => Math.max(1, p - 1))}
+                    className="h-8 px-3 text-xs rounded-lg"
+                    data-testid="btn-history-prev"
+                  >
+                    ←
+                  </Button>
+                  <span className="text-xs text-muted-foreground">{historyPage} / {historyTotalPages}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={historyPage >= historyTotalPages}
+                    onClick={() => setHistoryPage(p => Math.min(historyTotalPages, p + 1))}
+                    className="h-8 px-3 text-xs rounded-lg"
+                    data-testid="btn-history-next"
+                  >
+                    →
+                  </Button>
+                </div>
+              )}
             </div>
           </DialogContent>
         </Dialog>

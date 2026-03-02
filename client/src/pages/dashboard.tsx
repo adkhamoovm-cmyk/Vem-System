@@ -85,9 +85,16 @@ export default function DashboardPage() {
     queryKey: ["/api/vip-packages"],
   });
 
-  const { data: balanceHistory } = useQuery<BalanceHistory[]>({
-    queryKey: ["/api/balance-history"],
+  const { data: balanceHistoryRes } = useQuery<{ data: BalanceHistory[]; total: number }>({
+    queryKey: ["/api/balance-history", { page: 1, limit: 20 }],
+    queryFn: async () => {
+      const res = await fetch("/api/balance-history?page=1&limit=20", { credentials: "include" });
+      if (res.status === 401) return { data: [], total: 0 };
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
   });
+  const balanceHistory = balanceHistoryRes?.data;
 
   const { data: referralStats } = useQuery<{ level1: { count: number; commission: string }; level2: { count: number; commission: string }; level3: { count: number; commission: string } }>({
     queryKey: ["/api/referrals/stats"],
@@ -104,10 +111,37 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-muted-foreground text-xs animate-pulse">{t("common.loading")}</p>
+      <div className="p-4 space-y-4 animate-pulse">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-muted" />
+          <div className="flex-1 space-y-2">
+            <div className="h-4 bg-muted rounded w-32" />
+            <div className="h-3 bg-muted rounded w-20" />
+          </div>
+        </div>
+        <div className="h-28 bg-muted rounded-2xl" />
+        <div className="grid grid-cols-3 gap-3">
+          <div className="h-20 bg-muted rounded-xl" />
+          <div className="h-20 bg-muted rounded-xl" />
+          <div className="h-20 bg-muted rounded-xl" />
+        </div>
+        <div className="h-5 bg-muted rounded w-24" />
+        <div className="flex gap-3 overflow-hidden">
+          <div className="h-40 w-28 bg-muted rounded-xl shrink-0" />
+          <div className="h-40 w-28 bg-muted rounded-xl shrink-0" />
+          <div className="h-40 w-28 bg-muted rounded-xl shrink-0" />
+        </div>
+        <div className="space-y-3">
+          {[1,2,3].map(i => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-muted" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3.5 bg-muted rounded w-36" />
+                <div className="h-2.5 bg-muted rounded w-20" />
+              </div>
+              <div className="h-4 bg-muted rounded w-16" />
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -130,7 +164,7 @@ export default function DashboardPage() {
 
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayEarned = (balanceHistory || [])
-    .filter(h => h.type === "earning" && h.createdAt?.toString().slice(0, 10) === todayStr)
+    .filter(h => h.type === "earning" && new Date(h.createdAt).toISOString().slice(0, 10) === todayStr)
     .reduce((sum, h) => sum + Number(h.amount), 0);
 
   const totalReferrals = referralStats
@@ -141,6 +175,25 @@ export default function DashboardPage() {
     : 0;
 
   const recentTx = (balanceHistory || []).slice(0, 4);
+
+  const weeklyEarnings = useMemo(() => {
+    const days: { label: string; amount: number }[] = [];
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const dayLabel = d.toLocaleDateString(locale === "uz" ? "uz-UZ" : locale === "ru" ? "ru-RU" : "en-US", { weekday: "short" }).slice(0, 2);
+      const earned = (balanceHistory || [])
+        .filter(h => (h.type === "earning" || h.type === "fund_profit" || h.type === "commission") && new Date(h.createdAt).toISOString().slice(0, 10) === dateStr)
+        .reduce((sum, h) => sum + Number(h.amount), 0);
+      days.push({ label: dayLabel, amount: earned });
+    }
+    return days;
+  }, [balanceHistory, locale]);
+
+  const weeklyMax = Math.max(...weeklyEarnings.map(d => d.amount), 0.01);
+  const weeklyTotal = weeklyEarnings.reduce((s, d) => s + d.amount, 0);
 
   const activeInvestments = (investments || []);
   const totalInvested = activeInvestments.reduce((sum, inv) => sum + Number(inv.investedAmount || 0), 0);
@@ -413,6 +466,42 @@ export default function DashboardPage() {
                 </div>
               </>
             )}
+          </div>
+
+          <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm animate-fade-up" style={{ animationDelay: "0.25s", animationFillMode: "both" }} data-testid="weekly-earnings-chart">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-emerald-500/15 to-green-500/10 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-emerald-500" />
+                </div>
+                <span className="text-foreground text-sm font-semibold">{t("dashboard.weeklyEarnings")}</span>
+              </div>
+              <span className="text-emerald-500 text-sm font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/15">
+                +{weeklyTotal.toFixed(2)}
+              </span>
+            </div>
+            <div className="flex items-end gap-1.5 h-24">
+              {weeklyEarnings.map((day, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                  <div className="w-full flex flex-col items-center justify-end h-[72px]">
+                    {day.amount > 0 && (
+                      <span className="text-[8px] text-emerald-500 font-bold mb-0.5">{day.amount.toFixed(2)}</span>
+                    )}
+                    <div
+                      className={`w-full max-w-[28px] rounded-md transition-all ${
+                        i === 6
+                          ? "bg-gradient-to-t from-primary to-blue-400"
+                          : day.amount > 0
+                            ? "bg-emerald-500/60"
+                            : "bg-muted/50"
+                      }`}
+                      style={{ height: `${Math.max(day.amount > 0 ? 12 : 4, (day.amount / weeklyMax) * 56)}px` }}
+                    />
+                  </div>
+                  <span className={`text-[9px] font-medium ${i === 6 ? "text-primary" : "text-muted-foreground"}`}>{day.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide animate-fade-up" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', animationDelay: "0.3s", animationFillMode: "both" }}>

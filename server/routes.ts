@@ -1448,8 +1448,11 @@ function showGuide(browser) {
   app.get("/api/balance-history", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = req.session.userId!;
-      const history = await storage.getUserBalanceHistory(userId);
-      res.json(history);
+      const page = Math.max(1, parseInt(req.query.page as string) || 1);
+      const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 20));
+      const offset = (page - 1) * limit;
+      const { data, total } = await storage.getUserBalanceHistoryPaginated(userId, limit, offset);
+      res.json({ data, total, page, limit, totalPages: Math.ceil(total / limit) });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
