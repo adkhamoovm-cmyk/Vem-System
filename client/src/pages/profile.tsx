@@ -1840,7 +1840,11 @@ export default function ProfilePage() {
                   const parts = desc.split("|");
                   const hasStatusFormat = parts.length >= 2 && ["pending", "approved", "rejected"].includes(parts[0]);
                   const entryStatus = hasStatusFormat ? parts[0] : null;
-                  const methodInfo = hasStatusFormat ? parts[1] : "";
+                  const rawMethodInfo = hasStatusFormat ? parts[1] : "";
+                  const methodInfo = rawMethodInfo
+                    .replace(/^Bank karta\s*\(UZS\)$/i, t("profile.bankCardUzs"))
+                    .replace(/^Bank karta$/i, t("profile.bankCard"))
+                    .replace(/^USDT\s*\(Crypto\)$/i, "USDT (Crypto)");
                   const statusColor = entryStatus === "pending" ? "text-yellow-500" : entryStatus === "approved" ? "text-emerald-500" : "text-red-500";
                   const statusLabel = entryStatus === "pending" ? t("common.pending") : entryStatus === "approved" ? t("common.approved") : entryStatus === "rejected" ? t("common.rejected") : "";
                   const extractName = (d: string) => { const m = d.match(/^(\w+)\s/); return m ? m[1] : "VIP"; };
