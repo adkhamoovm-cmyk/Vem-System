@@ -187,14 +187,6 @@ export default function LoginPage() {
   };
 
   const { theme, toggleTheme } = useTheme();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -207,7 +199,7 @@ export default function LoginPage() {
         }} />
       </div>
 
-      <div className={`fixed top-0 right-0 flex items-center gap-2 z-50 px-4 py-3 rounded-bl-2xl transition-all duration-500 ${scrolled ? "bg-background/40 backdrop-blur-xl border-b border-l border-white/5" : ""}`}>
+      <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
