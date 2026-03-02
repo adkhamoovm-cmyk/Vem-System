@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Phone, Lock, Eye, EyeOff, ChevronDown, Sun, Moon, KeyRound, ArrowLeft, LogIn, Shield, Ban } from "lucide-react";
+import { Phone, Lock, Eye, EyeOff, ChevronDown, Sun, Moon, KeyRound, ArrowLeft, LogIn, Shield, Ban, UserPlus } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
