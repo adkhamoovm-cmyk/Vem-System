@@ -119,7 +119,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background pb-20">
       <BroadcastModal />
 
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">
           <div className="flex items-center gap-1">
             <img src={vemLogo} alt="VEM" loading="eager" className="h-16 object-contain" style={{filter: "drop-shadow(0px 2px 8px rgba(79, 107, 255, 0.35))"}} />
@@ -163,7 +163,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {showSupportWidget && <SupportWidget />}
 
       <nav className="fixed bottom-0 left-0 right-0 z-50">
-        <div className="bg-card/90 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)]">
+        <div className="bg-card/95 backdrop-blur-md border-t border-border/50 shadow-[0_-4px_30px_rgba(0,0,0,0.08)]">
           <div className="max-w-lg mx-auto flex items-center justify-around h-16 px-2 relative">
             {sideNavItems.map((item) => {
               const active = location === item.href;

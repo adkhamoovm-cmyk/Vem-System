@@ -81,17 +81,14 @@ export default function ReferralPage() {
 
   const { data: stats } = useQuery<ReferralStats>({
     queryKey: ["/api/referrals/stats"],
-    refetchInterval: 30000,
   });
 
   const { data: referredUsers = [] } = useQuery<ReferredUser[]>({
     queryKey: ["/api/referrals/users"],
-    refetchInterval: 30000,
   });
 
   const { data: extStats } = useQuery<ExtendedStats>({
     queryKey: ["/api/referrals/extended-stats"],
-    refetchInterval: 30000,
   });
 
   const referralLink = user ? `${window.location.origin}/register?ref=${user.referralCode}` : "";

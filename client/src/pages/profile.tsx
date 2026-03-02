@@ -1484,7 +1484,7 @@ export default function ProfilePage() {
         </div>
 
         {pushSupported && (
-          <div className="bg-card/60 backdrop-blur-2xl rounded-2xl border border-border p-4 mb-4" data-testid="section-push-notifications">
+          <div className="bg-card/60 backdrop-blur-md rounded-2xl border border-border p-4 mb-4" data-testid="section-push-notifications">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">

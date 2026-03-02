@@ -210,7 +210,7 @@ export default function LoginPage() {
 
         <div className="relative">
           <div className="absolute -inset-[1px] rounded-[20px] bg-gradient-to-b from-border/60 via-border/20 to-border/60 pointer-events-none" />
-          <div className="relative bg-card/70 backdrop-blur-2xl rounded-[20px] p-7 shadow-2xl shadow-black/10">
+          <div className="relative bg-card/70 backdrop-blur-md rounded-[20px] p-7 shadow-2xl shadow-black/10">
             <div className="flex items-center gap-3 mb-7">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/25">
                 <LogIn className="w-5 h-5 text-white" />
@@ -372,7 +372,7 @@ export default function LoginPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowResetPassword(false)}>
           <div className="relative w-full max-w-md" onClick={e => e.stopPropagation()}>
             <div className="absolute -inset-[1px] rounded-[22px] bg-gradient-to-b from-border/60 via-border/20 to-border/60 pointer-events-none" />
-            <div className="relative bg-card/95 backdrop-blur-2xl rounded-[22px] p-7 shadow-2xl shadow-black/30">
+            <div className="relative bg-card/95 backdrop-blur-md rounded-[22px] p-7 shadow-2xl shadow-black/30">
               <div className="flex items-center gap-3 mb-5">
                 <button
                   onClick={async () => {

@@ -422,7 +422,7 @@ export default function RegisterPage() {
 
         <div className="relative">
           <div className="absolute -inset-[1px] rounded-[20px] bg-gradient-to-b from-border/60 via-border/20 to-border/60 pointer-events-none" />
-          <div className="relative bg-card/70 backdrop-blur-2xl rounded-[20px] p-7 shadow-2xl shadow-black/10">
+          <div className="relative bg-card/70 backdrop-blur-md rounded-[20px] p-7 shadow-2xl shadow-black/10">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/25">
                 <UserPlus className="w-5 h-5 text-white" />
@@ -686,7 +686,7 @@ export default function RegisterPage() {
       {showTerms && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" data-testid="terms-modal">
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowTerms(false)} onTouchMove={(e) => e.preventDefault()} />
-          <div className="relative bg-card/95 backdrop-blur-2xl border border-border/50 rounded-t-[24px] sm:rounded-[24px] w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300 shadow-2xl shadow-black/30">
+          <div className="relative bg-card/95 backdrop-blur-md border border-border/50 rounded-t-[24px] sm:rounded-[24px] w-full max-w-lg max-h-[85vh] flex flex-col animate-in slide-in-from-bottom duration-300 shadow-2xl shadow-black/30">
             <div className="flex items-center justify-between p-5 pb-3 border-b border-border/30 shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-primary/15 to-blue-500/10 rounded-xl flex items-center justify-center">

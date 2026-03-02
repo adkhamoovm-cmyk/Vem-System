@@ -420,20 +420,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-fade-up,
-  .animate-fade-down,
-  .animate-fade-left,
-  .animate-fade-right,
-  .animate-scale-up,
-  .animate-blur-in,
-  .animate-count-up,
-  .animate-slide-bounce {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-    filter: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  .card-hover {
-    transition: none !important;
-  }
+}
+
+.animate-float,
+.animate-pulse-glow {
+  will-change: transform, box-shadow;
+}
+
+header,
+nav {
+  will-change: transform;
 }
