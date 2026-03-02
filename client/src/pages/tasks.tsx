@@ -274,7 +274,8 @@ export default function TasksPage() {
   const perVideoReward = currentPkg ? Number(currentPkg.perVideoReward) : 0;
   const hasVip = user && user.vipLevel >= 0 && perVideoReward > 0;
   const noPrivilege = user && user.vipLevel < 0;
-  const isLimitReached = user ? user.dailyTasksCompleted >= user.dailyTasksLimit : false;
+  const hasNoVipPackage = user && !noPrivilege && !hasVip;
+  const isLimitReached = user && user.dailyTasksLimit > 0 ? user.dailyTasksCompleted >= user.dailyTasksLimit : false;
 
   const handleStartTask = () => {
     if (!hasVip || isLimitReached) return;
@@ -402,7 +403,29 @@ export default function TasksPage() {
           </div>
         )}
 
-        {isLimitReached ? (
+        {hasNoVipPackage ? (
+          <div className="bg-card rounded-2xl border border-border overflow-hidden relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5" />
+            <div className="relative p-8 text-center">
+              <div className="relative inline-block mb-5">
+                <div className="relative w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-xl shadow-amber-500/20">
+                  <Crown className="w-10 h-10 text-white" />
+                </div>
+              </div>
+              <h3 className="text-foreground font-bold text-lg mb-2">{t("tasks.needVipTitle")}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-5 max-w-xs mx-auto">{t("tasks.needVipDesc")}</p>
+              <Link href="/vip">
+                <Button
+                  className="bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-11 px-8 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"
+                  data-testid="button-buy-vip"
+                >
+                  <Crown className="w-4 h-4 mr-2" />
+                  {t("tasks.buyVip")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        ) : isLimitReached ? (
           <div className="bg-card rounded-2xl border border-border overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-emerald-500/5" />
             <div className="relative p-8 text-center">
