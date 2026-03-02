@@ -110,6 +110,7 @@ export interface IStorage {
   savePushSubscription(data: InsertPushSubscription): Promise<PushSubscriptionRecord>;
   deletePushSubscription(userId: string, endpoint: string): Promise<void>;
   getUserPushSubscriptions(userId: string): Promise<PushSubscriptionRecord[]>;
+  getPushSubscriptionCount(): Promise<number>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -718,6 +719,11 @@ export class DatabaseStorage implements IStorage {
 
   async getUserPushSubscriptions(userId: string): Promise<PushSubscriptionRecord[]> {
     return db.select().from(pushSubscriptions).where(eq(pushSubscriptions.userId, userId));
+  }
+
+  async getPushSubscriptionCount(): Promise<number> {
+    const result = await db.select({ count: sql<number>`count(DISTINCT ${pushSubscriptions.userId})` }).from(pushSubscriptions);
+    return Number(result[0]?.count ?? 0);
   }
 }
 

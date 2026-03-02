@@ -1826,6 +1826,37 @@ function showGuide(browser) {
     }
   });
 
+  app.post("/api/admin/push-send", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { title, message, targetUserId } = req.body;
+      if (!title || !message) return res.status(400).json({ message: "Sarlavha va xabar majburiy" });
+
+      let sentCount = 0;
+      if (targetUserId) {
+        sendNotification(targetUserId, "broadcast", title, message);
+        sentCount = 1;
+      } else {
+        const allUsers = await storage.getAllUsers();
+        for (const u of allUsers) {
+          sendNotification(u.id, "broadcast", title, message);
+        }
+        sentCount = allUsers.length;
+      }
+      res.json({ message: `${sentCount} ta foydalanuvchiga yuborildi`, count: sentCount });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/admin/push-stats", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const result = await storage.getPushSubscriptionCount();
+      res.json({ subscribedUsers: result });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   async function processDailyProfits() {
     try {
       const activeInvestments = await storage.getActiveInvestments();

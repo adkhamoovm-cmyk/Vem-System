@@ -7,7 +7,7 @@ import {
   Shield, Ban, Trash2, Edit, Check, X, Eye, Search, AlertTriangle,
   Trophy, ChevronDown, ChevronRight, Wallet, CreditCard, Globe, Plus,
   RefreshCw, DollarSign, Activity, TrendingUp, UserPlus, MessageSquare, Mail, Copy,
-  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown, Megaphone, Download, KeyRound
+  Smartphone, Monitor, Lock, Unlock, Percent, Clock, ArrowUpDown, Megaphone, Download, KeyRound, BellRing, Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1792,9 +1792,17 @@ function BroadcastsTab() {
   const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
+  const [pushTitle, setPushTitle] = useState("");
+  const [pushMessage, setPushMessage] = useState("");
+  const [pushTarget, setPushTarget] = useState<"all" | "single">("all");
+  const [pushUserId, setPushUserId] = useState("");
 
   const { data: broadcastList = [], isLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/broadcasts"],
+  });
+
+  const { data: pushStats } = useQuery<{ subscribedUsers: number }>({
+    queryKey: ["/api/admin/push-stats"],
   });
 
   const createMutation = useMutation({
@@ -1802,10 +1810,28 @@ function BroadcastsTab() {
       await apiRequest("POST", "/api/admin/broadcasts", { title, message });
     },
     onSuccess: () => {
-      toast({ title: "Xabar yuborildi" });
+      toast({ title: "Xabar yuborildi (push bilan)" });
       setTitle("");
       setMessage("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/broadcasts"] });
+    },
+    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+  });
+
+  const pushMutation = useMutation({
+    mutationFn: async () => {
+      const body: any = { title: pushTitle, message: pushMessage };
+      if (pushTarget === "single" && pushUserId.trim()) {
+        body.targetUserId = pushUserId.trim();
+      }
+      return await apiRequest("POST", "/api/admin/push-send", body);
+    },
+    onSuccess: async (res) => {
+      const data = await res.json();
+      toast({ title: `Push yuborildi — ${data.count} ta foydalanuvchiga` });
+      setPushTitle("");
+      setPushMessage("");
+      setPushUserId("");
     },
     onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
   });
@@ -1862,6 +1888,80 @@ function BroadcastsTab() {
             data-testid="button-send-broadcast"
           >
             {createMutation.isPending ? "Yuborilmoqda..." : "Barcha foydalanuvchilarga yuborish"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        <div className="flex items-center gap-2.5 p-4 border-b border-border bg-emerald-500/5">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+            <BellRing className="w-4 h-4 text-emerald-500" />
+          </div>
+          <div>
+            <h3 className="text-foreground font-bold text-sm">Push Notification yuborish</h3>
+            <p className="text-muted-foreground text-[11px]">
+              {pushStats?.subscribedUsers ?? 0} ta foydalanuvchi push yoqgan
+            </p>
+          </div>
+        </div>
+        <div className="p-4 space-y-3">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPushTarget("all")}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${pushTarget === "all" ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}
+              data-testid="button-push-target-all"
+            >
+              Barchaga
+            </button>
+            <button
+              onClick={() => setPushTarget("single")}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${pushTarget === "single" ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}
+              data-testid="button-push-target-single"
+            >
+              Bitta foydalanuvchiga
+            </button>
+          </div>
+          {pushTarget === "single" && (
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Foydalanuvchi ID</label>
+              <Input
+                value={pushUserId}
+                onChange={e => setPushUserId(e.target.value)}
+                placeholder="User ID kiriting..."
+                className="bg-muted border-border text-foreground h-10 text-sm"
+                data-testid="input-push-user-id"
+              />
+            </div>
+          )}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sarlavha</label>
+            <Input
+              value={pushTitle}
+              onChange={e => setPushTitle(e.target.value)}
+              placeholder="Push xabar sarlavhasi..."
+              className="bg-muted border-border text-foreground h-10 text-sm"
+              data-testid="input-push-title"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Xabar matni</label>
+            <textarea
+              value={pushMessage}
+              onChange={e => setPushMessage(e.target.value)}
+              placeholder="Push xabar matnini kiriting..."
+              rows={3}
+              className="w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-emerald-500"
+              data-testid="input-push-message"
+            />
+          </div>
+          <Button
+            onClick={() => pushMutation.mutate()}
+            disabled={!pushTitle.trim() || !pushMessage.trim() || pushMutation.isPending || (pushTarget === "single" && !pushUserId.trim())}
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl h-10 text-sm gap-2"
+            data-testid="button-send-push"
+          >
+            <Send className="w-4 h-4" />
+            {pushMutation.isPending ? "Yuborilmoqda..." : pushTarget === "all" ? "Barchaga push yuborish" : "Foydalanuvchiga push yuborish"}
           </Button>
         </div>
       </div>
