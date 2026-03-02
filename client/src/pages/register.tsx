@@ -407,7 +407,7 @@ export default function RegisterPage() {
         }} />
       </div>
 
-      <div className={`fixed top-0 right-0 flex items-center gap-2 z-50 px-4 py-3 rounded-bl-2xl transition-all duration-500 ${scrolled ? "bg-background/80 backdrop-blur-xl shadow-lg shadow-black/10 border-b border-l border-border/20" : ""}`}>
+      <div className={`fixed top-0 right-0 flex items-center gap-2 z-50 px-4 py-3 rounded-bl-2xl transition-all duration-500 ${scrolled ? "bg-background/40 backdrop-blur-xl border-b border-l border-white/5" : ""}`}>
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
