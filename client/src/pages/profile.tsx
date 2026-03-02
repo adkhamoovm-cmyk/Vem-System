@@ -543,7 +543,7 @@ function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose
                     autoComplete="cc-number"
                     value={cardNumber}
                     onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, "").slice(0, 16))}
-                    placeholder="8600 0000 0000 0000"
+                    placeholder=""
                     className="mt-1.5 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 font-mono"
                     data-testid="input-card-number"
                   />
