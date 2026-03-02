@@ -1,0 +1,284 @@
+import type { Request, Response, NextFunction } from "express";
+import { storage } from "../storage";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import rateLimit from "express-rate-limit";
+import webpush from "web-push";
+
+const vapidPublic = process.env.VAPID_PUBLIC_KEY || "";
+const vapidPrivate = process.env.VAPID_PRIVATE_KEY || "";
+if (vapidPublic && vapidPrivate) {
+  webpush.setVapidDetails("mailto:admin@vem.uz", vapidPublic, vapidPrivate);
+}
+
+export { webpush };
+
+export const notifTranslations: Record<string, Record<string, { title: string; message: string }>> = {
+  uz: {
+    task_completed: { title: "Vazifa bajarildi!", message: "+{amount} USDT qo'shildi" },
+    vip_activated: { title: "{name} paketi faollashtirildi", message: "{tasks} ta kunlik vazifa, {days} kun" },
+    deposit_approved: { title: "Depozit tasdiqlandi", message: "+{amount} USDT balansga qo'shildi" },
+    deposit_rejected: { title: "Depozit rad etildi", message: "{amount} {currency} depozit so'rovi rad etildi" },
+    withdrawal_approved: { title: "Pul yechish tasdiqlandi", message: "{amount} USDT muvaffaqiyatli yechildi" },
+    withdrawal_rejected: { title: "Pul yechish rad etildi", message: "{amount} USDT qaytarildi. So'rov rad etildi." },
+    referral_commission: { title: "Referal komissiya", message: "+{amount} USDT ({level}-daraja)" },
+    stajyor_approved: { title: "Stajyor faollashtirildi!", message: "3 kunlik sinov davri boshlandi. Kuniga 3 ta video ko'ring!" },
+    stajyor_rejected: { title: "Stajyor so'rovi rad etildi", message: "So'rovingiz rad etildi. Iltimos qayta urinib ko'ring." },
+    promo_applied: { title: "Promokod qabul qilindi", message: "+{amount} USDT promokod orqali qo'shildi" },
+    fund_invested: { title: "{name} fondiga investitsiya", message: "{amount} USDT investitsiya qilindi" },
+    fund_profit: { title: "Fond daromadi", message: "+{amount} USDT {name} fondidan" },
+    fund_returned: { title: "Fond investitsiyasi qaytarildi", message: "+{amount} USDT {name} fondidan qaytarildi" },
+  },
+  ru: {
+    task_completed: { title: "Задание выполнено!", message: "+{amount} USDT начислено" },
+    vip_activated: { title: "Пакет {name} активирован", message: "{tasks} заданий в день, {days} дней" },
+    deposit_approved: { title: "Депозит подтверждён", message: "+{amount} USDT зачислено на баланс" },
+    deposit_rejected: { title: "Депозит отклонён", message: "Заявка на {amount} {currency} отклонена" },
+    withdrawal_approved: { title: "Вывод подтверждён", message: "{amount} USDT успешно выведено" },
+    withdrawal_rejected: { title: "Вывод отклонён", message: "{amount} USDT возвращено. Заявка отклонена." },
+    referral_commission: { title: "Реферальная комиссия", message: "+{amount} USDT ({level}-уровень)" },
+    stajyor_approved: { title: "Стажёр активирован!", message: "3-дневный пробный период начался. Смотрите 3 видео в день!" },
+    stajyor_rejected: { title: "Заявка на стажёра отклонена", message: "Ваша заявка отклонена. Попробуйте снова." },
+    promo_applied: { title: "Промокод применён", message: "+{amount} USDT начислено по промокоду" },
+    fund_invested: { title: "Инвестиция в {name}", message: "{amount} USDT инвестировано" },
+    fund_profit: { title: "Доход от фонда", message: "+{amount} USDT от {name}" },
+    fund_returned: { title: "Инвестиция возвращена", message: "+{amount} USDT возвращено из {name}" },
+  },
+  en: {
+    task_completed: { title: "Task completed!", message: "+{amount} USDT earned" },
+    vip_activated: { title: "{name} package activated", message: "{tasks} daily tasks, {days} days" },
+    deposit_approved: { title: "Deposit approved", message: "+{amount} USDT added to balance" },
+    deposit_rejected: { title: "Deposit rejected", message: "{amount} {currency} deposit request rejected" },
+    withdrawal_approved: { title: "Withdrawal approved", message: "{amount} USDT successfully withdrawn" },
+    withdrawal_rejected: { title: "Withdrawal rejected", message: "{amount} USDT returned. Request rejected." },
+    referral_commission: { title: "Referral commission", message: "+{amount} USDT (level {level})" },
+    stajyor_approved: { title: "Intern activated!", message: "3-day trial period started. Watch 3 videos daily!" },
+    stajyor_rejected: { title: "Intern request rejected", message: "Your request was rejected. Please try again." },
+    promo_applied: { title: "Promo code applied", message: "+{amount} USDT added via promo code" },
+    fund_invested: { title: "Invested in {name}", message: "{amount} USDT invested" },
+    fund_profit: { title: "Fund profit", message: "+{amount} USDT from {name}" },
+    fund_returned: { title: "Fund investment returned", message: "+{amount} USDT returned from {name}" },
+  },
+};
+
+export function formatNotifText(text: string, params: Record<string, string>): string {
+  let result = text;
+  for (const [k, v] of Object.entries(params)) {
+    result = result.replace(`{${k}}`, v);
+  }
+  return result;
+}
+
+export async function sendNotification(userId: string, type: string, titleKey: string, messageKey: string, params: Record<string, string> = {}) {
+  try {
+    const titleUz = formatNotifText(notifTranslations.uz[titleKey]?.title || titleKey, params);
+    const messageUz = formatNotifText(notifTranslations.uz[messageKey]?.message || messageKey, params);
+    const titleRu = formatNotifText(notifTranslations.ru[titleKey]?.title || titleKey, params);
+    const messageRu = formatNotifText(notifTranslations.ru[messageKey]?.message || messageKey, params);
+    const titleEn = formatNotifText(notifTranslations.en[titleKey]?.title || titleKey, params);
+    const messageEn = formatNotifText(notifTranslations.en[messageKey]?.message || messageKey, params);
+
+    const storedTitle = JSON.stringify({ uz: titleUz, ru: titleRu, en: titleEn });
+    const storedMessage = JSON.stringify({ uz: messageUz, ru: messageRu, en: messageEn });
+
+    await storage.createNotification({ userId, type, title: storedTitle, message: storedMessage });
+    const titles: Record<string, string> = { uz: titleUz, ru: titleRu, en: titleEn };
+    const messages: Record<string, string> = { uz: messageUz, ru: messageRu, en: messageEn };
+    const subs = await storage.getUserPushSubscriptions(userId);
+    for (const sub of subs) {
+      try {
+        const lang = sub.locale || "uz";
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title: titles[lang] || titleUz, body: messages[lang] || messageUz, url: "/notifications" })
+        );
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await storage.deletePushSubscription(userId, sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("sendNotification error:", e);
+  }
+}
+
+export async function sendRawNotification(userId: string, type: string, title: string, message: string) {
+  try {
+    await storage.createNotification({ userId, type, title, message });
+    const subs = await storage.getUserPushSubscriptions(userId);
+    for (const sub of subs) {
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title, body: message, url: "/notifications" })
+        );
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await storage.deletePushSubscription(userId, sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("sendNotification error:", e);
+  }
+}
+
+const scryptAsync = promisify(scrypt);
+
+export async function hashPassword(password: string): Promise<string> {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+export async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
+  const [hashed, salt] = stored.split(".");
+  const buf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(Buffer.from(hashed, "hex"), buf);
+}
+
+export function generateReferralCode(): string {
+  return randomBytes(4).toString("hex").toUpperCase();
+}
+
+export function generateNumericId(): string {
+  const digits = [];
+  for (let i = 0; i < 18; i++) {
+    digits.push(Math.floor(Math.random() * 10));
+  }
+  return digits.join("");
+}
+
+const uploadsDir = path.join(process.cwd(), "uploads", "avatars");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const avatarStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadsDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".jpg";
+    cb(null, `${Date.now()}-${randomBytes(4).toString("hex")}${ext}`);
+  },
+});
+
+export const uploadAvatar = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    cb(null, allowed.includes(file.mimetype));
+  },
+});
+
+declare module "express-session" {
+  interface SessionData {
+    userId: string;
+    adminPinVerified: boolean;
+    resetPhone: string;
+    resetStep: number;
+    resetVerifyType: string;
+  }
+}
+
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Avtorizatsiya talab qilinadi" });
+  }
+  const user = await storage.getUser(req.session.userId);
+  if (user?.isBanned) {
+    return new Promise<void>((resolve) => {
+      req.session.destroy(() => {
+        res.status(403).json({ message: "ACCOUNT_BANNED" });
+        resolve();
+      });
+    });
+  }
+  next();
+}
+
+export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.userId) {
+    return res.status(401).json({ message: "Avtorizatsiya talab qilinadi" });
+  }
+  const user = await storage.getUser(req.session.userId);
+  if (!user || !user.isAdmin) {
+    return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
+  }
+  if (!req.session.adminPinVerified) {
+    return res.status(403).json({ message: "PIN_REQUIRED" });
+  }
+  next();
+}
+
+export const taskRateLimiter = rateLimit({
+  windowMs: 10 * 1000,
+  max: 3,
+  message: { message: "Juda tez so'rov. Biroz kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => req.session?.userId || "unknown",
+  validate: false,
+});
+
+export const withdrawRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  message: { message: "Juda tez so'rov. 1 daqiqa kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => req.session?.userId || "unknown",
+  validate: false,
+});
+
+export const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Juda ko'p urinish. 15 daqiqa kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+export const pinRateLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 5,
+  message: { message: "Juda ko'p urinish. 5 daqiqa kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request) => req.session?.userId || req.ip || "unknown",
+  validate: false,
+});
+
+export const apiRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: { message: "Juda ko'p so'rov. Biroz kuting." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const receiptsDir = path.join(process.cwd(), "uploads", "receipts");
+if (!fs.existsSync(receiptsDir)) {
+  fs.mkdirSync(receiptsDir, { recursive: true });
+}
+
+const receiptStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, receiptsDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || ".jpg";
+    cb(null, `${Date.now()}-${randomBytes(4).toString("hex")}${ext}`);
+  },
+});
+
+export const uploadReceipt = multer({
+  storage: receiptStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    cb(null, allowed.includes(file.mimetype));
+  },
+});
