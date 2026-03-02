@@ -231,9 +231,9 @@ export default function AuthPage() {
     setTimeout(() => {
       setActiveTab(tab);
       navigate(tab === "login" ? "/login" : "/register");
-      setAnimating(false);
       if (tab === "register") setRegStep(1);
-    }, 180);
+      setTimeout(() => setAnimating(false), 20);
+    }, 200);
   };
 
   useEffect(() => {
@@ -492,7 +492,7 @@ export default function AuthPage() {
         <div className="relative">
           <div className="absolute -inset-[1px] rounded-[20px] bg-gradient-to-b from-border/60 via-border/20 to-border/60 pointer-events-none" />
           <div
-            className={`relative bg-card/70 backdrop-blur-md rounded-[20px] p-7 shadow-2xl shadow-black/10 transition-opacity duration-180 ${animating ? "opacity-0" : "opacity-100"}`}
+            className={`relative bg-card/70 backdrop-blur-md rounded-[20px] p-7 shadow-2xl shadow-black/10 transition-all duration-200 ease-in-out ${animating ? "opacity-0 scale-[0.98] translate-y-1" : "opacity-100 scale-100 translate-y-0"}`}
           >
             {activeTab === "login" && (
               <div>
