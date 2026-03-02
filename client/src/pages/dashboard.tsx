@@ -185,15 +185,15 @@ export default function DashboardPage() {
     <>
     <div className="bg-background min-h-screen -mt-0">
         {heroVideo && (
-          <div className="relative w-full h-[300px] overflow-hidden">
+          <div className="relative w-[calc(100%-16px)] mx-auto mt-2 h-[300px] overflow-hidden rounded-2xl">
             <img
               src={heroVideo.thumbnail}
               alt={heroVideo.title}
               className={`w-full h-full object-cover transition-all duration-700 ${isTransitioning ? "opacity-0 scale-110" : "opacity-100 scale-100"}`}
               data-testid="hero-poster"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent rounded-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/20 to-transparent rounded-2xl" />
             <div className={`absolute bottom-6 left-4 right-4 z-10 transition-all duration-700 ${isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
               <div className="flex items-center gap-2 mb-2">
                 <span className="bg-gradient-to-r from-primary to-blue-600 text-white text-[9px] font-bold px-2.5 py-0.5 rounded-md shadow-sm">{heroVideo.category === "Tele-shou" ? t("trends.teleShow") : t("trends.trailer")}</span>
