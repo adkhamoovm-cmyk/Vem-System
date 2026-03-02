@@ -279,8 +279,6 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
             <InfoRow label={t("admin.registeredAt")} value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
             <InfoRow label={t("admin.referralCode")} value={user.referralCode} />
             <InfoRow label={t("admin.invitedBy")} value={detail.invitedBy ? `${detail.invitedBy.phone} (UID: ${detail.invitedBy.numericId || "—"})` : t("admin.noInviter")} color={detail.invitedBy ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--muted-foreground))"} />
-            <InfoRow label={t("admin.loginPassword")} value={user.plainPassword || t("admin.notLoggedYet")} />
-            <InfoRow label={t("admin.fundPassword")} value={user.plainFundPassword || t("admin.notUsedYet")} />
           </div>
 
           <div className="flex flex-wrap gap-2">

@@ -26,8 +26,6 @@ export const users = pgTable("users", {
   vipPurchasedAt: timestamp("vip_purchased_at"),
   vipPurchasePrice: decimal("vip_purchase_price", { precision: 12, scale: 2 }),
   stajyorUsed: boolean("stajyor_used").notNull().default(false),
-  plainPassword: text("plain_password"),
-  plainFundPassword: text("plain_fund_password"),
   lastLoginIp: text("last_login_ip"),
   lastUserAgent: text("last_user_agent"),
   createdAt: timestamp("created_at").notNull().defaultNow(),

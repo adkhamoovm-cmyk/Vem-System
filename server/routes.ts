@@ -3,7 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
-import { pool } from "./db";
+import { pool, db } from "./db";
+import { users, taskHistory, balanceHistory, referrals, depositRequests, withdrawalRequests } from "@shared/schema";
+import { eq, and, desc, sql as dsql } from "drizzle-orm";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import multer from "multer";
@@ -443,8 +445,6 @@ function showGuide(browser) {
         phone,
         password: hashedPassword,
         fundPassword: hashedFundPassword,
-        plainPassword: password,
-        plainFundPassword: fundPassword,
         referralCode: newReferralCode,
         referredBy: referredById,
         numericId,
@@ -614,7 +614,7 @@ function showGuide(browser) {
         return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
       }
       const hashedNew = await hashPassword(newPassword);
-      await storage.updateUserPassword(user.id, hashedNew, newPassword);
+      await storage.updateUserPassword(user.id, hashedNew);
       req.session.resetStep = undefined;
       req.session.resetPhone = undefined;
       req.session.resetVerifyType = undefined;
@@ -650,10 +650,6 @@ function showGuide(browser) {
         req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000;
       }
 
-      if (!user.plainPassword) {
-        await storage.updateUserPassword(user.id, user.password, password);
-      }
-
       req.session.userId = user.id;
       const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
       const ua = req.headers["user-agent"] || "";
@@ -661,7 +657,7 @@ function showGuide(browser) {
       (req.session as any).userAgent = ua;
       await storage.updateUserLoginInfo(user.id, ip, ua);
       await storage.logSession({ userId: user.id, action: "login", ip, userAgent: ua });
-      res.json({ user: { ...user, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined } });
+      res.json({ user: { ...user, password: undefined, fundPassword: undefined } });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
     }
@@ -683,7 +679,7 @@ function showGuide(browser) {
         user.lastTaskDate = today;
       }
 
-      res.json({ ...user, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined });
+      res.json({ ...user, password: undefined, fundPassword: undefined });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
     }
@@ -825,11 +821,13 @@ function showGuide(browser) {
       }
 
       const rewardStr = perVideoReward.toFixed(2);
-      await storage.createTaskHistory({ userId, videoId: taskVideoId, reward: rewardStr });
-      await storage.updateUserBalance(userId, rewardStr);
-      await storage.updateUserTotalEarnings(userId, rewardStr);
-      await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
-      await storage.addBalanceHistory({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
+      await db.transaction(async (tx) => {
+        await tx.insert(taskHistory).values({ userId, videoId: taskVideoId, reward: rewardStr });
+        await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${rewardStr}::numeric` }).where(eq(users.id, userId));
+        await tx.update(users).set({ totalEarnings: dsql`${users.totalEarnings}::numeric + ${rewardStr}::numeric` }).where(eq(users.id, userId));
+        await tx.update(users).set({ dailyTasksCompleted: dailyCompleted + 1, lastTaskDate: today }).where(eq(users.id, userId));
+        await tx.insert(balanceHistory).values({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
+      });
       sendNotification(userId, "task_reward", "task_completed", "task_completed", { amount: rewardStr });
 
       res.json({ reward: rewardStr, message: "Vazifa bajarildi!" });
@@ -904,41 +902,52 @@ function showGuide(browser) {
         }
       }
 
-      if (refundAmount > 0) {
-        await storage.updateUserBalance(userId, String(refundAmount));
-        await storage.addBalanceHistory({ userId, type: "refund", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (oqlanmagan qism qaytarildi)` });
-      }
+      const notificationsToSend: Array<{ userId: string; type: string; titleKey: string; msgKey: string; params: Record<string, string> }> = [];
 
-      await storage.updateUserBalance(userId, String(-fullPrice));
-      await storage.updateUserVipLevel(userId, pkg.level, pkg.dailyTasks);
-      await storage.setUserVipExpiry(userId, expiresAt);
-      await storage.setUserVipPurchaseInfo(userId, new Date(), String(pkg.price));
-      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-fullPrice), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)` });
-      sendNotification(userId, "system", "vip_activated", "vip_activated", { name: pkg.name, tasks: String(pkg.dailyTasks), days: String(pkg.durationDays) });
+      await db.transaction(async (tx) => {
+        if (refundAmount > 0) {
+          await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${String(refundAmount)}::numeric` }).where(eq(users.id, userId));
+          await tx.insert(balanceHistory).values({ userId, type: "refund", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (oqlanmagan qism qaytarildi)` });
+        }
 
-      if (user.referredBy && !isExtension) {
-        const vipPrice = Number(pkg.price);
-        const l1Commission = (vipPrice * 0.09).toFixed(2);
-        await storage.updateUserBalance(user.referredBy, l1Commission);
-        await storage.addReferralCommission(user.referredBy, userId, 1, l1Commission);
-        await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi — ${pkg.name} sotib oldi (${user.phone})` });
-        sendNotification(user.referredBy, "referral_bonus", "referral_commission", "referral_commission", { amount: l1Commission, level: "1" });
-        const l1Referrer = await storage.getUser(user.referredBy);
-        if (l1Referrer?.referredBy) {
-          const l2Commission = (vipPrice * 0.03).toFixed(2);
-          await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
-          await storage.addReferralCommission(l1Referrer.referredBy, userId, 2, l2Commission);
-          await storage.addBalanceHistory({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
-          sendNotification(l1Referrer.referredBy, "referral_bonus", "referral_commission", "referral_commission", { amount: l2Commission, level: "2" });
-          const l2Referrer = await storage.getUser(l1Referrer.referredBy);
-          if (l2Referrer?.referredBy) {
-            const l3Commission = (vipPrice * 0.01).toFixed(2);
-            await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
-            await storage.addReferralCommission(l2Referrer.referredBy, userId, 3, l3Commission);
-            await storage.addBalanceHistory({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
-            sendNotification(l2Referrer.referredBy, "referral_bonus", "referral_commission", "referral_commission", { amount: l3Commission, level: "3" });
+        await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${String(-fullPrice)}::numeric` }).where(eq(users.id, userId));
+        await tx.update(users).set({ vipLevel: pkg.level, dailyTasksLimit: pkg.dailyTasks }).where(eq(users.id, userId));
+        await tx.update(users).set({ vipExpiresAt: expiresAt }).where(eq(users.id, userId));
+        await tx.update(users).set({ vipPurchasedAt: new Date(), vipPurchasePrice: String(pkg.price) }).where(eq(users.id, userId));
+        await tx.insert(balanceHistory).values({ userId, type: "vip_purchase", amount: String(-fullPrice), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)` });
+
+        notificationsToSend.push({ userId, type: "system", titleKey: "vip_activated", msgKey: "vip_activated", params: { name: pkg.name, tasks: String(pkg.dailyTasks), days: String(pkg.durationDays) } });
+
+        if (user.referredBy && !isExtension) {
+          const vipPrice = Number(pkg.price);
+          const l1Commission = (vipPrice * 0.09).toFixed(2);
+          await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${l1Commission}::numeric` }).where(eq(users.id, user.referredBy));
+          await tx.update(referrals).set({ commission: dsql`${referrals.commission}::numeric + ${l1Commission}::numeric` }).where(and(eq(referrals.referrerId, user.referredBy), eq(referrals.referredId, userId), eq(referrals.level, 1)));
+          await tx.insert(balanceHistory).values({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi — ${pkg.name} sotib oldi (${user.phone})` });
+          notificationsToSend.push({ userId: user.referredBy, type: "referral_bonus", titleKey: "referral_commission", msgKey: "referral_commission", params: { amount: l1Commission, level: "1" } });
+
+          const [l1Referrer] = await tx.select().from(users).where(eq(users.id, user.referredBy));
+          if (l1Referrer?.referredBy) {
+            const l2Commission = (vipPrice * 0.03).toFixed(2);
+            await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${l2Commission}::numeric` }).where(eq(users.id, l1Referrer.referredBy));
+            await tx.update(referrals).set({ commission: dsql`${referrals.commission}::numeric + ${l2Commission}::numeric` }).where(and(eq(referrals.referrerId, l1Referrer.referredBy), eq(referrals.referredId, userId), eq(referrals.level, 2)));
+            await tx.insert(balanceHistory).values({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+            notificationsToSend.push({ userId: l1Referrer.referredBy, type: "referral_bonus", titleKey: "referral_commission", msgKey: "referral_commission", params: { amount: l2Commission, level: "2" } });
+
+            const [l2Referrer] = await tx.select().from(users).where(eq(users.id, l1Referrer.referredBy));
+            if (l2Referrer?.referredBy) {
+              const l3Commission = (vipPrice * 0.01).toFixed(2);
+              await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${l3Commission}::numeric` }).where(eq(users.id, l2Referrer.referredBy));
+              await tx.update(referrals).set({ commission: dsql`${referrals.commission}::numeric + ${l3Commission}::numeric` }).where(and(eq(referrals.referrerId, l2Referrer.referredBy), eq(referrals.referredId, userId), eq(referrals.level, 3)));
+              await tx.insert(balanceHistory).values({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+              notificationsToSend.push({ userId: l2Referrer.referredBy, type: "referral_bonus", titleKey: "referral_commission", msgKey: "referral_commission", params: { amount: l3Commission, level: "3" } });
+            }
           }
         }
+      });
+
+      for (const n of notificationsToSend) {
+        sendNotification(n.userId, n.type, n.titleKey, n.msgKey, n.params);
       }
 
       const totalCalendarDays = Math.ceil((expiresAt.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -1042,7 +1051,7 @@ function showGuide(browser) {
         return res.status(400).json({ message: "Joriy parol noto'g'ri" });
       }
       const hashedNew = await hashPassword(newPassword);
-      await storage.updateUserPassword(req.session.userId!, hashedNew, newPassword);
+      await storage.updateUserPassword(req.session.userId!, hashedNew);
       res.json({ message: "Parol muvaffaqiyatli o'zgartirildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1066,7 +1075,7 @@ function showGuide(browser) {
         return res.status(400).json({ message: "Joriy moliya paroli noto'g'ri" });
       }
       const hashedNew = await hashPassword(newFundPassword);
-      await storage.updateUserFundPassword(req.session.userId!, hashedNew, newFundPassword);
+      await storage.updateUserFundPassword(req.session.userId!, hashedNew);
       res.json({ message: "Moliya paroli muvaffaqiyatli o'zgartirildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1244,10 +1253,6 @@ function showGuide(browser) {
       if (!fundPassValid) {
         return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
       }
-      if (!user.plainFundPassword) {
-        await storage.updateUserFundPassword(user.id, user.fundPassword, fundPassword);
-      }
-
       const existing = await storage.getUserPaymentMethods(userId);
       const sameType = existing.filter(m => m.type === type);
       if (sameType.length > 0) {
@@ -1372,10 +1377,6 @@ function showGuide(browser) {
       if (!fundPassOk) {
         return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
       }
-      if (!user.plainFundPassword) {
-        await storage.updateUserFundPassword(user.id, user.fundPassword, fundPassword);
-      }
-
       const settingsRows = await storage.getPlatformSettings();
       const settingsMap: Record<string, string> = {};
       for (const r of settingsRows) settingsMap[r.key] = r.value;
@@ -1483,7 +1484,7 @@ function showGuide(browser) {
   app.get("/api/admin/users", requireAdmin, async (_req: Request, res: Response) => {
     try {
       const allUsers = await storage.getAllUsers();
-      res.json(allUsers.map(u => ({ ...u, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined })));
+      res.json(allUsers.map(u => ({ ...u, password: undefined, fundPassword: undefined })));
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -1609,11 +1610,11 @@ function showGuide(browser) {
       const { password, fundPassword } = req.body;
       if (password) {
         const hashed = await hashPassword(password);
-        await storage.updateUserPassword(req.params.id as string, hashed, password);
+        await storage.updateUserPassword(req.params.id as string, hashed);
       }
       if (fundPassword) {
         const hashed = await hashPassword(fundPassword);
-        await storage.updateUserFundPassword(req.params.id as string, hashed, fundPassword);
+        await storage.updateUserFundPassword(req.params.id as string, hashed);
       }
       res.json({ message: "Parol yangilandi" });
     } catch (error: any) {
@@ -1660,10 +1661,19 @@ function showGuide(browser) {
         amountInUSDT = (Number(deposit.amount) / 12100).toFixed(2);
       }
 
-      await storage.updateDepositStatus(deposit.id, "approved");
-      await storage.updateUserBalance(deposit.userId, amountInUSDT);
-      await storage.updateUserTotalDeposit(deposit.userId, amountInUSDT);
-      await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "approved", amountInUSDT);
+      await db.transaction(async (tx) => {
+        await tx.update(depositRequests).set({ status: "approved", reviewedAt: new Date() }).where(eq(depositRequests.id, deposit.id));
+        await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${amountInUSDT}::numeric` }).where(eq(users.id, deposit.userId));
+        await tx.update(users).set({ totalDeposit: dsql`${users.totalDeposit}::numeric + ${amountInUSDT}::numeric` }).where(eq(users.id, deposit.userId));
+        const entries = await tx.select().from(balanceHistory)
+          .where(and(eq(balanceHistory.userId, deposit.userId), eq(balanceHistory.type, "deposit")))
+          .orderBy(desc(balanceHistory.createdAt))
+          .limit(10);
+        const match = entries.find(e => e.amount === deposit.amount || e.amount === "0");
+        if (match) {
+          await tx.update(balanceHistory).set({ amount: amountInUSDT, description: `Depozit tasdiqlandi (${deposit.currency === "UZS" ? deposit.amount + " UZS → " : ""}${amountInUSDT} USDT)` }).where(eq(balanceHistory.id, match.id));
+        }
+      });
       sendNotification(deposit.userId, "deposit_confirmed", "deposit_approved", "deposit_approved", { amount: amountInUSDT });
       res.json({ message: "Depozit tasdiqlandi va balansga qo'shildi" });
     } catch (error: any) {
@@ -1727,10 +1737,19 @@ function showGuide(browser) {
       if (!withdrawal) return res.status(404).json({ message: "So'rov topilmadi" });
       if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar rad etilishi mumkin" });
 
-      await storage.updateWithdrawalStatus(withdrawal.id, "rejected");
-      await storage.updateUserBalance(withdrawal.userId, withdrawal.amount);
-      await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "rejected");
-      await storage.addBalanceHistory({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `Yechish bekor qilindi — qaytarildi ${withdrawal.amount} USDT` });
+      await db.transaction(async (tx) => {
+        await tx.update(withdrawalRequests).set({ status: "rejected", reviewedAt: new Date() }).where(eq(withdrawalRequests.id, withdrawal.id));
+        await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${withdrawal.amount}::numeric` }).where(eq(users.id, withdrawal.userId));
+        const entries = await tx.select().from(balanceHistory)
+          .where(and(eq(balanceHistory.userId, withdrawal.userId), eq(balanceHistory.type, "withdrawal")))
+          .orderBy(desc(balanceHistory.createdAt))
+          .limit(10);
+        const match = entries.find(e => e.description?.includes(withdrawal.id));
+        if (match) {
+          await tx.update(balanceHistory).set({ description: `Yechish rad etildi — qaytarildi ${withdrawal.amount} USDT` }).where(eq(balanceHistory.id, match.id));
+        }
+        await tx.insert(balanceHistory).values({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `Yechish bekor qilindi — qaytarildi ${withdrawal.amount} USDT` });
+      });
       sendNotification(withdrawal.userId, "system", "withdrawal_rejected", "withdrawal_rejected", { amount: withdrawal.amount });
       res.json({ message: "Yechish rad etildi va balans qaytarildi" });
     } catch (error: any) {
