@@ -211,7 +211,7 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-[420px] relative z-10">
-        <div className="text-center mb-10">
+        <div className="text-center mb-6">
           <div className="relative inline-block">
             <div className="absolute -inset-4 bg-primary/10 rounded-full blur-2xl opacity-60" />
             <img src={vemLogo} alt="VEM" className="pro-logo h-20 mx-auto relative" style={{imageRendering: "auto", filter: "contrast(1.05) brightness(1.02)"}} />
@@ -219,17 +219,27 @@ export default function LoginPage() {
           <p className="text-muted-foreground mt-3 text-sm font-medium tracking-wide">{t("auth.welcome")}</p>
         </div>
 
+        <div className="flex mb-5 bg-muted/30 rounded-2xl p-1.5 border border-border/30" data-testid="auth-tabs">
+          <div
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-primary to-blue-600 text-white font-semibold text-sm shadow-lg shadow-primary/20 cursor-default transition-all"
+            data-testid="tab-login"
+          >
+            <LogIn className="w-4 h-4" />
+            {t("auth.login")}
+          </div>
+          <Link
+            href="/register"
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-muted-foreground hover:text-foreground font-medium text-sm transition-all hover:bg-muted/30"
+            data-testid="tab-register"
+          >
+            <UserPlus className="w-4 h-4" />
+            {t("auth.register")}
+          </Link>
+        </div>
+
         <div className="relative">
           <div className="absolute -inset-[1px] rounded-[20px] bg-gradient-to-b from-border/60 via-border/20 to-border/60 pointer-events-none" />
           <div className="relative bg-card/70 backdrop-blur-md rounded-[20px] p-7 shadow-2xl shadow-black/10">
-            <div className="flex items-center gap-3 mb-7">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/25">
-                <LogIn className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-foreground tracking-tight">{t("auth.login")}</h2>
-              </div>
-            </div>
 
             {showBannedAlert && (
               <div className="mb-5 bg-red-500/10 border border-red-500/30 rounded-xl p-3.5 flex items-start gap-3" data-testid="alert-banned">
@@ -372,14 +382,6 @@ export default function LoginPage() {
               </form>
             </Form>
 
-            <div className="mt-7 pt-6 border-t border-border/30 text-center">
-              <p className="text-muted-foreground text-sm">
-                {t("auth.noAccount")}{" "}
-                <Link href="/register" className="text-primary font-semibold hover:text-primary/80 transition-colors" data-testid="link-register">
-                  {t("auth.registerLink")}
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
 
