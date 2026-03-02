@@ -82,6 +82,7 @@ export interface IStorage {
   setStajyorUsed(id: string): Promise<void>;
   addBalanceHistory(data: { userId: string; type: string; amount: string; description?: string }): Promise<BalanceHistory>;
   getUserBalanceHistory(userId: string): Promise<BalanceHistory[]>;
+  getBalanceHistoryByType(userId: string, type: string): Promise<BalanceHistory[]>;
   updateWithdrawalHistoryStatus(userId: string, withdrawalId: string, newStatus: string): Promise<void>;
   updateDepositHistoryStatus(userId: string, amount: string, currency: string, newStatus: string, amountInUSDT: string): Promise<void>;
   toggleVipPackageLock(id: string, locked: boolean): Promise<void>;
@@ -546,6 +547,12 @@ export class DatabaseStorage implements IStorage {
 
   async getUserBalanceHistory(userId: string): Promise<BalanceHistory[]> {
     return db.select().from(balanceHistory).where(eq(balanceHistory.userId, userId)).orderBy(desc(balanceHistory.createdAt));
+  }
+
+  async getBalanceHistoryByType(userId: string, type: string): Promise<BalanceHistory[]> {
+    return db.select().from(balanceHistory)
+      .where(and(eq(balanceHistory.userId, userId), eq(balanceHistory.type, type)))
+      .orderBy(desc(balanceHistory.createdAt));
   }
 
   async updateWithdrawalHistoryStatus(userId: string, _withdrawalId: string, newStatus: string): Promise<void> {

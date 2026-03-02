@@ -958,6 +958,50 @@ function showGuide(browser) {
     }
   });
 
+  app.get("/api/referrals/extended-stats", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const referred = await storage.getReferredUsers(userId);
+
+      const vipDistribution: Record<number, number> = {};
+      for (const u of referred) {
+        vipDistribution[u.vipLevel] = (vipDistribution[u.vipLevel] || 0) + 1;
+      }
+
+      const now = new Date();
+      const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+      const commissionHistory = await storage.getBalanceHistoryByType(userId, "commission");
+
+      let thisMonthEarnings = 0;
+      let lastMonthEarnings = 0;
+      const recentActivity: { amount: string; description: string; date: string }[] = [];
+
+      for (const h of commissionHistory) {
+        const d = new Date(h.createdAt);
+        if (d >= thisMonthStart) thisMonthEarnings += Number(h.amount);
+        else if (d >= lastMonthStart && d < thisMonthStart) lastMonthEarnings += Number(h.amount);
+        if (recentActivity.length < 10) {
+          recentActivity.push({ amount: h.amount, description: h.description || "", date: h.createdAt.toISOString() });
+        }
+      }
+
+      const activeReferrals = referred.filter(u => u.vipLevel > 0).length;
+
+      res.json({
+        vipDistribution,
+        thisMonthEarnings: thisMonthEarnings.toFixed(2),
+        lastMonthEarnings: lastMonthEarnings.toFixed(2),
+        recentActivity,
+        activeReferrals,
+        totalReferrals: referred.length,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   app.post("/api/profile/change-password", requireAuth, async (req: Request, res: Response) => {
     try {
       const { currentPassword, newPassword } = req.body;
