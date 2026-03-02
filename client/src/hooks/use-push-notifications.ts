@@ -48,9 +48,11 @@ export function usePushNotifications() {
       });
 
       const subJson = sub.toJSON();
+      const locale = localStorage.getItem("vem-locale") || "uz";
       await apiRequest("POST", "/api/push/subscribe", {
         endpoint: sub.endpoint,
         keys: { p256dh: subJson.keys?.p256dh, auth: subJson.keys?.auth },
+        locale,
       });
 
       setIsSubscribed(true);

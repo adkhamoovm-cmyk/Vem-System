@@ -18,7 +18,97 @@ if (vapidPublic && vapidPrivate) {
   webpush.setVapidDetails("mailto:admin@vem.uz", vapidPublic, vapidPrivate);
 }
 
-async function sendNotification(userId: string, type: string, title: string, message: string) {
+const notifTranslations: Record<string, Record<string, { title: string; message: string }>> = {
+  uz: {
+    task_completed: { title: "Vazifa bajarildi!", message: "+{amount} USDT qo'shildi" },
+    vip_activated: { title: "{name} paketi faollashtirildi", message: "{tasks} ta kunlik vazifa, {days} kun" },
+    deposit_approved: { title: "Depozit tasdiqlandi", message: "+{amount} USDT balansga qo'shildi" },
+    deposit_rejected: { title: "Depozit rad etildi", message: "{amount} {currency} depozit so'rovi rad etildi" },
+    withdrawal_approved: { title: "Pul yechish tasdiqlandi", message: "{amount} USDT muvaffaqiyatli yechildi" },
+    withdrawal_rejected: { title: "Pul yechish rad etildi", message: "{amount} USDT qaytarildi. So'rov rad etildi." },
+    referral_commission: { title: "Referal komissiya", message: "+{amount} USDT ({level}-daraja)" },
+    stajyor_approved: { title: "Stajyor faollashtirildi!", message: "3 kunlik sinov davri boshlandi. Kuniga 3 ta video ko'ring!" },
+    stajyor_rejected: { title: "Stajyor so'rovi rad etildi", message: "So'rovingiz rad etildi. Iltimos qayta urinib ko'ring." },
+    promo_applied: { title: "Promokod qabul qilindi", message: "+{amount} USDT promokod orqali qo'shildi" },
+    fund_invested: { title: "{name} fondiga investitsiya", message: "{amount} USDT investitsiya qilindi" },
+    fund_profit: { title: "Fond daromadi", message: "+{amount} USDT {name} fondidan" },
+    fund_returned: { title: "Fond investitsiyasi qaytarildi", message: "+{amount} USDT {name} fondidan qaytarildi" },
+  },
+  ru: {
+    task_completed: { title: "Задание выполнено!", message: "+{amount} USDT начислено" },
+    vip_activated: { title: "Пакет {name} активирован", message: "{tasks} заданий в день, {days} дней" },
+    deposit_approved: { title: "Депозит подтверждён", message: "+{amount} USDT зачислено на баланс" },
+    deposit_rejected: { title: "Депозит отклонён", message: "Заявка на {amount} {currency} отклонена" },
+    withdrawal_approved: { title: "Вывод подтверждён", message: "{amount} USDT успешно выведено" },
+    withdrawal_rejected: { title: "Вывод отклонён", message: "{amount} USDT возвращено. Заявка отклонена." },
+    referral_commission: { title: "Реферальная комиссия", message: "+{amount} USDT ({level}-уровень)" },
+    stajyor_approved: { title: "Стажёр активирован!", message: "3-дневный пробный период начался. Смотрите 3 видео в день!" },
+    stajyor_rejected: { title: "Заявка на стажёра отклонена", message: "Ваша заявка отклонена. Попробуйте снова." },
+    promo_applied: { title: "Промокод применён", message: "+{amount} USDT начислено по промокоду" },
+    fund_invested: { title: "Инвестиция в {name}", message: "{amount} USDT инвестировано" },
+    fund_profit: { title: "Доход от фонда", message: "+{amount} USDT от {name}" },
+    fund_returned: { title: "Инвестиция возвращена", message: "+{amount} USDT возвращено из {name}" },
+  },
+  en: {
+    task_completed: { title: "Task completed!", message: "+{amount} USDT earned" },
+    vip_activated: { title: "{name} package activated", message: "{tasks} daily tasks, {days} days" },
+    deposit_approved: { title: "Deposit approved", message: "+{amount} USDT added to balance" },
+    deposit_rejected: { title: "Deposit rejected", message: "{amount} {currency} deposit request rejected" },
+    withdrawal_approved: { title: "Withdrawal approved", message: "{amount} USDT successfully withdrawn" },
+    withdrawal_rejected: { title: "Withdrawal rejected", message: "{amount} USDT returned. Request rejected." },
+    referral_commission: { title: "Referral commission", message: "+{amount} USDT (level {level})" },
+    stajyor_approved: { title: "Intern activated!", message: "3-day trial period started. Watch 3 videos daily!" },
+    stajyor_rejected: { title: "Intern request rejected", message: "Your request was rejected. Please try again." },
+    promo_applied: { title: "Promo code applied", message: "+{amount} USDT added via promo code" },
+    fund_invested: { title: "Invested in {name}", message: "{amount} USDT invested" },
+    fund_profit: { title: "Fund profit", message: "+{amount} USDT from {name}" },
+    fund_returned: { title: "Fund investment returned", message: "+{amount} USDT returned from {name}" },
+  },
+};
+
+function formatNotifText(text: string, params: Record<string, string>): string {
+  let result = text;
+  for (const [k, v] of Object.entries(params)) {
+    result = result.replace(`{${k}}`, v);
+  }
+  return result;
+}
+
+async function sendNotification(userId: string, type: string, titleKey: string, messageKey: string, params: Record<string, string> = {}) {
+  try {
+    const titleUz = formatNotifText(notifTranslations.uz[titleKey]?.title || titleKey, params);
+    const messageUz = formatNotifText(notifTranslations.uz[messageKey]?.message || messageKey, params);
+    const titleRu = formatNotifText(notifTranslations.ru[titleKey]?.title || titleKey, params);
+    const messageRu = formatNotifText(notifTranslations.ru[messageKey]?.message || messageKey, params);
+    const titleEn = formatNotifText(notifTranslations.en[titleKey]?.title || titleKey, params);
+    const messageEn = formatNotifText(notifTranslations.en[messageKey]?.message || messageKey, params);
+
+    const storedTitle = JSON.stringify({ uz: titleUz, ru: titleRu, en: titleEn });
+    const storedMessage = JSON.stringify({ uz: messageUz, ru: messageRu, en: messageEn });
+
+    await storage.createNotification({ userId, type, title: storedTitle, message: storedMessage });
+    const titles: Record<string, string> = { uz: titleUz, ru: titleRu, en: titleEn };
+    const messages: Record<string, string> = { uz: messageUz, ru: messageRu, en: messageEn };
+    const subs = await storage.getUserPushSubscriptions(userId);
+    for (const sub of subs) {
+      try {
+        const lang = sub.locale || "uz";
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title: titles[lang] || titleUz, body: messages[lang] || messageUz, url: "/notifications" })
+        );
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await storage.deletePushSubscription(userId, sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("sendNotification error:", e);
+  }
+}
+
+async function sendRawNotification(userId: string, type: string, title: string, message: string) {
   try {
     await storage.createNotification({ userId, type, title, message });
     const subs = await storage.getUserPushSubscriptions(userId);
@@ -720,7 +810,7 @@ function showGuide(browser) {
       await storage.updateUserTotalEarnings(userId, rewardStr);
       await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
       await storage.addBalanceHistory({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
-      sendNotification(userId, "task_reward", "Vazifa bajarildi!", `+${rewardStr} USDT qo'shildi`);
+      sendNotification(userId, "task_reward", "task_completed", "task_completed", { amount: rewardStr });
 
       res.json({ reward: rewardStr, message: "Vazifa bajarildi!" });
     } catch (error: any) {
@@ -803,7 +893,7 @@ function showGuide(browser) {
       await storage.setUserVipExpiry(userId, expiresAt);
       await storage.setUserVipPurchaseInfo(userId, new Date(), String(pkg.price));
       await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-effectiveCost), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)${refundAmount > 0 ? ` | Qaytim: ${refundAmount.toFixed(2)} USDT` : ""}` });
-      sendNotification(userId, "system", `${pkg.name} paketi faollashtirildi`, `${pkg.dailyTasks} ta kunlik vazifa, ${pkg.durationDays} kun`);
+      sendNotification(userId, "system", "vip_activated", "vip_activated", { name: pkg.name, tasks: String(pkg.dailyTasks), days: String(pkg.durationDays) });
 
       if (user.referredBy && !isExtension) {
         const vipPrice = Number(pkg.price);
@@ -811,21 +901,21 @@ function showGuide(browser) {
         await storage.updateUserBalance(user.referredBy, l1Commission);
         await storage.addReferralCommission(user.referredBy, userId, 1, l1Commission);
         await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi — ${pkg.name} sotib oldi (${user.phone})` });
-        sendNotification(user.referredBy, "referral_bonus", "Referal komissiya", `+${l1Commission} USDT (1-daraja)`);
+        sendNotification(user.referredBy, "referral_bonus", "referral_commission", "referral_commission", { amount: l1Commission, level: "1" });
         const l1Referrer = await storage.getUser(user.referredBy);
         if (l1Referrer?.referredBy) {
           const l2Commission = (vipPrice * 0.03).toFixed(2);
           await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
           await storage.addReferralCommission(l1Referrer.referredBy, userId, 2, l2Commission);
           await storage.addBalanceHistory({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
-          sendNotification(l1Referrer.referredBy, "referral_bonus", "Referal komissiya", `+${l2Commission} USDT (2-daraja)`);
+          sendNotification(l1Referrer.referredBy, "referral_bonus", "referral_commission", "referral_commission", { amount: l2Commission, level: "2" });
           const l2Referrer = await storage.getUser(l1Referrer.referredBy);
           if (l2Referrer?.referredBy) {
             const l3Commission = (vipPrice * 0.01).toFixed(2);
             await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
             await storage.addReferralCommission(l2Referrer.referredBy, userId, 3, l3Commission);
             await storage.addBalanceHistory({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
-            sendNotification(l2Referrer.referredBy, "referral_bonus", "Referal komissiya", `+${l3Commission} USDT (3-daraja)`);
+            sendNotification(l2Referrer.referredBy, "referral_bonus", "referral_commission", "referral_commission", { amount: l3Commission, level: "3" });
           }
         }
       }
@@ -1037,7 +1127,7 @@ function showGuide(browser) {
 
       await storage.updateUserBalance(userId, dailyProfit);
       await storage.addBalanceHistory({ userId, type: "fund_profit", amount: dailyProfit, description: `${plan.name} fond daromadi +${dailyProfit} USDT` });
-      sendNotification(userId, "system", `${plan.name} fondiga investitsiya`, `${investAmount} USDT investitsiya qilindi`);
+      sendNotification(userId, "system", "fund_invested", "fund_invested", { name: plan.name, amount: String(investAmount) });
 
       res.json({ investment, message: "Investitsiya muvaffaqiyatli amalga oshirildi!" });
     } catch (error: any) {
@@ -1478,7 +1568,7 @@ function showGuide(browser) {
       await storage.updateUserBalance(deposit.userId, amountInUSDT);
       await storage.updateUserTotalDeposit(deposit.userId, amountInUSDT);
       await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "approved", amountInUSDT);
-      sendNotification(deposit.userId, "deposit_confirmed", "Depozit tasdiqlandi", `+${amountInUSDT} USDT balansga qo'shildi`);
+      sendNotification(deposit.userId, "deposit_confirmed", "deposit_approved", "deposit_approved", { amount: amountInUSDT });
       res.json({ message: "Depozit tasdiqlandi va balansga qo'shildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1498,7 +1588,7 @@ function showGuide(browser) {
 
       await storage.updateDepositStatus(deposit.id, "rejected");
       await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "rejected", amountInUSDT);
-      sendNotification(deposit.userId, "system", "Depozit rad etildi", `${deposit.amount} ${deposit.currency} depozit so'rovi rad etildi`);
+      sendNotification(deposit.userId, "system", "deposit_rejected", "deposit_rejected", { amount: deposit.amount, currency: deposit.currency });
       res.json({ message: "Depozit rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1528,7 +1618,7 @@ function showGuide(browser) {
       if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar tasdiqlanishi mumkin" });
       await storage.updateWithdrawalStatus(withdrawal.id, "approved");
       await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "approved");
-      sendNotification(withdrawal.userId, "withdrawal_done", "Pul yechish tasdiqlandi", `${withdrawal.netAmount} USDT muvaffaqiyatli yechildi`);
+      sendNotification(withdrawal.userId, "withdrawal_done", "withdrawal_approved", "withdrawal_approved", { amount: withdrawal.netAmount });
       res.json({ message: "Yechish tasdiqlandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1545,7 +1635,7 @@ function showGuide(browser) {
       await storage.updateUserBalance(withdrawal.userId, withdrawal.amount);
       await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "rejected");
       await storage.addBalanceHistory({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `Yechish bekor qilindi — qaytarildi ${withdrawal.amount} USDT` });
-      sendNotification(withdrawal.userId, "system", "Pul yechish rad etildi", `${withdrawal.amount} USDT qaytarildi. So'rov rad etildi.`);
+      sendNotification(withdrawal.userId, "system", "withdrawal_rejected", "withdrawal_rejected", { amount: withdrawal.amount });
       res.json({ message: "Yechish rad etildi va balans qaytarildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1677,7 +1767,7 @@ function showGuide(browser) {
       stajyorExpiry.setDate(stajyorExpiry.getDate() + 3);
       await storage.setUserVipExpiry(request.userId, stajyorExpiry);
       await storage.setStajyorUsed(request.userId);
-      sendNotification(request.userId, "system", "Stajyor faollashtirildi!", "3 kunlik sinov davri boshlandi. Kuniga 3 ta video ko'ring!");
+      sendNotification(request.userId, "system", "stajyor_approved", "stajyor_approved");
       res.json({ message: "Stajyor lavozimi faollashtirildi! (3 kun)" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1692,7 +1782,7 @@ function showGuide(browser) {
       if (request.status !== "pending") return res.status(400).json({ message: "Bu so'rov allaqachon ko'rib chiqilgan" });
 
       await storage.updateStajyorRequestStatus(request.id, "rejected");
-      sendNotification(request.userId, "system", "Stajyor so'rovi rad etildi", "So'rovingiz rad etildi. Iltimos qayta urinib ko'ring.");
+      sendNotification(request.userId, "system", "stajyor_rejected", "stajyor_rejected");
       res.json({ message: "So'rov rad etildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1805,7 +1895,7 @@ function showGuide(browser) {
       try {
         const allUsers = await storage.getAllUsers();
         for (const u of allUsers) {
-          sendNotification(u.id, "broadcast", title, message);
+          sendRawNotification(u.id, "broadcast", title, message);
         }
       } catch (e) {
         console.error("Broadcast notification error:", e);
@@ -1833,12 +1923,12 @@ function showGuide(browser) {
 
       let sentCount = 0;
       if (targetUserId) {
-        sendNotification(targetUserId, "broadcast", title, message);
+        sendRawNotification(targetUserId, "broadcast", title, message);
         sentCount = 1;
       } else {
         const allUsers = await storage.getAllUsers();
         for (const u of allUsers) {
-          sendNotification(u.id, "broadcast", title, message);
+          sendRawNotification(u.id, "broadcast", title, message);
         }
         sentCount = allUsers.length;
       }
@@ -1871,14 +1961,14 @@ function showGuide(browser) {
         await storage.updateUserBalance(inv.userId, inv.dailyProfit);
         await storage.updateInvestmentLastProfitDate(inv.id, today);
         await storage.addBalanceHistory({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
-        sendNotification(inv.userId, "task_reward", "Fond daromadi", `+${inv.dailyProfit} USDT ${planName} fondidan`);
+        sendNotification(inv.userId, "task_reward", "fund_profit", "fund_profit", { amount: inv.dailyProfit, name: planName });
 
         if (inv.endDate && new Date(inv.endDate) <= new Date()) {
           await storage.updateInvestmentStatus(inv.id, "completed");
           if (plan?.returnPrincipal) {
             await storage.updateUserBalance(inv.userId, inv.investedAmount);
             await storage.addBalanceHistory({ userId: inv.userId, type: "fund_return", amount: inv.investedAmount, description: `${planName} fond investitsiyasi qaytarildi — ${inv.investedAmount} USDT` });
-            sendNotification(inv.userId, "deposit_confirmed", "Fond investitsiyasi qaytarildi", `+${inv.investedAmount} USDT ${planName} fondidan qaytarildi`);
+            sendNotification(inv.userId, "deposit_confirmed", "fund_returned", "fund_returned", { amount: inv.investedAmount, name: planName });
           }
         }
       }
@@ -1912,7 +2002,7 @@ function showGuide(browser) {
       await storage.incrementPromoCodeUsage(promo.id);
       await storage.updateUserBalance(req.session.userId!, promo.amount);
       await storage.addBalanceHistory({ userId: req.session.userId!, type: "earning", amount: promo.amount, description: `Promokod: ${promo.code}` });
-      sendNotification(req.session.userId!, "deposit_confirmed", "Promokod qabul qilindi", `+${promo.amount} USDT promokod orqali qo'shildi`);
+      sendNotification(req.session.userId!, "deposit_confirmed", "promo_applied", "promo_applied", { amount: promo.amount });
 
       if (promo.isOneTime) {
         await storage.deactivatePromoCode(promo.id);
@@ -2044,11 +2134,11 @@ function showGuide(browser) {
   app.post("/api/push/subscribe", requireAuth, async (req: Request, res: Response) => {
     try {
       const userId = (req.session as any).userId;
-      const { endpoint, keys } = req.body;
+      const { endpoint, keys, locale } = req.body;
       if (!endpoint || !keys?.p256dh || !keys?.auth) {
         return res.status(400).json({ message: "Invalid subscription" });
       }
-      await storage.savePushSubscription({ userId, endpoint, p256dh: keys.p256dh, auth: keys.auth });
+      await storage.savePushSubscription({ userId, endpoint, p256dh: keys.p256dh, auth: keys.auth, locale: locale || "uz" });
       res.json({ ok: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });

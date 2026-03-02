@@ -272,6 +272,7 @@ export const pushSubscriptions = pgTable("push_subscriptions", {
   endpoint: text("endpoint").notNull(),
   p256dh: text("p256dh").notNull(),
   auth: text("auth").notNull(),
+  locale: varchar("locale", { length: 5 }).default("uz"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

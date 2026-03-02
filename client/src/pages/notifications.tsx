@@ -34,8 +34,18 @@ function getTypeIcon(type: string) {
   return iconMap[type] || iconMap.system;
 }
 
+function getLocalizedText(text: string, locale: string): string {
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed && typeof parsed === "object") {
+      return parsed[locale] || parsed.uz || parsed.en || text;
+    }
+  } catch {}
+  return text;
+}
+
 export default function NotificationsPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const { toast } = useToast();
 
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
@@ -154,7 +164,7 @@ export default function NotificationsPage() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className={`text-sm font-semibold ${isUnread ? "text-foreground" : "text-foreground/80"}`}>
-                          {notification.title}
+                          {getLocalizedText(notification.title, locale)}
                         </span>
                         {isUnread && (
                           <span className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0" />
@@ -165,7 +175,7 @@ export default function NotificationsPage() {
                       </span>
                     </div>
                     <p className={`text-xs mt-1 leading-relaxed ${isUnread ? "text-muted-foreground" : "text-muted-foreground/70"}`}>
-                      {notification.message}
+                      {getLocalizedText(notification.message, locale)}
                     </p>
                     <span className={`inline-block text-[9px] uppercase tracking-wider font-medium mt-1.5 px-1.5 py-0.5 rounded-md ${
                       isUnread ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
