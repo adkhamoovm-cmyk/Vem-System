@@ -217,7 +217,6 @@ export default function LoginPage() {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-foreground tracking-tight">{t("auth.login")}</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("auth.welcome")}</p>
               </div>
             </div>
 

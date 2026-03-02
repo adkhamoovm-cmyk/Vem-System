@@ -429,7 +429,6 @@ export default function RegisterPage() {
               </div>
               <div>
                 <h2 className="text-xl font-bold text-foreground tracking-tight">{t("auth.register")}</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">{t("auth.welcome")}</p>
               </div>
             </div>
 
