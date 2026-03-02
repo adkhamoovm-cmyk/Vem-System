@@ -147,29 +147,56 @@ export default function DashboardPage() {
   const totalEarnedFromFund = activeInvestments.reduce((sum, inv) => sum + Number((inv as Record<string, unknown>).totalEarned || 0), 0);
   const totalDailyProfit = activeInvestments.reduce((sum, inv) => sum + Number(inv.dailyProfit || 0), 0);
 
-  const tvShows = videos?.filter(v => v.category === "Tele-shou") || [];
-  const trailers = videos?.filter(v => v.category === "Treyler") || [];
+  const allTvShows = useMemo(() => videos?.filter(v => v.category === "Tele-shou") || [], [videos]);
+  const allTrailers = useMemo(() => videos?.filter(v => v.category === "Treyler") || [], [videos]);
   const allVideos = videos || [];
+
+  const dayOfYear = useMemo(() => {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    return Math.floor((now.getTime() - start.getTime()) / 86400000);
+  }, []);
+
+  const dailyRotate = useCallback(<T,>(arr: T[], count: number): T[] => {
+    if (arr.length <= count) return arr;
+    const len = arr.length;
+    let step = 1;
+    for (let s = 3; s < len; s++) {
+      let gcd = len, b = s;
+      while (b) { const t = b; b = gcd % b; gcd = t; }
+      if (gcd === 1) { step = s; break; }
+    }
+    const offset = (dayOfYear * step) % len;
+    const result: T[] = [];
+    for (let i = 0; i < count; i++) {
+      result.push(arr[(offset + i) % len]);
+    }
+    return result;
+  }, [dayOfYear]);
+
+  const heroVideos = useMemo(() => dailyRotate(allVideos, 5), [allVideos, dailyRotate]);
+  const tvShows = useMemo(() => dailyRotate(allTvShows, 8), [allTvShows, dailyRotate]);
+  const trailers = useMemo(() => dailyRotate(allTrailers, 8), [allTrailers, dailyRotate]);
 
   const [heroIndex, setHeroIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const nextSlide = useCallback(() => {
-    if (allVideos.length <= 1) return;
+    if (heroVideos.length <= 1) return;
     setIsTransitioning(true);
     setTimeout(() => {
-      setHeroIndex((prev) => (prev + 1) % allVideos.length);
+      setHeroIndex((prev) => (prev + 1) % heroVideos.length);
       setIsTransitioning(false);
     }, 500);
-  }, [allVideos.length]);
+  }, [heroVideos.length]);
 
   useEffect(() => {
-    if (allVideos.length <= 1) return;
+    if (heroVideos.length <= 1) return;
     const interval = setInterval(nextSlide, 5000);
     return () => clearInterval(interval);
-  }, [allVideos.length, nextSlide]);
+  }, [heroVideos.length, nextSlide]);
 
-  const heroVideo = allVideos[heroIndex];
+  const heroVideo = heroVideos[heroIndex];
 
   const quickActions = [
     { title: t("dashboard.quickTasks"), href: "/tasks", icon: PlayCircle, gradient: "from-blue-500 to-blue-600" },
@@ -218,9 +245,9 @@ export default function DashboardPage() {
                 </Link>
               </div>
             </div>
-            {allVideos.length > 1 && (
+            {heroVideos.length > 1 && (
               <div className="absolute bottom-2.5 right-4 z-10 flex gap-1.5">
-                {allVideos.map((_, i) => (
+                {heroVideos.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => { setIsTransitioning(true); setTimeout(() => { setHeroIndex(i); setIsTransitioning(false); }, 300); }}
