@@ -1,7 +1,7 @@
 import { eq, and, sql, desc, gte, sum } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages, platformSettings, broadcasts, broadcastReads, notifications, pushSubscriptions } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage, PlatformSetting, Broadcast, InsertBroadcast, Notification, InsertNotification, InsertPushSubscription } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages, platformSettings, broadcasts, broadcastReads, notifications, pushSubscriptions, userSessions } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage, PlatformSetting, Broadcast, InsertBroadcast, Notification, InsertNotification, InsertPushSubscription, UserSessionLog } from "@shared/schema";
 
 export type PushSubscriptionRecord = typeof pushSubscriptions.$inferSelect;
 import { randomUUID } from "crypto";
@@ -113,6 +113,8 @@ export interface IStorage {
   deletePushSubscription(userId: string, endpoint: string): Promise<void>;
   getUserPushSubscriptions(userId: string): Promise<PushSubscriptionRecord[]>;
   getPushSubscriptionCount(): Promise<number>;
+  logSession(data: { userId: string; action: string; ip?: string; userAgent?: string }): Promise<void>;
+  getUserSessionLogs(userId: string, limit?: number): Promise<UserSessionLog[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -741,6 +743,14 @@ export class DatabaseStorage implements IStorage {
   async getPushSubscriptionCount(): Promise<number> {
     const result = await db.select({ count: sql<number>`count(DISTINCT ${pushSubscriptions.userId})` }).from(pushSubscriptions);
     return Number(result[0]?.count ?? 0);
+  }
+
+  async logSession(data: { userId: string; action: string; ip?: string; userAgent?: string }): Promise<void> {
+    await db.insert(userSessions).values(data);
+  }
+
+  async getUserSessionLogs(userId: string, limit = 50): Promise<UserSessionLog[]> {
+    return db.select().from(userSessions).where(eq(userSessions.userId, userId)).orderBy(desc(userSessions.createdAt)).limit(limit);
   }
 }
 

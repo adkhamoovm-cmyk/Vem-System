@@ -649,6 +649,7 @@ function showGuide(browser) {
       const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
       const ua = req.headers["user-agent"] || "";
       await storage.updateUserLoginInfo(user.id, ip, ua);
+      await storage.logSession({ userId: user.id, action: "login", ip, userAgent: ua });
       res.json({ user: { ...user, password: undefined, fundPassword: undefined, plainPassword: undefined, plainFundPassword: undefined } });
     } catch (error: any) {
       res.status(500).json({ message: error.message || "Xatolik yuz berdi" });
