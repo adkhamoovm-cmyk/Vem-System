@@ -23,11 +23,11 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { SupportWidget } from "@/components/support-widget";
 
 const countryCodes = [
+  { code: "+49",  country: "DE", flag: "\u{1F1E9}\u{1F1EA}" },
   { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}" },
   { code: "+7",   country: "RU", flag: "\u{1F1F7}\u{1F1FA}" },
   { code: "+1",   country: "US", flag: "\u{1F1FA}\u{1F1F8}" },
   { code: "+44",  country: "GB", flag: "\u{1F1EC}\u{1F1E7}" },
-  { code: "+49",  country: "DE", flag: "\u{1F1E9}\u{1F1EA}" },
   { code: "+82",  country: "KR", flag: "\u{1F1F0}\u{1F1F7}" },
   { code: "+90",  country: "TR", flag: "\u{1F1F9}\u{1F1F7}" },
   { code: "+86",  country: "CN", flag: "\u{1F1E8}\u{1F1F3}" },
