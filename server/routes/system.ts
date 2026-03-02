@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { storage } from "../storage";
-import { requireAuth, webpush } from "../lib/helpers";
+import { requireAuth, webpush, asyncHandler } from "../lib/helpers";
 
 const router = Router();
 
@@ -127,74 +127,50 @@ function showGuide(browser) {
 </body></html>`);
 });
 
-router.get("/api/notifications", requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = (req.session as any).userId;
-    const list = await storage.getUserNotifications(userId, 50);
-    res.json(list);
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.get("/api/notifications", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req.session as any).userId;
+  const list = await storage.getUserNotifications(userId, 50);
+  res.json(list);
+}));
 
-router.get("/api/notifications/unread-count", requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = (req.session as any).userId;
-    const count = await storage.getUnreadNotificationCount(userId);
-    res.json({ count });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.get("/api/notifications/unread-count", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req.session as any).userId;
+  const count = await storage.getUnreadNotificationCount(userId);
+  res.json({ count });
+}));
 
-router.post("/api/notifications/:id/read", requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = (req.session as any).userId;
-    await storage.markNotificationRead(req.params.id, userId);
-    res.json({ ok: true });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post("/api/notifications/:id/read", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req.session as any).userId;
+  await storage.markNotificationRead(req.params.id, userId);
+  res.json({ ok: true });
+}));
 
-router.post("/api/notifications/read-all", requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = (req.session as any).userId;
-    await storage.markAllNotificationsRead(userId);
-    res.json({ ok: true });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post("/api/notifications/read-all", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req.session as any).userId;
+  await storage.markAllNotificationsRead(userId);
+  res.json({ ok: true });
+}));
 
 router.get("/api/push/vapid-key", (_req: Request, res: Response) => {
   res.json({ publicKey: vapidPublic });
 });
 
-router.post("/api/push/subscribe", requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = (req.session as any).userId;
-    const { endpoint, keys, locale } = req.body;
-    if (!endpoint || !keys?.p256dh || !keys?.auth) {
-      return res.status(400).json({ message: "Invalid subscription" });
-    }
-    await storage.savePushSubscription({ userId, endpoint, p256dh: keys.p256dh, auth: keys.auth, locale: locale || "uz" });
-    res.json({ ok: true });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
+router.post("/api/push/subscribe", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req.session as any).userId;
+  const { endpoint, keys, locale } = req.body;
+  if (!endpoint || !keys?.p256dh || !keys?.auth) {
+    return res.status(400).json({ message: "Invalid subscription" });
   }
-});
+  await storage.savePushSubscription({ userId, endpoint, p256dh: keys.p256dh, auth: keys.auth, locale: locale || "uz" });
+  res.json({ ok: true });
+}));
 
-router.post("/api/push/unsubscribe", requireAuth, async (req: Request, res: Response) => {
-  try {
-    const userId = (req.session as any).userId;
-    const { endpoint } = req.body;
-    if (!endpoint) return res.status(400).json({ message: "Endpoint required" });
-    await storage.deletePushSubscription(userId, endpoint);
-    res.json({ ok: true });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post("/api/push/unsubscribe", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = (req.session as any).userId;
+  const { endpoint } = req.body;
+  if (!endpoint) return res.status(400).json({ message: "Endpoint required" });
+  await storage.deletePushSubscription(userId, endpoint);
+  res.json({ ok: true });
+}));
 
 export default router;

@@ -11,6 +11,19 @@ import { Switch } from "@/components/ui/switch";
 import type { DepositSetting } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 
+interface PlatformSettings {
+  withdrawalCommissionPercent: number;
+  minWithdrawalUsdt: number;
+  minWithdrawalBank: number;
+  withdrawalStartHour: number;
+  withdrawalEndHour: number;
+  maxDailyWithdrawals: number;
+  withdrawalEnabled: boolean;
+  minDepositUsdt?: number;
+  minDepositBank?: number;
+  [key: string]: string | number | boolean | undefined;
+}
+
 function WithdrawalSettingsPanel() {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -23,7 +36,7 @@ function WithdrawalSettingsPanel() {
   const [withdrawalEnabled, setWithdrawalEnabled] = useState(true);
   const [initialized, setInitialized] = useState(false);
 
-  const { data: settings, isLoading } = useQuery<any>({
+  const { data: settings, isLoading } = useQuery<PlatformSettings>({
     queryKey: ["/api/admin/platform-settings"],
   });
 
@@ -57,7 +70,7 @@ function WithdrawalSettingsPanel() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/platform-settings"] });
       queryClient.invalidateQueries({ queryKey: ["/api/platform-settings"] });
     },
-    onError: (e: any) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: e.message, variant: "destructive" }),
   });
 
   if (isLoading) return <div className="h-20 flex items-center justify-center"><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -248,7 +261,7 @@ function PinChangeSection() {
       setNewPin("");
       setConfirmPin("");
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast({ title: err.message || t("common.error"), variant: "destructive" });
     },
   });

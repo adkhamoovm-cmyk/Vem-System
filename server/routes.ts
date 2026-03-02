@@ -7,6 +7,7 @@ import path from "path";
 import express from "express";
 import { randomBytes } from "crypto";
 
+import type { Request, Response, NextFunction } from "express";
 import { apiRateLimiter } from "./lib/helpers";
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
@@ -65,6 +66,11 @@ export async function registerRoutes(
   app.use(systemRoutes);
 
   setupDailyProfits();
+
+  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    console.error(`[${new Date().toISOString()}] Unhandled error:`, err);
+    res.status(500).json({ message: "Xatolik yuz berdi" });
+  });
 
   return httpServer;
 }

@@ -13,6 +13,54 @@ import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 import { InfoRow } from "./shared";
 
+interface AdminUserInvestment {
+  id: string;
+  investedAmount: string;
+  dailyProfit: string;
+  status: string;
+  startDate: string | null;
+  endDate: string | null;
+}
+
+interface AdminReferralEntry {
+  id: string;
+  level: number;
+  referredNumericId: string | null;
+  referredPhone: string;
+  referredVipLevel: number;
+  referredBalance: string;
+}
+
+interface AdminUserDetail {
+  user: {
+    id: string;
+    phone: string;
+    numericId: string | null;
+    balance: string;
+    totalEarnings: string;
+    totalDeposit: string;
+    vipLevel: number;
+    referralCode: string;
+    referredBy: string | null;
+    isBanned: boolean;
+    withdrawalBanned: boolean;
+    createdAt: string;
+    lastLoginIp: string | null;
+    lastUserAgent: string | null;
+    vipExpiresAt: string | null;
+    vipPurchasedAt: string | null;
+  };
+  invitedBy: { phone: string; numericId: string | null } | null;
+  referralStats: {
+    level1: { count: number };
+    level2: { count: number };
+    level3: { count: number };
+  } | null;
+  paymentMethods: PaymentMethod[];
+  investments: AdminUserInvestment[];
+  referralTree: AdminReferralEntry[];
+}
+
 export function UserDetailModal({ userId, open, onClose }: { userId: string | null; open: boolean; onClose: () => void }) {
   const { t, locale, translateServerMessage } = useI18n();
   const { toast } = useToast();
@@ -26,7 +74,7 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
   const [newPassword, setNewPassword] = useState("");
   const [newFundPassword, setNewFundPassword] = useState("");
 
-  const { data: detail } = useQuery<any>({
+  const { data: detail } = useQuery<AdminUserDetail>({
     queryKey: ["/api/admin/users", userId],
     enabled: !!userId && open,
   });
@@ -78,7 +126,7 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
 
   const passwordMutation = useMutation({
     mutationFn: async () => {
-      const body: any = {};
+      const body: { password?: string; fundPassword?: string } = {};
       if (newPassword) body.password = newPassword;
       if (newFundPassword) body.fundPassword = newFundPassword;
       await apiRequest("POST", `/api/admin/users/${userId}/password`, body);
@@ -273,7 +321,7 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
           {detail.investments?.length > 0 && (
             <div>
               <p className="text-muted-foreground text-xs font-semibold mb-2">{t("admin.fundInvestments")}</p>
-              {detail.investments.map((inv: any) => (
+              {detail.investments.map((inv: AdminUserInvestment) => (
                 <div key={inv.id} className="bg-card rounded-lg p-2.5 border border-border mb-1.5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -340,7 +388,7 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
             <div>
               <p className="text-muted-foreground text-xs font-semibold mb-2">{t("admin.allReferrals", { count: String(detail.referralTree.length) })}</p>
               {[1, 2, 3].map((lvl) => {
-                const levelRefs = detail.referralTree.filter((r: any) => r.level === lvl);
+                const levelRefs = detail.referralTree.filter((r: AdminReferralEntry) => r.level === lvl);
                 if (levelRefs.length === 0) return null;
                 
                 const levelColors = { 1: { bg: "bg-[#4ADE80]/10", border: "border-[#4ADE80]/20", text: "text-emerald-500 dark:text-emerald-400", badge: "bg-[#4ADE80]/20 text-emerald-500 dark:text-emerald-400" }, 2: { bg: "bg-[#3B82F6]/10", border: "border-[#3B82F6]/20", text: "text-[#3B82F6]", badge: "bg-[#3B82F6]/20 text-[#3B82F6]" }, 3: { bg: "bg-primary/10", border: "border-primary/20", text: "text-primary", badge: "bg-primary/20 text-primary" } };
@@ -362,7 +410,7 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
                           </tr>
                         </thead>
                         <tbody>
-                          {levelRefs.map((r: any) => (
+                          {levelRefs.map((r: AdminReferralEntry) => (
                             <tr key={r.id} className="border-b border-border/50 last:border-0">
                               <td className="py-1.5 px-2.5 text-foreground font-mono text-[11px]">{r.referredNumericId || "—"}</td>
                               <td className="py-1.5 px-2.5 text-foreground text-[11px]">{r.referredPhone}</td>

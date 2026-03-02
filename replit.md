@@ -4,6 +4,7 @@
 VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users register with country code selection, watch TV shows and movie trailers to earn money based on their VIP level, and invite friends through a 3-level referral system. Features 11 VIP tiers (Stajyor to M10) with increasing daily task limits and per-video earnings.
 
 ## Recent Changes
+- 2026-03-03: **Code quality pass 2**: auth.tsx split into 6 sub-components (slider-captcha, login-form, register-form, reset-password-modal, terms-modal, shared) → orchestrator ~130 lines; dashboard.tsx split into 7 sub-components (auto-scroll-carousel, hero-section, balance-card, tasks-widget, quick-actions, video-grids, install-app-modal) → orchestrator ~360 lines; ~60 `any` types replaced with proper TypeScript interfaces; Zod validation added to ALL admin/user/financial routes (adminSchemas, userSchemas, financialSchemas); asyncHandler wrapper + global error handler eliminates repetitive try/catch; `validateBody()` middleware on ~25 POST routes
 - 2026-03-03: **Auth page unification**: login.tsx + register.tsx birlashtirildi → auth.tsx; ikkala form bitta sahifada animated sliding pill-switch bilan, URL /login ↔ /register o'zgaradi, sahifa yangilanmaydi
 - 2026-03-02: **Security hardening**: 1) Removed plainPassword/plainFundPassword from schema and DB — only hashed passwords stored now; 2) Added DB transactions (db.transaction) for all multi-step balance operations (task completion, VIP purchase + referral commissions, deposit approval, withdrawal rejection/refund) — prevents partial writes on errors; 3) Query cache: staleTime reduced from Infinity to 5 minutes, refetchOnWindowFocus enabled — ensures balances/data stay fresh; 4) Ban redirect fix: replaced window.location.href with SPA-internal navigation via custom event + BannedListener component — no more 404 flash on ban
 - 2026-03-02: **User sessions tracking**: user_sessions_log table for login/logout/force_logout events; /api/my-sessions returns both session history (logs) and active sessions (from connect-pg-simple session store); /api/my-sessions/terminate to force-logout other sessions; SessionsModal in profile with 2 tabs (active/history); IP masking (144.***.***.228); device/browser/OS parsing from user-agent; force logout button per active session (not current); try/catch on logout logging; session object stores ip/userAgent for active session display; 7 new i18n keys × 3 languages
@@ -103,7 +104,7 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - `server/routes/financial.ts` - Financial routes (fund plans, investments, deposits, withdrawals) + Zod validation
 - `server/routes/admin.ts` - Admin routes (user management, deposit/withdrawal approval, settings, broadcasts, promo codes, stajyor)
 - `server/routes/system.ts` - System routes (notifications, push subscriptions, download-app)
-- `server/lib/helpers.ts` (327 lines) - Shared utilities (auth/validation middleware, rate limiters, password hashing, multer configs, notifications, webpush, Zod schemas)
+- `server/lib/helpers.ts` (~440 lines) - Shared utilities (auth/validation middleware, rate limiters, password hashing, multer configs, notifications, webpush, Zod schemas: authSchemas, financialSchemas, adminSchemas, userSchemas, asyncHandler)
 - `server/storage.ts` - Database storage layer (DatabaseStorage class, optimized queries)
 - `server/seed.ts` - Seed data for 11 VIP packages, 40 videos, 4 fund plans
 - `shared/schema.ts` - Drizzle schemas
@@ -113,7 +114,11 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 - `client/src/pages/admin/` - 13 tab components (dashboard, users, deposits, withdrawals, settings, stajyor, broadcasts, promo-codes, etc.)
 - `client/src/pages/profile.tsx` (506 lines) - Profile orchestrator, imports 7 sub-components from profile/
 - `client/src/pages/profile/` - 7 modal components (deposit, withdraw, sessions, payment-methods, financial-history, info-modals, pin-input)
-- `client/src/pages/` - Dashboard, Tasks, Trends, Referral, VIP, Fund, Auth, Help, Promo, Notifications pages
+- `client/src/pages/auth.tsx` (~130 lines) - Auth orchestrator, imports 6 sub-components from auth/
+- `client/src/pages/auth/` - 6 components (slider-captcha, login-form, register-form, reset-password-modal, terms-modal, shared)
+- `client/src/pages/dashboard.tsx` (~360 lines) - Dashboard orchestrator, imports 7 sub-components from dashboard/
+- `client/src/pages/dashboard/` - 7 components (auto-scroll-carousel, hero-section, balance-card, tasks-widget, quick-actions, video-grids, install-app-modal)
+- `client/src/pages/` - Tasks, Trends, Referral, VIP, Fund, Help, Promo, Notifications pages
 - `client/src/lib/i18n.tsx` (186 lines) - I18n provider, hook, server message translation
 - `client/src/lib/locales/` - uz.json, ru.json, en.json (~960 lines each, ~450 keys per language)
 - `client/src/components/` - App layout, celebration modal, language switcher, support widget, theme provider, error boundary

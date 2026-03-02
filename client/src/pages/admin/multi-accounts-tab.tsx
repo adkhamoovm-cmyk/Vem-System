@@ -9,6 +9,23 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 
+interface MultiAccountUser {
+  id: string;
+  phone: string;
+  numericId: string | null;
+  vipLevel: number;
+  balance: string;
+  isBanned: boolean;
+  lastUserAgent: string | null;
+  createdAt: string;
+}
+
+interface MultiAccountGroup {
+  ip: string;
+  count: number;
+  users: MultiAccountUser[];
+}
+
 function parseDevice(ua: string | null): { device: string; browser: string; isMobile: boolean } {
   if (!ua) return { device: "Noma'lum", browser: "Noma'lum", isMobile: false };
   const isMobile = /Mobile|Android|iPhone|iPad/i.test(ua);
@@ -35,7 +52,7 @@ function parseDevice(ua: string | null): { device: string; browser: string; isMo
 export function MultiAccountsTab() {
   const { t, locale } = useI18n();
   const { toast } = useToast();
-  const { data: groups = [], isLoading } = useQuery<any[]>({ queryKey: ["/api/admin/multi-accounts"] });
+  const { data: groups = [], isLoading } = useQuery<MultiAccountGroup[]>({ queryKey: ["/api/admin/multi-accounts"] });
   const [expandedIp, setExpandedIp] = useState<string | null>(null);
 
   const banMutation = useMutation({
@@ -50,7 +67,7 @@ export function MultiAccountsTab() {
     },
   });
 
-  const totalSuspicious = groups.reduce((s: number, g: any) => s + g.count, 0);
+  const totalSuspicious = groups.reduce((s: number, g: MultiAccountGroup) => s + g.count, 0);
 
   return (
     <div className="space-y-3">
@@ -93,7 +110,7 @@ export function MultiAccountsTab() {
         </div>
       )}
 
-      {groups.map((g: any) => (
+      {groups.map((g: MultiAccountGroup) => (
         <div key={g.ip} className="bg-card rounded-xl border border-red-500/20 overflow-hidden">
           <button
             onClick={() => setExpandedIp(expandedIp === g.ip ? null : g.ip)}
@@ -112,7 +129,7 @@ export function MultiAccountsTab() {
 
           {expandedIp === g.ip && (
             <div className="border-t border-border">
-              {(g.users || []).map((user: any) => {
+              {(g.users || []).map((user: MultiAccountUser) => {
                 const { device, browser, isMobile } = parseDevice(user.lastUserAgent);
                 const DeviceIcon = isMobile ? Smartphone : Monitor;
                 return (

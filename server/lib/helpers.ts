@@ -224,6 +224,113 @@ export const financialSchemas = {
     fundPassword: z.string().min(1, "Fond paroli kerak"),
     currency: z.enum(["USDT", "UZS"]).optional(),
   }),
+  createPaymentMethod: z.object({
+    type: z.enum(["bank", "usdt"]),
+    bankName: z.string().optional(),
+    exchangeName: z.string().optional(),
+    cardNumber: z.string().optional(),
+    walletAddress: z.string().optional(),
+    holderName: z.string().optional(),
+    fundPassword: z.string().min(1, "Moliya paroli kerak"),
+  }),
+  createDeposit: z.object({
+    amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Summa musbat bo'lishi kerak")),
+    currency: z.enum(["USDT", "UZS"]),
+    paymentType: z.string().min(1, "To'lov turi kerak"),
+  }),
+};
+
+export const adminSchemas = {
+  banUser: z.object({
+    isBanned: z.boolean(),
+  }),
+  withdrawalBan: z.object({
+    banned: z.boolean(),
+  }),
+  setBalance: z.object({
+    balance: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().min(0, "Balans manfiy bo'lishi mumkin emas")),
+  }),
+  setVip: z.object({
+    level: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(-1).max(10)),
+    dailyLimit: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(0)),
+  }),
+  setPassword: z.object({
+    password: z.string().min(6, "Parol kamida 6 ta belgi").optional(),
+    fundPassword: z.string().length(6, "PIN kod 6 ta raqam bo'lishi kerak").regex(/^\d{6}$/, "PIN faqat raqamlardan iborat").optional(),
+  }),
+  toggleLock: z.object({
+    locked: z.boolean(),
+  }),
+  platformSettings: z.object({
+    withdrawalCommissionPercent: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().min(0).max(100)),
+    minWithdrawalUsdt: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().min(0)),
+    minWithdrawalBank: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().min(0)),
+    withdrawalStartHour: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(0).max(23)),
+    withdrawalEndHour: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(0).max(23)),
+    maxDailyWithdrawals: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(1)),
+    withdrawalEnabled: z.boolean(),
+  }),
+  createBroadcast: z.object({
+    title: z.string().min(1, "Sarlavha majburiy"),
+    message: z.string().min(1, "Xabar majburiy"),
+    type: z.string().optional(),
+  }),
+  createPromoCode: z.object({
+    code: z.string().min(1, "Kod kerak"),
+    amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Miqdor 0 dan katta bo'lishi kerak")),
+    isOneTime: z.boolean(),
+    maxUses: z.number().int().positive().optional().nullable(),
+  }),
+  pushSend: z.object({
+    title: z.string().min(1, "Sarlavha majburiy"),
+    message: z.string().min(1, "Xabar majburiy"),
+    targetUserId: z.string().optional(),
+  }),
+  depositSetting: z.object({
+    id: z.string().optional(),
+    type: z.string().min(1),
+    bankName: z.string().optional().nullable(),
+    cardNumber: z.string().optional().nullable(),
+    holderName: z.string().optional().nullable(),
+    walletAddress: z.string().optional().nullable(),
+    exchangeName: z.string().optional().nullable(),
+    networkType: z.string().optional().nullable(),
+    isActive: z.boolean().optional(),
+  }),
+  verifyPin: z.object({
+    pin: z.string().min(1, "PIN kerak"),
+  }),
+  changePin: z.object({
+    currentPin: z.string().min(1, "Joriy PIN kerak"),
+    newPin: z.string().length(6, "Yangi PIN 6 ta raqam").regex(/^\d{6}$/, "Faqat raqamlar"),
+  }),
+};
+
+export const userSchemas = {
+  completeTask: z.object({
+    videoId: z.string().optional(),
+    youtubeVideoId: z.string().optional(),
+  }),
+  purchaseVip: z.object({
+    packageId: z.string().min(1, "Paket ID kerak"),
+  }),
+  changePassword: z.object({
+    currentPassword: z.string().min(1, "Joriy parol kerak"),
+    newPassword: z.string().min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
+  }),
+  changeFundPassword: z.object({
+    currentFundPassword: z.string().min(1, "Joriy moliya paroli kerak"),
+    newFundPassword: z.string().length(6, "Yangi moliya paroli 6 xonali raqam bo'lishi kerak").regex(/^\d{6}$/, "Faqat raqamlar kiritilishi kerak"),
+  }),
+  terminateSession: z.object({
+    sid: z.string().min(1, "Session ID kerak"),
+  }),
+  usePromo: z.object({
+    code: z.string().min(1, "Promokod kiriting"),
+  }),
+  stajyorRequest: z.object({
+    message: z.string().optional(),
+  }),
 };
 
 export { z };
@@ -295,6 +402,11 @@ export const pinRateLimiter = rateLimit({
   keyGenerator: (req: Request) => req.session?.userId || req.ip || "unknown",
   validate: false,
 });
+
+export const asyncHandler = (fn: (req: Request, res: Response, next: NextFunction) => Promise<any>) =>
+  (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
 
 export const apiRateLimiter = rateLimit({
   windowMs: 60 * 1000,

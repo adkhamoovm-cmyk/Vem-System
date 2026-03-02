@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";
 
+interface BroadcastItem {
+  id: string;
+  title: string;
+  message: string;
+  createdAt: string;
+}
+
 export function BroadcastsTab() {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -17,7 +24,7 @@ export function BroadcastsTab() {
   const [pushTarget, setPushTarget] = useState<"all" | "single">("all");
   const [pushUserId, setPushUserId] = useState("");
 
-  const { data: broadcastList = [], isLoading } = useQuery<any[]>({
+  const { data: broadcastList = [], isLoading } = useQuery<BroadcastItem[]>({
     queryKey: ["/api/admin/broadcasts"],
   });
 
@@ -35,12 +42,12 @@ export function BroadcastsTab() {
       setMessage("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/broadcasts"] });
     },
-    onError: (e: any) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
   });
 
   const pushMutation = useMutation({
     mutationFn: async () => {
-      const body: any = { title: pushTitle, message: pushMessage };
+      const body: { title: string; message: string; targetUserId?: string } = { title: pushTitle, message: pushMessage };
       if (pushTarget === "single" && pushUserId.trim()) {
         body.targetUserId = pushUserId.trim();
       }
@@ -53,7 +60,7 @@ export function BroadcastsTab() {
       setPushMessage("");
       setPushUserId("");
     },
-    onError: (e: any) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -64,7 +71,7 @@ export function BroadcastsTab() {
       toast({ title: t("admin.broadcastDeleted") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/broadcasts"] });
     },
-    onError: (e: any) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
   });
 
   return (
@@ -198,7 +205,7 @@ export function BroadcastsTab() {
           <div className="p-8 text-center text-muted-foreground text-sm">{t("admin.noMessagesSent")}</div>
         ) : (
           <div className="divide-y divide-border">
-            {broadcastList.map((b: any) => (
+            {broadcastList.map((b: BroadcastItem) => (
               <div key={b.id} className="p-4 flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
                   <Megaphone className="w-3.5 h-3.5 text-primary" />

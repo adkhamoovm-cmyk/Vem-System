@@ -3,9 +3,18 @@ import { Trophy } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 
+interface TopReferrer {
+  referrerId: string;
+  phone: string | null;
+  numericId: string | null;
+  vipLevel: number;
+  count: number;
+  totalCommission: string;
+}
+
 export function TopReferrersTab() {
   const { t, locale } = useI18n();
-  const { data: topReferrers = [] } = useQuery<any[]>({ queryKey: ["/api/admin/top-referrers"] });
+  const { data: topReferrers = [] } = useQuery<TopReferrer[]>({ queryKey: ["/api/admin/top-referrers"] });
 
   return (
     <div className="space-y-3">
@@ -18,7 +27,7 @@ export function TopReferrersTab() {
       {topReferrers.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t("admin.noDataFound")}</p>}
 
       <div className="space-y-2">
-        {topReferrers.map((r: any, i: number) => (
+        {topReferrers.map((r: TopReferrer, i: number) => (
           <div key={r.referrerId} className="bg-card rounded-xl p-3 border border-border flex items-center gap-3">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${i < 3 ? "bg-[#FFB300]/20 text-[#FFB300]" : "bg-muted text-muted-foreground"}`}>
               {i + 1}

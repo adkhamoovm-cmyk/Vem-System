@@ -9,6 +9,20 @@ import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 import CelebrationModal from "@/components/celebration-modal";
 
+interface CelebrationData {
+  type: "vip_activated" | "vip_extended" | "fund_invested";
+  packageName?: string;
+  level?: number;
+  dailyTasks?: number;
+  durationDays?: number;
+  perVideoReward?: string;
+  refundAmount?: string | null;
+  planName?: string;
+  amount?: number;
+  dailyProfit?: string;
+  dailyRoi?: string;
+}
+
 function VipLevelIcon({ level, size = 22 }: { level: number; size?: number }) {
   const s = size;
   
@@ -203,7 +217,7 @@ export default function VipPage() {
   const { toast } = useToast();
   const [stajyorMsg, setStajyorMsg] = useState("");
   const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
-  const [celebrationData, setCelebrationData] = useState<any>(null);
+  const [celebrationData, setCelebrationData] = useState<CelebrationData | null>(null);
 
   const { data: packages, isLoading } = useQuery<VipPackage[]>({
     queryKey: ["/api/vip-packages"],
@@ -224,7 +238,7 @@ export default function VipPage() {
       const res = await apiRequest("POST", "/api/vip/purchase", { packageId });
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { message: string; celebration?: CelebrationData }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
       if (data.celebration) {
@@ -243,7 +257,7 @@ export default function VipPage() {
       const res = await apiRequest("POST", "/api/stajyor/request", { message: stajyorMsg || t("vip.defaultStajyorMessage") });
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { message: string }) => {
       queryClient.invalidateQueries({ queryKey: ["/api/stajyor/status"] });
       setStajyorMsg("");
       toast({ title: t("common.success"), description: translateServerMessage(data.message) });

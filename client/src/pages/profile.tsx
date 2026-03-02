@@ -12,6 +12,7 @@ import {
   GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap, BellRing,
   Monitor
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { Button } from "@/components/ui/button";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, BalanceHistory } from "@shared/schema";
@@ -135,7 +136,7 @@ export default function ProfilePage() {
     }
   };
 
-  const vipIconMap: Record<number, any> = {
+  const vipIconMap: Record<number, LucideIcon> = {
     0: GraduationCap, 1: Star, 2: Star, 3: Star, 4: Flame,
     5: Gem, 6: Crown, 7: Trophy, 8: Rocket, 9: Zap, 10: Globe,
   };

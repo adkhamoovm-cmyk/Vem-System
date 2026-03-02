@@ -9,6 +9,12 @@ import { Link } from "wouter";
 import type { User } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 
+interface PromoHistoryItem {
+  code: string;
+  amount: string;
+  usedAt: string | null;
+}
+
 export default function PromoPage() {
   const { toast } = useToast();
   const { t, translateServerMessage } = useI18n();
@@ -20,7 +26,7 @@ export default function PromoPage() {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
-  const { data: history = [] } = useQuery<any[]>({
+  const { data: history = [] } = useQuery<PromoHistoryItem[]>({
     queryKey: ["/api/promo/history"],
   });
 
@@ -29,14 +35,14 @@ export default function PromoPage() {
       const res = await apiRequest("POST", "/api/promo/use", { code: promoCode });
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { message: string; amount: string }) => {
       setLastResult({ success: true, message: translateServerMessage(data.message), amount: data.amount });
       setCode("");
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/promo/history"] });
       toast({ title: t("common.success"), description: translateServerMessage(data.message) });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       setLastResult({ success: false, message: translateServerMessage(error.message) });
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
     },
@@ -128,7 +134,7 @@ export default function PromoPage() {
               <h3 className="text-foreground font-bold text-sm">{t("promo.usedCodes")}</h3>
             </div>
             <div className="divide-y divide-border">
-              {history.map((item: any, i: number) => (
+              {history.map((item: PromoHistoryItem, i: number) => (
                 <div key={i} className="px-4 py-3 flex items-center justify-between" data-testid={`promo-history-${i}`}>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">

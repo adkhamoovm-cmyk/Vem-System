@@ -37,7 +37,7 @@ export function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; 
       });
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { message: string }) => {
       toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       queryClient.invalidateQueries({ queryKey: ["/api/payment-methods"] });
       onClose();

@@ -8,6 +8,13 @@ import { Input } from "@/components/ui/input";
 import type { PromoCode } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 
+interface PromoUsage {
+  userId: string;
+  userPhone: string | null;
+  amount: string;
+  usedAt: string | null;
+}
+
 export function PromoCodesTab() {
   const { t, translateServerMessage } = useI18n();
   const { toast } = useToast();
@@ -18,7 +25,7 @@ export function PromoCodesTab() {
   const [viewUsagesId, setViewUsagesId] = useState<string | null>(null);
 
   const { data: promoCodes = [] } = useQuery<PromoCode[]>({ queryKey: ["/api/admin/promo-codes"] });
-  const { data: usages = [] } = useQuery<any[]>({
+  const { data: usages = [] } = useQuery<PromoUsage[]>({
     queryKey: ["/api/admin/promo-codes", viewUsagesId, "usages"],
     queryFn: async () => {
       if (!viewUsagesId) return [];
@@ -43,7 +50,7 @@ export function PromoCodesTab() {
       setNewCode(""); setNewAmount(""); setMaxUses("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/promo-codes"] });
     },
-    onError: (e: any) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
+    onError: (e: Error) => toast({ title: t("common.error"), description: translateServerMessage(e.message), variant: "destructive" }),
   });
 
   const deactivateMutation = useMutation({
@@ -180,7 +187,7 @@ export function PromoCodesTab() {
                     <p className="text-muted-foreground text-xs text-center py-3">{t("admin.noUsersUsed")}</p>
                   ) : (
                     <div className="divide-y divide-border">
-                      {usages.map((u: any, i: number) => (
+                      {usages.map((u: PromoUsage, i: number) => (
                         <div key={i} className="px-3 py-2 flex items-center justify-between text-xs">
                           <span className="text-foreground">{u.userPhone || u.userId}</span>
                           <div className="flex items-center gap-2">

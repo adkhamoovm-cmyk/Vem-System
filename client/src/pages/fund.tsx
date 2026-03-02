@@ -8,6 +8,25 @@ import type { User, FundPlan, Investment } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import CelebrationModal from "@/components/celebration-modal";
 
+interface CelebrationData {
+  type: "vip_activated" | "vip_extended" | "fund_invested";
+  packageName?: string;
+  level?: number;
+  dailyTasks?: number;
+  durationDays?: number;
+  perVideoReward?: string;
+  refundAmount?: string | null;
+  planName?: string;
+  amount?: number;
+  dailyProfit?: string;
+  dailyRoi?: string;
+}
+
+interface InvestResponse {
+  message: string;
+  celebration?: CelebrationData;
+}
+
 const planIcons: Record<string, typeof Sprout> = {
   F1: Sprout, F2: Gem, F3: Trophy, F4: Infinity,
 };
@@ -29,7 +48,7 @@ export default function FundPage() {
   const [amount, setAmount] = useState("");
   const [pin, setPin] = useState("");
   const [showWarning, setShowWarning] = useState(false);
-  const [celebrationData, setCelebrationData] = useState<any>(null);
+  const [celebrationData, setCelebrationData] = useState<CelebrationData | null>(null);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -53,7 +72,7 @@ export default function FundPage() {
       }
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: InvestResponse) => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/investments"] });
       queryClient.invalidateQueries({ queryKey: ["/api/balance-history"] });
@@ -199,7 +218,7 @@ export default function FundPage() {
             {t("fund.activeInvestments")}
           </h2>
           <div className="space-y-3">
-            {activeInvestments.map((inv: any) => {
+            {activeInvestments.map((inv: Investment & { daysLeft?: number; totalEarned?: number; daysPassed?: number; maxDays?: number }) => {
               const plan = plans?.find(p => p.id === inv.fundPlanId);
               const colors = planColors[plan?.name || "F1"] || planColors.F1;
               const daysLeft = inv.daysLeft != null ? inv.daysLeft : (inv.endDate
@@ -415,7 +434,7 @@ export default function FundPage() {
                 <div className="bg-card rounded-xl p-3 space-y-1.5 mt-2 border border-border/50">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("fund.currentPlan")}</span>
-                    <span className="font-bold text-foreground">{(activeInvestments[0] as any).planName}</span>
+                    <span className="font-bold text-foreground">{activeInvestments[0].planName}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">{t("fund.amount")}</span>

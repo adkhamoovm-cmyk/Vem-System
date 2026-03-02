@@ -204,7 +204,7 @@ export function ChangePasswordModal({ open, onClose }: { open: boolean; onClose:
       });
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { message: string }) => {
       toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       onClose(false);
       setCurrentPwd("");
@@ -267,7 +267,7 @@ export function ChangeFundPasswordModal({ open, onClose }: { open: boolean; onCl
       });
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { message: string }) => {
       toast({ title: t("common.success"), description: translateServerMessage(data.message) });
       onClose(false);
       setCurrentFundPwd("");

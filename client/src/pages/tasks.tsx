@@ -66,7 +66,7 @@ function VideoPlayerModal({
       const res = await apiRequest("POST", "/api/tasks/complete", { youtubeVideoId: videoId });
       return res.json();
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: { reward: string; message: string }) => {
       setCompleted(true);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       toast({

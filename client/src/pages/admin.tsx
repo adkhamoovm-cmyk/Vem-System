@@ -4,6 +4,7 @@ import {
   Users, ArrowDownCircle, ArrowUpCircle, Settings, Crown,
   Shield, AlertTriangle, Trophy, UserPlus, Activity, Megaphone, Mail
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, StajyorRequest } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { type Tab, AdminPinGate } from "./admin/shared";
@@ -55,7 +56,7 @@ export default function AdminPage() {
   });
   const pendingStajyor = stajyorRequests.filter(r => r.status === "pending").length;
 
-  const techTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
+  const techTabs: { id: Tab; label: string; icon: LucideIcon; badge?: number }[] = [
     { id: "dashboard", label: t("admin.dashboard"), icon: Activity },
     { id: "stajyor", label: t("admin.stajyor"), icon: UserPlus, badge: pendingStajyor || undefined },
     { id: "users", label: t("admin.users"), icon: Users, badge: allUsers.length },
@@ -66,7 +67,7 @@ export default function AdminPage() {
     { id: "promo", label: t("admin.promoCodes"), icon: Mail },
     { id: "broadcasts", label: t("admin.broadcasting"), icon: Megaphone },
   ];
-  const financeTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
+  const financeTabs: { id: Tab; label: string; icon: LucideIcon; badge?: number }[] = [
     { id: "deposits", label: t("admin.deposits"), icon: ArrowDownCircle, badge: pendingDeposits || undefined },
     { id: "withdrawals", label: t("admin.withdrawals"), icon: ArrowUpCircle, badge: pendingWithdrawals || undefined },
   ];
