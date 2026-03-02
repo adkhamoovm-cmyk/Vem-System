@@ -122,7 +122,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">
           <div className="flex items-center gap-1">
-            <img src={vemLogo} alt="VEM" loading="eager" className="h-16 object-contain" style={{filter: "drop-shadow(0px 2px 8px rgba(79, 107, 255, 0.35))"}} />
+            <img src={vemLogo} alt="VEM" loading="eager" className="h-16 object-contain" style={{filter: "drop-shadow(0px 2px 8px rgba(79, 107, 255, 0.35)) contrast(1.05) brightness(1.02)"}} />
           </div>
 
           <div className="flex items-center gap-1">

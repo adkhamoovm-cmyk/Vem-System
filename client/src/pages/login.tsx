@@ -214,7 +214,7 @@ export default function LoginPage() {
         <div className="text-center mb-10">
           <div className="relative inline-block">
             <div className="absolute -inset-4 bg-primary/10 rounded-full blur-2xl opacity-60" />
-            <img src={vemLogo} alt="VEM" className="pro-logo h-20 mx-auto relative" />
+            <img src={vemLogo} alt="VEM" className="pro-logo h-20 mx-auto relative" style={{imageRendering: "auto", filter: "contrast(1.05) brightness(1.02)"}} />
           </div>
           <p className="text-muted-foreground mt-3 text-sm font-medium tracking-wide">{t("auth.welcome")}</p>
         </div>
