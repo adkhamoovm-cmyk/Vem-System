@@ -43,6 +43,8 @@ waitForPort = 5000
 [userenv.shared]
 TZ = "Asia/Tashkent"
 ADMIN_PIN = "077077"
+VAPID_PUBLIC_KEY = "BAMd-m12r5bERTzv7nbj57Q2AfSljYvBv2MqYir1OuZYpYoYnic-QIrNZu65QN9jpbad2h7f4VXYGk4yptplL6A"
+VAPID_PRIVATE_KEY = "FBigRMwTD8ks9QJjfLqGdpTZ5vtLMp45GjGkzCxMOIg"
 
 [agent]
 expertMode = true

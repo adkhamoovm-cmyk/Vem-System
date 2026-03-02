@@ -10,6 +10,34 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import rateLimit from "express-rate-limit";
+import webpush from "web-push";
+
+const vapidPublic = process.env.VAPID_PUBLIC_KEY || "";
+const vapidPrivate = process.env.VAPID_PRIVATE_KEY || "";
+if (vapidPublic && vapidPrivate) {
+  webpush.setVapidDetails("mailto:admin@vem.uz", vapidPublic, vapidPrivate);
+}
+
+async function sendNotification(userId: string, type: string, title: string, message: string) {
+  try {
+    await storage.createNotification({ userId, type, title, message });
+    const subs = await storage.getUserPushSubscriptions(userId);
+    for (const sub of subs) {
+      try {
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title, body: message, url: "/notifications" })
+        );
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await storage.deletePushSubscription(userId, sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("sendNotification error:", e);
+  }
+}
 
 const scryptAsync = promisify(scrypt);
 
@@ -692,6 +720,7 @@ function showGuide(browser) {
       await storage.updateUserTotalEarnings(userId, rewardStr);
       await storage.updateUserDailyTasks(userId, dailyCompleted + 1, today);
       await storage.addBalanceHistory({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
+      sendNotification(userId, "task_reward", "Vazifa bajarildi!", `+${rewardStr} USDT qo'shildi`);
 
       res.json({ reward: rewardStr, message: "Vazifa bajarildi!" });
     } catch (error: any) {
@@ -774,6 +803,7 @@ function showGuide(browser) {
       await storage.setUserVipExpiry(userId, expiresAt);
       await storage.setUserVipPurchaseInfo(userId, new Date(), String(pkg.price));
       await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-effectiveCost), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)${refundAmount > 0 ? ` | Qaytim: ${refundAmount.toFixed(2)} USDT` : ""}` });
+      sendNotification(userId, "system", `${pkg.name} paketi faollashtirildi`, `${pkg.dailyTasks} ta kunlik vazifa, ${pkg.durationDays} kun`);
 
       if (user.referredBy && !isExtension) {
         const vipPrice = Number(pkg.price);
@@ -781,18 +811,21 @@ function showGuide(browser) {
         await storage.updateUserBalance(user.referredBy, l1Commission);
         await storage.addReferralCommission(user.referredBy, userId, 1, l1Commission);
         await storage.addBalanceHistory({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi — ${pkg.name} sotib oldi (${user.phone})` });
+        sendNotification(user.referredBy, "referral_bonus", "Referal komissiya", `+${l1Commission} USDT (1-daraja)`);
         const l1Referrer = await storage.getUser(user.referredBy);
         if (l1Referrer?.referredBy) {
           const l2Commission = (vipPrice * 0.03).toFixed(2);
           await storage.updateUserBalance(l1Referrer.referredBy, l2Commission);
           await storage.addReferralCommission(l1Referrer.referredBy, userId, 2, l2Commission);
           await storage.addBalanceHistory({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+          sendNotification(l1Referrer.referredBy, "referral_bonus", "Referal komissiya", `+${l2Commission} USDT (2-daraja)`);
           const l2Referrer = await storage.getUser(l1Referrer.referredBy);
           if (l2Referrer?.referredBy) {
             const l3Commission = (vipPrice * 0.01).toFixed(2);
             await storage.updateUserBalance(l2Referrer.referredBy, l3Commission);
             await storage.addReferralCommission(l2Referrer.referredBy, userId, 3, l3Commission);
             await storage.addBalanceHistory({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+            sendNotification(l2Referrer.referredBy, "referral_bonus", "Referal komissiya", `+${l3Commission} USDT (3-daraja)`);
           }
         }
       }
@@ -1444,6 +1477,7 @@ function showGuide(browser) {
       await storage.updateUserBalance(deposit.userId, amountInUSDT);
       await storage.updateUserTotalDeposit(deposit.userId, amountInUSDT);
       await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "approved", amountInUSDT);
+      sendNotification(deposit.userId, "deposit_confirmed", "Depozit tasdiqlandi", `+${amountInUSDT} USDT balansga qo'shildi`);
       res.json({ message: "Depozit tasdiqlandi va balansga qo'shildi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1492,6 +1526,7 @@ function showGuide(browser) {
       if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar tasdiqlanishi mumkin" });
       await storage.updateWithdrawalStatus(withdrawal.id, "approved");
       await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "approved");
+      sendNotification(withdrawal.userId, "withdrawal_done", "Pul yechish tasdiqlandi", `${withdrawal.netAmount} USDT muvaffaqiyatli yechildi`);
       res.json({ message: "Yechish tasdiqlandi" });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -1908,6 +1943,76 @@ function showGuide(browser) {
     try {
       await storage.deletePromoCode(req.params.id as string);
       res.json({ message: "Promokod o'chirildi" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/notifications", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.session as any).userId;
+      const list = await storage.getUserNotifications(userId, 50);
+      res.json(list);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/notifications/unread-count", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.session as any).userId;
+      const count = await storage.getUnreadNotificationCount(userId);
+      res.json({ count });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/notifications/:id/read", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.session as any).userId;
+      await storage.markNotificationRead(req.params.id, userId);
+      res.json({ ok: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/notifications/read-all", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.session as any).userId;
+      await storage.markAllNotificationsRead(userId);
+      res.json({ ok: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/push/vapid-key", (_req: Request, res: Response) => {
+    res.json({ publicKey: vapidPublic });
+  });
+
+  app.post("/api/push/subscribe", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.session as any).userId;
+      const { endpoint, keys } = req.body;
+      if (!endpoint || !keys?.p256dh || !keys?.auth) {
+        return res.status(400).json({ message: "Invalid subscription" });
+      }
+      await storage.savePushSubscription({ userId, endpoint, p256dh: keys.p256dh, auth: keys.auth });
+      res.json({ ok: true });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/push/unsubscribe", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.session as any).userId;
+      const { endpoint } = req.body;
+      if (!endpoint) return res.status(400).json({ message: "Endpoint required" });
+      await storage.deletePushSubscription(userId, endpoint);
+      res.json({ ok: true });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

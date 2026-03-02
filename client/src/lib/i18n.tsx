@@ -1016,6 +1016,32 @@ const translations: Record<Locale, any> = {
       minDeposit: "Minimal depozit: ${value}",
       unknownError: "Xatolik yuz berdi. Qaytadan urinib ko'ring.",
     },
+    notifications: {
+      title: "Bildirishnomalar",
+      markAllRead: "Barchasini o'qilgan deb belgilash",
+      empty: "Bildirishnomalar yo'q",
+      unread: "O'qilmagan",
+      type: {
+        task_reward: "Vazifa mukofoti",
+        vip_expiry: "VIP muddati",
+        referral_bonus: "Referal bonus",
+        deposit_confirmed: "Depozit tasdiqlandi",
+        withdrawal_done: "Yechish bajarildi",
+        system: "Tizim xabari",
+        broadcast: "Umumiy xabar",
+      },
+      push: {
+        enable: "Push bildirishnomalarni yoqish",
+        disable: "Push bildirishnomalarni o'chirish",
+        prompt: "Muhim yangilanishlardan xabardor bo'lish uchun push bildirishnomalarni yoqing",
+      },
+      timeAgo: {
+        now: "Hozir",
+        minutes: "{count} daqiqa oldin",
+        hours: "{count} soat oldin",
+        days: "{count} kun oldin",
+      },
+    },
   },
 
   ru: {
@@ -1853,6 +1879,32 @@ const translations: Record<Locale, any> = {
       minDeposit: "Минимальный депозит: ${value}",
       unknownError: "Произошла ошибка. Попробуйте снова.",
     },
+    notifications: {
+      title: "Уведомления",
+      markAllRead: "Отметить все как прочитанные",
+      empty: "Нет уведомлений",
+      unread: "Непрочитанные",
+      type: {
+        task_reward: "Награда за задание",
+        vip_expiry: "Срок VIP",
+        referral_bonus: "Реферальный бонус",
+        deposit_confirmed: "Депозит подтверждён",
+        withdrawal_done: "Вывод выполнен",
+        system: "Системное сообщение",
+        broadcast: "Общее сообщение",
+      },
+      push: {
+        enable: "Включить push-уведомления",
+        disable: "Отключить push-уведомления",
+        prompt: "Включите push-уведомления, чтобы быть в курсе важных обновлений",
+      },
+      timeAgo: {
+        now: "Сейчас",
+        minutes: "{count} мин. назад",
+        hours: "{count} ч. назад",
+        days: "{count} дн. назад",
+      },
+    },
   },
 
   en: {
@@ -2689,6 +2741,32 @@ const translations: Record<Locale, any> = {
       promoAmountAdded: "{value} USDT has been credited to your account!",
       minDeposit: "Minimum deposit: ${value}",
       unknownError: "An error occurred. Please try again.",
+    },
+    notifications: {
+      title: "Notifications",
+      markAllRead: "Mark all as read",
+      empty: "No notifications",
+      unread: "Unread",
+      type: {
+        task_reward: "Task reward",
+        vip_expiry: "VIP expiry",
+        referral_bonus: "Referral bonus",
+        deposit_confirmed: "Deposit confirmed",
+        withdrawal_done: "Withdrawal completed",
+        system: "System message",
+        broadcast: "Broadcast",
+      },
+      push: {
+        enable: "Enable push notifications",
+        disable: "Disable push notifications",
+        prompt: "Enable push notifications to stay updated on important events",
+      },
+      timeAgo: {
+        now: "Just now",
+        minutes: "{count} min ago",
+        hours: "{count} hr ago",
+        days: "{count} days ago",
+      },
     },
   },
 };

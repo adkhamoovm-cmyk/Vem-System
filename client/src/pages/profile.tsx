@@ -9,8 +9,9 @@ import {
   Phone, CreditCard, Headphones, ScrollText, Settings,
   ArrowDownCircle, ArrowUpCircle, Upload, CheckCircle, Clock, X, Building, Globe,
   History, TrendingUp, Banknote, Eye, EyeOff, Landmark, RotateCcw,
-  GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap
+  GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap, BellRing
 } from "lucide-react";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -1090,6 +1091,7 @@ export default function ProfilePage() {
   const [showChangeFundPwd, setShowChangeFundPwd] = useState(false);
   const [currentFundPwd, setCurrentFundPwd] = useState("");
   const [newFundPwd, setNewFundPwd] = useState("");
+  const { isSupported: pushSupported, isSubscribed: pushSubscribed, isLoading: pushLoading, subscribe: pushSubscribe, unsubscribe: pushUnsubscribe } = usePushNotifications();
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -1480,6 +1482,39 @@ export default function ProfilePage() {
             )}
           </div>
         </div>
+
+        {pushSupported && (
+          <div className="bg-card/60 backdrop-blur-2xl rounded-2xl border border-border p-4 mb-4" data-testid="section-push-notifications">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <BellRing className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{t("notifications.push.enable")}</p>
+                  <p className="text-xs text-muted-foreground">{t("notifications.push.prompt")}</p>
+                </div>
+              </div>
+              <button
+                onClick={async () => {
+                  if (pushSubscribed) {
+                    await pushUnsubscribe();
+                  } else {
+                    const ok = await pushSubscribe();
+                    if (!ok) {
+                      toast({ title: t("common.error"), description: "Push notification permission denied", variant: "destructive" });
+                    }
+                  }
+                }}
+                disabled={pushLoading}
+                className={`relative w-12 h-7 rounded-full transition-all duration-200 ${pushSubscribed ? "bg-primary" : "bg-muted"}`}
+                data-testid="toggle-push-notifications"
+              >
+                <span className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow-md transition-all duration-200 ${pushSubscribed ? "left-5.5" : "left-0.5"}`} />
+              </button>
+            </div>
+          </div>
+        )}
 
         <Button
           onClick={() => logoutMutation.mutate()}

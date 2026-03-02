@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
-import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut, Sun, Moon, Megaphone, X, ChevronRight } from "lucide-react";
+import { Home, Flame, PlayCircle, Users, User as UserIcon, LogOut, Sun, Moon, Megaphone, X, ChevronRight, Bell } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -95,6 +95,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
+  const { data: unreadData } = useQuery<{ count: number }>({
+    queryKey: ["/api/notifications/unread-count"],
+    refetchInterval: 30000,
+  });
+  const unreadCount = unreadData?.count ?? 0;
+
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await apiRequest("POST", "/api/auth/logout");
@@ -121,6 +127,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-1">
             <LanguageSwitcher compact />
+            <Link href="/notifications">
+              <button
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all relative"
+                data-testid="button-notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+            </Link>
             <button
               onClick={toggleTheme}
               className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"

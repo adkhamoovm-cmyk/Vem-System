@@ -1,7 +1,9 @@
 import { eq, and, sql, desc, gte, sum } from "drizzle-orm";
 import { db } from "./db";
-import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages, platformSettings, broadcasts, broadcastReads } from "@shared/schema";
-import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage, PlatformSetting, Broadcast, InsertBroadcast } from "@shared/schema";
+import { users, vipPackages, videos, taskHistory, referrals, fundPlans, investments, paymentMethods, depositRequests, withdrawalRequests, depositSettings, stajyorRequests, balanceHistory, promoCodes, promoCodeUsages, platformSettings, broadcasts, broadcastReads, notifications, pushSubscriptions } from "@shared/schema";
+import type { User, InsertUser, VipPackage, Video, TaskHistory, Referral, FundPlan, Investment, PaymentMethod, DepositRequest, WithdrawalRequest, DepositSetting, StajyorRequest, BalanceHistory, PromoCode, PromoCodeUsage, PlatformSetting, Broadcast, InsertBroadcast, Notification, InsertNotification, InsertPushSubscription } from "@shared/schema";
+
+export type PushSubscriptionRecord = typeof pushSubscriptions.$inferSelect;
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -100,6 +102,14 @@ export interface IStorage {
   deleteBroadcast(id: string): Promise<void>;
   getUnreadBroadcasts(userId: string): Promise<Broadcast[]>;
   markBroadcastRead(broadcastId: string, userId: string): Promise<void>;
+  createNotification(data: InsertNotification): Promise<Notification>;
+  getUserNotifications(userId: string, limit?: number): Promise<Notification[]>;
+  getUnreadNotificationCount(userId: string): Promise<number>;
+  markNotificationRead(id: string, userId: string): Promise<void>;
+  markAllNotificationsRead(userId: string): Promise<void>;
+  savePushSubscription(data: InsertPushSubscription): Promise<PushSubscriptionRecord>;
+  deletePushSubscription(userId: string, endpoint: string): Promise<void>;
+  getUserPushSubscriptions(userId: string): Promise<PushSubscriptionRecord[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -661,6 +671,53 @@ export class DatabaseStorage implements IStorage {
     await db.insert(broadcastReads)
       .values({ broadcastId, userId })
       .onConflictDoNothing();
+  }
+
+  async createNotification(data: InsertNotification): Promise<Notification> {
+    const [n] = await db.insert(notifications).values(data).returning();
+    return n;
+  }
+
+  async getUserNotifications(userId: string, limit = 50): Promise<Notification[]> {
+    return db.select().from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt))
+      .limit(limit);
+  }
+
+  async getUnreadNotificationCount(userId: string): Promise<number> {
+    const [result] = await db.select({ count: sql<number>`count(*)::int` })
+      .from(notifications)
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+    return result?.count ?? 0;
+  }
+
+  async markNotificationRead(id: string, userId: string): Promise<void> {
+    await db.update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
+  }
+
+  async markAllNotificationsRead(userId: string): Promise<void> {
+    await db.update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+  }
+
+  async savePushSubscription(data: InsertPushSubscription): Promise<PushSubscriptionRecord> {
+    await db.delete(pushSubscriptions)
+      .where(and(eq(pushSubscriptions.userId, data.userId), eq(pushSubscriptions.endpoint, data.endpoint)));
+    const [sub] = await db.insert(pushSubscriptions).values(data).returning();
+    return sub;
+  }
+
+  async deletePushSubscription(userId: string, endpoint: string): Promise<void> {
+    await db.delete(pushSubscriptions)
+      .where(and(eq(pushSubscriptions.userId, userId), eq(pushSubscriptions.endpoint, endpoint)));
+  }
+
+  async getUserPushSubscriptions(userId: string): Promise<PushSubscriptionRecord[]> {
+    return db.select().from(pushSubscriptions).where(eq(pushSubscriptions.userId, userId));
   }
 }
 
