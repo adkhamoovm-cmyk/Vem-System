@@ -1496,7 +1496,7 @@ function showGuide(browser) {
           invitedBy = { id: referrer.id, phone: referrer.phone, numericId: referrer.numericId };
         }
       }
-      const { password: _, fundPassword: _fp, plainPassword: _pp, plainFundPassword: _pfp, ...safeUser } = user;
+      const { password: _, fundPassword: _fp, ...safeUser } = user;
       res.json({
         user: safeUser,
         invitedBy,

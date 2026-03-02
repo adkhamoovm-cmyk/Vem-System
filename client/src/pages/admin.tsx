@@ -91,7 +91,7 @@ function UserDetailModal({ userId, open, onClose }: { userId: string | null; ope
 
   const vipMutation = useMutation({
     mutationFn: async () => {
-      const limits: Record<number, number> = { 0: 3, 1: 8, 2: 10, 3: 15, 4: 20, 5: 25, 6: 30, 7: 40, 8: 50, 9: 65, 10: 80 };
+      const limits: Record<number, number> = { 0: 3, 1: 5, 2: 6, 3: 10, 4: 14, 5: 18, 6: 20, 7: 25, 8: 30, 9: 40, 10: 50 };
       await apiRequest("POST", `/api/admin/users/${userId}/vip`, { level: newVipLevel, dailyLimit: limits[newVipLevel] || 3 });
     },
     onSuccess: () => {
@@ -850,10 +850,10 @@ function WithdrawalSettingsPanel() {
             </div>
             <div>
               <p className={`text-sm font-bold ${withdrawalEnabled ? "text-emerald-500" : "text-red-500"}`}>
-                {withdrawalEnabled ? "Yechish YOQILGAN" : "Yechish O'CHIRILGAN"}
+                {withdrawalEnabled ? t("admin.withdrawalEnabled") : t("admin.withdrawalDisabled")}
               </p>
               <p className="text-muted-foreground text-[11px]">
-                {withdrawalEnabled ? "Barcha foydalanuvchilar yechish qila oladi" : "Hech kim yechish qila olmaydi"}
+                {withdrawalEnabled ? t("admin.withdrawalEnabledDesc") : t("admin.withdrawalDisabledDesc")}
               </p>
             </div>
           </div>
@@ -867,7 +867,7 @@ function WithdrawalSettingsPanel() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Percent className="w-3 h-3" /> Komissiya foizi (%)
+              <Percent className="w-3 h-3" /> {t("admin.commissionPercent")}
             </label>
             <div className="relative">
               <Input
@@ -882,12 +882,12 @@ function WithdrawalSettingsPanel() {
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">%</span>
             </div>
-            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.withdrawalCommissionPercent}%</p>
+            <p className="text-[10px] text-muted-foreground">{t("admin.currentValue")}: {settings?.withdrawalCommissionPercent}%</p>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <DollarSign className="w-3 h-3" /> Kunlik max yechish soni
+              <DollarSign className="w-3 h-3" /> {t("admin.maxDailyWithdrawals")}
             </label>
             <Input
               type="number"
@@ -898,14 +898,14 @@ function WithdrawalSettingsPanel() {
               className="bg-muted border-border text-foreground h-10 text-sm"
               data-testid="input-max-daily-withdrawals"
             />
-            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.maxDailyWithdrawals} marta/kun</p>
+            <p className="text-[10px] text-muted-foreground">{t("admin.currentValue")}: {settings?.maxDailyWithdrawals} {t("admin.perDay")}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <Globe className="w-3 h-3 text-yellow-500" /> Minimal USDT yechish
+              <Globe className="w-3 h-3 text-yellow-500" /> {t("admin.minUsdtWithdrawal")}
             </label>
             <div className="relative">
               <Input
@@ -919,12 +919,12 @@ function WithdrawalSettingsPanel() {
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">USDT</span>
             </div>
-            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.minWithdrawalUsdt} USDT</p>
+            <p className="text-[10px] text-muted-foreground">{t("admin.currentValue")}: {settings?.minWithdrawalUsdt} USDT</p>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-              <CreditCard className="w-3 h-3 text-blue-500" /> Minimal Bank yechish
+              <CreditCard className="w-3 h-3 text-blue-500" /> {t("admin.minBankWithdrawal")}
             </label>
             <div className="relative">
               <Input
@@ -938,17 +938,17 @@ function WithdrawalSettingsPanel() {
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs font-bold">USDT</span>
             </div>
-            <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.minWithdrawalBank} USDT</p>
+            <p className="text-[10px] text-muted-foreground">{t("admin.currentValue")}: {settings?.minWithdrawalBank} USDT</p>
           </div>
         </div>
 
         <div className="space-y-1.5">
           <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-            <Clock className="w-3 h-3" /> Yechish ish vaqti (soat, UTC+5)
+            <Clock className="w-3 h-3" /> {t("admin.withdrawalWorkHours")}
           </label>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <p className="text-[10px] text-muted-foreground">Boshlanish soati</p>
+              <p className="text-[10px] text-muted-foreground">{t("admin.startHour")}</p>
               <Input
                 type="number"
                 min="0"
@@ -960,7 +960,7 @@ function WithdrawalSettingsPanel() {
               />
             </div>
             <div className="space-y-1">
-              <p className="text-[10px] text-muted-foreground">Tugash soati</p>
+              <p className="text-[10px] text-muted-foreground">{t("admin.endHour")}</p>
               <Input
                 type="number"
                 min="0"
@@ -972,11 +972,11 @@ function WithdrawalSettingsPanel() {
               />
             </div>
           </div>
-          <p className="text-[10px] text-muted-foreground">Hozirgi: {settings?.withdrawalStartHour}:00 — {settings?.withdrawalEndHour}:00</p>
+          <p className="text-[10px] text-muted-foreground">{t("admin.currentValue")}: {settings?.withdrawalStartHour}:00 — {settings?.withdrawalEndHour}:00</p>
         </div>
 
         <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-[11px] text-amber-600 dark:text-amber-400">
-          <strong>Eslatma:</strong> O'zgarishlar darhol kuchga kiradi. Foydalanuvchilar keyingi yechish so'rovida yangi sozlamalarni ko'radi.
+          {t("admin.settingsNote")}
         </div>
 
         <Button
@@ -1810,12 +1810,12 @@ function BroadcastsTab() {
       await apiRequest("POST", "/api/admin/broadcasts", { title, message });
     },
     onSuccess: () => {
-      toast({ title: "Xabar yuborildi (push bilan)" });
+      toast({ title: t("admin.broadcastSentWithPush") });
       setTitle("");
       setMessage("");
       queryClient.invalidateQueries({ queryKey: ["/api/admin/broadcasts"] });
     },
-    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+    onError: (e: any) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
   });
 
   const pushMutation = useMutation({
@@ -1828,12 +1828,12 @@ function BroadcastsTab() {
     },
     onSuccess: async (res) => {
       const data = await res.json();
-      toast({ title: `Push yuborildi — ${data.count} ta foydalanuvchiga` });
+      toast({ title: t("admin.pushSent").replace("{count}", String(data.count)) });
       setPushTitle("");
       setPushMessage("");
       setPushUserId("");
     },
-    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+    onError: (e: any) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
   });
 
   const deleteMutation = useMutation({
@@ -1841,10 +1841,10 @@ function BroadcastsTab() {
       await apiRequest("DELETE", `/api/admin/broadcasts/${id}`);
     },
     onSuccess: () => {
-      toast({ title: "O'chirildi" });
+      toast({ title: t("admin.broadcastDeleted") });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/broadcasts"] });
     },
-    onError: (e: any) => toast({ title: "Xato", description: e.message, variant: "destructive" }),
+    onError: (e: any) => toast({ title: t("admin.broadcastError"), description: e.message, variant: "destructive" }),
   });
 
   return (
@@ -1861,21 +1861,21 @@ function BroadcastsTab() {
         </div>
         <div className="p-4 space-y-3">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sarlavha</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.broadcastTitle")}</label>
             <Input
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="Xabar sarlavhasi..."
+              placeholder={t("admin.broadcastTitlePlaceholder")}
               className="bg-muted border-border text-foreground h-10 text-sm"
               data-testid="input-broadcast-title"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Xabar matni</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.broadcastMessageLabel")}</label>
             <textarea
               value={message}
               onChange={e => setMessage(e.target.value)}
-              placeholder="Xabar matnini kiriting..."
+              placeholder={t("admin.broadcastMessagePlaceholder")}
               rows={4}
               className="w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-primary"
               data-testid="input-broadcast-message"
@@ -1887,7 +1887,7 @@ function BroadcastsTab() {
             className="w-full bg-primary text-primary-foreground font-bold rounded-xl h-10 text-sm"
             data-testid="button-send-broadcast"
           >
-            {createMutation.isPending ? "Yuborilmoqda..." : "Barcha foydalanuvchilarga yuborish"}
+            {createMutation.isPending ? t("admin.broadcastSending") : t("admin.broadcastSendAll")}
           </Button>
         </div>
       </div>
@@ -1898,9 +1898,9 @@ function BroadcastsTab() {
             <BellRing className="w-4 h-4 text-emerald-500" />
           </div>
           <div>
-            <h3 className="text-foreground font-bold text-sm">Push Notification yuborish</h3>
+            <h3 className="text-foreground font-bold text-sm">{t("admin.pushNotificationSend")}</h3>
             <p className="text-muted-foreground text-[11px]">
-              {pushStats?.subscribedUsers ?? 0} ta foydalanuvchi push yoqgan
+              {t("admin.pushSubscribedCount").replace("{count}", String(pushStats?.subscribedUsers ?? 0))}
             </p>
           </div>
         </div>
@@ -1911,44 +1911,44 @@ function BroadcastsTab() {
               className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${pushTarget === "all" ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}
               data-testid="button-push-target-all"
             >
-              Barchaga
+              {t("admin.pushTargetAll")}
             </button>
             <button
               onClick={() => setPushTarget("single")}
               className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${pushTarget === "single" ? "bg-emerald-500 text-white" : "bg-muted text-muted-foreground"}`}
               data-testid="button-push-target-single"
             >
-              Bitta foydalanuvchiga
+              {t("admin.pushTargetSingle")}
             </button>
           </div>
           {pushTarget === "single" && (
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Foydalanuvchi ID</label>
+              <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.pushUserIdLabel")}</label>
               <Input
                 value={pushUserId}
                 onChange={e => setPushUserId(e.target.value)}
-                placeholder="User ID kiriting..."
+                placeholder={t("admin.pushUserIdPlaceholder")}
                 className="bg-muted border-border text-foreground h-10 text-sm"
                 data-testid="input-push-user-id"
               />
             </div>
           )}
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Sarlavha</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.broadcastTitle")}</label>
             <Input
               value={pushTitle}
               onChange={e => setPushTitle(e.target.value)}
-              placeholder="Push xabar sarlavhasi..."
+              placeholder={t("admin.pushTitlePlaceholder")}
               className="bg-muted border-border text-foreground h-10 text-sm"
               data-testid="input-push-title"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Xabar matni</label>
+            <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{t("admin.broadcastMessageLabel")}</label>
             <textarea
               value={pushMessage}
               onChange={e => setPushMessage(e.target.value)}
-              placeholder="Push xabar matnini kiriting..."
+              placeholder={t("admin.pushMessagePlaceholder")}
               rows={3}
               className="w-full bg-muted border border-border text-foreground rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:border-emerald-500"
               data-testid="input-push-message"
@@ -1961,21 +1961,21 @@ function BroadcastsTab() {
             data-testid="button-send-push"
           >
             <Send className="w-4 h-4" />
-            {pushMutation.isPending ? "Yuborilmoqda..." : pushTarget === "all" ? "Barchaga push yuborish" : "Foydalanuvchiga push yuborish"}
+            {pushMutation.isPending ? t("admin.pushSending") : pushTarget === "all" ? t("admin.pushSendAll") : t("admin.pushSendSingle")}
           </Button>
         </div>
       </div>
 
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         <div className="p-4 border-b border-border">
-          <h3 className="text-foreground font-bold text-sm">Yuborilgan Xabarlar ({broadcastList.length})</h3>
+          <h3 className="text-foreground font-bold text-sm">{t("admin.sentMessages")} ({broadcastList.length})</h3>
         </div>
         {isLoading ? (
           <div className="flex items-center justify-center h-20">
             <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : broadcastList.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground text-sm">Hali xabar yuborilmagan</div>
+          <div className="p-8 text-center text-muted-foreground text-sm">{t("admin.noMessagesSent")}</div>
         ) : (
           <div className="divide-y divide-border">
             {broadcastList.map((b: any) => (
@@ -2195,7 +2195,7 @@ export default function AdminPage() {
     { id: "settings", label: t("admin.settings"), icon: Settings },
     { id: "vip-manage", label: t("admin.vipManagement"), icon: Crown },
     { id: "promo", label: t("admin.promoCodes"), icon: Mail },
-    { id: "broadcasts", label: "Broadcasting", icon: Megaphone },
+    { id: "broadcasts", label: t("admin.broadcasting"), icon: Megaphone },
   ];
   const financeTabs: { id: Tab; label: string; icon: any; badge?: number }[] = [
     { id: "deposits", label: t("admin.deposits"), icon: ArrowDownCircle, badge: pendingDeposits || undefined },
