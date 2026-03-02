@@ -866,8 +866,8 @@ function showGuide(browser) {
         }
       }
 
-      const effectiveCost = Math.max(0, Number(pkg.price) - refundAmount);
-      if (Number(user.balance) < effectiveCost) {
+      const fullPrice = Number(pkg.price);
+      if (Number(user.balance) + refundAmount < fullPrice) {
         return res.status(400).json({ message: "Balans yetarli emas" });
       }
 
@@ -885,14 +885,15 @@ function showGuide(browser) {
       }
 
       if (refundAmount > 0) {
-        await storage.addBalanceHistory({ userId, type: "commission", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (depozitning oqlanmagan qismi)` });
+        await storage.updateUserBalance(userId, String(refundAmount));
+        await storage.addBalanceHistory({ userId, type: "refund", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (oqlanmagan qism qaytarildi)` });
       }
 
-      await storage.updateUserBalance(userId, String(-effectiveCost));
+      await storage.updateUserBalance(userId, String(-fullPrice));
       await storage.updateUserVipLevel(userId, pkg.level, pkg.dailyTasks);
       await storage.setUserVipExpiry(userId, expiresAt);
       await storage.setUserVipPurchaseInfo(userId, new Date(), String(pkg.price));
-      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-effectiveCost), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)${refundAmount > 0 ? ` | Qaytim: ${refundAmount.toFixed(2)} USDT` : ""}` });
+      await storage.addBalanceHistory({ userId, type: "vip_purchase", amount: String(-fullPrice), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)` });
       sendNotification(userId, "system", "vip_activated", "vip_activated", { name: pkg.name, tasks: String(pkg.dailyTasks), days: String(pkg.durationDays) });
 
       if (user.referredBy && !isExtension) {
@@ -921,7 +922,7 @@ function showGuide(browser) {
       }
 
       const totalCalendarDays = Math.ceil((expiresAt.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24));
-      const refundMsg = refundAmount > 0 ? ` Oldingi VIP dan ${refundAmount.toFixed(2)} USDT qaytarildi.` : "";
+      const refundMsg = refundAmount > 0 ? ` Oqlanmagan ${refundAmount.toFixed(2)} USDT balansga qaytarildi.` : "";
       res.json({ 
         message: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "faollashtirildi"}! ${pkg.durationDays} ish kuni (${totalCalendarDays} kun) ${isExtension ? "qo'shildi" : "davomida amal qiladi"}.${refundMsg}`,
         celebration: {
