@@ -1493,63 +1493,79 @@ export default function ProfilePage() {
         </Button>
 
         <Dialog open={showSecretInfo} onOpenChange={setShowSecretInfo}>
-          <DialogContent className="bg-card border-border max-w-lg rounded-2xl" aria-describedby="secret-info-desc">
-            <DialogHeader>
-              <DialogTitle className="text-foreground flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />
-                {t("profile.secretInfo")}
-              </DialogTitle>
-              <p id="secret-info-desc" className="text-muted-foreground text-sm">{t("profile.secretInfoDesc")}</p>
-            </DialogHeader>
-            <div className="space-y-3 pt-2">
-              <div className="bg-card rounded-xl p-3.5">
-                <div className="flex items-center gap-2 mb-1">
-                  <Phone className="w-3.5 h-3.5 text-primary" />
+          <DialogContent className="bg-background border-border max-w-lg rounded-2xl p-0 overflow-hidden" aria-describedby="secret-info-desc">
+            <div className="bg-gradient-to-br from-primary/15 via-blue-600/10 to-transparent px-5 pt-5 pb-4 border-b border-border">
+              <DialogHeader>
+                <DialogTitle className="text-foreground flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="block">{t("profile.secretInfo")}</span>
+                    <p id="secret-info-desc" className="text-muted-foreground text-xs font-normal mt-0.5">{t("profile.secretInfoDesc")}</p>
+                  </div>
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            <div className="px-5 pb-5 pt-3 space-y-2.5">
+              <div className="bg-card/80 rounded-xl p-3.5 border border-border/50">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Phone className="w-3.5 h-3.5 text-primary" />
+                  </div>
                   <span className="text-muted-foreground text-xs">{t("profile.phoneNumber")}</span>
                 </div>
-                <p className="text-foreground font-medium text-sm" data-testid="text-secret-phone">{user.phone}</p>
+                <p className="text-foreground font-semibold text-[15px] pl-9" data-testid="text-secret-phone">{user.phone}</p>
               </div>
-              <div className="bg-card rounded-xl p-3.5">
-                <div className="flex items-center gap-2 mb-1">
-                  <Shield className="w-3.5 h-3.5 text-[#4CAF50]" />
+              <div className="bg-card/80 rounded-xl p-3.5 border border-border/50">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                    <Shield className="w-3.5 h-3.5 text-emerald-500" />
+                  </div>
                   <span className="text-muted-foreground text-xs">{t("profile.referralCode")}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-foreground font-medium text-sm font-mono" data-testid="text-secret-referral">{user.referralCode}</p>
+                <div className="flex items-center justify-between pl-9">
+                  <p className="text-foreground font-semibold text-[15px] font-mono tracking-wider" data-testid="text-secret-referral">{user.referralCode}</p>
                   <button
                     onClick={() => { navigator.clipboard.writeText(user.referralCode); toast({ title: t("common.success") }); }}
-                    className="text-primary"
+                    className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors active:scale-95"
                     data-testid="button-copy-referral-secret"
                   >
-                    <Copy className="w-4 h-4" />
+                    <Copy className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
-              <div className="bg-card rounded-xl p-3.5">
-                <div className="flex items-center gap-2 mb-1">
-                  <CreditCard className="w-3.5 h-3.5 text-[#3b6db5]" />
+              <div className="bg-card/80 rounded-xl p-3.5 border border-border/50">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <CreditCard className="w-3.5 h-3.5 text-blue-500" />
+                  </div>
                   <span className="text-muted-foreground text-xs">{t("profile.idNumber")}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-foreground font-medium text-sm font-mono" data-testid="text-secret-id">{user.numericId || "—"}</p>
-                  <button onClick={copyId} className="text-primary" data-testid="button-copy-id-secret">
-                    <Copy className="w-4 h-4" />
+                <div className="flex items-center justify-between pl-9">
+                  <p className="text-foreground font-semibold text-[15px] font-mono tracking-wide" data-testid="text-secret-id">{user.numericId || "—"}</p>
+                  <button onClick={copyId} className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors active:scale-95" data-testid="button-copy-id-secret">
+                    <Copy className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
-              <div className="bg-card rounded-xl p-3.5">
-                <div className="flex items-center gap-2 mb-1">
-                  <Lock className="w-3.5 h-3.5 text-primary" />
+              <div className="bg-card/80 rounded-xl p-3.5 border border-border/50">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <Lock className="w-3.5 h-3.5 text-purple-500" />
+                  </div>
                   <span className="text-muted-foreground text-xs">{t("profile.financialPassword")}</span>
                 </div>
-                <p className="text-foreground font-medium text-sm" data-testid="text-secret-fund-password">••••••</p>
+                <p className="text-foreground font-semibold text-[15px] pl-9 tracking-[0.25em]" data-testid="text-secret-fund-password">••••••</p>
               </div>
-              <div className="bg-card rounded-xl p-3.5">
-                <div className="flex items-center gap-2 mb-1">
-                  <Wallet className="w-3.5 h-3.5 text-[#FFB300]" />
+              <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl p-3.5 border border-amber-500/20">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                    <Wallet className="w-3.5 h-3.5 text-amber-500" />
+                  </div>
                   <span className="text-muted-foreground text-xs">{t("profile.totalBalance")}</span>
                 </div>
-                <p className="text-foreground font-bold text-sm" data-testid="text-secret-balance">{balance.toFixed(2)} USDT</p>
+                <p className="text-foreground font-bold text-lg pl-9" data-testid="text-secret-balance">{balance.toFixed(2)} <span className="text-emerald-500 text-sm">USDT</span></p>
               </div>
             </div>
           </DialogContent>
