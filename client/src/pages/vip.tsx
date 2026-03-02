@@ -104,7 +104,7 @@ export default function VipPage() {
 
   return (
     <div className="px-4 py-4 space-y-4 pb-24">
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20" data-testid="vip-header">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20 animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }} data-testid="vip-header">
         <div className="absolute inset-0 opacity-[0.07]">
           <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
           <div className="absolute bottom-0 left-0 w-28 h-28 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
@@ -251,7 +251,7 @@ export default function VipPage() {
             return (
               <div
                 key={pkg.id}
-                className={`bg-card rounded-2xl border overflow-hidden shadow-sm transition-all ${
+                className={`bg-card rounded-2xl border overflow-hidden shadow-sm transition-all card-hover animate-fade-up ${
                   isCurrentLevel
                     ? `ring-1 ${colors.border} shadow-md ${colors.glow}`
                     : isLocked

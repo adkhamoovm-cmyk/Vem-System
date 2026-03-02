@@ -1244,7 +1244,7 @@ export default function ProfilePage() {
 
   return (
     <div className="p-4 space-y-4 pb-24">
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 pt-6">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 pt-6 animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-white rounded-full translate-y-1/3 -translate-x-1/4" />
@@ -1326,8 +1326,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-2.5">
-          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group">
+        <div className="grid grid-cols-3 gap-2.5 animate-fade-up" style={{ animationDelay: "0.15s", animationFillMode: "both" }}>
+          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group card-hover">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-2">
@@ -1337,7 +1337,7 @@ export default function ProfilePage() {
               <p className="text-muted-foreground text-[10px] mt-0.5 leading-tight">{t("profile.depositedUsdt")}</p>
             </div>
           </div>
-          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group">
+          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group card-hover">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 flex items-center justify-center mx-auto mb-2">
@@ -1347,7 +1347,7 @@ export default function ProfilePage() {
               <p className="text-muted-foreground text-[10px] mt-0.5 leading-tight">{t("profile.earningsUsdt")}</p>
             </div>
           </div>
-          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group">
+          <div className="bg-card rounded-2xl p-3.5 border border-border text-center relative overflow-hidden group card-hover">
             <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500/20 to-violet-500/5 flex items-center justify-center mx-auto mb-2">
@@ -1359,7 +1359,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 animate-fade-up" style={{ animationDelay: "0.25s", animationFillMode: "both" }}>
           <h3 className="text-foreground font-bold text-sm px-1">{t("profile.myServices")}</h3>
           <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
             <button onClick={() => setShowFinanceService(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-finance-service">
@@ -1421,7 +1421,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 animate-fade-up" style={{ animationDelay: "0.35s", animationFillMode: "both" }}>
           <h3 className="text-foreground font-bold text-sm px-1">{t("profile.secretInfo")}</h3>
           <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
             <button onClick={() => setShowSecretInfo(true)} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-secret-info">
@@ -1456,7 +1456,7 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 animate-fade-up" style={{ animationDelay: "0.45s", animationFillMode: "both" }}>
           <div className="bg-card rounded-2xl border border-border overflow-hidden divide-y divide-border">
             <button onClick={() => navigate("/help")} className="flex items-center justify-between px-4 py-3.5 w-full text-left hover:bg-muted/50 transition-colors group" data-testid="menu-support">
               <div className="flex items-center gap-3">

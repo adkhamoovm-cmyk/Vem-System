@@ -3,7 +3,7 @@ import { getQueryFn } from "@/lib/queryClient";
 import { Link } from "wouter";
 import { Progress } from "@/components/ui/progress";
 import { Wallet, TrendingUp, PlayCircle, Users, Crown, Star, DollarSign, Zap, Film, Tv, ChevronRight, Play, ArrowRightLeft, HelpCircle, GraduationCap, Gem, Flame, Trophy, Rocket, Globe, Mail, Download, X, Share, MoreVertical, PlusSquare, Coffee, AlertTriangle, CalendarDays, CheckCheck, ArrowUpRight, ArrowDownRight, Sprout, RefreshCw, Clock } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import type { User, Video, VipPackage, Investment, BalanceHistory } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
@@ -270,7 +270,7 @@ export default function DashboardPage() {
             </div>
           )}
 
-          <div className="relative rounded-2xl overflow-hidden shadow-lg">
+          <div className="relative rounded-2xl overflow-hidden shadow-lg animate-fade-up" style={{ animationDelay: "0.1s", animationFillMode: "both" }}>
             <div className="bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-4 pb-3 relative">
               <div className="absolute inset-0 opacity-[0.07]">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
@@ -339,7 +339,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm">
+          <div className="bg-card rounded-2xl p-4 border border-border/50 shadow-sm animate-fade-up" style={{ animationDelay: "0.2s", animationFillMode: "both" }}>
             {new Date().getDay() === 0 ? (
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-amber-500/15 to-orange-500/10 rounded-xl flex items-center justify-center shrink-0">
@@ -388,7 +388,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide animate-fade-up" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', animationDelay: "0.3s", animationFillMode: "both" }}>
             {quickActions.map((item) => (
               item.href === "#install-app" ? (
                 <button key={item.href} onClick={() => {
@@ -418,7 +418,7 @@ export default function DashboardPage() {
           </div>
 
           {tvShows.length > 0 && (
-            <div>
+            <div className="animate-fade-up" style={{ animationDelay: "0.4s", animationFillMode: "both" }}>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
                   <div className="w-6 h-6 bg-red-500/10 rounded-md flex items-center justify-center">
@@ -458,7 +458,7 @@ export default function DashboardPage() {
           )}
 
           {trailers.length > 0 && (
-            <div>
+            <div className="animate-fade-up" style={{ animationDelay: "0.5s", animationFillMode: "both" }}>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-foreground font-bold text-sm flex items-center gap-2">
                   <div className="w-6 h-6 bg-primary/10 rounded-md flex items-center justify-center">
