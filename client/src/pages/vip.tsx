@@ -3,16 +3,171 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, Star, Award, Gem, Zap, Flame, Rocket, Target, Sparkles, Medal, ChevronRight, ArrowUpRight } from "lucide-react";
+import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, ChevronRight, ArrowUpRight } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 import CelebrationModal from "@/components/celebration-modal";
 
-const levelIcons: Record<number, typeof Shield> = {
-  0: Shield, 1: Medal, 2: Star, 3: Award, 4: Gem, 5: Zap,
-  6: Flame, 7: Rocket, 8: Target, 9: Sparkles, 10: Crown,
-};
+function VipLevelIcon({ level, size = 22 }: { level: number; size?: number }) {
+  const s = size;
+  
+  const icons: Record<number, JSX.Element> = {
+    0: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g0" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#B0BEC5" />
+            <stop offset="100%" stopColor="#78909C" />
+          </linearGradient>
+        </defs>
+        <path d="M8 5v14l11-7L8 5z" fill="url(#g0)" />
+      </svg>
+    ),
+    1: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#D4A574" />
+            <stop offset="100%" stopColor="#cd7f32" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2L9 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5 22 9h-7L12 2z" fill="url(#g1)" opacity="0.3" />
+        <path d="M12 6l-2 4.5H5.5l3.5 2.8-1.3 4.2L12 14.5l4.3 3L15 13.3l3.5-2.8H14L12 6z" fill="url(#g1)" />
+      </svg>
+    ),
+    2: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g2" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#B8C6D0" />
+            <stop offset="100%" stopColor="#90A4AE" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="url(#g2)" opacity="0.25" />
+        <path d="M12 4.5L5 8.5v4.5c0 4.3 3 8.3 7 9.5 4-1.2 7-5.2 7-9.5V8.5L12 4.5z" fill="none" stroke="url(#g2)" strokeWidth="1.5" />
+        <path d="M12 8l1.5 3 3.5.5-2.5 2.5.5 3.5L12 15.5 8.5 17.5l.5-3.5L6.5 11.5l3.5-.5L12 8z" fill="url(#g2)" />
+      </svg>
+    ),
+    3: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g3" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#FFD54F" />
+            <stop offset="100%" stopColor="#FF8F00" />
+          </linearGradient>
+        </defs>
+        <path d="M5 16h14v3H5z" fill="url(#g3)" opacity="0.3" rx="1" />
+        <path d="M7 19h10v2H7z" fill="url(#g3)" opacity="0.5" rx="1" />
+        <path d="M6 16l1-8 3 3 2-6 2 6 3-3 1 8H6z" fill="url(#g3)" />
+        <circle cx="12" cy="11" r="1.5" fill="#fff" opacity="0.4" />
+      </svg>
+    ),
+    4: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g4" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#64B5F6" />
+            <stop offset="100%" stopColor="#1976D2" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2l4 8 4-2-2 7H6L4 8l4 2 4-8z" fill="url(#g4)" opacity="0.3" />
+        <path d="M12 4l3 6 3.5-1.5L16.5 15h-9L5.5 8.5 9 10l3-6z" fill="url(#g4)" />
+        <path d="M12 10l1.2 2.4 2.8.4-2 2 .5 2.8L12 16l-2.5 1.6.5-2.8-2-2 2.8-.4L12 10z" fill="#fff" opacity="0.35" />
+      </svg>
+    ),
+    5: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g5" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#CE93D8" />
+            <stop offset="100%" stopColor="#7B1FA2" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2L3 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" fill="url(#g5)" opacity="0.2" />
+        <path d="M12 3.5L4.5 7.8v5.2c0 4.8 3.3 9.3 7.5 10.5 4.2-1.2 7.5-5.7 7.5-10.5V7.8L12 3.5z" fill="url(#g5)" />
+        <path d="M13 7h-2l-.5 4.5L8 10l1 2.5-2.5 1L9 15l-1 2.5L10.5 16l1 3h1l1-3 2.5 1.5L15 15l2.5-1.5-2.5-1L16 10l-2.5 1.5L13 7z" fill="#fff" opacity="0.4" />
+      </svg>
+    ),
+    6: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g6" x1="12" y1="2" x2="12" y2="22">
+            <stop offset="0%" stopColor="#FF6F60" />
+            <stop offset="100%" stopColor="#B71C1C" />
+          </linearGradient>
+        </defs>
+        <path d="M12 23c-4.5 0-8-3.5-8-8.5C4 9 12 1 12 1s8 8 8 13.5c0 5-3.5 8.5-8 8.5z" fill="url(#g6)" opacity="0.2" />
+        <path d="M12 21c-3.3 0-6-2.7-6-6.5C6 10 12 3 12 3s6 7 6 11.5c0 3.8-2.7 6.5-6 6.5z" fill="url(#g6)" />
+        <path d="M12 18c-1.7 0-3-1.3-3-3.2C9 12.5 12 9 12 9s3 3.5 3 5.8c0 1.9-1.3 3.2-3 3.2z" fill="#fff" opacity="0.3" />
+      </svg>
+    ),
+    7: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g7" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#4DB6AC" />
+            <stop offset="100%" stopColor="#004D40" />
+          </linearGradient>
+        </defs>
+        <polygon points="12,1 22,6.5 22,17.5 12,23 2,17.5 2,6.5" fill="url(#g7)" opacity="0.2" />
+        <polygon points="12,3 20,7.5 20,16.5 12,21 4,16.5 4,7.5" fill="url(#g7)" />
+        <polygon points="12,7 16,9.5 16,14.5 12,17 8,14.5 8,9.5" fill="#fff" opacity="0.2" />
+        <circle cx="12" cy="12" r="2" fill="#fff" opacity="0.4" />
+      </svg>
+    ),
+    8: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g8" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#7986CB" />
+            <stop offset="100%" stopColor="#283593" />
+          </linearGradient>
+        </defs>
+        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z" fill="url(#g8)" opacity="0.2" />
+        <path d="M12 4l2.47 5.01L20 9.97l-4 3.9.94 5.49L12 16l-4.94 3.36.94-5.49-4-3.9 5.53-.96L12 4z" fill="url(#g8)" />
+        <circle cx="12" cy="11.5" r="2.5" fill="none" stroke="#fff" strokeWidth="1" opacity="0.5" />
+        <circle cx="12" cy="11.5" r="1" fill="#fff" opacity="0.5" />
+      </svg>
+    ),
+    9: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g9" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#FF8A65" />
+            <stop offset="100%" stopColor="#BF360C" />
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="10" fill="url(#g9)" opacity="0.15" />
+        <circle cx="12" cy="12" r="8" fill="url(#g9)" />
+        <path d="M7 13l2-5 3 2 2-4h0l2 4 3-2-2 5H7z" fill="#fff" opacity="0.5" />
+        <path d="M7 13h10v2.5c0 .8-.7 1.5-1.5 1.5h-7c-.8 0-1.5-.7-1.5-1.5V13z" fill="#fff" opacity="0.25" />
+      </svg>
+    ),
+    10: (
+      <svg width={s} height={s} viewBox="0 0 24 24" fill="none">
+        <defs>
+          <linearGradient id="g10" x1="0" y1="0" x2="24" y2="24">
+            <stop offset="0%" stopColor="#FFE082" />
+            <stop offset="50%" stopColor="#FFD700" />
+            <stop offset="100%" stopColor="#FF8F00" />
+          </linearGradient>
+          <filter id="glow10">
+            <feGaussianBlur stdDeviation="1" result="blur" />
+            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        <circle cx="12" cy="12" r="11" fill="url(#g10)" opacity="0.1" />
+        <path d="M5 14l2-6 3 3 2-7 2 7 3-3 2 6H5z" fill="url(#g10)" filter="url(#glow10)" />
+        <path d="M5 14h14v3c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2v-3z" fill="url(#g10)" opacity="0.7" />
+        <circle cx="12" cy="10" r="1.5" fill="#fff" opacity="0.6" />
+        <path d="M9 6l.5-2M12 4l0-2.5M15 6l-.5-2" stroke="url(#g10)" strokeWidth="1.2" strokeLinecap="round" opacity="0.7" />
+      </svg>
+    ),
+  };
+  
+  return icons[level] || icons[1];
+}
 
 function workDaysToCalendarDays(workDays: number): number {
   let calendarDays = 0;
@@ -282,10 +437,10 @@ export default function VipPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div
-                        className="w-11 h-11 rounded-xl flex items-center justify-center border"
-                        style={{ backgroundColor: colors.bg, borderColor: colors.primary + "20" }}
+                        className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg"
+                        style={{ background: `linear-gradient(135deg, ${colors.primary}20, ${colors.primary}35)`, border: `1px solid ${colors.primary}30` }}
                       >
-                        {(() => { const Icon = levelIcons[pkg.level] || (isLocked ? Lock : Crown); return <Icon className="w-5 h-5" style={{ color: colors.primary }} />; })()}
+                        <VipLevelIcon level={pkg.level} size={22} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
