@@ -199,7 +199,7 @@ export default function LoginPage() {
         }} />
       </div>
 
-      <div className="fixed top-4 right-4 flex items-center gap-2 z-50">
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}
