@@ -162,7 +162,13 @@ function PinInput({ value, onChange, error }: { value: string; onChange: (val: s
           onChange={(e) => handleDigitChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}
-          className={`w-11 h-[52px] text-center text-lg font-bold rounded-xl border-2 bg-card/50 outline-none transition-all duration-200 ${error ? "border-red-400 text-red-500" : digits[i]?.trim() ? "border-primary/60 text-foreground shadow-sm shadow-primary/10" : "border-border/40 text-foreground"} focus:border-primary focus:ring-2 focus:ring-primary/15 focus:shadow-md focus:shadow-primary/10`}
+          className={`w-11 h-[52px] text-center text-lg font-bold rounded-xl border-2 outline-none transition-all duration-200
+            ${error
+              ? "bg-red-500/10 border-red-400 text-red-400 shadow-md shadow-red-500/15"
+              : digits[i]?.trim()
+                ? "bg-primary/10 border-primary/70 text-foreground shadow-lg shadow-primary/20"
+                : "bg-white/[0.07] dark:bg-white/[0.06] border-white/20 dark:border-white/15 text-foreground shadow-md shadow-black/20"}
+            focus:bg-primary/10 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:shadow-lg focus:shadow-primary/20`}
           data-testid={`input-pin-${i}`}
         />
       ))}
