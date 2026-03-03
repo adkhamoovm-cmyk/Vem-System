@@ -1,7 +1,10 @@
 import { AlertCircle } from "lucide-react";
 import { Link } from "wouter";
+import { useI18n } from "@/lib/i18n";
 
 export default function NotFound() {
+  const { t } = useI18n();
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
       <div className="bg-card rounded-xl p-6 border border-border max-w-md w-full text-center space-y-4">
@@ -9,10 +12,10 @@ export default function NotFound() {
           <AlertCircle className="h-7 w-7 text-destructive" />
         </div>
         <h1 className="text-2xl font-bold text-foreground" data-testid="text-404-title">404</h1>
-        <p className="text-muted-foreground text-sm" data-testid="text-404-message">Sahifa topilmadi</p>
+        <p className="text-muted-foreground text-sm" data-testid="text-404-message">{t("common.pageNotFound")}</p>
         <Link href="/dashboard">
           <button className="bg-primary text-primary-foreground px-6 py-2 rounded-lg text-sm font-medium" data-testid="button-go-home">
-            Bosh sahifaga qaytish
+            {t("common.goHome")}
           </button>
         </Link>
       </div>

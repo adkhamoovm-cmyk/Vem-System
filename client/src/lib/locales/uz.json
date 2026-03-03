@@ -1,5 +1,7 @@
 {
   "common": {
+    "pageNotFound": "Sahifa topilmadi",
+    "goHome": "Bosh sahifaga qaytish",
     "error": "Xatolik",
     "success": "Muvaffaqiyatli!",
     "loading": "Yuklanmoqda...",

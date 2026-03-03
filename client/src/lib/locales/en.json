@@ -1,5 +1,7 @@
 {
   "common": {
+    "pageNotFound": "Page not found",
+    "goHome": "Go to home page",
     "error": "Error",
     "success": "Success!",
     "loading": "Loading...",
