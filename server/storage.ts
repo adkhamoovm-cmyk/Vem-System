@@ -433,7 +433,7 @@ export class DatabaseStorage implements IStorage {
       .from(referrals)
       .where(eq(referrals.level, 1))
       .groupBy(referrals.referrerId)
-      .orderBy(desc(sql`count(*)`))
+      .orderBy(desc(sql`COALESCE(SUM(${referrals.commission}::numeric), 0)`))
       .limit(limit);
     return result.map(r => ({
       referrerId: r.referrerId,
