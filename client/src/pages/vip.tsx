@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Shield, ChevronRight, ArrowUpRight } from "lucide-react";
+import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Sparkles, ChevronRight, ArrowUpRight } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
@@ -572,14 +572,13 @@ export default function VipPage() {
         </div>
       </div>
 
-      <div className="bg-primary/5 rounded-2xl p-4 border border-primary/10">
+      <div className="bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-2xl p-4 border border-primary/10">
         <div className="flex items-start gap-2.5">
-          <div className="w-6 h-6 rounded-lg bg-primary/15 flex items-center justify-center shrink-0 mt-0.5">
-            <Shield className="w-3.5 h-3.5 text-primary" />
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-primary/20 to-blue-500/20 flex items-center justify-center shrink-0 mt-0.5">
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
           </div>
           <p className="text-primary/80 text-xs leading-relaxed">
-            <span className="font-bold text-primary">{t("vip.important")}</span>{" "}
-            {t("vip.importantNote")}
+            <span className="font-bold text-primary">{t("vip.importantNote")}</span>
           </p>
         </div>
       </div>
