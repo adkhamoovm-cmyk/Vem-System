@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler } from "../lib/helpers";
-import { users, depositRequests, withdrawalRequests, balanceHistory } from "@shared/schema";
+import { users, depositRequests, withdrawalRequests, balanceHistory, investments } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
 import { db } from "../db";
 import { pool } from "../db";
@@ -527,19 +527,38 @@ export function setupDailyProfits() {
 
         const plan = await storage.getFundPlan(inv.fundPlanId);
         const planName = inv.planName || plan?.name || "Fund";
+        const notificationsToSend: Array<{ userId: string; type: string; titleKey: string; msgKey: string; params: Record<string, string> }> = [];
 
-        await storage.updateUserBalance(inv.userId, inv.dailyProfit);
-        await storage.updateInvestmentLastProfitDate(inv.id, today);
-        await storage.addBalanceHistory({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
-        sendNotification(inv.userId, "task_reward", "fund_profit", "fund_profit", { amount: inv.dailyProfit, name: planName });
+        await db.transaction(async (tx) => {
+          const [lockedInv] = await tx.select({ lastProfitDate: investments.lastProfitDate, status: investments.status })
+            .from(investments).where(eq(investments.id, inv.id)).for("update");
+          if (!lockedInv || lockedInv.lastProfitDate === today || lockedInv.status !== "active") return;
 
-        if (inv.endDate && new Date(inv.endDate) <= new Date()) {
-          await storage.updateInvestmentStatus(inv.id, "completed");
-          if (plan?.returnPrincipal) {
-            await storage.updateUserBalance(inv.userId, inv.investedAmount);
-            await storage.addBalanceHistory({ userId: inv.userId, type: "fund_return", amount: inv.investedAmount, description: `${planName} fond investitsiyasi qaytarildi — ${inv.investedAmount} USDT` });
-            sendNotification(inv.userId, "deposit_confirmed", "fund_returned", "fund_returned", { amount: inv.investedAmount, name: planName });
+          await tx.update(users)
+            .set({ balance: dsql`${users.balance}::numeric + ${inv.dailyProfit}::numeric` })
+            .where(eq(users.id, inv.userId));
+          await tx.update(investments)
+            .set({ lastProfitDate: today })
+            .where(eq(investments.id, inv.id));
+          await tx.insert(balanceHistory).values({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
+          notificationsToSend.push({ userId: inv.userId, type: "task_reward", titleKey: "fund_profit", msgKey: "fund_profit", params: { amount: inv.dailyProfit, name: planName } });
+
+          if (inv.endDate && new Date(inv.endDate) <= new Date()) {
+            await tx.update(investments)
+              .set({ status: "completed" })
+              .where(eq(investments.id, inv.id));
+            if (plan?.returnPrincipal) {
+              await tx.update(users)
+                .set({ balance: dsql`${users.balance}::numeric + ${inv.investedAmount}::numeric` })
+                .where(eq(users.id, inv.userId));
+              await tx.insert(balanceHistory).values({ userId: inv.userId, type: "fund_return", amount: inv.investedAmount, description: `${planName} fond investitsiyasi qaytarildi — ${inv.investedAmount} USDT` });
+              notificationsToSend.push({ userId: inv.userId, type: "deposit_confirmed", titleKey: "fund_returned", msgKey: "fund_returned", params: { amount: inv.investedAmount, name: planName } });
+            }
           }
+        });
+
+        for (const n of notificationsToSend) {
+          sendNotification(n.userId, n.type, n.titleKey, n.msgKey, n.params);
         }
       }
     } catch (error) {

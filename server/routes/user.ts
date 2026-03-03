@@ -148,7 +148,13 @@ router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, asyncHandler(
 
   const notificationsToSend: Array<{ userId: string; type: string; titleKey: string; msgKey: string; params: Record<string, string> }> = [];
 
+  try {
   await db.transaction(async (tx) => {
+    const [lockedUser] = await tx.select({ balance: users.balance }).from(users).where(eq(users.id, userId)).for("update");
+    if (!lockedUser || Number(lockedUser.balance) + refundAmount < fullPrice) {
+      throw new Error("INSUFFICIENT_BALANCE");
+    }
+
     if (refundAmount > 0) {
       await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${String(refundAmount)}::numeric` }).where(eq(users.id, userId));
       await tx.insert(balanceHistory).values({ userId, type: "refund", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (oqlanmagan qism qaytarildi)` });
@@ -189,6 +195,12 @@ router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, asyncHandler(
       }
     }
   });
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
+      return res.status(400).json({ message: "Balans yetarli emas" });
+    }
+    throw err;
+  }
 
   for (const n of notificationsToSend) {
     sendNotification(n.userId, n.type, n.titleKey, n.msgKey, n.params);

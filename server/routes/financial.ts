@@ -1,5 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import { storage } from "../storage";
+import { db } from "../db";
+import { users, balanceHistory as balanceHistoryTable, investments, withdrawalRequests } from "@shared/schema";
+import { eq, sql as dsql } from "drizzle-orm";
 import { requireAuth, withdrawRateLimiter, sendNotification, uploadReceipt, comparePasswords, validateBody, financialSchemas, asyncHandler } from "../lib/helpers";
 
 const router = Router();
@@ -89,25 +92,49 @@ router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, validateBody(f
     endDate.setDate(endDate.getDate() + plan.lockDays);
   }
 
-  await storage.updateUserBalance(userId, String(-investAmount));
   const today = new Date().toISOString().split("T")[0];
-  const investment = await storage.createInvestment({
-    userId,
-    fundPlanId,
-    planName: plan.name,
-    investedAmount: investAmount.toFixed(2),
-    dailyProfit,
-    endDate,
-    lastProfitDate: today,
-  });
-  await storage.addBalanceHistory({ userId, type: "fund_invest", amount: String(-investAmount), description: `${plan.name} fondiga investitsiya` });
+  let investment: typeof investments.$inferSelect;
 
-  await storage.updateUserBalance(userId, dailyProfit);
-  await storage.addBalanceHistory({ userId, type: "fund_profit", amount: dailyProfit, description: `${plan.name} fond daromadi +${dailyProfit} USDT` });
+  try {
+    await db.transaction(async (tx) => {
+      const [lockedUser] = await tx.select({ balance: users.balance }).from(users).where(eq(users.id, userId)).for("update");
+      if (!lockedUser || Number(lockedUser.balance) < investAmount) {
+        throw new Error("INSUFFICIENT_BALANCE");
+      }
+
+      await tx.update(users)
+        .set({ balance: dsql`${users.balance}::numeric - ${String(investAmount)}::numeric` })
+        .where(eq(users.id, userId));
+
+      const [inv] = await tx.insert(investments).values({
+        userId,
+        fundPlanId,
+        planName: plan.name,
+        investedAmount: investAmount.toFixed(2),
+        dailyProfit,
+        endDate,
+        lastProfitDate: today,
+      }).returning();
+      investment = inv;
+
+      await tx.insert(balanceHistoryTable).values({ userId, type: "fund_invest", amount: String(-investAmount), description: `${plan.name} fondiga investitsiya` });
+
+      await tx.update(users)
+        .set({ balance: dsql`${users.balance}::numeric + ${dailyProfit}::numeric` })
+        .where(eq(users.id, userId));
+      await tx.insert(balanceHistoryTable).values({ userId, type: "fund_profit", amount: dailyProfit, description: `${plan.name} fond daromadi +${dailyProfit} USDT` });
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
+      return res.status(400).json({ message: "Balans yetarli emas" });
+    }
+    throw err;
+  }
+
   sendNotification(userId, "system", "fund_invested", "fund_invested", { name: plan.name, amount: String(investAmount) });
 
   res.json({ 
-    investment, 
+    investment: investment!, 
     message: "Investitsiya muvaffaqiyatli amalga oshirildi!",
     celebration: {
       type: "fund_invested",
@@ -293,18 +320,38 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
     ? `BSC (BEP20)${method.walletAddress ? ` — ${method.walletAddress.slice(0, 6)}...${method.walletAddress.slice(-4)}` : ""}`
     : `${method.bankName || "Bank karta"}${method.cardNumber ? ` — ****${method.cardNumber.slice(-4)}` : ""}`;
 
-  await storage.deductUserBalance(userId, numAmount.toFixed(2));
+  let withdrawal: Awaited<ReturnType<typeof storage.createWithdrawalRequest>>;
 
-  const withdrawal = await storage.createWithdrawalRequest({
-    userId,
-    paymentMethodId,
-    amount: numAmount.toFixed(2),
-    commission: commission.toFixed(2),
-    netAmount: netAmount.toFixed(2),
-  });
-  await storage.addBalanceHistory({ userId, type: "withdrawal", amount: String(-numAmount), description: `pending|${methodLabel}|${commission.toFixed(2)}` });
+  try {
+    await db.transaction(async (tx) => {
+      const [lockedUser] = await tx.select({ balance: users.balance }).from(users).where(eq(users.id, userId)).for("update");
+      if (!lockedUser || Number(lockedUser.balance) < numAmount) {
+        throw new Error("INSUFFICIENT_BALANCE");
+      }
 
-  res.json({ withdrawal, message: "Yechish so'rovi yuborildi! Tekshirgandan so'ng amalga oshiriladi." });
+      await tx.update(users)
+        .set({ balance: dsql`${users.balance}::numeric - ${numAmount.toFixed(2)}::numeric` })
+        .where(eq(users.id, userId));
+
+      const [wd] = await tx.insert(withdrawalRequests).values({
+        userId,
+        paymentMethodId,
+        amount: numAmount.toFixed(2),
+        commission: commission.toFixed(2),
+        netAmount: netAmount.toFixed(2),
+      }).returning();
+      withdrawal = wd;
+
+      await tx.insert(balanceHistoryTable).values({ userId, type: "withdrawal", amount: String(-numAmount), description: `pending|${methodLabel}|${commission.toFixed(2)}` });
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
+      return res.status(400).json({ message: "Balansingiz yetarli emas" });
+    }
+    throw err;
+  }
+
+  res.json({ withdrawal: withdrawal!, message: "Yechish so'rovi yuborildi! Tekshirgandan so'ng amalga oshiriladi." });
 }));
 
 router.get("/api/withdrawals", requireAuth, asyncHandler(async (req: Request, res: Response) => {
