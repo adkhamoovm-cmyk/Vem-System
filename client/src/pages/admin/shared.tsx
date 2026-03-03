@@ -107,8 +107,8 @@ export function AdminPinGate({ onVerified }: { onVerified: () => void }) {
           <p className="text-white/50 text-sm mt-2">{t("admin.pinDesc")}</p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-2xl">
-          <div className="flex justify-center gap-3 mb-4">
+        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-5 sm:p-6 border border-white/10 shadow-2xl">
+          <div className="flex justify-center gap-2 sm:gap-3 mb-4">
             {pin.map((digit, i) => (
               <input
                 key={i}
@@ -121,7 +121,7 @@ export function AdminPinGate({ onVerified }: { onVerified: () => void }) {
                 onChange={e => handleChange(i, e.target.value)}
                 onKeyDown={e => handleKeyDown(i, e)}
                 onPaste={i === 0 ? handlePaste : undefined}
-                className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-white/5 text-white outline-none transition-all ${
+                className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-bold rounded-xl border-2 bg-white/5 text-white outline-none transition-all ${
                   error ? "border-red-500" : digit ? "border-primary shadow-sm shadow-primary/20" : "border-white/15"
                 } focus:border-primary focus:shadow-sm focus:shadow-primary/20`}
                 data-testid={`input-admin-pin-${i}`}

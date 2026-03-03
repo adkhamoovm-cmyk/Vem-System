@@ -99,70 +99,74 @@ export default function AdminPage() {
           <div className="absolute top-0 right-0 w-60 h-60 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
           <div className="absolute bottom-0 left-1/4 w-32 h-32 bg-white rounded-full translate-y-1/2" />
         </div>
-        <div className="relative max-w-6xl mx-auto px-4 py-4">
+        <div className="relative max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/10">
-                <Shield className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/10">
+                <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-white font-bold text-lg tracking-tight">{t("admin.title")}</h1>
-                <p className="text-white/40 text-[10px] uppercase tracking-widest">Control Panel</p>
+                <h1 className="text-white font-bold text-base sm:text-lg tracking-tight">{t("admin.title")}</h1>
+                <p className="text-white/40 text-[9px] sm:text-[10px] uppercase tracking-widest">Control Panel</p>
               </div>
             </div>
-            <a href="/dashboard" className="text-white/50 text-xs hover:text-white transition-colors bg-white/5 px-3 py-1.5 rounded-lg border border-white/10" data-testid="link-back-to-site">
+            <a href="/dashboard" className="text-white/50 text-[10px] sm:text-xs hover:text-white transition-colors bg-white/5 px-2.5 sm:px-3 py-1.5 rounded-lg border border-white/10" data-testid="link-back-to-site">
               {t("admin.backToSite")}
             </a>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto p-4">
-        <div className="bg-card rounded-xl border border-border/50 p-3 mb-4 space-y-3">
+      <div className="max-w-6xl mx-auto p-3 sm:p-4">
+        <div className="bg-card rounded-xl border border-border/50 p-2.5 sm:p-3 mb-4 space-y-2.5 sm:space-y-3">
           <div>
-            <p className="text-muted-foreground text-[9px] uppercase tracking-widest mb-2 px-1 font-semibold">{t("admin.techSection")}</p>
-            <div className="flex flex-wrap gap-1.5">
-              {techTabs.map(tb => (
-                <button key={tb.id} onClick={() => setTab(tb.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                    tab === tb.id
-                      ? "bg-gradient-to-r from-primary to-blue-600 text-white shadow-sm shadow-primary/20"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                  data-testid={`tab-${tb.id}`}
-                >
-                  <tb.icon className="w-3.5 h-3.5" />
-                  {tb.label}
-                  {tb.badge !== undefined && tb.badge > 0 && (
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
-                      tab === tb.id ? "bg-white/20 text-white" : "bg-red-500/15 text-red-500"
-                    }`}>{tb.badge}</span>
-                  )}
-                </button>
-              ))}
+            <p className="text-muted-foreground text-[9px] uppercase tracking-widest mb-1.5 sm:mb-2 px-1 font-semibold">{t("admin.techSection")}</p>
+            <div className="overflow-x-auto -mx-1 px-1 pb-1 scrollbar-hide">
+              <div className="flex gap-1.5 min-w-max">
+                {techTabs.map(tb => (
+                  <button key={tb.id} onClick={() => setTab(tb.id)}
+                    className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap transition-all ${
+                      tab === tb.id
+                        ? "bg-gradient-to-r from-primary to-blue-600 text-white shadow-sm shadow-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                    data-testid={`tab-${tb.id}`}
+                  >
+                    <tb.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    {tb.label}
+                    {tb.badge !== undefined && tb.badge > 0 && (
+                      <span className={`ml-0.5 sm:ml-1 px-1 sm:px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold ${
+                        tab === tb.id ? "bg-white/20 text-white" : "bg-red-500/15 text-red-500"
+                      }`}>{tb.badge}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="border-t border-border/50 pt-3">
-            <p className="text-muted-foreground text-[9px] uppercase tracking-widest mb-2 px-1 font-semibold">{t("admin.financeSection")}</p>
-            <div className="flex flex-wrap gap-1.5">
-              {financeTabs.map(tb => (
-                <button key={tb.id} onClick={() => setTab(tb.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
-                    tab === tb.id
-                      ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm shadow-emerald-500/20"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                  data-testid={`tab-${tb.id}`}
-                >
-                  <tb.icon className="w-3.5 h-3.5" />
-                  {tb.label}
-                  {tb.badge !== undefined && tb.badge > 0 && (
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold ${
-                      tab === tb.id ? "bg-white/20 text-white" : "bg-red-500/15 text-red-500"
-                    }`}>{tb.badge}</span>
-                  )}
-                </button>
-              ))}
+          <div className="border-t border-border/50 pt-2.5 sm:pt-3">
+            <p className="text-muted-foreground text-[9px] uppercase tracking-widest mb-1.5 sm:mb-2 px-1 font-semibold">{t("admin.financeSection")}</p>
+            <div className="overflow-x-auto -mx-1 px-1 pb-1 scrollbar-hide">
+              <div className="flex gap-1.5 min-w-max">
+                {financeTabs.map(tb => (
+                  <button key={tb.id} onClick={() => setTab(tb.id)}
+                    className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg text-[11px] sm:text-xs font-medium whitespace-nowrap transition-all ${
+                      tab === tb.id
+                        ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-sm shadow-emerald-500/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                    data-testid={`tab-${tb.id}`}
+                  >
+                    <tb.icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                    {tb.label}
+                    {tb.badge !== undefined && tb.badge > 0 && (
+                      <span className={`ml-0.5 sm:ml-1 px-1 sm:px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold ${
+                        tab === tb.id ? "bg-white/20 text-white" : "bg-red-500/15 text-red-500"
+                      }`}>{tb.badge}</span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
