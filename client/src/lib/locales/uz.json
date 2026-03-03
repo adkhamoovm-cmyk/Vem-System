@@ -7,6 +7,8 @@
     "reload": "Qayta yuklash",
     "contactUs": "Biz bilan bog'laning",
     "hide": "Yopish",
+    "lightMode": "Kunduzgi rejim",
+    "darkMode": "Tungi rejim",
     "next": "Keyingi",
     "confirmNotRobot": "Robot emasligingizni tasdiqlang",
     "pinWarning": "Bu PIN pul yechishda talab qilinadi. Unutmaslik uchun yozib qo'ying!",
@@ -932,7 +934,14 @@
     "vipActivatedWithRefund": "{value} paketi faollashtirildi! Oldingi VIP dan {value3} USDT qaytarildi.",
     "promoAmountAdded": "{value} USDT hisobingizga qo'shildi!",
     "minDeposit": "Minimal depozit: ${value}",
-    "unknownError": "Xatolik yuz berdi. Qaytadan urinib ko'ring."
+    "unknownError": "Xatolik yuz berdi. Qaytadan urinib ko'ring.",
+    "pinWrongAttemptsLeft": "Noto'g'ri PIN-kod. {value} ta urinish qoldi.",
+    "pinJustLocked": "5 marta noto'g'ri PIN kiritildi. {value} daqiqa blokland.",
+    "pinLocked": "PIN-kod blokland. {value} daqiqadan so'ng urinib ko'ring.",
+    "rateLimitFast": "Juda tez so'rov. Biroz kuting.",
+    "rateLimitMinute": "Juda tez so'rov. 1 daqiqa kuting.",
+    "rateLimitAuth": "Juda ko'p urinish. 15 daqiqa kuting.",
+    "rateLimitPin": "Juda ko'p urinish. 5 daqiqa kuting."
   },
   "celebration": {
     "congratulations": "Tabriklaymiz!",

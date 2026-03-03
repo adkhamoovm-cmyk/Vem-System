@@ -292,7 +292,7 @@ export default function TasksPage() {
     setNextVideoId(next);
   };
 
-  if (userLoading || packagesLoading) {
+  if (userLoading || packagesLoading || !vipPackages) {
     return (
       <div className="p-4 flex flex-col gap-4">
         <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-4 shadow-xl shadow-primary/20 animate-pulse">

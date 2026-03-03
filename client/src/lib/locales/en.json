@@ -7,6 +7,8 @@
     "reload": "Reload",
     "contactUs": "Contact Us",
     "hide": "Hide",
+    "lightMode": "Light mode",
+    "darkMode": "Dark mode",
     "next": "Next",
     "confirmNotRobot": "Confirm you are not a robot",
     "pinWarning": "This PIN is required for withdrawals. Make sure to remember it!",
@@ -932,7 +934,14 @@
     "vipActivatedWithRefund": "{value} package activated! Refund from previous VIP: {value3} USDT.",
     "promoAmountAdded": "{value} USDT has been credited to your account!",
     "minDeposit": "Minimum deposit: ${value}",
-    "unknownError": "An error occurred. Please try again."
+    "unknownError": "An error occurred. Please try again.",
+    "pinWrongAttemptsLeft": "Wrong PIN code. {value} attempts remaining.",
+    "pinJustLocked": "PIN entered incorrectly 5 times. Blocked for {value} minutes.",
+    "pinLocked": "PIN is locked. Try again in {value} minutes.",
+    "rateLimitFast": "Too fast. Please wait a moment.",
+    "rateLimitMinute": "Too many requests. Wait 1 minute.",
+    "rateLimitAuth": "Too many attempts. Wait 15 minutes.",
+    "rateLimitPin": "Too many attempts. Wait 5 minutes."
   },
   "celebration": {
     "congratulations": "Congratulations!",

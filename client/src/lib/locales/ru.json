@@ -7,6 +7,8 @@
     "reload": "Перезагрузить",
     "contactUs": "Свяжитесь с нами",
     "hide": "Скрыть",
+    "lightMode": "Светлая тема",
+    "darkMode": "Тёмная тема",
     "next": "Далее",
     "confirmNotRobot": "Подтвердите, что вы не робот",
     "pinWarning": "Этот PIN требуется при выводе средств. Обязательно запомните его!",
@@ -932,7 +934,14 @@
     "vipActivatedWithRefund": "Пакет {value} активирован! Возврат от предыдущего VIP: {value3} USDT.",
     "promoAmountAdded": "{value} USDT зачислено на ваш счёт!",
     "minDeposit": "Минимальный депозит: ${value}",
-    "unknownError": "Произошла ошибка. Попробуйте снова."
+    "unknownError": "Произошла ошибка. Попробуйте снова.",
+    "pinWrongAttemptsLeft": "Неверный PIN-код. Осталось {value} попыток.",
+    "pinJustLocked": "5 неверных попыток PIN. Заблокировано на {value} минут.",
+    "pinLocked": "PIN-код заблокирован. Повторите через {value} минут.",
+    "rateLimitFast": "Слишком быстро. Подождите немного.",
+    "rateLimitMinute": "Слишком много запросов. Подождите 1 минуту.",
+    "rateLimitAuth": "Слишком много попыток. Подождите 15 минут.",
+    "rateLimitPin": "Слишком много попыток. Подождите 5 минут."
   },
   "celebration": {
     "congratulations": "Поздравляем!",

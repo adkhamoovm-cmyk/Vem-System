@@ -176,6 +176,10 @@ const serverMessageMap: Record<string, string> = {
   "Rekvizit saqlandi": "server.requisiteSaved",
   "Rekvizit o'chirildi": "server.requisiteDeleted",
   "Chiqish muvaffaqiyatli": "server.logoutSuccess",
+  "Juda tez so'rov. Biroz kuting.": "server.rateLimitFast",
+  "Juda tez so'rov. 1 daqiqa kuting.": "server.rateLimitMinute",
+  "Juda ko'p urinish. 15 daqiqa kuting.": "server.rateLimitAuth",
+  "Juda ko'p urinish. 5 daqiqa kuting.": "server.rateLimitPin",
 };
 
 const serverMessagePatterns: [RegExp, string][] = [
@@ -183,4 +187,7 @@ const serverMessagePatterns: [RegExp, string][] = [
   [/^(\w+) paketi (uzaytirildi|faollashtirildi)/, "server.vipActivated"],
   [/^(\d+(?:\.\d+)?) USDT hisobingizga qo'shildi/, "server.promoAmountAdded"],
   [/^Minimal depozit: \$(.+)$/, "server.minDeposit"],
+  [/noto'g'ri\. (\d+) ta urinish qoldi\./, "server.pinWrongAttemptsLeft"],
+  [/^5 marta noto'g'ri PIN\. (\d+) daqiqa blokland\.$/, "server.pinJustLocked"],
+  [/blokland\. (\d+) daqiqadan so'ng urinib ko'ring\.$/, "server.pinLocked"],
 ];

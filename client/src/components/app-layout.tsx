@@ -145,7 +145,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={toggleTheme}
               className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
               data-testid="button-theme-toggle"
-              aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
+              aria-label={theme === "dark" ? t("common.lightMode") : t("common.darkMode")}
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
