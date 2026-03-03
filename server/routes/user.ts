@@ -168,28 +168,30 @@ router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, asyncHandler(
 
     notificationsToSend.push({ userId, type: "system", titleKey: "vip_activated", msgKey: "vip_activated", params: { name: pkg.name, tasks: String(pkg.dailyTasks), days: String(pkg.durationDays) } });
 
-    if (user.referredBy && !isExtension) {
+    if (user.referredBy) {
       const vipPrice = Number(pkg.price);
-      const l1Commission = (vipPrice * 0.09).toFixed(2);
+      const commissionMultiplier = isExtension ? 0.5 : 1;
+      const commSuffix = isExtension ? " (qayta xarid 50%)" : "";
+      const l1Commission = (vipPrice * 0.09 * commissionMultiplier).toFixed(2);
       await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${l1Commission}::numeric` }).where(eq(users.id, user.referredBy));
       await tx.update(referrals).set({ commission: dsql`${referrals.commission}::numeric + ${l1Commission}::numeric` }).where(and(eq(referrals.referrerId, user.referredBy), eq(referrals.referredId, userId), eq(referrals.level, 1)));
-      await tx.insert(balanceHistory).values({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi — ${pkg.name} sotib oldi (${user.phone})` });
+      await tx.insert(balanceHistory).values({ userId: user.referredBy, type: "commission", amount: l1Commission, description: `1-daraja referal komissiyasi — ${pkg.name} sotib oldi (${user.phone})${commSuffix}` });
       notificationsToSend.push({ userId: user.referredBy, type: "referral_bonus", titleKey: "referral_commission", msgKey: "referral_commission", params: { amount: l1Commission, level: "1" } });
 
       const [l1Referrer] = await tx.select().from(users).where(eq(users.id, user.referredBy));
       if (l1Referrer?.referredBy) {
-        const l2Commission = (vipPrice * 0.03).toFixed(2);
+        const l2Commission = (vipPrice * 0.03 * commissionMultiplier).toFixed(2);
         await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${l2Commission}::numeric` }).where(eq(users.id, l1Referrer.referredBy));
         await tx.update(referrals).set({ commission: dsql`${referrals.commission}::numeric + ${l2Commission}::numeric` }).where(and(eq(referrals.referrerId, l1Referrer.referredBy), eq(referrals.referredId, userId), eq(referrals.level, 2)));
-        await tx.insert(balanceHistory).values({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+        await tx.insert(balanceHistory).values({ userId: l1Referrer.referredBy, type: "commission", amount: l2Commission, description: `2-daraja referal komissiyasi — ${pkg.name} sotib oldi${commSuffix}` });
         notificationsToSend.push({ userId: l1Referrer.referredBy, type: "referral_bonus", titleKey: "referral_commission", msgKey: "referral_commission", params: { amount: l2Commission, level: "2" } });
 
         const [l2Referrer] = await tx.select().from(users).where(eq(users.id, l1Referrer.referredBy));
         if (l2Referrer?.referredBy) {
-          const l3Commission = (vipPrice * 0.01).toFixed(2);
+          const l3Commission = (vipPrice * 0.01 * commissionMultiplier).toFixed(2);
           await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${l3Commission}::numeric` }).where(eq(users.id, l2Referrer.referredBy));
           await tx.update(referrals).set({ commission: dsql`${referrals.commission}::numeric + ${l3Commission}::numeric` }).where(and(eq(referrals.referrerId, l2Referrer.referredBy), eq(referrals.referredId, userId), eq(referrals.level, 3)));
-          await tx.insert(balanceHistory).values({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi — ${pkg.name} sotib oldi` });
+          await tx.insert(balanceHistory).values({ userId: l2Referrer.referredBy, type: "commission", amount: l3Commission, description: `3-daraja referal komissiyasi — ${pkg.name} sotib oldi${commSuffix}` });
           notificationsToSend.push({ userId: l2Referrer.referredBy, type: "referral_bonus", titleKey: "referral_commission", msgKey: "referral_commission", params: { amount: l3Commission, level: "3" } });
         }
       }
