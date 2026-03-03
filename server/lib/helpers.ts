@@ -191,7 +191,9 @@ export function validateBody(schema: ZodSchema) {
     const result = schema.safeParse(req.body);
     if (!result.success) {
       const firstError = result.error.errors[0];
-      return res.status(400).json({ message: firstError.message || "Noto'g'ri ma'lumotlar" });
+      const raw = firstError.message;
+      const msg = (raw === "Invalid input" || raw === "Required") ? "Barcha maydonlarni to'ldiring" : raw;
+      return res.status(400).json({ message: msg || "Noto'g'ri ma'lumotlar" });
     }
     req.body = result.data;
     next();
@@ -200,64 +202,64 @@ export function validateBody(schema: ZodSchema) {
 
 export const authSchemas = {
   register: z.object({
-    phone: z.string().min(5, "Telefon raqami kerak").max(20),
-    password: z.string().min(6, "Parol kamida 6 ta belgi"),
-    fundPassword: z.string().length(6, "PIN kod 6 ta raqam bo'lishi kerak").regex(/^\d{6}$/, "PIN faqat raqamlardan iborat"),
+    phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak").max(20),
+    password: z.string({ required_error: "Parol kerak" }).min(6, "Parol kamida 6 ta belgi"),
+    fundPassword: z.string({ required_error: "Moliya paroli kerak" }).length(6, "PIN kod 6 ta raqam bo'lishi kerak").regex(/^\d{6}$/, "PIN faqat raqamlardan iborat"),
     referralCode: z.string().optional(),
     captchaVerified: z.boolean().optional(),
   }),
   login: z.object({
-    phone: z.string().min(5, "Telefon raqami kerak"),
-    password: z.string().min(1, "Parol kerak"),
+    phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak"),
+    password: z.string({ required_error: "Parol kerak" }).min(1, "Parol kerak"),
   }),
   resetStep1: z.object({
-    phone: z.string().min(5, "Telefon raqami kerak"),
+    phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak"),
   }),
   resetStep2: z.object({
-    fundPassword: z.string().min(1, "Moliya paroli kerak"),
+    fundPassword: z.string({ required_error: "Moliya paroli kerak" }).min(1, "Moliya paroli kerak"),
   }),
   resetStep3: z.object({
-    answer: z.string().min(1, "Javob kerak"),
+    answer: z.string({ required_error: "Javob kerak" }).min(1, "Javob kerak"),
   }),
   resetPassword: z.object({
-    newPassword: z.string().min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
+    newPassword: z.string({ required_error: "Yangi parol kerak" }).min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
   }),
 };
 
 export const financialSchemas = {
   invest: z.object({
-    fundPlanId: z.string().min(1),
+    fundPlanId: z.string({ required_error: "Tarif tanlang" }).min(1, "Tarif tanlang"),
     amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Summa musbat bo'lishi kerak")),
-    fundPassword: z.string().min(1, "Fond paroli kerak"),
+    fundPassword: z.string({ required_error: "Fond paroli kerak" }).min(1, "Fond paroli kerak"),
   }),
   withdraw: z.object({
     amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Summa musbat bo'lishi kerak")),
-    paymentMethodId: z.string().min(1),
-    fundPassword: z.string().min(1, "Fond paroli kerak"),
+    paymentMethodId: z.string({ required_error: "To'lov usulini tanlang" }).min(1, "To'lov usulini tanlang"),
+    fundPassword: z.string({ required_error: "Fond paroli kerak" }).min(1, "Fond paroli kerak"),
     currency: z.enum(["USDT", "UZS"]).optional(),
   }),
   createPaymentMethod: z.object({
-    type: z.enum(["bank", "usdt"]),
+    type: z.enum(["bank", "usdt"], { required_error: "To'lov turi tanlang" }),
     bankName: z.string().optional(),
     exchangeName: z.string().optional(),
     cardNumber: z.string().optional(),
     walletAddress: z.string().optional(),
     holderName: z.string().optional(),
-    fundPassword: z.string().min(1, "Moliya paroli kerak"),
+    fundPassword: z.string({ required_error: "Moliya paroli kerak" }).min(1, "Moliya paroli kerak"),
   }),
   createDeposit: z.object({
     amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Summa musbat bo'lishi kerak")),
-    currency: z.enum(["USDT", "UZS"]),
-    paymentType: z.string().min(1, "To'lov turi kerak"),
+    currency: z.enum(["USDT", "UZS"], { required_error: "Valyuta tanlang" }),
+    paymentType: z.string({ required_error: "To'lov turi kerak" }).min(1, "To'lov turi kerak"),
   }),
 };
 
 export const adminSchemas = {
   banUser: z.object({
-    isBanned: z.boolean(),
+    isBanned: z.boolean({ required_error: "Ban holati kerak" }),
   }),
   withdrawalBan: z.object({
-    banned: z.boolean(),
+    banned: z.boolean({ required_error: "Ban holati kerak" }),
   }),
   setBalance: z.object({
     balance: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().min(0, "Balans manfiy bo'lishi mumkin emas")),
@@ -271,7 +273,7 @@ export const adminSchemas = {
     fundPassword: z.string().length(6, "PIN kod 6 ta raqam bo'lishi kerak").regex(/^\d{6}$/, "PIN faqat raqamlardan iborat").optional(),
   }),
   toggleLock: z.object({
-    locked: z.boolean(),
+    locked: z.boolean({ required_error: "Qulflash holati kerak" }),
   }),
   platformSettings: z.object({
     withdrawalCommissionPercent: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().min(0).max(100)),
@@ -280,27 +282,27 @@ export const adminSchemas = {
     withdrawalStartHour: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(0).max(23)),
     withdrawalEndHour: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(0).max(23)),
     maxDailyWithdrawals: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(1)),
-    withdrawalEnabled: z.boolean(),
+    withdrawalEnabled: z.boolean({ required_error: "Yechib olish holati kerak" }),
   }),
   createBroadcast: z.object({
-    title: z.string().min(1, "Sarlavha majburiy"),
-    message: z.string().min(1, "Xabar majburiy"),
+    title: z.string({ required_error: "Sarlavha majburiy" }).min(1, "Sarlavha majburiy"),
+    message: z.string({ required_error: "Xabar majburiy" }).min(1, "Xabar majburiy"),
     type: z.string().optional(),
   }),
   createPromoCode: z.object({
-    code: z.string().min(1, "Kod kerak"),
+    code: z.string({ required_error: "Kod kerak" }).min(1, "Kod kerak"),
     amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().positive("Miqdor 0 dan katta bo'lishi kerak")),
-    isOneTime: z.boolean(),
+    isOneTime: z.boolean({ required_error: "Bir martalik holati kerak" }),
     maxUses: z.number().int().positive().optional().nullable(),
   }),
   pushSend: z.object({
-    title: z.string().min(1, "Sarlavha majburiy"),
-    message: z.string().min(1, "Xabar majburiy"),
+    title: z.string({ required_error: "Sarlavha majburiy" }).min(1, "Sarlavha majburiy"),
+    message: z.string({ required_error: "Xabar majburiy" }).min(1, "Xabar majburiy"),
     targetUserId: z.string().optional(),
   }),
   depositSetting: z.object({
     id: z.string().optional(),
-    type: z.string().min(1),
+    type: z.string({ required_error: "Tur kerak" }).min(1, "Tur kerak"),
     bankName: z.string().optional().nullable(),
     cardNumber: z.string().optional().nullable(),
     holderName: z.string().optional().nullable(),
@@ -310,11 +312,11 @@ export const adminSchemas = {
     isActive: z.boolean().optional(),
   }),
   verifyPin: z.object({
-    pin: z.string().min(1, "PIN kerak"),
+    pin: z.string({ required_error: "PIN kerak" }).min(1, "PIN kerak"),
   }),
   changePin: z.object({
-    currentPin: z.string().min(1, "Joriy PIN kerak"),
-    newPin: z.string().length(6, "Yangi PIN 6 ta raqam").regex(/^\d{6}$/, "Faqat raqamlar"),
+    currentPin: z.string({ required_error: "Joriy PIN kerak" }).min(1, "Joriy PIN kerak"),
+    newPin: z.string({ required_error: "Yangi PIN kerak" }).length(6, "Yangi PIN 6 ta raqam").regex(/^\d{6}$/, "Faqat raqamlar"),
   }),
 };
 
@@ -324,21 +326,21 @@ export const userSchemas = {
     youtubeVideoId: z.string().optional(),
   }),
   purchaseVip: z.object({
-    packageId: z.string().min(1, "Paket ID kerak"),
+    packageId: z.string({ required_error: "Paket tanlang" }).min(1, "Paket tanlang"),
   }),
   changePassword: z.object({
-    currentPassword: z.string().min(1, "Joriy parol kerak"),
-    newPassword: z.string().min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
+    currentPassword: z.string({ required_error: "Joriy parol kerak" }).min(1, "Joriy parol kerak"),
+    newPassword: z.string({ required_error: "Yangi parol kerak" }).min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
   }),
   changeFundPassword: z.object({
-    currentFundPassword: z.string().min(1, "Joriy moliya paroli kerak"),
-    newFundPassword: z.string().length(6, "Yangi moliya paroli 6 xonali raqam bo'lishi kerak").regex(/^\d{6}$/, "Faqat raqamlar kiritilishi kerak"),
+    currentFundPassword: z.string({ required_error: "Joriy moliya paroli kerak" }).min(1, "Joriy moliya paroli kerak"),
+    newFundPassword: z.string({ required_error: "Yangi moliya paroli kerak" }).length(6, "Yangi moliya paroli 6 xonali raqam bo'lishi kerak").regex(/^\d{6}$/, "Faqat raqamlar kiritilishi kerak"),
   }),
   terminateSession: z.object({
-    sid: z.string().min(1, "Session ID kerak"),
+    sid: z.string({ required_error: "Session ID kerak" }).min(1, "Session ID kerak"),
   }),
   usePromo: z.object({
-    code: z.string().min(1, "Promokod kiriting"),
+    code: z.string({ required_error: "Promokod kiriting" }).min(1, "Promokod kiriting"),
   }),
   stajyorRequest: z.object({
     message: z.string().optional(),
