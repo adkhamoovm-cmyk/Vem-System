@@ -97,8 +97,6 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
   });
 
   if (res.headersSent) return;
-  sendNotification(userId, "task_reward", "task_completed", "task_completed", { amount: rewardStr });
-
   res.json({ reward: rewardStr, message: "Vazifa bajarildi!" });
 }));
 
