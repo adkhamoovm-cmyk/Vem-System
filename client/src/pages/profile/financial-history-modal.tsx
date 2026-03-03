@@ -129,7 +129,7 @@ export function FinancialHistoryModal({
               const statusLabel = entryStatus === "pending" ? t("common.pending") : entryStatus === "approved" ? t("common.approved") : entryStatus === "rejected" ? t("common.rejected") : "";
               const extractName = (d: string) => { const m = d.match(/^(\w+)\s/); return m ? m[1] : "VIP"; };
               const typeMap: Record<string, () => string> = {
-                earning: () => { if (desc.includes("Fond") || desc.includes("fond")) return t("vip.historyFundProfit"); if (desc.includes("Promokod") || desc.includes("promokod")) return desc; return t("vip.historyEarning", { name: extractName(desc) || "VIP" }); },
+                earning: () => { if (desc.includes("Fond") || desc.includes("fond")) return t("vip.historyFundProfit"); if (desc.includes("Promokod") || desc.includes("promokod")) { const codeMatch = desc.match(/Promokod:\s*(.+)/i); return t("vip.historyPromo", { code: codeMatch ? codeMatch[1] : "" }); } return t("vip.historyEarning", { name: extractName(desc) || "VIP" }); },
                 deposit: () => { if (desc.includes("qaytarildi") || desc.includes("fond")) return t("vip.historyFundReturn"); return t("vip.historyDeposit"); },
                 withdrawal: () => { if (hasStatusFormat) return t("vip.historyWithdrawalMethod", { method: methodInfo }); return t("vip.historyWithdrawal", { commission: "10%" }); },
                 withdrawal_cancel: () => t("vip.historyWithdrawalCancel"),

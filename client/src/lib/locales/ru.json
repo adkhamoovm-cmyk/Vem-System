@@ -313,6 +313,7 @@
     "descStajyor": "Начальный пробный период",
     "descDaily": "{count} видеозаданий в день",
     "historyEarning": "Доход за просмотр видео ({name})",
+    "historyPromo": "Промокод: {code}",
     "historyVipPurchase": "Пакет {name} куплен",
     "historyVipExtend": "Пакет {name} продлён",
     "historyWithdrawal": "Запрос на вывод (комиссия: {commission})",

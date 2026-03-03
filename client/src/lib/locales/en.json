@@ -313,6 +313,7 @@
     "descStajyor": "Initial trial period",
     "descDaily": "{count} video tasks per day",
     "historyEarning": "Video watching income ({name})",
+    "historyPromo": "Promo code: {code}",
     "historyVipPurchase": "Package {name} purchased",
     "historyVipExtend": "Package {name} extended",
     "historyWithdrawal": "Withdrawal request (commission: {commission})",

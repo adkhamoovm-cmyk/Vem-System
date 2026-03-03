@@ -313,6 +313,7 @@
     "descStajyor": "Boshlang'ich sinov davri",
     "descDaily": "Kuniga {count} ta video vazifa",
     "historyEarning": "Video ko'rish daromadi ({name})",
+    "historyPromo": "Promokod: {code}",
     "historyVipPurchase": "{name} paketi sotib olindi",
     "historyVipExtend": "{name} paketi uzaytirildi",
     "historyWithdrawal": "Pul yechish so'rovi (komissiya: {commission})",
