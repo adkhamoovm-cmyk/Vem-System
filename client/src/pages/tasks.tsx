@@ -66,13 +66,9 @@ function VideoPlayerModal({
       const res = await apiRequest("POST", "/api/tasks/complete", { youtubeVideoId: videoId });
       return res.json();
     },
-    onSuccess: (data: { reward: string; message: string }) => {
+    onSuccess: () => {
       setCompleted(true);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
-      toast({
-        title: t("tasks.taskCompleted"),
-        description: t("tasks.earnedAmount", { amount: data.reward }),
-      });
     },
     onError: (error: Error) => {
       toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
