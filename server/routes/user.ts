@@ -4,7 +4,7 @@ import { pool } from "../db";
 import { db } from "../db";
 import { users, taskHistory, balanceHistory, referrals } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
-import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler } from "../lib/helpers";
+import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas } from "../lib/helpers";
 
 const router = Router();
 
@@ -13,7 +13,7 @@ router.get("/api/videos", requireAuth, asyncHandler(async (_req: Request, res: R
   res.json(videoList);
 }));
 
-router.post("/api/tasks/complete", requireAuth, taskRateLimiter, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(userSchemas.completeTask), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
   const { videoId, youtubeVideoId } = req.body;
 
@@ -90,7 +90,7 @@ router.get("/api/vip-packages", requireAuth, asyncHandler(async (_req: Request, 
   res.json(packages);
 }));
 
-router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, validateBody(userSchemas.purchaseVip), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
   const { packageId } = req.body;
 
@@ -274,14 +274,8 @@ router.get("/api/referrals/extended-stats", requireAuth, asyncHandler(async (req
   });
 }));
 
-router.post("/api/profile/change-password", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/profile/change-password", requireAuth, validateBody(userSchemas.changePassword), asyncHandler(async (req: Request, res: Response) => {
   const { currentPassword, newPassword } = req.body;
-  if (!currentPassword || typeof currentPassword !== "string" || !newPassword || typeof newPassword !== "string") {
-    return res.status(400).json({ message: "Joriy va yangi parol kiritilishi shart" });
-  }
-  if (newPassword.length < 6) {
-    return res.status(400).json({ message: "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak" });
-  }
   if (currentPassword === newPassword) {
     return res.status(400).json({ message: "Yangi parol joriy paroldan farqli bo'lishi kerak" });
   }
@@ -297,14 +291,8 @@ router.post("/api/profile/change-password", requireAuth, asyncHandler(async (req
   res.json({ message: "Parol muvaffaqiyatli o'zgartirildi" });
 }));
 
-router.post("/api/profile/change-fund-password", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/profile/change-fund-password", requireAuth, validateBody(userSchemas.changeFundPassword), asyncHandler(async (req: Request, res: Response) => {
   const { currentFundPassword, newFundPassword } = req.body;
-  if (!currentFundPassword || typeof currentFundPassword !== "string" || !newFundPassword || typeof newFundPassword !== "string") {
-    return res.status(400).json({ message: "Joriy va yangi moliya parolini kiritilishi shart" });
-  }
-  if (!/^\d{6}$/.test(newFundPassword)) {
-    return res.status(400).json({ message: "Yangi moliya paroli 6 xonali raqam bo'lishi kerak" });
-  }
   const user = await storage.getUser(req.session.userId!);
   if (!user) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
   if (!user.fundPassword) return res.status(400).json({ message: "Moliya paroli sozlanmagan" });
@@ -349,10 +337,9 @@ router.get("/api/my-sessions", requireAuth, asyncHandler(async (req: Request, re
   res.json({ logs, activeSessions });
 }));
 
-router.post("/api/my-sessions/terminate", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/my-sessions/terminate", requireAuth, validateBody(userSchemas.terminateSession), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
   const { sid } = req.body;
-  if (!sid) return res.status(400).json({ message: "Session ID kerak" });
   if (sid === req.sessionID) return res.status(400).json({ message: "Joriy sessiyani o'chirish mumkin emas" });
   const check = await pool.query(
     `SELECT sid FROM user_sessions WHERE sid = $1 AND (sess->>'userId') = $2`,

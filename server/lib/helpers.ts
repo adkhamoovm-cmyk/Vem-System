@@ -210,6 +210,18 @@ export const authSchemas = {
     phone: z.string().min(5, "Telefon raqami kerak"),
     password: z.string().min(1, "Parol kerak"),
   }),
+  resetStep1: z.object({
+    phone: z.string().min(5, "Telefon raqami kerak"),
+  }),
+  resetStep2: z.object({
+    fundPassword: z.string().min(1, "Moliya paroli kerak"),
+  }),
+  resetStep3: z.object({
+    answer: z.string().min(1, "Javob kerak"),
+  }),
+  resetPassword: z.object({
+    newPassword: z.string().min(6, "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak"),
+  }),
 };
 
 export const financialSchemas = {

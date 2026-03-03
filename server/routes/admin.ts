@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler } from "../lib/helpers";
+import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler, validateBody, adminSchemas, userSchemas } from "../lib/helpers";
 import { users, depositRequests, withdrawalRequests, balanceHistory, investments } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
 import { db } from "../db";
@@ -55,7 +55,7 @@ router.get("/api/admin/users/:id", requireAdmin, asyncHandler(async (req: Reques
   });
 }));
 
-router.post("/api/admin/users/:id/ban", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/users/:id/ban", requireAdmin, validateBody(adminSchemas.banUser), asyncHandler(async (req: Request, res: Response) => {
   const { isBanned } = req.body;
   await storage.banUser(req.params.id as string, isBanned);
   if (isBanned) {
@@ -67,13 +67,13 @@ router.post("/api/admin/users/:id/ban", requireAdmin, asyncHandler(async (req: R
   res.json({ message: isBanned ? "Foydalanuvchi bloklandi" : "Foydalanuvchi blokdan chiqarildi" });
 }));
 
-router.post("/api/admin/users/:id/withdrawal-ban", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/users/:id/withdrawal-ban", requireAdmin, validateBody(adminSchemas.withdrawalBan), asyncHandler(async (req: Request, res: Response) => {
   const { banned } = req.body;
   await storage.setWithdrawalBan(req.params.id as string, banned);
   res.json({ message: banned ? "Pul yechish taqiqlandi" : "Pul yechish ruxsat berildi" });
 }));
 
-router.post("/api/admin/users/:id/balance", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/users/:id/balance", requireAdmin, validateBody(adminSchemas.setBalance), asyncHandler(async (req: Request, res: Response) => {
   const { balance } = req.body;
   const numBalance = Number(balance);
   if (isNaN(numBalance) || numBalance < 0) {
@@ -88,7 +88,7 @@ router.post("/api/admin/users/:id/balance", requireAdmin, asyncHandler(async (re
   res.json({ message: "Balans yangilandi" });
 }));
 
-router.post("/api/admin/users/:id/vip", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/users/:id/vip", requireAdmin, validateBody(adminSchemas.setVip), asyncHandler(async (req: Request, res: Response) => {
   const { level, dailyLimit } = req.body;
   const numLevel = Number(level);
   const numLimit = Number(dailyLimit);
@@ -104,7 +104,7 @@ router.delete("/api/admin/users/:id", requireAdmin, asyncHandler(async (req: Req
   res.json({ message: "Foydalanuvchi o'chirildi" });
 }));
 
-router.post("/api/admin/users/:id/password", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/users/:id/password", requireAdmin, validateBody(adminSchemas.setPassword), asyncHandler(async (req: Request, res: Response) => {
   const { password, fundPassword } = req.body;
   if (password) {
     const hashed = await hashPassword(password);
@@ -117,7 +117,7 @@ router.post("/api/admin/users/:id/password", requireAdmin, asyncHandler(async (r
   res.json({ message: "Parol yangilandi" });
 }));
 
-router.post("/api/admin/vip-packages/:id/toggle-lock", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/vip-packages/:id/toggle-lock", requireAdmin, validateBody(adminSchemas.toggleLock), asyncHandler(async (req: Request, res: Response) => {
   const { locked } = req.body;
   await storage.toggleVipPackageLock(req.params.id as string, locked);
   res.json({ message: locked ? "Daraja yopildi" : "Daraja ochildi" });
@@ -179,7 +179,7 @@ router.post("/api/admin/deposits/:id/reject", requireAdmin, asyncHandler(async (
 router.get("/api/admin/withdrawals", requireAdmin, asyncHandler(async (_req: Request, res: Response) => {
   const withdrawals = await storage.getAllWithdrawalRequests();
   const methods = await storage.getAllPaymentMethods();
-  const methodMap: Record<string, any> = {};
+  const methodMap: Record<string, typeof methods[number]> = {};
   for (const m of methods) { methodMap[m.id] = m; }
   const enriched = withdrawals.map(w => ({
     ...w,
@@ -225,7 +225,7 @@ router.get("/api/admin/deposit-settings", requireAdmin, asyncHandler(async (_req
   res.json(settings);
 }));
 
-router.post("/api/admin/deposit-settings", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/deposit-settings", requireAdmin, validateBody(adminSchemas.depositSetting), asyncHandler(async (req: Request, res: Response) => {
   const setting = await storage.upsertDepositSetting(req.body);
   res.json({ setting, message: "Rekvizit saqlandi" });
 }));
@@ -238,7 +238,7 @@ router.delete("/api/admin/deposit-settings/:id", requireAdmin, asyncHandler(asyn
 router.get("/api/admin/top-referrers", requireAdmin, asyncHandler(async (_req: Request, res: Response) => {
   const top = await storage.getTopReferrers(10);
   const enriched = await Promise.all(
-    top.map(async (r: any) => {
+    top.map(async (r: { referrerId: string; totalCommission: string; referralCount: number }) => {
       const user = await storage.getUser(r.referrerId);
       return { ...r, phone: user?.phone, numericId: user?.numericId, vipLevel: user?.vipLevel };
     })
@@ -256,7 +256,7 @@ router.get("/api/admin/referral-tree/:userId", requireAdmin, asyncHandler(async 
   res.json(tree);
 }));
 
-router.post("/api/stajyor/request", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/stajyor/request", requireAuth, validateBody(userSchemas.stajyorRequest), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
   const { message } = req.body;
 
@@ -325,7 +325,7 @@ router.post("/api/admin/stajyor-requests/:id/reject", requireAdmin, asyncHandler
 
 router.get("/api/deposit-settings/active", requireAuth, asyncHandler(async (_req: Request, res: Response) => {
   const settings = await storage.getDepositSettings();
-  res.json(settings.filter((s: any) => s.isActive));
+  res.json(settings.filter((s) => s.isActive));
 }));
 
 router.get("/api/platform-settings", requireAuth, asyncHandler(async (_req: Request, res: Response) => {
@@ -358,7 +358,7 @@ router.get("/api/admin/platform-settings", requireAdmin, asyncHandler(async (_re
   });
 }));
 
-router.post("/api/admin/platform-settings", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/platform-settings", requireAdmin, validateBody(adminSchemas.platformSettings), asyncHandler(async (req: Request, res: Response) => {
   const { withdrawalCommissionPercent, minWithdrawalUsdt, minWithdrawalBank, withdrawalStartHour, withdrawalEndHour, maxDailyWithdrawals, withdrawalEnabled } = req.body;
   const updates: [string, string][] = [
     ["withdrawal_commission_percent", String(withdrawalCommissionPercent)],
@@ -392,9 +392,8 @@ router.get("/api/admin/broadcasts", requireAdmin, asyncHandler(async (_req: Requ
   res.json(all);
 }));
 
-router.post("/api/admin/broadcasts", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/broadcasts", requireAdmin, validateBody(adminSchemas.createBroadcast), asyncHandler(async (req: Request, res: Response) => {
   const { title, message } = req.body;
-  if (!title || !message) return res.status(400).json({ message: "Sarlavha va xabar majburiy" });
   const b = await storage.createBroadcast({ title, message });
 
   try {
@@ -414,9 +413,8 @@ router.delete("/api/admin/broadcasts/:id", requireAdmin, asyncHandler(async (req
   res.json({ ok: true });
 }));
 
-router.post("/api/admin/push-send", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/push-send", requireAdmin, validateBody(adminSchemas.pushSend), asyncHandler(async (req: Request, res: Response) => {
   const { title, message, targetUserId } = req.body;
-  if (!title || !message) return res.status(400).json({ message: "Sarlavha va xabar majburiy" });
 
   let sentCount = 0;
   if (targetUserId) {
@@ -437,9 +435,8 @@ router.get("/api/admin/push-stats", requireAdmin, asyncHandler(async (_req: Requ
   res.json({ subscribedUsers: result });
 }));
 
-router.post("/api/promo/use", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/promo/use", requireAuth, validateBody(userSchemas.usePromo), asyncHandler(async (req: Request, res: Response) => {
   const { code } = req.body;
-  if (!code || typeof code !== "string") return res.status(400).json({ message: "Promokod kiriting" });
 
   const promo = await storage.getPromoCodeByCode(code.trim().toUpperCase());
   if (!promo) return res.status(404).json({ message: "Bunday promokod topilmadi" });
@@ -479,10 +476,8 @@ router.get("/api/promo/history", requireAuth, asyncHandler(async (req: Request, 
   res.json(userUsages);
 }));
 
-router.post("/api/admin/promo-codes", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/promo-codes", requireAdmin, validateBody(adminSchemas.createPromoCode), asyncHandler(async (req: Request, res: Response) => {
   const { code, amount, isOneTime, maxUses } = req.body;
-  if (!code || !amount) return res.status(400).json({ message: "Kod va miqdorni kiriting" });
-  if (Number(amount) <= 0) return res.status(400).json({ message: "Miqdor 0 dan katta bo'lishi kerak" });
 
   const existing = await storage.getPromoCodeByCode(code.trim().toUpperCase());
   if (existing) return res.status(400).json({ message: "Bu kod allaqachon mavjud" });

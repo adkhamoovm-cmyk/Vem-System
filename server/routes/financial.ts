@@ -153,7 +153,7 @@ router.get("/api/payment-methods", requireAuth, asyncHandler(async (req: Request
   res.json(methods);
 }));
 
-router.post("/api/payment-methods", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/payment-methods", requireAuth, validateBody(financialSchemas.createPaymentMethod), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
   const { type, bankName, exchangeName, cardNumber, walletAddress, holderName, fundPassword } = req.body;
 

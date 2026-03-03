@@ -101,9 +101,9 @@ VEM is a "Watch-to-Earn" web platform with modern mobile-first design. Users reg
 ### Backend
 - `server/routes.ts` (70 lines) - Orchestrator: session middleware, rate limiting, mounts all sub-routers
 - `server/routes/auth.ts` - Auth routes (register, login, logout, password reset, admin PIN) + Zod validation
-- `server/routes/user.ts` - User routes (tasks, VIP purchase, referrals, profile, sessions)
+- `server/routes/user.ts` - User routes (tasks, VIP purchase, referrals, profile, sessions) + Zod validation
 - `server/routes/financial.ts` - Financial routes (fund plans, investments, deposits, withdrawals) + Zod validation
-- `server/routes/admin.ts` - Admin routes (user management, deposit/withdrawal approval, settings, broadcasts, promo codes, stajyor)
+- `server/routes/admin.ts` - Admin routes (user management, deposit/withdrawal approval, settings, broadcasts, promo codes, stajyor) + Zod validation
 - `server/routes/system.ts` - System routes (notifications, push subscriptions, download-app)
 - `server/lib/helpers.ts` (~440 lines) - Shared utilities (auth/validation middleware, rate limiters, password hashing, multer configs, notifications, webpush, Zod schemas: authSchemas, financialSchemas, adminSchemas, userSchemas, asyncHandler)
 - `server/storage.ts` - Database storage layer (DatabaseStorage class, optimized queries)

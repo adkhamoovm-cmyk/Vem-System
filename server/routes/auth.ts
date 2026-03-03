@@ -6,14 +6,15 @@ import {
   generateReferralCode,
   generateNumericId,
   requireAuth,
+  requireAdmin,
   authRateLimiter,
   pinRateLimiter,
   sendNotification,
   validateBody,
   authSchemas,
+  adminSchemas,
   asyncHandler,
 } from "../lib/helpers";
-import { requireAdmin } from "../lib/helpers";
 
 const router = Router();
 
@@ -81,11 +82,8 @@ router.post("/api/auth/reset-cancel", async (req: Request, res: Response) => {
   res.json({ success: true });
 });
 
-router.post("/api/auth/reset-step1", authRateLimiter, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/auth/reset-step1", authRateLimiter, validateBody(authSchemas.resetStep1), asyncHandler(async (req: Request, res: Response) => {
   const { phone } = req.body;
-  if (!phone || typeof phone !== "string") {
-    return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
-  }
   const user = await storage.getUserByPhone(phone);
   if (!user) {
     return res.status(400).json({ message: "Telefon raqami yoki moliya paroli noto'g'ri" });
@@ -98,14 +96,11 @@ router.post("/api/auth/reset-step1", authRateLimiter, asyncHandler(async (req: R
   res.json({ success: true });
 }));
 
-router.post("/api/auth/reset-step2", authRateLimiter, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/auth/reset-step2", authRateLimiter, validateBody(authSchemas.resetStep2), asyncHandler(async (req: Request, res: Response) => {
   if (req.session.resetStep !== 1 || !req.session.resetPhone) {
     return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
   }
   const { fundPassword } = req.body;
-  if (!fundPassword || typeof fundPassword !== "string") {
-    return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
-  }
   const user = await storage.getUserByPhone(req.session.resetPhone);
   if (!user || !user.fundPassword) {
     return res.status(400).json({ message: "Telefon raqami yoki moliya paroli noto'g'ri" });
@@ -140,14 +135,11 @@ router.post("/api/auth/reset-step2", authRateLimiter, asyncHandler(async (req: R
   res.json({ success: true, verifyType, verifyHint });
 }));
 
-router.post("/api/auth/reset-step3", authRateLimiter, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/auth/reset-step3", authRateLimiter, validateBody(authSchemas.resetStep3), asyncHandler(async (req: Request, res: Response) => {
   if (req.session.resetStep !== 2 || !req.session.resetPhone || !req.session.resetVerifyType) {
     return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
   }
   const { answer } = req.body;
-  if (!answer || typeof answer !== "string") {
-    return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
-  }
   const user = await storage.getUserByPhone(req.session.resetPhone);
   if (!user) {
     return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
@@ -183,17 +175,11 @@ router.post("/api/auth/reset-step3", authRateLimiter, asyncHandler(async (req: R
   res.json({ success: true });
 }));
 
-router.post("/api/auth/reset-password", authRateLimiter, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/auth/reset-password", authRateLimiter, validateBody(authSchemas.resetPassword), asyncHandler(async (req: Request, res: Response) => {
   if (req.session.resetStep !== 3 || !req.session.resetPhone) {
     return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
   }
   const { newPassword } = req.body;
-  if (!newPassword || typeof newPassword !== "string") {
-    return res.status(400).json({ message: "Barcha maydonlarni to'ldiring" });
-  }
-  if (newPassword.length < 6) {
-    return res.status(400).json({ message: "Yangi parol kamida 6 ta belgidan iborat bo'lishi kerak" });
-  }
   const user = await storage.getUserByPhone(req.session.resetPhone);
   if (!user) {
     return res.status(400).json({ message: "Noto'g'ri ma'lumot" });
@@ -256,7 +242,7 @@ router.get("/api/auth/me", requireAuth, asyncHandler(async (req: Request, res: R
   res.json({ ...user, password: undefined, fundPassword: undefined });
 }));
 
-router.post("/api/admin/verify-pin", pinRateLimiter, requireAuth, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/verify-pin", pinRateLimiter, requireAuth, validateBody(adminSchemas.verifyPin), asyncHandler(async (req: Request, res: Response) => {
   const user = await storage.getUser(req.session.userId!);
   if (!user || !user.isAdmin) {
     return res.status(403).json({ message: "Admin huquqi talab qilinadi" });
@@ -282,15 +268,12 @@ router.get("/api/admin/pin-status", requireAuth, asyncHandler(async (req: Reques
   res.json({ verified: !!req.session.adminPinVerified });
 }));
 
-router.post("/api/admin/change-pin", pinRateLimiter, requireAdmin, asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/admin/change-pin", pinRateLimiter, requireAdmin, validateBody(adminSchemas.changePin), asyncHandler(async (req: Request, res: Response) => {
   const { currentPin, newPin } = req.body;
   const dbPin = await storage.getPlatformSetting("admin_pin");
   const adminPin = dbPin || process.env.ADMIN_PIN || "077077";
   if (currentPin !== adminPin) {
     return res.status(400).json({ message: "Joriy PIN kod noto'g'ri" });
-  }
-  if (!newPin || newPin.length !== 6 || !/^\d{6}$/.test(newPin)) {
-    return res.status(400).json({ message: "Yangi PIN kod 6 ta raqamdan iborat bo'lishi kerak" });
   }
   await storage.upsertPlatformSetting("admin_pin", newPin);
   res.json({ message: "PIN kod muvaffaqiyatli o'zgartirildi" });
