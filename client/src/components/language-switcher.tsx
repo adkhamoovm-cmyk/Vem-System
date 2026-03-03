@@ -14,6 +14,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const [prevLocale, setPrevLocale] = useState<Locale>(locale);
   const ref = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -21,6 +22,12 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (animTimerRef.current) clearTimeout(animTimerRef.current);
+    };
   }, []);
 
   const handleSelect = (l: Locale) => {
@@ -32,7 +39,8 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
     setLocale(l);
     setOpen(false);
     setAnimating(true);
-    setTimeout(() => setAnimating(false), 600);
+    if (animTimerRef.current) clearTimeout(animTimerRef.current);
+    animTimerRef.current = setTimeout(() => setAnimating(false), 600);
   };
 
   const locales: Locale[] = ["uz", "ru", "en"];

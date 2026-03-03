@@ -4,7 +4,7 @@ import { pool } from "../db";
 import { db } from "../db";
 import { users, taskHistory, balanceHistory, referrals } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
-import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas } from "../lib/helpers";
+import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts } from "../lib/helpers";
 
 const router = Router();
 
@@ -313,10 +313,17 @@ router.post("/api/profile/change-fund-password", requireAuth, validateBody(userS
   const user = await storage.getUser(req.session.userId!);
   if (!user) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
   if (!user.fundPassword) return res.status(400).json({ message: "Moliya paroli sozlanmagan" });
+  const cfpLock = checkFundPinLock(user.id);
+  if (cfpLock.locked) {
+    return res.status(429).json({ message: `Moliya kodi blokland. ${cfpLock.minutesLeft} daqiqadan so'ng urinib ko'ring.` });
+  }
   const isValid = await comparePasswords(currentFundPassword, user.fundPassword);
   if (!isValid) {
-    return res.status(400).json({ message: "Joriy moliya paroli noto'g'ri" });
+    const fail = recordFundPinFailure(user.id);
+    if (fail.locked) return res.status(429).json({ message: `5 marta noto'g'ri PIN. ${fail.minutesLeft} daqiqa blokland.` });
+    return res.status(400).json({ message: `Joriy moliya paroli noto'g'ri. ${fail.attemptsLeft} ta urinish qoldi.` });
   }
+  resetFundPinAttempts(user.id);
   const hashedNew = await hashPassword(newFundPassword);
   await storage.updateUserFundPassword(req.session.userId!, hashedNew);
   res.json({ message: "Moliya paroli muvaffaqiyatli o'zgartirildi" });

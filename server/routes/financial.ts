@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { db } from "../db";
 import { users, balanceHistory as balanceHistoryTable, investments, withdrawalRequests } from "@shared/schema";
 import { eq, sql as dsql } from "drizzle-orm";
-import { requireAuth, withdrawRateLimiter, sendNotification, uploadReceipt, comparePasswords, validateBody, financialSchemas, asyncHandler } from "../lib/helpers";
+import { requireAuth, withdrawRateLimiter, sendNotification, uploadReceipt, comparePasswords, validateBody, financialSchemas, asyncHandler, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts } from "../lib/helpers";
 
 const router = Router();
 
@@ -54,10 +54,17 @@ router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, validateBody(f
   if (!user.fundPassword) {
     return res.status(400).json({ message: "Moliya kodi sozlanmagan. Profildan avval sozlang." });
   }
+  const investPinLock = checkFundPinLock(userId);
+  if (investPinLock.locked) {
+    return res.status(429).json({ message: `Moliya kodi blokland. ${investPinLock.minutesLeft} daqiqadan so'ng urinib ko'ring.` });
+  }
   const isPinValid = await comparePasswords(fundPassword, user.fundPassword);
   if (!isPinValid) {
-    return res.status(400).json({ message: "Moliya kodi noto'g'ri" });
+    const fail = recordFundPinFailure(userId);
+    if (fail.locked) return res.status(429).json({ message: `5 marta noto'g'ri PIN. ${fail.minutesLeft} daqiqa blokland.` });
+    return res.status(400).json({ message: `Moliya kodi noto'g'ri. ${fail.attemptsLeft} ta urinish qoldi.` });
   }
+  resetFundPinAttempts(userId);
 
   const existingInvestments = await storage.getUserInvestments(userId);
   const hasActive = existingInvestments.some(i => i.status === "active");
@@ -160,10 +167,17 @@ router.post("/api/payment-methods", requireAuth, validateBody(financialSchemas.c
   const user = await storage.getUser(userId);
   if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
 
+  const pmPinLock = checkFundPinLock(userId);
+  if (pmPinLock.locked) {
+    return res.status(429).json({ message: `Moliya kodi blokland. ${pmPinLock.minutesLeft} daqiqadan so'ng urinib ko'ring.` });
+  }
   const fundPassValid = await comparePasswords(fundPassword, user.fundPassword);
   if (!fundPassValid) {
-    return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
+    const fail = recordFundPinFailure(userId);
+    if (fail.locked) return res.status(429).json({ message: `5 marta noto'g'ri PIN. ${fail.minutesLeft} daqiqa blokland.` });
+    return res.status(400).json({ message: `Moliya paroli noto'g'ri. ${fail.attemptsLeft} ta urinish qoldi.` });
   }
+  resetFundPinAttempts(userId);
   const existing = await storage.getUserPaymentMethods(userId);
   const sameType = existing.filter(m => m.type === type);
   if (sameType.length > 0) {
@@ -254,10 +268,17 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
     }
   }
 
+  const wdPinLock = checkFundPinLock(userId);
+  if (wdPinLock.locked) {
+    return res.status(429).json({ message: `Moliya kodi blokland. ${wdPinLock.minutesLeft} daqiqadan so'ng urinib ko'ring.` });
+  }
   const fundPassOk = await comparePasswords(fundPassword, user.fundPassword);
   if (!fundPassOk) {
-    return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
+    const fail = recordFundPinFailure(userId);
+    if (fail.locked) return res.status(429).json({ message: `5 marta noto'g'ri PIN. ${fail.minutesLeft} daqiqa blokland.` });
+    return res.status(400).json({ message: `Moliya paroli noto'g'ri. ${fail.attemptsLeft} ta urinish qoldi.` });
   }
+  resetFundPinAttempts(userId);
   const settingsRows = await storage.getPlatformSettings();
   const settingsMap: Record<string, string> = {};
   for (const r of settingsRows) settingsMap[r.key] = r.value;

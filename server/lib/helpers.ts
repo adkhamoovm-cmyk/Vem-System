@@ -349,6 +349,48 @@ export const userSchemas = {
 
 export { z };
 
+interface PinAttemptRecord {
+  count: number;
+  lockedUntil: number | null;
+  lockCount: number;
+}
+
+const fundPinAttempts = new Map<string, PinAttemptRecord>();
+const PIN_MAX_ATTEMPTS = 5;
+const PIN_LOCK_1 = 30 * 60 * 1000;
+const PIN_LOCK_2 = 60 * 60 * 1000;
+
+export function checkFundPinLock(userId: string): { locked: boolean; minutesLeft: number } {
+  const record = fundPinAttempts.get(userId);
+  if (!record?.lockedUntil) return { locked: false, minutesLeft: 0 };
+  const now = Date.now();
+  if (now < record.lockedUntil) {
+    return { locked: true, minutesLeft: Math.ceil((record.lockedUntil - now) / 60000) };
+  }
+  record.lockedUntil = null;
+  record.count = 0;
+  return { locked: false, minutesLeft: 0 };
+}
+
+export function recordFundPinFailure(userId: string): { attemptsLeft: number; locked: boolean; minutesLeft: number } {
+  const record = fundPinAttempts.get(userId) || { count: 0, lockedUntil: null, lockCount: 0 };
+  record.count++;
+  if (record.count >= PIN_MAX_ATTEMPTS) {
+    const lockMs = record.lockCount === 0 ? PIN_LOCK_1 : PIN_LOCK_2;
+    record.lockedUntil = Date.now() + lockMs;
+    record.lockCount++;
+    record.count = 0;
+    fundPinAttempts.set(userId, record);
+    return { attemptsLeft: 0, locked: true, minutesLeft: Math.ceil(lockMs / 60000) };
+  }
+  fundPinAttempts.set(userId, record);
+  return { attemptsLeft: PIN_MAX_ATTEMPTS - record.count, locked: false, minutesLeft: 0 };
+}
+
+export function resetFundPinAttempts(userId: string): void {
+  fundPinAttempts.delete(userId);
+}
+
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) {
     return res.status(401).json({ message: "Avtorizatsiya talab qilinadi" });

@@ -14,7 +14,7 @@ export function DepositsTab({ deposits, users: allUsers }: { deposits: DepositRe
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
   const [viewReceipt, setViewReceipt] = useState<string | null>(null);
-  const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
+  const userMap = Object.fromEntries((allUsers || []).map(u => [u.id, u]));
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/deposits/${id}/approve`); },

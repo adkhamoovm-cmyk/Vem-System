@@ -12,7 +12,7 @@ export function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: 
   const { t } = useI18n();
   const { toast } = useToast();
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
-  const userMap = Object.fromEntries(allUsers.map(u => [u.id, u]));
+  const userMap = Object.fromEntries((allUsers || []).map(u => [u.id, u]));
 
   const approveMutation = useMutation({
     mutationFn: async (id: string) => { await apiRequest("POST", `/api/admin/withdrawals/${id}/approve`); },
