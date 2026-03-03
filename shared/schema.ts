@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, decimal, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -229,7 +229,9 @@ export const promoCodeUsages = pgTable("promo_code_usages", {
   userId: varchar("user_id").notNull(),
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
   usedAt: timestamp("used_at").defaultNow(),
-});
+}, (table) => [
+  uniqueIndex("uq_promo_user").on(table.promoCodeId, table.userId),
+]);
 
 export const insertPromoCodeSchema = createInsertSchema(promoCodes).omit({
   id: true,

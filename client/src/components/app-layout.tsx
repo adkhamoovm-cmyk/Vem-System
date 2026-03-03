@@ -131,6 +131,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <button
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all relative"
                 data-testid="button-notifications"
+                aria-label={t("nav.notifications")}
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
@@ -144,6 +145,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={toggleTheme}
               className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all"
               data-testid="button-theme-toggle"
+              aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
             >
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
@@ -151,6 +153,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               onClick={() => logoutMutation.mutate()}
               className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all"
               data-testid="button-logout"
+              aria-label={t("auth.logout")}
             >
               <LogOut className="w-4 h-4" />
             </button>

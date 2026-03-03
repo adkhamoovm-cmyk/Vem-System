@@ -30,17 +30,6 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
     return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
   }
 
-  const today = uzbNow.toISOString().split("T")[0];
-  let dailyCompleted = user.dailyTasksCompleted;
-  if (user.lastTaskDate !== today) {
-    dailyCompleted = 0;
-    await storage.updateUserDailyTasks(userId, 0, today);
-  }
-
-  if (dailyCompleted >= user.dailyTasksLimit) {
-    return res.status(400).json({ message: "Kunlik limit tugadi" });
-  }
-
   if (!videoId && !youtubeVideoId) {
     return res.status(400).json({ message: "Video ID kerak" });
   }
@@ -51,10 +40,7 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
   }
 
   const taskVideoId = videoId || `yt_${youtubeVideoId}`;
-  const alreadyWatched = await storage.hasUserWatchedVideoToday(userId, taskVideoId, today);
-  if (alreadyWatched) {
-    return res.status(400).json({ message: "Bu videoni bugun allaqachon ko'rgansiz" });
-  }
+  const today = uzbNow.toISOString().split("T")[0];
 
   if (user.vipLevel < 0) {
     return res.status(400).json({ message: "Avval VIP paket sotib oling" });
@@ -74,12 +60,43 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
 
   const rewardStr = perVideoReward.toFixed(2);
   await db.transaction(async (tx) => {
+    const [lockedUser] = await tx.select({ dailyTasksCompleted: users.dailyTasksCompleted, dailyTasksLimit: users.dailyTasksLimit, lastTaskDate: users.lastTaskDate }).from(users).where(eq(users.id, userId)).for("update");
+    if (!lockedUser) throw new Error("USER_NOT_FOUND");
+
+    let dailyCompleted = lockedUser.dailyTasksCompleted;
+    if (lockedUser.lastTaskDate !== today) {
+      dailyCompleted = 0;
+    }
+
+    if (dailyCompleted >= lockedUser.dailyTasksLimit) {
+      throw new Error("DAILY_LIMIT");
+    }
+
+    const [existing] = await tx.select().from(taskHistory).where(
+      and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt}) = ${today}`)
+    ).limit(1);
+    if (existing) {
+      throw new Error("ALREADY_WATCHED");
+    }
     await tx.insert(taskHistory).values({ userId, videoId: taskVideoId, reward: rewardStr });
-    await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${rewardStr}::numeric` }).where(eq(users.id, userId));
-    await tx.update(users).set({ totalEarnings: dsql`${users.totalEarnings}::numeric + ${rewardStr}::numeric` }).where(eq(users.id, userId));
-    await tx.update(users).set({ dailyTasksCompleted: dailyCompleted + 1, lastTaskDate: today }).where(eq(users.id, userId));
+    await tx.update(users).set({
+      balance: dsql`${users.balance}::numeric + ${rewardStr}::numeric`,
+      totalEarnings: dsql`${users.totalEarnings}::numeric + ${rewardStr}::numeric`,
+      dailyTasksCompleted: dailyCompleted + 1,
+      lastTaskDate: today,
+    }).where(eq(users.id, userId));
     await tx.insert(balanceHistory).values({ userId, type: "earning", amount: rewardStr, description: `Video ko'rish daromadi (${userPkg?.name || "VIP"})` });
+  }).catch((err) => {
+    if (err.message === "ALREADY_WATCHED") {
+      return res.status(400).json({ message: "Bu videoni bugun allaqachon ko'rgansiz" });
+    }
+    if (err.message === "DAILY_LIMIT") {
+      return res.status(400).json({ message: "Kunlik limit tugadi" });
+    }
+    throw err;
   });
+
+  if (res.headersSent) return;
   sendNotification(userId, "task_reward", "task_completed", "task_completed", { amount: rewardStr });
 
   res.json({ reward: rewardStr, message: "Vazifa bajarildi!" });

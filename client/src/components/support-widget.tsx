@@ -9,41 +9,29 @@ const supportLinks = [
     icon: Headphones,
     url: "https://t.me/vem_ms",
     color: "#3B82F6",
+    labelKey: "help.techSupport",
+    descKey: "help.support247",
   },
   {
     key: "channel",
     icon: Megaphone,
     url: "https://t.me/Vem_Official",
     color: "#8B5CF6",
+    labelKey: "help.officialChannel",
+    descKey: "help.newsAnnouncements",
   },
   {
     key: "community",
     icon: Users,
     url: "https://t.me/+rO6-eoMDl0EyYWNh",
     color: "#10B981",
+    labelKey: "help.community",
+    descKey: "help.userGroup",
   },
 ];
 
-const labels: Record<string, Record<string, { label: string; desc: string }>> = {
-  uz: {
-    support: { label: "Texnik Yordam", desc: "24/7 qo'llab-quvvatlash" },
-    channel: { label: "Rasmiy Kanal", desc: "Yangiliklar va e'lonlar" },
-    community: { label: "Hamjamiyat", desc: "Foydalanuvchilar guruhi" },
-  },
-  ru: {
-    support: { label: "Тех. Поддержка", desc: "Поддержка 24/7" },
-    channel: { label: "Официальный Канал", desc: "Новости и объявления" },
-    community: { label: "Сообщество", desc: "Группа пользователей" },
-  },
-  en: {
-    support: { label: "Tech Support", desc: "24/7 support" },
-    channel: { label: "Official Channel", desc: "News & announcements" },
-    community: { label: "Community", desc: "User group" },
-  },
-};
-
 export function SupportWidget() {
-  const { locale } = useI18n();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -84,8 +72,6 @@ export function SupportWidget() {
 
   if (dismissed) return null;
 
-  const t = labels[locale] || labels.en;
-
   return (
     <div
       ref={btnRef}
@@ -99,7 +85,7 @@ export function SupportWidget() {
               <div className="flex items-center gap-2">
                 <SiTelegram className="w-4 h-4 text-primary" />
                 <span className="text-foreground font-bold text-sm">
-                  {locale === "uz" ? "Biz bilan bog'laning" : locale === "ru" ? "Свяжитесь с нами" : "Contact Us"}
+                  {t("common.contactUs")}
                 </span>
               </div>
             </div>
@@ -121,8 +107,8 @@ export function SupportWidget() {
                     <link.icon className="w-4.5 h-4.5" style={{ color: link.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-foreground text-[13px] font-semibold">{t[link.key].label}</p>
-                    <p className="text-muted-foreground text-[10px]">{t[link.key].desc}</p>
+                    <p className="text-foreground text-[13px] font-semibold">{t(link.labelKey)}</p>
+                    <p className="text-muted-foreground text-[10px]">{t(link.descKey)}</p>
                   </div>
                   <SiTelegram className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:text-primary transition-colors shrink-0" />
                 </a>
@@ -162,7 +148,7 @@ export function SupportWidget() {
             onClick={(e) => { e.stopPropagation(); setDismissed(true); }}
             className="absolute -bottom-1 -right-1 w-5 h-5 bg-muted border border-border rounded-full flex items-center justify-center hover:bg-red-500/20 hover:border-red-500/50 transition-colors"
             data-testid="button-dismiss-support"
-            title={locale === "ru" ? "Скрыть" : locale === "en" ? "Hide" : "Yopish"}
+            title={t("common.hide")}
           >
             <X className="w-2.5 h-2.5 text-muted-foreground" />
           </button>

@@ -180,8 +180,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                   const hasSpec = /[^a-zA-Z0-9]/.test(pw);
                   const strength = pw.length === 0 ? 0 : pw.length < 6 ? 1 : pw.length < 8 || !hasNum ? 2 : pw.length >= 10 && hasNum && hasSpec ? 4 : 3;
                   const strengthColors = ["", "bg-red-500", "bg-red-400", "bg-amber-400", "bg-emerald-500"];
-                  const strengthLabels: Record<string, string[]> = { uz: ["", "Juda kuchsiz", "Kuchsiz", "O'rtacha", "Kuchli"], ru: ["", "Очень слабый", "Слабый", "Средний", "Надёжный"], en: ["", "Very weak", "Weak", "Medium", "Strong"] };
-                  const langKey = (locale as string) in strengthLabels ? locale as string : "en";
+                  const strengthLabels = ["", t("common.strengthVeryWeak"), t("common.strengthWeak"), t("common.strengthMedium"), t("common.strengthStrong")];
                   return (
                     <FormItem>
                       <FormLabel className="text-foreground/70 text-xs font-semibold uppercase tracking-wider">{t("auth.loginPassword")}</FormLabel>
@@ -202,7 +201,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                                 ))}
                               </div>
                               <p className={`text-[11px] font-semibold transition-colors ${strength <= 2 ? "text-red-400" : strength === 3 ? "text-amber-400" : "text-emerald-500"}`}>
-                                {strengthLabels[langKey][strength]}
+                                {strengthLabels[strength]}
                               </p>
                             </div>
                           )}
@@ -223,7 +222,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                 className="w-full h-[52px] rounded-xl bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold text-[15px] shadow-xl shadow-primary/25 hover:brightness-110 hover:shadow-primary/35 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 mt-1"
                 data-testid="button-reg-next"
               >
-                {locale === "uz" ? "Keyingi" : locale === "ru" ? "Далее" : "Next"}
+                {t("common.next")}
                 <ChevronRight className="w-5 h-5" />
               </button>
             </div>
@@ -243,7 +242,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
               <div className="flex items-start gap-2.5 bg-amber-500/8 border border-amber-500/25 rounded-xl px-3.5 py-2.5">
                 <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
                 <p className="text-[12px] text-amber-400/90 leading-snug">
-                  {locale === "uz" ? "Bu PIN pul yechishda talab qilinadi. Unutmaslik uchun yozib qo'ying!" : locale === "ru" ? "Этот PIN требуется при выводе средств. Обязательно запомните его!" : "This PIN is required for withdrawals. Make sure to remember it!"}
+                  {t("common.pinWarning")}
                 </p>
               </div>
 
@@ -271,7 +270,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                   <div className={`w-4 h-4 rounded-full border-2 border-primary/40 flex items-center justify-center transition-all duration-200 ${showReferral ? "bg-primary border-primary" : ""}`}>
                     {showReferral ? <CheckCircle className="w-2.5 h-2.5 text-white" /> : <ArrowRight className="w-2 h-2 text-primary/60" />}
                   </div>
-                  {locale === "uz" ? "+ Referal kodim bor" : locale === "ru" ? "+ У меня есть реферальный код" : "+ I have a referral code"}
+                  {t("common.haveReferral")}
                 </button>
                 {showReferral && (
                   <div className="mt-2.5 animate-in fade-in slide-in-from-top-1 duration-200">
@@ -298,7 +297,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                 <div className="flex items-center gap-2">
                   <Bot className="w-3.5 h-3.5 text-muted-foreground" />
                   <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                    {locale === "uz" ? "Robot emasligingizni tasdiqlang" : locale === "ru" ? "Подтвердите, что вы не робот" : "Confirm you are not a robot"}
+                    {t("common.confirmNotRobot")}
                   </span>
                 </div>
                 <FormField
@@ -361,7 +360,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                   data-testid="button-reg-back"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  {locale === "uz" ? "Orqaga" : locale === "ru" ? "Назад" : "Back"}
+                  {t("common.back")}
                 </button>
                 <Button type="submit" className="flex-1 bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate h-[52px] rounded-xl shadow-xl shadow-primary/25 text-[15px] active:scale-[0.98] transition-all duration-200 hover:shadow-primary/35 hover:brightness-110" disabled={registerMutation.isPending} data-testid="button-register">
                   {registerMutation.isPending ? (
@@ -380,7 +379,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground/60 pt-0.5">
                 <Shield className="w-3 h-3 text-emerald-500/60" />
-                <span>{locale === "uz" ? "Ma'lumotlaringiz xavfsiz saqlanadi" : locale === "ru" ? "Ваши данные надёжно защищены" : "Your data is securely protected"}</span>
+                <span>{t("common.dataProtected")}</span>
               </div>
             </div>
           )}

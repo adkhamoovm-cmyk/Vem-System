@@ -229,12 +229,12 @@ function VideoPlayerModal({
 export default function TasksPage() {
   const { t, locale } = useI18n();
 
-  const { data: user } = useQuery<User>({
+  const { data: user, isLoading: userLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
-  const { data: vipPackages } = useQuery<VipPackage[]>({
+  const { data: vipPackages, isLoading: packagesLoading } = useQuery<VipPackage[]>({
     queryKey: ["/api/vip-packages"],
   });
 
@@ -291,6 +291,22 @@ export default function TasksPage() {
     const next = getNextUnwatched(justWatched || undefined);
     setNextVideoId(next);
   };
+
+  if (userLoading || packagesLoading) {
+    return (
+      <div className="p-4 flex flex-col gap-4">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-4 shadow-xl shadow-primary/20 animate-pulse">
+          <div className="h-20" />
+        </div>
+        <div className="bg-card rounded-2xl border border-border p-6 animate-pulse">
+          <div className="h-4 bg-muted rounded w-1/3 mb-4" />
+          <div className="h-8 bg-muted rounded w-full mb-3" />
+          <div className="h-48 bg-muted rounded w-full mb-3" />
+          <div className="h-12 bg-muted rounded w-full" />
+        </div>
+      </div>
+    );
+  }
 
   if (isSunday()) {
     return (

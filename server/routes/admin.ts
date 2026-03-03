@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler, validateBody, adminSchemas, userSchemas } from "../lib/helpers";
-import { users, depositRequests, withdrawalRequests, balanceHistory, investments } from "@shared/schema";
+import { users, depositRequests, withdrawalRequests, balanceHistory, investments, promoCodes, promoCodeUsages } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
 import { db } from "../db";
 import { pool } from "../db";
@@ -79,12 +79,23 @@ router.post("/api/admin/users/:id/balance", requireAdmin, validateBody(adminSche
   if (isNaN(numBalance) || numBalance < 0) {
     return res.status(400).json({ message: "Noto'g'ri balans qiymati" });
   }
-  const targetUser = await storage.getUser(req.params.id as string);
-  if (!targetUser) return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
-  const oldBalance = Number(targetUser.balance);
-  const diff = numBalance - oldBalance;
-  await storage.setUserBalance(req.params.id as string, numBalance.toFixed(2));
-  await storage.addBalanceHistory({ userId: req.params.id as string, type: "admin_adjust", amount: diff.toFixed(2), description: `Texnik bo'lim tomonidan balans o'zgartirildi` });
+  const targetId = req.params.id as string;
+
+  await db.transaction(async (tx) => {
+    const [locked] = await tx.select({ balance: users.balance }).from(users).where(eq(users.id, targetId)).for("update");
+    if (!locked) throw new Error("USER_NOT_FOUND");
+    const oldBalance = Number(locked.balance);
+    const diff = numBalance - oldBalance;
+    await tx.update(users).set({ balance: numBalance.toFixed(2) }).where(eq(users.id, targetId));
+    await tx.insert(balanceHistory).values({ userId: targetId, type: "admin_adjust", amount: diff.toFixed(2), description: `Texnik bo'lim tomonidan balans o'zgartirildi` });
+  }).catch((err) => {
+    if (err.message === "USER_NOT_FOUND") {
+      return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
+    }
+    throw err;
+  });
+
+  if (res.headersSent) return;
   res.json({ message: "Balans yangilandi" });
 }));
 
@@ -437,33 +448,46 @@ router.get("/api/admin/push-stats", requireAdmin, asyncHandler(async (_req: Requ
 
 router.post("/api/promo/use", requireAuth, validateBody(userSchemas.usePromo), asyncHandler(async (req: Request, res: Response) => {
   const { code } = req.body;
+  const userId = req.session.userId!;
+  const trimmedCode = code.trim().toUpperCase();
 
-  const promo = await storage.getPromoCodeByCode(code.trim().toUpperCase());
+  const promo = await storage.getPromoCodeByCode(trimmedCode);
   if (!promo) return res.status(404).json({ message: "Bunday promokod topilmadi" });
-  if (!promo.isActive) return res.status(400).json({ message: "Bu promokod faol emas" });
 
-  if (promo.isOneTime) {
-    if (promo.currentUses >= 1) return res.status(400).json({ message: "Bu promokod allaqachon ishlatilgan" });
-  } else if (promo.maxUses && promo.currentUses >= promo.maxUses) {
-    return res.status(400).json({ message: "Bu promokod limiti tugagan" });
-  }
+  let appliedAmount: string = "0";
 
-  const existingUsage = await storage.getUserPromoCodeUsage(req.session.userId!, promo.id);
-  if (existingUsage) return res.status(400).json({ message: "Siz bu promokodni allaqachon ishlatgansiz" });
+  await db.transaction(async (tx) => {
+    const [lockedPromo] = await tx.select().from(promoCodes).where(eq(promoCodes.id, promo.id)).for("update");
+    if (!lockedPromo || !lockedPromo.isActive) throw new Error("PROMO_INACTIVE");
 
-  await storage.createPromoCodeUsage({ promoCodeId: promo.id, userId: req.session.userId!, amount: promo.amount });
-  await storage.incrementPromoCodeUsage(promo.id);
-  await storage.updateUserBalance(req.session.userId!, promo.amount);
-  await storage.addBalanceHistory({ userId: req.session.userId!, type: "earning", amount: promo.amount, description: `Promokod: ${promo.code}` });
-  sendNotification(req.session.userId!, "deposit_confirmed", "promo_applied", "promo_applied", { amount: promo.amount });
+    if (lockedPromo.isOneTime && lockedPromo.currentUses >= 1) throw new Error("PROMO_USED");
+    if (!lockedPromo.isOneTime && lockedPromo.maxUses && lockedPromo.currentUses >= lockedPromo.maxUses) throw new Error("PROMO_LIMIT");
 
-  if (promo.isOneTime) {
-    await storage.deactivatePromoCode(promo.id);
-  } else if (promo.maxUses && promo.currentUses + 1 >= promo.maxUses) {
-    await storage.deactivatePromoCode(promo.id);
-  }
+    const [existingUsage] = await tx.select().from(promoCodeUsages).where(
+      and(eq(promoCodeUsages.promoCodeId, promo.id), eq(promoCodeUsages.userId, userId))
+    ).limit(1);
+    if (existingUsage) throw new Error("PROMO_ALREADY_USED_BY_USER");
 
-  res.json({ message: `${promo.amount} USDT hisobingizga qo'shildi!`, amount: promo.amount });
+    appliedAmount = lockedPromo.amount;
+    await tx.insert(promoCodeUsages).values({ promoCodeId: promo.id, userId, amount: appliedAmount });
+    await tx.update(promoCodes).set({ currentUses: dsql`${promoCodes.currentUses} + 1` }).where(eq(promoCodes.id, promo.id));
+    await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${appliedAmount}::numeric` }).where(eq(users.id, userId));
+    await tx.insert(balanceHistory).values({ userId, type: "earning", amount: appliedAmount, description: `Promokod: ${lockedPromo.code}` });
+
+    if (lockedPromo.isOneTime || (lockedPromo.maxUses && lockedPromo.currentUses + 1 >= lockedPromo.maxUses)) {
+      await tx.update(promoCodes).set({ isActive: false }).where(eq(promoCodes.id, promo.id));
+    }
+  }).catch((err) => {
+    if (err.message === "PROMO_INACTIVE") return res.status(400).json({ message: "Bu promokod faol emas" });
+    if (err.message === "PROMO_USED") return res.status(400).json({ message: "Bu promokod allaqachon ishlatilgan" });
+    if (err.message === "PROMO_LIMIT") return res.status(400).json({ message: "Bu promokod limiti tugagan" });
+    if (err.message === "PROMO_ALREADY_USED_BY_USER") return res.status(400).json({ message: "Siz bu promokodni allaqachon ishlatgansiz" });
+    throw err;
+  });
+
+  if (res.headersSent) return;
+  sendNotification(userId, "deposit_confirmed", "promo_applied", "promo_applied", { amount: appliedAmount });
+  res.json({ message: `${appliedAmount} USDT hisobingizga qo'shildi!`, amount: appliedAmount });
 }));
 
 router.get("/api/promo/history", requireAuth, asyncHandler(async (req: Request, res: Response) => {
