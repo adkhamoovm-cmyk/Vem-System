@@ -142,7 +142,8 @@ export default function DashboardPage() {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().slice(0, 10);
-      const dayLabel = d.toLocaleDateString(locale === "uz" ? "uz-UZ" : locale === "ru" ? "ru-RU" : "en-US", { weekday: "short" }).slice(0, 2);
+      const localeMap: Record<string, string> = { uz: "uz-UZ", ru: "ru-RU", en: "en-US", es: "es-ES", tr: "tr-TR" };
+      const dayLabel = d.toLocaleDateString(localeMap[locale] || "en-US", { weekday: "short" }).slice(0, 2);
       const earned = (balanceHistory || [])
         .filter(h => (h.type === "earning" || h.type === "fund_profit" || h.type === "commission") && new Date(h.createdAt).toISOString().slice(0, 10) === dateStr)
         .reduce((sum, h) => sum + Number(h.amount), 0);

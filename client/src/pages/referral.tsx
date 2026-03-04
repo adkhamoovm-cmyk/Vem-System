@@ -41,17 +41,23 @@ function timeAgo(dateStr: string, locale: string) {
   const now = Date.now();
   const d = new Date(dateStr).getTime();
   const diff = Math.floor((now - d) / 1000);
-  if (diff < 60) return locale === "uz" ? "hozirgina" : locale === "ru" ? "только что" : "just now";
+  if (diff < 60) {
+    const t: Record<string, string> = { uz: "hozirgina", ru: "только что", en: "just now", es: "ahora mismo", tr: "az önce" };
+    return t[locale] || t.en;
+  }
   if (diff < 3600) {
     const m = Math.floor(diff / 60);
-    return locale === "uz" ? `${m} daqiqa oldin` : locale === "ru" ? `${m} мин. назад` : `${m}m ago`;
+    const t: Record<string, string> = { uz: `${m} daqiqa oldin`, ru: `${m} мин. назад`, en: `${m}m ago`, es: `hace ${m} min`, tr: `${m} dk önce` };
+    return t[locale] || t.en;
   }
   if (diff < 86400) {
     const h = Math.floor(diff / 3600);
-    return locale === "uz" ? `${h} soat oldin` : locale === "ru" ? `${h} ч. назад` : `${h}h ago`;
+    const t: Record<string, string> = { uz: `${h} soat oldin`, ru: `${h} ч. назад`, en: `${h}h ago`, es: `hace ${h}h`, tr: `${h} sa önce` };
+    return t[locale] || t.en;
   }
   const days = Math.floor(diff / 86400);
-  return locale === "uz" ? `${days} kun oldin` : locale === "ru" ? `${days} дн. назад` : `${days}d ago`;
+  const t: Record<string, string> = { uz: `${days} kun oldin`, ru: `${days} дн. назад`, en: `${days}d ago`, es: `hace ${days}d`, tr: `${days} gün önce` };
+  return t[locale] || t.en;
 }
 
 export default function ReferralPage() {

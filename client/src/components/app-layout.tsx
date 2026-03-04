@@ -57,7 +57,7 @@ function BroadcastModal() {
             <p className="text-foreground font-bold text-sm truncate">{current.title}</p>
             {visible.length > 1 && (
               <p className="text-muted-foreground text-[10px]">
-                {locale === "ru" ? `Ещё ${visible.length - 1} сообщений` : locale === "en" ? `${visible.length - 1} more messages` : `Yana ${visible.length - 1} ta xabar`}
+                {{ uz: `Yana ${visible.length - 1} ta xabar`, ru: `Ещё ${visible.length - 1} сообщений`, en: `${visible.length - 1} more messages`, es: `${visible.length - 1} mensajes más`, tr: `${visible.length - 1} mesaj daha` }[locale] || `Yana ${visible.length - 1} ta xabar`}
               </p>
             )}
           </div>
@@ -74,7 +74,7 @@ function BroadcastModal() {
             className="w-full bg-gradient-to-r from-primary to-blue-600 text-white rounded-xl h-10 text-sm font-semibold flex items-center justify-center gap-2 active:opacity-90 transition-all shadow-lg shadow-primary/20"
             data-testid="button-broadcast-read"
           >
-            {locale === "ru" ? "Понял(а)" : locale === "en" ? "Got it" : "Tushunarli"}
+            {{ uz: "Tushunarli", ru: "Понял(а)", en: "Got it", es: "Entendido", tr: "Anladım" }[locale] || "Tushunarli"}
             {visible.length > 1 && <ChevronRight className="w-4 h-4" />}
           </button>
         </div>

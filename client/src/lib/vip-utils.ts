@@ -1,9 +1,8 @@
 export function getVipName(level: number, locale: string): string {
   if (level < 0) return "—";
   if (level === 0) {
-    if (locale === "ru") return "Стажёр";
-    if (locale === "en") return "Intern";
-    return "Stajyor";
+    const names: Record<string, string> = { uz: "Stajyor", ru: "Стажёр", en: "Intern", es: "Pasante", tr: "Stajyer" };
+    return names[locale] || "Stajyor";
   }
   return `M${level}`;
 }

@@ -42,7 +42,8 @@ export function AdminDashboard({ users: allUsers, deposits, withdrawals }: { use
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().slice(0, 10);
-      const dayLabel = d.toLocaleDateString(locale === "uz" ? "uz-UZ" : locale === "ru" ? "ru-RU" : "en-US", { day: "2-digit", month: "2-digit" });
+      const localeMap: Record<string, string> = { uz: "uz-UZ", ru: "ru-RU", en: "en-US", es: "es-ES", tr: "tr-TR" };
+      const dayLabel = d.toLocaleDateString(localeMap[locale] || "en-US", { day: "2-digit", month: "2-digit" });
       const dayDeposits = deposits.filter(dep => dep.status === "approved" && new Date(dep.createdAt).toISOString().slice(0, 10) === dateStr).reduce((s, dep) => s + Number(dep.amount), 0);
       const dayWithdrawals = withdrawals.filter(w => w.status === "approved" && new Date(w.createdAt).toISOString().slice(0, 10) === dateStr).reduce((s, w) => s + Number(w.amount), 0);
       days.push({ label: dayLabel, deposits: dayDeposits, withdrawals: dayWithdrawals });
