@@ -118,7 +118,7 @@ const OFFLINE_PAGE = `<!DOCTYPE html>
 
     (function() {
       try {
-        var saved = localStorage.getItem('vem-locale') || 'uz';
+        var saved = localStorage.getItem('vem-locale') || 'ru';
         if (saved && texts[saved]) switchLang(saved);
       } catch(e) {}
     })();
@@ -226,8 +226,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(STATIC_CACHE).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
         .catch(() =>
