@@ -432,9 +432,10 @@ export class DatabaseStorage implements IStorage {
       totalCommission: sql<string>`COALESCE(SUM(${referrals.commission}::numeric), 0)`,
     })
       .from(referrals)
-      .where(eq(referrals.level, 1))
+      .innerJoin(users, eq(referrals.referredId, users.id))
+      .where(and(eq(referrals.level, 1), sql`${users.vipLevel} > 0`))
       .groupBy(referrals.referrerId)
-      .orderBy(desc(sql`COALESCE(SUM(${referrals.commission}::numeric), 0)`))
+      .orderBy(desc(sql`count(*)`))
       .limit(limit);
     return result.map(r => ({
       referrerId: r.referrerId,

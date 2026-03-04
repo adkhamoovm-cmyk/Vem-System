@@ -21,7 +21,7 @@ export function TopReferrersTab() {
       <div className="flex items-center gap-2 mb-2">
         <Trophy className="w-5 h-5 text-[#FFB300]" />
         <h3 className="text-foreground font-bold text-sm">{t("admin.topReferrers")}</h3>
-        <span className="text-muted-foreground text-xs">{t("admin.byLevel1Invites")}</span>
+        <span className="text-muted-foreground text-xs">{t("admin.byVipInvites")}</span>
       </div>
 
       {topReferrers.length === 0 && <p className="text-muted-foreground text-sm text-center py-8">{t("admin.noDataFound")}</p>}
@@ -37,7 +37,7 @@ export function TopReferrersTab() {
               <p className="text-muted-foreground text-xs">VIP: {getVipName(r.vipLevel, locale)} | UID: {r.numericId?.slice(0, 8) || "—"}</p>
             </div>
             <div className="text-right">
-              <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{t("admin.count", { count: String(r.count) })}</p>
+              <p className="text-emerald-500 dark:text-emerald-400 font-bold text-sm">{t("admin.vipCount", { count: String(r.count) })}</p>
               <p className="text-muted-foreground text-[10px]">{Number(r.totalCommission).toFixed(2)} USDT</p>
             </div>
           </div>

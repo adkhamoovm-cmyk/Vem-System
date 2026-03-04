@@ -1,6 +1,7 @@
 {
   "common": {
     "pageNotFound": "Page not found",
+    "pageNotFoundDesc": "The page you're looking for doesn't exist or has been moved.",
     "goHome": "Go to home page",
     "errorOccurred": "An error occurred",
     "reloadPage": "Please reload the page",
@@ -746,6 +747,8 @@
     "deleted": "Deleted",
     "topReferrers": "Top 10 active referrers",
     "byLevel1Invites": "(by level 1 invite count)",
+    "byVipInvites": "(by invited users who purchased VIP)",
+    "vipCount": "{count} VIP",
     "noDataFound": "No data found",
     "multiAccounts": "Accounts with same IP/device",
     "noMultiAccounts": "No multi-accounts found",

@@ -1,6 +1,7 @@
 {
   "common": {
     "pageNotFound": "Sahifa topilmadi",
+    "pageNotFoundDesc": "Siz qidirgan sahifa mavjud emas yoki ko'chirilgan bo'lishi mumkin.",
     "goHome": "Bosh sahifaga qaytish",
     "errorOccurred": "Xatolik yuz berdi",
     "reloadPage": "Sahifani qayta yuklang",
@@ -746,6 +747,8 @@
     "deleted": "O'chirildi",
     "topReferrers": "Top 10 faol referalchilar",
     "byLevel1Invites": "(1-daraja taklif soni bo'yicha)",
+    "byVipInvites": "(VIP sotib olishga taklif qilganlar)",
+    "vipCount": "{count} ta VIP",
     "noDataFound": "Ma'lumot topilmadi",
     "multiAccounts": "Bir xil IP/qurilmali akkauntlar",
     "noMultiAccounts": "Multi-akkaunt topilmadi",
