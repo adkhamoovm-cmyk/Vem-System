@@ -96,6 +96,8 @@ const PUSH_WORTHY_KEYS = new Set([
   "withdrawal_approved", "withdrawal_rejected",
   "stajyor_approved", "stajyor_rejected",
   "fund_returned",
+  "referral_commission",
+  "fund_profit",
 ]);
 
 async function sendPushToUser(userId: string, titles: Record<string, string>, messages: Record<string, string>) {
