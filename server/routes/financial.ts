@@ -3,7 +3,7 @@ import { storage } from "../storage";
 import { db } from "../db";
 import { users, balanceHistory as balanceHistoryTable, investments, withdrawalRequests } from "@shared/schema";
 import { eq, sql as dsql } from "drizzle-orm";
-import { requireAuth, withdrawRateLimiter, sendNotification, uploadReceipt, comparePasswords, validateBody, financialSchemas, asyncHandler, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts } from "../lib/helpers";
+import { requireAuth, withdrawRateLimiter, sendNotification, uploadReceipt, comparePasswords, validateBody, financialSchemas, asyncHandler, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts, getUzbDayNow, getUzbToday, getUzbRealNow, DAY_OFFSET_MS } from "../lib/helpers";
 
 const router = Router();
 
@@ -99,9 +99,7 @@ router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, validateBody(f
     endDate.setDate(endDate.getDate() + plan.lockDays);
   }
 
-  const uzbOffset = 5 * 60 * 60 * 1000;
-  const uzbNow = new Date(Date.now() + uzbOffset);
-  const today = uzbNow.toISOString().split("T")[0];
+  const today = getUzbToday();
   let investment: typeof investments.$inferSelect;
 
   try {
@@ -297,10 +295,9 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
   const withdrawalEndHour = Number(settingsMap["withdrawal_end_hour"] ?? "17");
   const maxDailyWithdrawals = Number(settingsMap["max_daily_withdrawals"] ?? "1");
 
-  const uzbOffset = 5 * 60 * 60 * 1000;
-  const uzbNow = new Date(Date.now() + uzbOffset);
-  const uzbDay = uzbNow.getUTCDay();
-  const uzbHour = uzbNow.getUTCHours();
+  const uzbRealNow = getUzbRealNow();
+  const uzbDay = uzbRealNow.getUTCDay();
+  const uzbHour = uzbRealNow.getUTCHours();
 
   if (uzbDay === 0) {
     return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Pul yechish faqat Dushanba-Shanba kunlari mumkin." });
@@ -308,12 +305,12 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
   if (uzbHour < withdrawalStartHour || uzbHour >= withdrawalEndHour) {
     return res.status(400).json({ message: `Pul yechish faqat ${withdrawalStartHour}:00 dan ${withdrawalEndHour}:00 gacha mumkin` });
   }
-  const todayStr = uzbNow.toISOString().split("T")[0];
+  const todayStr = getUzbToday();
   const todayWithdrawals = await storage.getUserWithdrawalRequests(userId);
   const withdrawalsToday = todayWithdrawals.filter(w => {
     if (w.status === "rejected") return false;
-    const wUzb = new Date(new Date(w.createdAt).getTime() + uzbOffset);
-    const wDate = wUzb.toISOString().split("T")[0];
+    const wDay = new Date(new Date(w.createdAt).getTime() + DAY_OFFSET_MS);
+    const wDate = wDay.toISOString().split("T")[0];
     return wDate === todayStr;
   });
   if (withdrawalsToday.length >= maxDailyWithdrawals) {

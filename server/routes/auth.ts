@@ -14,6 +14,7 @@ import {
   authSchemas,
   adminSchemas,
   asyncHandler,
+  getUzbToday,
 } from "../lib/helpers";
 
 const router = Router();
@@ -230,9 +231,7 @@ router.get("/api/auth/me", requireAuth, asyncHandler(async (req: Request, res: R
     return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
   }
 
-  const uzbOffset = 5 * 60 * 60 * 1000;
-  const uzbNow = new Date(Date.now() + uzbOffset);
-  const today = uzbNow.toISOString().split("T")[0];
+  const today = getUzbToday();
   if (user.lastTaskDate !== today) {
     await storage.updateUserDailyTasks(user.id, 0, today);
     user.dailyTasksCompleted = 0;

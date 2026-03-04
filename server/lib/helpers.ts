@@ -9,6 +9,24 @@ import rateLimit from "express-rate-limit";
 import webpush from "web-push";
 import { z, ZodSchema } from "zod";
 
+const DAY_RESET_HOUR = 3;
+const UZB_TIMEZONE_OFFSET = 5;
+export const DAY_OFFSET_MS = (UZB_TIMEZONE_OFFSET - DAY_RESET_HOUR) * 60 * 60 * 1000;
+
+export function getUzbDayNow(): Date {
+  return new Date(Date.now() + DAY_OFFSET_MS);
+}
+
+export function getUzbToday(): string {
+  return getUzbDayNow().toISOString().split("T")[0];
+}
+
+export function getUzbRealNow(): Date {
+  return new Date(Date.now() + UZB_TIMEZONE_OFFSET * 60 * 60 * 1000);
+}
+
+export const DAY_RESET_SQL_INTERVAL = `${DAY_OFFSET_MS / 3600000} hours`;
+
 const vapidPublic = process.env.VAPID_PUBLIC_KEY || "";
 const vapidPrivate = process.env.VAPID_PRIVATE_KEY || "";
 if (vapidPublic && vapidPrivate) {

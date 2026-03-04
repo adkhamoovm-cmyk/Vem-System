@@ -4,7 +4,7 @@ import { pool } from "../db";
 import { db } from "../db";
 import { users, taskHistory, balanceHistory, referrals } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
-import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts } from "../lib/helpers";
+import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts, getUzbDayNow, getUzbToday, getUzbRealNow, DAY_RESET_SQL_INTERVAL } from "../lib/helpers";
 
 const router = Router();
 
@@ -17,9 +17,8 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
   const userId = req.session.userId!;
   const { videoId, youtubeVideoId } = req.body;
 
-  const uzbOffset = 5 * 60 * 60 * 1000;
-  const uzbNow = new Date(Date.now() + uzbOffset);
-  if (uzbNow.getUTCDay() === 0) {
+  const uzbRealNow = getUzbRealNow();
+  if (uzbRealNow.getUTCDay() === 0) {
     return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Vazifalar Dushanba-Shanba kunlari bajariladi." });
   }
 
@@ -40,13 +39,13 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
   }
 
   const taskVideoId = videoId || `yt_${youtubeVideoId}`;
-  const today = uzbNow.toISOString().split("T")[0];
+  const today = getUzbToday();
 
   if (user.vipLevel < 0) {
     return res.status(400).json({ message: "Avval VIP paket sotib oling" });
   }
 
-  if (user.vipExpiresAt && new Date(user.vipExpiresAt) < uzbNow) {
+  if (user.vipExpiresAt && new Date(user.vipExpiresAt) < uzbRealNow) {
     return res.status(400).json({ message: "VIP paketingiz muddati tugagan. Yangi paket sotib oling." });
   }
 
@@ -73,7 +72,7 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
     }
 
     const [existing] = await tx.select().from(taskHistory).where(
-      and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt} + INTERVAL '5 hours') = ${today}`)
+      and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt} + INTERVAL '${dsql.raw(DAY_RESET_SQL_INTERVAL)}') = ${today}`)
     ).limit(1);
     if (existing) {
       throw new Error("ALREADY_WATCHED");

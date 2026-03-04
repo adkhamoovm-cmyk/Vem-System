@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { storage } from "../storage";
-import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler, validateBody, adminSchemas, userSchemas } from "../lib/helpers";
+import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler, validateBody, adminSchemas, userSchemas, getUzbDayNow, getUzbToday } from "../lib/helpers";
 import { users, depositRequests, withdrawalRequests, balanceHistory, investments, promoCodes, promoCodeUsages } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
 import { db } from "../db";
@@ -537,9 +537,8 @@ export function setupDailyProfits() {
   async function processDailyProfits() {
     try {
       const activeInvestments = await storage.getActiveInvestments();
-      const uzbOffset = 5 * 60 * 60 * 1000;
-      const uzbNow = new Date(Date.now() + uzbOffset);
-      const today = uzbNow.toISOString().split("T")[0];
+      const uzbNow = getUzbDayNow();
+      const today = getUzbToday();
 
       for (const inv of activeInvestments) {
         if (inv.lastProfitDate === today) continue;
