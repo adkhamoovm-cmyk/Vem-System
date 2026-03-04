@@ -149,7 +149,7 @@ router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, validateBody(f
       amount: investAmount,
       dailyProfit,
       dailyRoi: plan.dailyRoi,
-      durationDays: plan.durationDays,
+      durationDays: plan.lockDays,
     }
   });
 }));

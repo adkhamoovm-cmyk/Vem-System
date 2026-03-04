@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler, validateBody, adminSchemas, userSchemas, getUzbDayNow, getUzbToday } from "../lib/helpers";
-import { users, depositRequests, withdrawalRequests, balanceHistory, investments, promoCodes, promoCodeUsages } from "@shared/schema";
+import { users, depositRequests, withdrawalRequests, balanceHistory, investments, promoCodes, promoCodeUsages, stajyorRequests } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
 import { db } from "../db";
 import { pool } from "../db";
@@ -316,12 +316,12 @@ router.post("/api/admin/stajyor-requests/:id/approve", requireAdmin, asyncHandle
   if (!request) return res.status(404).json({ message: "So'rov topilmadi" });
   if (request.status !== "pending") return res.status(400).json({ message: "Bu so'rov allaqachon ko'rib chiqilgan" });
 
-  await storage.updateStajyorRequestStatus(request.id, "approved");
-  await storage.setUserVipLevel(request.userId, 0, 3);
   const stajyorExpiry = new Date();
   stajyorExpiry.setDate(stajyorExpiry.getDate() + 3);
-  await storage.setUserVipExpiry(request.userId, stajyorExpiry);
-  await storage.setStajyorUsed(request.userId);
+  await db.transaction(async (tx) => {
+    await tx.update(users).set({ vipLevel: 0, dailyTasksLimit: 3, stajyorUsed: true, vipExpiresAt: stajyorExpiry, vipPurchasedAt: new Date() }).where(eq(users.id, request.userId));
+    await tx.update(stajyorRequests).set({ status: "approved", reviewedAt: new Date() }).where(eq(stajyorRequests.id, request.id));
+  });
   sendNotification(request.userId, "system", "stajyor_approved", "stajyor_approved");
   res.json({ message: "Stajyor lavozimi faollashtirildi! (3 kun)" });
 }));

@@ -121,8 +121,7 @@ const NOTIF_TEMPLATES: Record<string, Record<string, { title: string; message: s
 };
 
 function extractParams(template: string, actual: string): Record<string, string> | null {
-  const placeholders = [...template.matchAll(/\{(\w+)\}/g)].map(m => m[1]);
-  if (placeholders.length === 0) return template === actual ? {} : null;
+  if (template.indexOf("{") === -1) return template === actual ? {} : null;
   const paramNames: string[] = [];
   let regexStr = "";
   let lastIndex = 0;
