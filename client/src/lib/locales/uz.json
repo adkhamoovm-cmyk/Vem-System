@@ -3,6 +3,7 @@
     "pageNotFound": "Sahifa topilmadi",
     "pageNotFoundDesc": "Siz qidirgan sahifa mavjud emas yoki ko'chirilgan bo'lishi mumkin.",
     "goHome": "Bosh sahifaga qaytish",
+    "offlineMessage": "Aloqa mavjud emas. Internetga ulanganingizni tekshiring.",
     "errorOccurred": "Xatolik yuz berdi",
     "reloadPage": "Sahifani qayta yuklang",
     "reload": "Qayta yuklash",

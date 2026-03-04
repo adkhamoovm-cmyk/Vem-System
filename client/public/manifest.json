@@ -1,12 +1,15 @@
 {
   "name": "VEM - Video Earning Platform",
   "short_name": "VEM",
-  "description": "Watch videos, earn money. VEM platformasi.",
-  "start_url": "/",
+  "description": "Video ko'ring, pul ishlang. VEM platformasi.",
+  "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#2563eb",
   "orientation": "portrait",
+  "lang": "uz",
+  "categories": ["finance", "entertainment"],
   "icons": [
     {
       "src": "/icons/icon-192.png",
@@ -32,5 +35,7 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
 }

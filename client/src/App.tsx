@@ -10,6 +10,7 @@ import NotFound from "@/pages/not-found";
 import type { User } from "@shared/schema";
 import { lazy, Suspense, useEffect } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { OfflineBanner } from "@/components/offline-banner";
 
 const AuthPage = lazy(() => import("@/pages/auth"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
@@ -163,6 +164,7 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <TooltipProvider>
               <Toaster />
+              <OfflineBanner />
               <BannedListener />
               <Router />
             </TooltipProvider>
