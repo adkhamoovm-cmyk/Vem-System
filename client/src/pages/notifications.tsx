@@ -50,6 +50,7 @@ export default function NotificationsPage() {
 
   const { data: notifications = [], isLoading } = useQuery<Notification[]>({
     queryKey: ["/api/notifications"],
+    refetchInterval: 15000,
   });
 
   const markReadMutation = useMutation({

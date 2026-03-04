@@ -97,7 +97,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const { data: unreadData } = useQuery<{ count: number }>({
     queryKey: ["/api/notifications/unread-count"],
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
   const unreadCount = unreadData?.count ?? 0;
 

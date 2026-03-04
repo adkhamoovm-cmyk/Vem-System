@@ -104,22 +104,6 @@ export async function sendNotification(userId: string, type: string, titleKey: s
     const storedMessage = JSON.stringify({ uz: messageUz, ru: messageRu, en: messageEn });
 
     await storage.createNotification({ userId, type, title: storedTitle, message: storedMessage });
-    const titles: Record<string, string> = { uz: titleUz, ru: titleRu, en: titleEn };
-    const messages: Record<string, string> = { uz: messageUz, ru: messageRu, en: messageEn };
-    const subs = await storage.getUserPushSubscriptions(userId);
-    for (const sub of subs) {
-      try {
-        const lang = sub.locale || "uz";
-        await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          JSON.stringify({ title: titles[lang] || titleUz, body: messages[lang] || messageUz, url: "/notifications" })
-        );
-      } catch (err: any) {
-        if (err.statusCode === 410 || err.statusCode === 404) {
-          await storage.deletePushSubscription(userId, sub.endpoint);
-        }
-      }
-    }
   } catch (e) {
     console.error("sendNotification error:", e);
   }
@@ -128,19 +112,6 @@ export async function sendNotification(userId: string, type: string, titleKey: s
 export async function sendRawNotification(userId: string, type: string, title: string, message: string) {
   try {
     await storage.createNotification({ userId, type, title, message });
-    const subs = await storage.getUserPushSubscriptions(userId);
-    for (const sub of subs) {
-      try {
-        await webpush.sendNotification(
-          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-          JSON.stringify({ title, body: message, url: "/notifications" })
-        );
-      } catch (err: any) {
-        if (err.statusCode === 410 || err.statusCode === 404) {
-          await storage.deletePushSubscription(userId, sub.endpoint);
-        }
-      }
-    }
   } catch (e) {
     console.error("sendNotification error:", e);
   }
