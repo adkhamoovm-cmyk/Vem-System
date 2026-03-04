@@ -10,6 +10,14 @@ import { SupportWidget } from "@/components/support-widget";
 import type { User, Broadcast } from "@shared/schema";
 import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
 
+function linkifyText(text: string): string {
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return escaped.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80">$1</a>'
+  );
+}
+
 function BroadcastModal() {
   const { locale } = useI18n();
   const [dismissed, setDismissed] = useState<string[]>([]);
@@ -58,7 +66,7 @@ function BroadcastModal() {
           </button>
         </div>
         <div className="px-4 py-4">
-          <p className="text-foreground text-sm leading-relaxed whitespace-pre-wrap">{current.message}</p>
+          <p className="text-foreground text-sm leading-relaxed whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: linkifyText(current.message) }} />
         </div>
         <div className="px-4 pb-4">
           <button

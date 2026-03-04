@@ -6,6 +6,14 @@ import { Bell, CheckCheck, Gift, Crown, Users, ArrowDownToLine, ArrowUpFromLine,
 import { Link } from "wouter";
 import type { Notification } from "@shared/schema";
 
+function linkifyText(text: string): string {
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return escaped.replace(
+    /(https?:\/\/[^\s<]+)/g,
+    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80">$1</a>'
+  );
+}
+
 function getTimeAgo(date: string | Date | null | undefined, t: (key: string, params?: Record<string, string | number>) => string): string {
   if (!date) return "";
   const now = Date.now();
@@ -175,9 +183,7 @@ export default function NotificationsPage() {
                         {getTimeAgo(notification.createdAt, t)}
                       </span>
                     </div>
-                    <p className={`text-xs mt-1 leading-relaxed ${isUnread ? "text-muted-foreground" : "text-muted-foreground/70"}`}>
-                      {getLocalizedText(notification.message, locale)}
-                    </p>
+                    <p className={`text-xs mt-1 leading-relaxed ${isUnread ? "text-muted-foreground" : "text-muted-foreground/70"}`} dangerouslySetInnerHTML={{ __html: linkifyText(getLocalizedText(notification.message, locale)) }} />
                     <span className={`inline-block text-[9px] uppercase tracking-wider font-medium mt-1.5 px-1.5 py-0.5 rounded-md ${
                       isUnread ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                     }`}>
