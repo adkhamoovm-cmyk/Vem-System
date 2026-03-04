@@ -60,7 +60,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
   const registerMutation = useMutation({
     mutationFn: async (data: RegisterFormData) => {
       const fullPhone = regCountry.code + data.phone;
-      const res = await apiRequest("POST", "/api/auth/register", { ...data, phone: fullPhone });
+      const res = await apiRequest("POST", "/api/auth/register", { ...data, phone: fullPhone, captchaVerified: data.captcha });
       return res.json();
     },
     onSuccess: () => {
