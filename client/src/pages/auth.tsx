@@ -59,7 +59,7 @@ export default function AuthPage() {
         <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.03) 1px, transparent 0)", backgroundSize: "40px 40px" }} />
       </div>
 
-      <div className="absolute right-4 flex items-center gap-2 z-50" style={{ top: "calc(1rem + var(--sat, 0px))" }}>
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-50">
         <LanguageSwitcher />
         <button
           onClick={toggleTheme}

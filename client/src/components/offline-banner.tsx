@@ -25,7 +25,7 @@ export function OfflineBanner() {
     <>
       <style>{`@keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }`}</style>
       <div className="fixed top-0 left-0 right-0 z-[9999]" style={{ animation: "slideDown 0.3s ease-out" }}>
-        <div className="bg-gradient-to-r from-red-600 to-orange-500 px-4 py-3 flex items-center justify-center gap-3 shadow-lg" style={{ paddingTop: "max(0.75rem, env(safe-area-inset-top))" }}>
+        <div className="bg-gradient-to-r from-red-600 to-orange-500 px-4 py-3 flex items-center justify-center gap-3 shadow-lg">
           <WifiOff className="w-4 h-4 text-white shrink-0 animate-pulse" />
           <span className="text-white text-sm font-medium" data-testid="text-offline-message">
             {t("common.offlineMessage")}
