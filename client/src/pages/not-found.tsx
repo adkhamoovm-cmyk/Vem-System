@@ -6,7 +6,7 @@ export default function NotFound() {
   const { t } = useI18n();
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 overflow-hidden relative">
+    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 overflow-hidden relative" style={{ paddingTop: "var(--sat, 0px)", paddingBottom: "var(--sab, 0px)" }}>
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-float-slow" />
         <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl animate-float-slow-reverse" />
