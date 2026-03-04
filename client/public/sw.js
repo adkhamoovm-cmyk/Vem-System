@@ -1,6 +1,6 @@
-const CACHE_NAME = 'vem-v5';
-const STATIC_CACHE = 'vem-static-v5';
-const API_CACHE = 'vem-api-v2';
+const CACHE_NAME = 'vem-v6';
+const STATIC_CACHE = 'vem-static-v6';
+const API_CACHE = 'vem-api-v3';
 
 const PRECACHE_URLS = [
   '/',
@@ -74,9 +74,9 @@ const OFFLINE_PAGE = `<!DOCTYPE html>
     </div>
 
     <div class="lang-tabs">
-      <button class="lang-tab active" onclick="switchLang('uz')">O'zbek</button>
-      <button class="lang-tab" onclick="switchLang('ru')">Русский</button>
-      <button class="lang-tab" onclick="switchLang('en')">English</button>
+      <button class="lang-tab active" data-lang="uz" onclick="switchLang('uz')">O'zbek</button>
+      <button class="lang-tab" data-lang="ru" onclick="switchLang('ru')">Русский</button>
+      <button class="lang-tab" data-lang="en" onclick="switchLang('en')">English</button>
     </div>
 
     <div id="msg-uz" class="msg active">
@@ -108,11 +108,31 @@ const OFFLINE_PAGE = `<!DOCTYPE html>
       document.querySelectorAll('.msg').forEach(function(el) { el.classList.remove('active'); });
       document.getElementById('msg-' + lang).classList.add('active');
       document.querySelectorAll('.lang-tab').forEach(function(el) { el.classList.remove('active'); });
-      event.target.classList.add('active');
+      var tabs = document.querySelectorAll('.lang-tab');
+      for (var i = 0; i < tabs.length; i++) {
+        if (tabs[i].getAttribute('data-lang') === lang) tabs[i].classList.add('active');
+      }
       document.getElementById('btnText').textContent = texts[lang].btn;
       document.getElementById('statusText').textContent = texts[lang].status;
     }
-    window.addEventListener('online', function() { window.location.reload(); });
+
+    (function() {
+      try {
+        var saved = localStorage.getItem('vem-locale') || 'uz';
+        if (saved && texts[saved]) switchLang(saved);
+      } catch(e) {}
+    })();
+
+    var reloading = false;
+    function doReload() {
+      if (reloading) return;
+      reloading = true;
+      window.location.reload();
+    }
+    window.addEventListener('online', doReload);
+    setInterval(function() {
+      if (navigator.onLine) doReload();
+    }, 3000);
   </script>
 </body>
 </html>`;

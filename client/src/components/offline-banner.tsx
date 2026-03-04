@@ -1,24 +1,34 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { WifiOff, RefreshCw } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 export function OfflineBanner() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const reloadingRef = useRef(false);
   const { t } = useI18n();
 
   useEffect(() => {
-    const goOffline = () => setIsOffline(true);
-    const goOnline = () => {
+    const doReload = () => {
+      if (reloadingRef.current) return;
+      reloadingRef.current = true;
       setIsOffline(false);
       window.location.reload();
     };
 
+    const goOffline = () => setIsOffline(true);
+    const goOnline = () => doReload();
+
     window.addEventListener("offline", goOffline);
     window.addEventListener("online", goOnline);
+
+    const interval = setInterval(() => {
+      if (navigator.onLine) doReload();
+    }, 3000);
 
     return () => {
       window.removeEventListener("offline", goOffline);
       window.removeEventListener("online", goOnline);
+      clearInterval(interval);
     };
   }, []);
 
