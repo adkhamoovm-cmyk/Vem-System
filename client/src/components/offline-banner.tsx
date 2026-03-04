@@ -8,29 +8,35 @@ export function OfflineBanner() {
   const { t } = useI18n();
 
   useEffect(() => {
-    const doReload = () => {
-      if (reloadingRef.current) return;
-      reloadingRef.current = true;
+    const goOffline = () => setIsOffline(true);
+    const goOnline = () => {
       setIsOffline(false);
       window.location.reload();
     };
 
-    const goOffline = () => setIsOffline(true);
-    const goOnline = () => doReload();
-
     window.addEventListener("offline", goOffline);
     window.addEventListener("online", goOnline);
-
-    const interval = setInterval(() => {
-      if (navigator.onLine) doReload();
-    }, 3000);
 
     return () => {
       window.removeEventListener("offline", goOffline);
       window.removeEventListener("online", goOnline);
-      clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isOffline) return;
+
+    const interval = setInterval(() => {
+      if (navigator.onLine) {
+        if (reloadingRef.current) return;
+        reloadingRef.current = true;
+        setIsOffline(false);
+        window.location.reload();
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [isOffline]);
 
   if (!isOffline) return null;
 
