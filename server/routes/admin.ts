@@ -162,7 +162,8 @@ router.post("/api/admin/deposits/:id/approve", requireAdmin, asyncHandler(async 
       .where(and(eq(balanceHistory.userId, deposit.userId), eq(balanceHistory.type, "deposit")))
       .orderBy(desc(balanceHistory.createdAt))
       .limit(10);
-    const match = entries.find(e => e.amount === deposit.amount || e.amount === "0");
+    const searchStr = `${Number(deposit.amount).toFixed(2)} ${deposit.currency}`;
+    const match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
     if (match) {
       await tx.update(balanceHistory).set({ amount: amountInUSDT, description: `Depozit tasdiqlandi (${deposit.currency === "UZS" ? deposit.amount + " UZS → " : ""}${amountInUSDT} USDT)` }).where(eq(balanceHistory.id, match.id));
     }
