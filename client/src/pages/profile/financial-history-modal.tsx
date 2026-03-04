@@ -161,8 +161,8 @@ export function FinancialHistoryModal({
                     </div>
                   </div>
                   <div className="text-right shrink-0 ml-2">
-                    <p className={`text-sm font-bold ${isPositive ? "text-emerald-500 dark:text-emerald-400" : "text-primary"}`}>
-                      {isPositive ? "+" : ""}{Number(h.amount).toFixed(2)}
+                    <p className={`text-sm font-bold ${entryStatus === "rejected" ? "text-red-500" : isPositive ? "text-emerald-500 dark:text-emerald-400" : "text-primary"}`}>
+                      {entryStatus === "rejected" ? `-${Number(h.amount).toFixed(2)}` : `${isPositive ? "+" : ""}${Number(h.amount).toFixed(2)}`}
                     </p>
                     <p className="text-muted-foreground text-[10px]">USDT</p>
                   </div>

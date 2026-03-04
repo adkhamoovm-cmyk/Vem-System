@@ -589,7 +589,7 @@ export class DatabaseStorage implements IStorage {
     if (pendingEntry) {
       const parts = pendingEntry.description!.split("|");
       parts[0] = newStatus;
-      const finalAmount = newStatus === "rejected" ? "0" : amountInUSDT;
+      const finalAmount = amountInUSDT;
       await db.update(balanceHistory)
         .set({ description: parts.join("|"), amount: finalAmount })
         .where(eq(balanceHistory.id, pendingEntry.id));
