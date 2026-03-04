@@ -584,7 +584,7 @@ export function setupDailyProfits() {
     }
   }
 
-  setInterval(processDailyProfits, 24 * 60 * 60 * 1000);
+  setInterval(processDailyProfits, 60 * 60 * 1000);
   setTimeout(processDailyProfits, 5000);
 }
 

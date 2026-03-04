@@ -17,8 +17,8 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
   const userId = req.session.userId!;
   const { videoId, youtubeVideoId } = req.body;
 
-  const uzbRealNow = getUzbRealNow();
-  if (uzbRealNow.getUTCDay() === 0) {
+  const uzbDayNow = getUzbDayNow();
+  if (uzbDayNow.getUTCDay() === 0) {
     return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Vazifalar Dushanba-Shanba kunlari bajariladi." });
   }
 
@@ -45,7 +45,7 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
     return res.status(400).json({ message: "Avval VIP paket sotib oling" });
   }
 
-  if (user.vipExpiresAt && new Date(user.vipExpiresAt) < uzbRealNow) {
+  if (user.vipExpiresAt && new Date(user.vipExpiresAt) < getUzbRealNow()) {
     return res.status(400).json({ message: "VIP paketingiz muddati tugagan. Yangi paket sotib oling." });
   }
 
@@ -174,10 +174,14 @@ router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, validateBody(
       await tx.insert(balanceHistory).values({ userId, type: "refund", amount: String(refundAmount), description: `VIP qaytim: ${refundAmount.toFixed(2)} USDT (oqlanmagan qism qaytarildi)` });
     }
 
-    await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${String(-fullPrice)}::numeric` }).where(eq(users.id, userId));
-    await tx.update(users).set({ vipLevel: pkg.level, dailyTasksLimit: pkg.dailyTasks }).where(eq(users.id, userId));
-    await tx.update(users).set({ vipExpiresAt: expiresAt }).where(eq(users.id, userId));
-    await tx.update(users).set({ vipPurchasedAt: new Date(), vipPurchasePrice: String(pkg.price) }).where(eq(users.id, userId));
+    await tx.update(users).set({
+      balance: dsql`${users.balance}::numeric + ${String(-fullPrice)}::numeric`,
+      vipLevel: pkg.level,
+      dailyTasksLimit: pkg.dailyTasks,
+      vipExpiresAt: expiresAt,
+      vipPurchasedAt: new Date(),
+      vipPurchasePrice: String(pkg.price),
+    }).where(eq(users.id, userId));
     await tx.insert(balanceHistory).values({ userId, type: "vip_purchase", amount: String(-fullPrice), description: `${pkg.name} paketi ${isExtension ? "uzaytirildi" : "sotib olindi"} (${pkg.durationDays} kun)` });
 
     notificationsToSend.push({ userId, type: "system", titleKey: "vip_activated", msgKey: "vip_activated", params: { name: pkg.name, tasks: String(pkg.dailyTasks), days: String(pkg.durationDays) } });

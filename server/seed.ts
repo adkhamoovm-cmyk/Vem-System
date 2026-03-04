@@ -6,6 +6,7 @@ export async function seedDatabase() {
   const indexes = [
     'CREATE INDEX IF NOT EXISTS idx_task_history_user_id ON task_history(user_id)',
     'CREATE INDEX IF NOT EXISTS idx_task_history_completed_at ON task_history(completed_at)',
+    'CREATE INDEX IF NOT EXISTS idx_task_history_user_video_date ON task_history(user_id, video_id, completed_at)',
     'CREATE INDEX IF NOT EXISTS idx_referrals_referrer_id ON referrals(referrer_id)',
     'CREATE INDEX IF NOT EXISTS idx_referrals_referred_id ON referrals(referred_id)',
     'CREATE INDEX IF NOT EXISTS idx_investments_user_id ON investments(user_id)',

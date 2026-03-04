@@ -295,13 +295,13 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
   const withdrawalEndHour = Number(settingsMap["withdrawal_end_hour"] ?? "17");
   const maxDailyWithdrawals = Number(settingsMap["max_daily_withdrawals"] ?? "1");
 
+  const uzbDayNow = getUzbDayNow();
   const uzbRealNow = getUzbRealNow();
-  const uzbDay = uzbRealNow.getUTCDay();
-  const uzbHour = uzbRealNow.getUTCHours();
 
-  if (uzbDay === 0) {
+  if (uzbDayNow.getUTCDay() === 0) {
     return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Pul yechish faqat Dushanba-Shanba kunlari mumkin." });
   }
+  const uzbHour = uzbRealNow.getUTCHours();
   if (uzbHour < withdrawalStartHour || uzbHour >= withdrawalEndHour) {
     return res.status(400).json({ message: `Pul yechish faqat ${withdrawalStartHour}:00 dan ${withdrawalEndHour}:00 gacha mumkin` });
   }
