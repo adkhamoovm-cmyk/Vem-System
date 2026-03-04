@@ -1,6 +1,6 @@
-const CACHE_NAME = 'vem-v4';
-const STATIC_CACHE = 'vem-static-v4';
-const API_CACHE = 'vem-api-v1';
+const CACHE_NAME = 'vem-v5';
+const STATIC_CACHE = 'vem-static-v5';
+const API_CACHE = 'vem-api-v2';
 
 const PRECACHE_URLS = [
   '/',
