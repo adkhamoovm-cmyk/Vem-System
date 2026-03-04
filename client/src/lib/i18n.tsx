@@ -2,13 +2,17 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import uz from "./locales/uz.json";
 import ru from "./locales/ru.json";
 import en from "./locales/en.json";
+import es from "./locales/es.json";
+import tr from "./locales/tr.json";
 
-export type Locale = "uz" | "ru" | "en";
+export type Locale = "uz" | "ru" | "en" | "es" | "tr";
 
 const localeLabels: Record<Locale, string> = {
   uz: "O'zbek",
   ru: "Русский",
   en: "English",
+  es: "Español",
+  tr: "Türkçe",
 };
 
 interface I18nContextType {
@@ -29,7 +33,7 @@ function getNestedValue(obj: any, path: string): string | undefined {
   return path.split(".").reduce((acc, part) => acc?.[part], obj);
 }
 
-const translations: Record<Locale, any> = { uz, ru, en };
+const translations: Record<Locale, any> = { uz, ru, en, es, tr };
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {

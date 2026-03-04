@@ -1,6 +1,6 @@
-const CACHE_NAME = 'vem-v6';
-const STATIC_CACHE = 'vem-static-v6';
-const API_CACHE = 'vem-api-v3';
+const CACHE_NAME = 'vem-v7';
+const STATIC_CACHE = 'vem-static-v7';
+const API_CACHE = 'vem-api-v4';
 
 const PRECACHE_URLS = [
   '/',
@@ -77,6 +77,8 @@ const OFFLINE_PAGE = `<!DOCTYPE html>
       <button class="lang-tab active" data-lang="uz" onclick="switchLang('uz')">O'zbek</button>
       <button class="lang-tab" data-lang="ru" onclick="switchLang('ru')">Русский</button>
       <button class="lang-tab" data-lang="en" onclick="switchLang('en')">English</button>
+      <button class="lang-tab" data-lang="es" onclick="switchLang('es')">Español</button>
+      <button class="lang-tab" data-lang="tr" onclick="switchLang('tr')">Türkçe</button>
     </div>
 
     <div id="msg-uz" class="msg active">
@@ -91,6 +93,14 @@ const OFFLINE_PAGE = `<!DOCTYPE html>
       <h1>No Connection</h1>
       <p class="subtitle">Check your internet connection and try again.<br>The app will resume automatically when you're back online.</p>
     </div>
+    <div id="msg-es" class="msg">
+      <h1>Sin conexión</h1>
+      <p class="subtitle">Verifica tu conexión a internet e inténtalo de nuevo.<br>La aplicación se reanudará automáticamente cuando vuelvas a estar en línea.</p>
+    </div>
+    <div id="msg-tr" class="msg">
+      <h1>Bağlantı yok</h1>
+      <p class="subtitle">İnternet bağlantınızı kontrol edin ve tekrar deneyin.<br>Çevrimiçi olduğunuzda uygulama otomatik olarak devam edecektir.</p>
+    </div>
 
     <button class="btn" onclick="window.location.reload()">
       <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -102,7 +112,9 @@ const OFFLINE_PAGE = `<!DOCTYPE html>
     var texts = {
       uz: { btn: "Qayta urinish", status: "OFFLINE" },
       ru: { btn: "Повторить", status: "НЕТ СЕТИ" },
-      en: { btn: "Try Again", status: "OFFLINE" }
+      en: { btn: "Try Again", status: "OFFLINE" },
+      es: { btn: "Reintentar", status: "SIN CONEXIÓN" },
+      tr: { btn: "Tekrar Dene", status: "ÇEVRİMDIŞI" }
     };
     function switchLang(lang) {
       document.querySelectorAll('.msg').forEach(function(el) { el.classList.remove('active'); });

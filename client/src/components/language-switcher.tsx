@@ -5,6 +5,8 @@ const flags: Record<Locale, string> = {
   uz: "🇺🇿",
   ru: "🇷🇺",
   en: "🇬🇧",
+  es: "🇪🇸",
+  tr: "🇹🇷",
 };
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
@@ -43,7 +45,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
     animTimerRef.current = setTimeout(() => setAnimating(false), 600);
   };
 
-  const locales: Locale[] = ["uz", "ru", "en"];
+  const locales: Locale[] = ["uz", "ru", "en", "es", "tr"];
 
   return (
     <div className="relative" ref={ref}>
