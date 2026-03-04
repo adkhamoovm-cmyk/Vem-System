@@ -91,6 +91,34 @@ export function formatNotifText(text: string, params: Record<string, string>): s
   return result;
 }
 
+const PUSH_WORTHY_KEYS = new Set([
+  "deposit_approved", "deposit_rejected",
+  "withdrawal_approved", "withdrawal_rejected",
+  "stajyor_approved", "stajyor_rejected",
+  "fund_returned",
+]);
+
+async function sendPushToUser(userId: string, titles: Record<string, string>, messages: Record<string, string>) {
+  try {
+    const subs = await storage.getUserPushSubscriptions(userId);
+    for (const sub of subs) {
+      try {
+        const lang = sub.locale || "uz";
+        await webpush.sendNotification(
+          { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+          JSON.stringify({ title: titles[lang] || titles.uz, body: messages[lang] || messages.uz, url: "/notifications" })
+        );
+      } catch (err: any) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await storage.deletePushSubscription(userId, sub.endpoint);
+        }
+      }
+    }
+  } catch (e) {
+    console.error("sendPush error:", e);
+  }
+}
+
 export async function sendNotification(userId: string, type: string, titleKey: string, messageKey: string, params: Record<string, string> = {}) {
   try {
     const titleUz = formatNotifText(notifTranslations.uz[titleKey]?.title || titleKey, params);
@@ -104,6 +132,10 @@ export async function sendNotification(userId: string, type: string, titleKey: s
     const storedMessage = JSON.stringify({ uz: messageUz, ru: messageRu, en: messageEn });
 
     await storage.createNotification({ userId, type, title: storedTitle, message: storedMessage });
+
+    if (PUSH_WORTHY_KEYS.has(messageKey)) {
+      await sendPushToUser(userId, { uz: titleUz, ru: titleRu, en: titleEn }, { uz: messageUz, ru: messageRu, en: messageEn });
+    }
   } catch (e) {
     console.error("sendNotification error:", e);
   }
@@ -112,6 +144,7 @@ export async function sendNotification(userId: string, type: string, titleKey: s
 export async function sendRawNotification(userId: string, type: string, title: string, message: string) {
   try {
     await storage.createNotification({ userId, type, title, message });
+    await sendPushToUser(userId, { uz: title, ru: title, en: title }, { uz: message, ru: message, en: message });
   } catch (e) {
     console.error("sendNotification error:", e);
   }
