@@ -73,7 +73,7 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
     }
 
     const [existing] = await tx.select().from(taskHistory).where(
-      and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt}) = ${today}`)
+      and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt} + INTERVAL '5 hours') = ${today}`)
     ).limit(1);
     if (existing) {
       throw new Error("ALREADY_WATCHED");
