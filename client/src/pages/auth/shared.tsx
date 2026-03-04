@@ -7,10 +7,10 @@ export interface CountryCode {
 }
 
 export const countryCodes: CountryCode[] = [
-  { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}" },
-  { code: "+7",   country: "RU", flag: "\u{1F1F7}\u{1F1FA}" },
   { code: "+49",  country: "DE", flag: "\u{1F1E9}\u{1F1EA}" },
+  { code: "+7",   country: "RU", flag: "\u{1F1F7}\u{1F1FA}" },
   { code: "+1",   country: "US", flag: "\u{1F1FA}\u{1F1F8}" },
+  { code: "+998", country: "UZ", flag: "\u{1F1FA}\u{1F1FF}" },
   { code: "+44",  country: "GB", flag: "\u{1F1EC}\u{1F1E7}" },
   { code: "+82",  country: "KR", flag: "\u{1F1F0}\u{1F1F7}" },
   { code: "+90",  country: "TR", flag: "\u{1F1F9}\u{1F1F7}" },
