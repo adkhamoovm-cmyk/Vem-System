@@ -99,7 +99,9 @@ router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, validateBody(f
     endDate.setDate(endDate.getDate() + plan.lockDays);
   }
 
-  const today = new Date().toISOString().split("T")[0];
+  const uzbOffset = 5 * 60 * 60 * 1000;
+  const uzbNow = new Date(Date.now() + uzbOffset);
+  const today = uzbNow.toISOString().split("T")[0];
   let investment: typeof investments.$inferSelect;
 
   try {

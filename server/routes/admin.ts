@@ -537,7 +537,9 @@ export function setupDailyProfits() {
   async function processDailyProfits() {
     try {
       const activeInvestments = await storage.getActiveInvestments();
-      const today = new Date().toISOString().split("T")[0];
+      const uzbOffset = 5 * 60 * 60 * 1000;
+      const uzbNow = new Date(Date.now() + uzbOffset);
+      const today = uzbNow.toISOString().split("T")[0];
 
       for (const inv of activeInvestments) {
         if (inv.lastProfitDate === today) continue;
@@ -560,7 +562,7 @@ export function setupDailyProfits() {
           await tx.insert(balanceHistory).values({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
           notificationsToSend.push({ userId: inv.userId, type: "task_reward", titleKey: "fund_profit", msgKey: "fund_profit", params: { amount: inv.dailyProfit, name: planName } });
 
-          if (inv.endDate && new Date(inv.endDate) <= new Date()) {
+          if (inv.endDate && new Date(inv.endDate) <= uzbNow) {
             await tx.update(investments)
               .set({ status: "completed" })
               .where(eq(investments.id, inv.id));
