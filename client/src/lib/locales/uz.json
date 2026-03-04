@@ -207,8 +207,10 @@
   "tasks": {
     "perVideo": "Har video",
     "tasksLabel": "Vazifalar",
-    "noPrivilege": "Imtiyoz mavjud emas",
-    "buyVipToWork": "Vazifa bajarish uchun VIP paket sotib oling",
+    "noPrivilege": "Siz hali rasmiy xodim emassiz",
+    "buyVipToWork": "Vazifalarni bajarish va daromad olish uchun VIP paketni faollashtiring",
+    "noPrivilegeDesc": "Videolarni ko'rish va kundalik daromad olishni boshlash uchun avval VIP paketlardan birini tanlang. VIP paket sizga kundalik vazifalar, yuqori daromad va maxsus imkoniyatlarni ochib beradi.",
+    "noPrivilegeHint": "VIP paketni sotib olganingizdan keyin vazifalar avtomatik ravishda ochiladi",
     "getVip": "VIP olish",
     "needVipTitle": "VIP paket sotib oling",
     "needVipDesc": "Vazifalarni bajarish va pul ishlash uchun VIP paketni faollashtiring",

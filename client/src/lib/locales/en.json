@@ -207,8 +207,10 @@
   "tasks": {
     "perVideo": "Per video",
     "tasksLabel": "Tasks",
-    "noPrivilege": "No privileges",
-    "buyVipToWork": "Buy a VIP package to complete tasks",
+    "noPrivilege": "You are not a member yet",
+    "buyVipToWork": "Activate a VIP package to start completing tasks and earning",
+    "noPrivilegeDesc": "To start watching videos and earning daily income, choose one of the VIP packages. A VIP package unlocks daily tasks, higher earnings, and exclusive benefits.",
+    "noPrivilegeHint": "Tasks will unlock automatically after purchasing a VIP package",
     "getVip": "Get VIP",
     "needVipTitle": "Get a VIP package",
     "needVipDesc": "Activate a VIP package to start completing tasks and earning",

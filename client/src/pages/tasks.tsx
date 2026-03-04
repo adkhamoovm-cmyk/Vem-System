@@ -347,6 +347,57 @@ export default function TasksPage() {
 
   const progressPercent = user && user.dailyTasksLimit > 0 ? (user.dailyTasksCompleted / user.dailyTasksLimit) * 100 : 0;
 
+  if (noPrivilege) {
+    return (
+      <div className="p-4 flex flex-col gap-4">
+        {user && (
+          <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-4 shadow-xl shadow-primary/20 animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }}>
+            <div className="absolute inset-0 opacity-[0.07]">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -translate-y-1/2 translate-x-1/4" />
+            </div>
+            <div className="relative flex items-center gap-3">
+              <div className="w-11 h-11 bg-white/15 rounded-2xl flex items-center justify-center backdrop-blur-sm border border-white/10">
+                <Lock className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <span className="text-white/60 text-[10px] uppercase tracking-widest font-medium">{t("tasks.tasksLabel")}</span>
+                <p className="text-sm font-semibold text-white mt-0.5">{t("tasks.buyVipToWork")}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="bg-card rounded-2xl p-8 border border-border text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 via-transparent to-orange-500/5" />
+          <div className="relative">
+            <div className="relative inline-block mb-5">
+              <div className="absolute inset-0 bg-amber-500/15 rounded-full animate-pulse" style={{ animationDuration: "3s" }} />
+              <div className="relative w-20 h-20 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center shadow-xl shadow-amber-500/20">
+                <Lock className="w-10 h-10 text-white" />
+              </div>
+            </div>
+            <h3 className="text-foreground font-bold text-xl mb-2">{t("tasks.noPrivilege")}</h3>
+            <p className="text-muted-foreground text-sm leading-relaxed mb-3 max-w-xs mx-auto">{t("tasks.noPrivilegeDesc")}</p>
+            <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl px-4 py-3 mb-6 border border-amber-500/20 inline-block">
+              <p className="text-amber-600 dark:text-amber-400 text-xs font-semibold">{t("tasks.noPrivilegeHint")}</p>
+            </div>
+            <div>
+              <Link href="/vip">
+                <Button
+                  className="bg-gradient-to-r from-primary to-blue-600 text-white font-semibold no-default-hover-elevate no-default-active-elevate rounded-xl h-12 px-10 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform text-base"
+                  data-testid="button-go-vip"
+                >
+                  <Crown className="w-5 h-5 mr-2" />
+                  {t("tasks.getVip")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 space-y-4">
         {user && (
@@ -363,7 +414,7 @@ export default function TasksPage() {
                   </div>
                   <div>
                     <span className="text-white/60 text-[10px] uppercase tracking-widest font-medium">
-                      {user.vipLevel < 0 ? t("common.notEmployee") : getVipName(user.vipLevel, locale)}
+                      {getVipName(user.vipLevel, locale)}
                     </span>
                     <p className="text-white font-semibold text-sm mt-0.5">
                       {t("tasks.perVideo")}: <span className="text-xl font-bold">${perVideoReward.toFixed(2)}</span>
@@ -389,28 +440,6 @@ export default function TasksPage() {
                   <span className="text-white/80 text-xs font-medium">{t("tasks.dailyLimitDone")}</span>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {noPrivilege && (
-          <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/5 rounded-2xl p-4 border border-amber-500/20">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-gradient-to-br from-amber-500/20 to-orange-500/10 rounded-2xl flex items-center justify-center shrink-0">
-                <Lock className="w-5 h-5 text-amber-500" />
-              </div>
-              <div className="flex-1">
-                <p className="text-foreground text-sm font-semibold">{t("tasks.noPrivilege")}</p>
-                <p className="text-muted-foreground text-xs mt-0.5">{t("tasks.buyVipToWork")}</p>
-              </div>
-              <Link href="/vip">
-                <Button
-                  className="bg-gradient-to-r from-primary to-blue-600 text-white text-xs no-default-hover-elevate no-default-active-elevate rounded-xl h-9 px-5 shadow-lg shadow-primary/20 active:scale-95 transition-transform"
-                  data-testid="button-go-vip"
-                >
-                  {t("tasks.getVip")}
-                </Button>
-              </Link>
             </div>
           </div>
         )}
