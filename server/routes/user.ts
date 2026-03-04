@@ -46,7 +46,7 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
     return res.status(400).json({ message: "Avval VIP paket sotib oling" });
   }
 
-  if (user.vipExpiresAt && new Date(user.vipExpiresAt) < new Date()) {
+  if (user.vipExpiresAt && new Date(user.vipExpiresAt) < uzbNow) {
     return res.status(400).json({ message: "VIP paketingiz muddati tugagan. Yangi paket sotib oling." });
   }
 

@@ -250,7 +250,7 @@ router.delete("/api/admin/deposit-settings/:id", requireAdmin, asyncHandler(asyn
 router.get("/api/admin/top-referrers", requireAdmin, asyncHandler(async (_req: Request, res: Response) => {
   const top = await storage.getTopReferrers(10);
   const enriched = await Promise.all(
-    top.map(async (r: { referrerId: string; totalCommission: string; referralCount: number }) => {
+    top.map(async (r: { referrerId: string; totalCommission: string; count: number }) => {
       const user = await storage.getUser(r.referrerId);
       return { ...r, phone: user?.phone, numericId: user?.numericId, vipLevel: user?.vipLevel };
     })
@@ -492,12 +492,7 @@ router.post("/api/promo/use", requireAuth, validateBody(userSchemas.usePromo), a
 }));
 
 router.get("/api/promo/history", requireAuth, asyncHandler(async (req: Request, res: Response) => {
-  const allPromos = await storage.getAllPromoCodes();
-  const userUsages = [];
-  for (const promo of allPromos) {
-    const usage = await storage.getUserPromoCodeUsage(req.session.userId!, promo.id);
-    if (usage) userUsages.push({ ...usage, code: promo.code });
-  }
+  const userUsages = await storage.getUserPromoHistory(req.session.userId!);
   res.json(userUsages);
 }));
 

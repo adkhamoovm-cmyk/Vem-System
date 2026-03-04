@@ -94,6 +94,7 @@ export interface IStorage {
   deactivatePromoCode(id: string): Promise<void>;
   createPromoCodeUsage(data: { promoCodeId: string; userId: string; amount: string }): Promise<PromoCodeUsage>;
   getUserPromoCodeUsage(userId: string, promoCodeId: string): Promise<PromoCodeUsage | undefined>;
+  getUserPromoHistory(userId: string): Promise<(PromoCodeUsage & { code: string })[]>;
   getPromoCodeUsages(promoCodeId: string): Promise<(PromoCodeUsage & { userPhone?: string })[]>;
   deletePromoCode(id: string): Promise<void>;
   getPlatformSettings(): Promise<PlatformSetting[]>;
@@ -566,12 +567,14 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(balanceHistory.createdAt));
   }
 
-  async updateWithdrawalHistoryStatus(userId: string, _withdrawalId: string, newStatus: string): Promise<void> {
+  async updateWithdrawalHistoryStatus(userId: string, withdrawalId: string, newStatus: string): Promise<void> {
     const entries = await db.select().from(balanceHistory)
       .where(and(eq(balanceHistory.userId, userId), eq(balanceHistory.type, "withdrawal")))
       .orderBy(desc(balanceHistory.createdAt))
-      .limit(5);
-    const pendingEntry = entries.find(e => e.description?.startsWith("pending|"));
+      .limit(10);
+    const pendingEntry = entries.find(e =>
+      e.description?.startsWith("pending|") && e.description?.includes(`|${withdrawalId}`)
+    ) || entries.find(e => e.description?.startsWith("pending|"));
     if (pendingEntry) {
       const parts = pendingEntry.description!.split("|");
       parts[0] = newStatus;
@@ -633,6 +636,22 @@ export class DatabaseStorage implements IStorage {
     const [usage] = await db.select().from(promoCodeUsages)
       .where(and(eq(promoCodeUsages.userId, userId), eq(promoCodeUsages.promoCodeId, promoCodeId)));
     return usage;
+  }
+
+  async getUserPromoHistory(userId: string): Promise<(PromoCodeUsage & { code: string })[]> {
+    const results = await db.select({
+      id: promoCodeUsages.id,
+      promoCodeId: promoCodeUsages.promoCodeId,
+      userId: promoCodeUsages.userId,
+      amount: promoCodeUsages.amount,
+      usedAt: promoCodeUsages.usedAt,
+      code: promoCodes.code,
+    })
+      .from(promoCodeUsages)
+      .innerJoin(promoCodes, eq(promoCodeUsages.promoCodeId, promoCodes.id))
+      .where(eq(promoCodeUsages.userId, userId))
+      .orderBy(desc(promoCodeUsages.usedAt));
+    return results;
   }
 
   async getPromoCodeUsages(promoCodeId: string): Promise<(PromoCodeUsage & { userPhone?: string })[]> {

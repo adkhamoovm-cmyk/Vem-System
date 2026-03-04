@@ -363,7 +363,7 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
       }).returning();
       withdrawal = wd;
 
-      await tx.insert(balanceHistoryTable).values({ userId, type: "withdrawal", amount: String(-numAmount), description: `pending|${methodLabel}|${commission.toFixed(2)}` });
+      await tx.insert(balanceHistoryTable).values({ userId, type: "withdrawal", amount: String(-numAmount), description: `pending|${methodLabel}|${commission.toFixed(2)}|${withdrawal.id}` });
     });
   } catch (err: unknown) {
     if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
