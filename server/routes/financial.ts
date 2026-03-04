@@ -171,6 +171,9 @@ router.post("/api/payment-methods", requireAuth, validateBody(financialSchemas.c
   if (pmPinLock.locked) {
     return res.status(429).json({ message: `Moliya kodi blokland. ${pmPinLock.minutesLeft} daqiqadan so'ng urinib ko'ring.` });
   }
+  if (!user.fundPassword) {
+    return res.status(400).json({ message: "Moliya paroli o'rnatilmagan. Profildan moliya parolini o'rnating." });
+  }
   const fundPassValid = await comparePasswords(fundPassword, user.fundPassword);
   if (!fundPassValid) {
     const fail = recordFundPinFailure(userId);
@@ -271,6 +274,9 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
   const wdPinLock = checkFundPinLock(userId);
   if (wdPinLock.locked) {
     return res.status(429).json({ message: `Moliya kodi blokland. ${wdPinLock.minutesLeft} daqiqadan so'ng urinib ko'ring.` });
+  }
+  if (!user.fundPassword) {
+    return res.status(400).json({ message: "Moliya paroli o'rnatilmagan. Profildan moliya parolini o'rnating." });
   }
   const fundPassOk = await comparePasswords(fundPassword, user.fundPassword);
   if (!fundPassOk) {
