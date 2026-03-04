@@ -13,9 +13,9 @@ interface State {
 function getLocaleText(key: string): string {
   const locale = (typeof localStorage !== "undefined" && localStorage.getItem("vem-locale")) || "uz";
   const texts: Record<string, Record<string, string>> = {
-    errorOccurred: { uz: "Xatolik yuz berdi", ru: "Произошла ошибка", en: "An error occurred" },
-    reloadPage: { uz: "Sahifani qayta yuklang", ru: "Перезагрузите страницу", en: "Please reload the page" },
-    reload: { uz: "Qayta yuklash", ru: "Перезагрузить", en: "Reload" },
+    errorOccurred: { uz: "Xatolik yuz berdi", ru: "Произошла ошибка", en: "An error occurred", es: "Ocurrió un error", tr: "Bir hata oluştu" },
+    reloadPage: { uz: "Sahifani qayta yuklang", ru: "Перезагрузите страницу", en: "Please reload the page", es: "Recarga la página", tr: "Sayfayı yeniden yükleyin" },
+    reload: { uz: "Qayta yuklash", ru: "Перезагрузить", en: "Reload", es: "Recargar", tr: "Yeniden Yükle" },
   };
   return texts[key]?.[locale] || texts[key]?.["uz"] || key;
 }

@@ -81,6 +81,36 @@ export const notifTranslations: Record<string, Record<string, { title: string; m
     fund_profit: { title: "Fund profit", message: "+{amount} USDT from {name}" },
     fund_returned: { title: "Fund investment returned", message: "+{amount} USDT returned from {name}" },
   },
+  es: {
+    task_completed: { title: "¡Tarea completada!", message: "+{amount} USDT ganado" },
+    vip_activated: { title: "Paquete {name} activado", message: "{tasks} tareas diarias, {days} días" },
+    deposit_approved: { title: "Depósito aprobado", message: "+{amount} USDT añadido al saldo" },
+    deposit_rejected: { title: "Depósito rechazado", message: "Solicitud de depósito de {amount} {currency} rechazada" },
+    withdrawal_approved: { title: "Retiro aprobado", message: "{amount} USDT retirado exitosamente" },
+    withdrawal_rejected: { title: "Retiro rechazado", message: "{amount} USDT devuelto. Solicitud rechazada." },
+    referral_commission: { title: "Comisión de referido", message: "+{amount} USDT (nivel {level})" },
+    stajyor_approved: { title: "¡Pasante activado!", message: "Período de prueba de 3 días iniciado. ¡Mira 3 videos al día!" },
+    stajyor_rejected: { title: "Solicitud de pasante rechazada", message: "Tu solicitud fue rechazada. Inténtalo de nuevo." },
+    promo_applied: { title: "Código promocional aplicado", message: "+{amount} USDT añadido con código promocional" },
+    fund_invested: { title: "Invertido en {name}", message: "{amount} USDT invertido" },
+    fund_profit: { title: "Ganancia del fondo", message: "+{amount} USDT de {name}" },
+    fund_returned: { title: "Inversión del fondo devuelta", message: "+{amount} USDT devuelto de {name}" },
+  },
+  tr: {
+    task_completed: { title: "Görev tamamlandı!", message: "+{amount} USDT kazanıldı" },
+    vip_activated: { title: "{name} paketi etkinleştirildi", message: "Günlük {tasks} görev, {days} gün" },
+    deposit_approved: { title: "Depozito onaylandı", message: "+{amount} USDT bakiyeye eklendi" },
+    deposit_rejected: { title: "Depozito reddedildi", message: "{amount} {currency} depozito talebi reddedildi" },
+    withdrawal_approved: { title: "Çekim onaylandı", message: "{amount} USDT başarıyla çekildi" },
+    withdrawal_rejected: { title: "Çekim reddedildi", message: "{amount} USDT iade edildi. Talep reddedildi." },
+    referral_commission: { title: "Referans komisyonu", message: "+{amount} USDT (seviye {level})" },
+    stajyor_approved: { title: "Stajyer etkinleştirildi!", message: "3 günlük deneme süresi başladı. Günde 3 video izleyin!" },
+    stajyor_rejected: { title: "Stajyer talebi reddedildi", message: "Talebiniz reddedildi. Lütfen tekrar deneyin." },
+    promo_applied: { title: "Promosyon kodu uygulandı", message: "+{amount} USDT promosyon koduyla eklendi" },
+    fund_invested: { title: "{name} fonuna yatırım", message: "{amount} USDT yatırıldı" },
+    fund_profit: { title: "Fon kazancı", message: "+{amount} USDT {name} fonundan" },
+    fund_returned: { title: "Fon yatırımı iade edildi", message: "+{amount} USDT {name} fonundan iade edildi" },
+  },
 };
 
 export function formatNotifText(text: string, params: Record<string, string>): string {
@@ -123,20 +153,21 @@ async function sendPushToUser(userId: string, titles: Record<string, string>, me
 
 export async function sendNotification(userId: string, type: string, titleKey: string, messageKey: string, params: Record<string, string> = {}) {
   try {
-    const titleUz = formatNotifText(notifTranslations.uz[titleKey]?.title || titleKey, params);
-    const messageUz = formatNotifText(notifTranslations.uz[messageKey]?.message || messageKey, params);
-    const titleRu = formatNotifText(notifTranslations.ru[titleKey]?.title || titleKey, params);
-    const messageRu = formatNotifText(notifTranslations.ru[messageKey]?.message || messageKey, params);
-    const titleEn = formatNotifText(notifTranslations.en[titleKey]?.title || titleKey, params);
-    const messageEn = formatNotifText(notifTranslations.en[messageKey]?.message || messageKey, params);
+    const locales = ["uz", "ru", "en", "es", "tr"] as const;
+    const titles: Record<string, string> = {};
+    const messages: Record<string, string> = {};
+    for (const lang of locales) {
+      titles[lang] = formatNotifText(notifTranslations[lang]?.[titleKey]?.title || notifTranslations.uz[titleKey]?.title || titleKey, params);
+      messages[lang] = formatNotifText(notifTranslations[lang]?.[messageKey]?.message || notifTranslations.uz[messageKey]?.message || messageKey, params);
+    }
 
-    const storedTitle = JSON.stringify({ uz: titleUz, ru: titleRu, en: titleEn });
-    const storedMessage = JSON.stringify({ uz: messageUz, ru: messageRu, en: messageEn });
+    const storedTitle = JSON.stringify(titles);
+    const storedMessage = JSON.stringify(messages);
 
     await storage.createNotification({ userId, type, title: storedTitle, message: storedMessage });
 
     if (PUSH_WORTHY_KEYS.has(messageKey)) {
-      await sendPushToUser(userId, { uz: titleUz, ru: titleRu, en: titleEn }, { uz: messageUz, ru: messageRu, en: messageEn });
+      await sendPushToUser(userId, titles, messages);
     }
   } catch (e) {
     console.error("sendNotification error:", e);
@@ -146,7 +177,8 @@ export async function sendNotification(userId: string, type: string, titleKey: s
 export async function sendRawNotification(userId: string, type: string, title: string, message: string) {
   try {
     await storage.createNotification({ userId, type, title, message });
-    await sendPushToUser(userId, { uz: title, ru: title, en: title }, { uz: message, ru: message, en: message });
+    const allLangs = { uz: title, ru: title, en: title, es: title, tr: title };
+    await sendPushToUser(userId, allLangs, allLangs);
   } catch (e) {
     console.error("sendNotification error:", e);
   }
