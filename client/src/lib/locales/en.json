@@ -221,7 +221,7 @@
     "sundayDesc": "Today is Sunday — rest day",
     "sundayNote": "Tasks are available Monday through Saturday",
     "videoTask": "Video watching task",
-    "watchTrailer": "Watch a random trailer and earn rewards",
+    "watchTrailer": "Watch the video to the end and earn your reward",
     "watchSeconds": "Watch for {seconds} seconds",
     "startTask": "Complete task",
     "dailyLimitDone": "Daily limit reached",
@@ -238,7 +238,7 @@
     "taskDoneBalance": "Task completed, funds added to your balance!",
     "continue": "Continue",
     "waitTimer": "Wait for the timer to finish...",
-    "eachButton": "Each press opens a random trailer. Reward is given after {seconds} seconds of watching."
+    "eachButton": "Each task opens an exciting video or clip. After watching for {seconds} seconds, the reward is automatically credited to your account."
   },
   "trends": {
     "title": "Trends",

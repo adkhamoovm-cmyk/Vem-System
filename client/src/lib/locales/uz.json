@@ -221,7 +221,7 @@
     "sundayDesc": "Bugun yakshanba — dam olish kuni",
     "sundayNote": "Vazifalar Dushanba-Shanba kunlari bajariladi",
     "videoTask": "Video ko'rish vazifasi",
-    "watchTrailer": "Tasodifiy trayler ko'ring va mukofot oling",
+    "watchTrailer": "Videoni oxirigacha tomosha qiling va mukofot oling",
     "watchSeconds": "{seconds} soniya ko'ring",
     "startTask": "Vazifani bajarish",
     "dailyLimitDone": "Kunlik limit tugadi",
@@ -238,7 +238,7 @@
     "taskDoneBalance": "Vazifa bajarildi, balansingizga pul qo'shildi!",
     "continue": "Davom etish",
     "waitTimer": "Taymer tugashini kuting...",
-    "eachButton": "Har safar tugma bosilganda tasodifiy trayler ochiladi. {seconds} soniya ko'rganingizdan so'ng mukofot beriladi."
+    "eachButton": "Har bir vazifada qiziqarli video yoki klip ochiladi. Videoni {seconds} soniya oxirigacha tomosha qilganingizdan so'ng mukofot avtomatik ravishda hisobingizga tushadi."
   },
   "trends": {
     "title": "Trendlar",
