@@ -434,7 +434,7 @@
     "faqQ2": "Kunlik vazifalar qanday ishlaydi va qancha vaqt oladi?",
     "faqA2": "Har kuni sizga VIP darajangizga mos ravishda ma'lum miqdorda qisqa video (treylerlar) tayinlanadi. Har bir videoni oxirigacha ko'rib chiqsangiz, darhol USDT mukofoti hisobingizga qo'shiladi. Barcha vazifalar odatda 10-20 daqiqa ichida yakunlanadi.",
     "faqQ3": "Pul yechish shartlari va vaqti qanday?",
-    "faqA3": "\"Profil\" bo'limiga o'tib, \"Yechish\" tugmasini bosing. Minimal yechish summasi 2 USDT dan boshlanadi. Yechish komissiyasi real vaqt rejimida birja kursiga qarab o'zgarib turishi mumkin. So'rovlar Dushanbadan Shanbagacha, soat 11:00 dan 17:00 gacha (GMT+5) tezkorlik bilan qayta ishlanadi.",
+    "faqA3": "\"Profil\" bo'limiga o'tib, \"Yechish\" tugmasini bosing. Minimal yechish summasi 2 USDT dan boshlanadi. Yechish komissiyasi real vaqt rejimida birja kursiga qarab o'zgarib turishi mumkin. So'rovlar Dushanbadan Shanbagacha, soat 11:00 dan 17:00 gacha tezkorlik bilan qayta ishlanadi.",
     "faqQ4": "Nima uchun yechish komissiyasi o'zgarib turadi?",
     "faqA4": "VEM Media real vaqt rejimida xalqaro kripto birjalari bilan ishlaydi. Birjalardagi tarmoq to'lovlari (network fee) bozor holatiga qarab ko'tarilib yoki tushib turishi — bu mutlaqo normal holat.\n\nBarqaror shartlarda pul yechishni xohlasangiz, mahalliy yechish usulidan (bank kartasi) foydalaning — u kripto tarmoq to'lovlariga bog'liq emas.",
     "faqQ5": "\"Stajyor\" (Boshlang'ich) darajasi nima?",
@@ -452,7 +452,7 @@
     "faqQ11": "Telefonimga VEM ilovasini qanday o'rnatsam bo'ladi?",
     "faqA11": "Saytimiz brauzeridan \"Ilovani o'rnatish\" (Install App) tugmasini bosing. VEM Media to'g'ridan-to'g'ri telefoningiz bosh ekraniga xuddi haqiqiy ilovadek o'rnatiladi va xotiradan joy egallamaydi. iOS uchun Safari brauzerida \"Share\" → \"Add to Home Screen\" tugmasini bosing.",
     "faqQ12": "Texnik muammo yuz bersa kimga murojaat qilaman?",
-    "faqA12": "Har qanday texnik muammo yoki savol bo'lsa, bizning texnik qo'llab-quvvatlash xizmatimizga Telegram orqali murojaat qiling: @vem_ms. Shuningdek, VEM rasmiy hamjamiyat guruhida (@Vem_Official) boshqa foydalanuvchilar bilan tajriba almashishingiz mumkin. Biz Dushanba-Shanba kunlari 09:00—18:00 (GMT+5) oralig'ida xizmat ko'rsatamiz."
+    "faqA12": "Har qanday texnik muammo yoki savol bo'lsa, bizning texnik qo'llab-quvvatlash xizmatimizga Telegram orqali murojaat qiling: @vem_ms. Shuningdek, VEM rasmiy hamjamiyat guruhida (@Vem_Official) boshqa foydalanuvchilar bilan tajriba almashishingiz mumkin. Biz Dushanba-Shanba kunlari 09:00—18:00 oralig'ida xizmat ko'rsatamiz."
   },
   "promo": {
     "title": "Promokod",
@@ -839,7 +839,7 @@
     "perDay": "marta/kun",
     "minUsdtWithdrawal": "Minimal USDT yechish",
     "minBankWithdrawal": "Minimal Bank yechish",
-    "withdrawalWorkHours": "Yechish ish vaqti (soat, UTC+5)",
+    "withdrawalWorkHours": "Yechish ish vaqti (soat)",
     "startHour": "Boshlanish soati",
     "endHour": "Tugash soati",
     "settingsNote": "O'zgarishlar darhol kuchga kiradi. Foydalanuvchilar keyingi yechish so'rovida yangi sozlamalarni ko'radi.",
