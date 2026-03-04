@@ -127,12 +127,21 @@ export function FinancialHistoryModal({
                 .replace(/^USDT\s*\(Crypto\)$/i, "USDT (Crypto)");
               const statusColor = entryStatus === "pending" ? "text-yellow-500" : entryStatus === "approved" ? "text-emerald-500" : "text-red-500";
               const statusLabel = entryStatus === "pending" ? t("common.pending") : entryStatus === "approved" ? t("common.approved") : entryStatus === "rejected" ? t("common.rejected") : "";
+              const rawWdComm = h.type === "withdrawal" && hasStatusFormat && parts[2] ? parts[2] : null;
+              const withdrawalCommission = rawWdComm && !isNaN(Number(rawWdComm)) && Number(rawWdComm) >= 0 ? rawWdComm : null;
+              const withdrawalNet = withdrawalCommission ? (Math.abs(Number(h.amount)) - Number(withdrawalCommission)).toFixed(2) : null;
               const extractName = (d: string) => { const m = d.match(/^(\w+)\s/); return m ? m[1] : "VIP"; };
               const typeMap: Record<string, () => string> = {
                 earning: () => { if (desc.includes("Fond") || desc.includes("fond")) return t("vip.historyFundProfit"); if (desc.includes("Promokod") || desc.includes("promokod")) { const codeMatch = desc.match(/Promokod:\s*(.+)/i); return t("vip.historyPromo", { code: codeMatch ? codeMatch[1] : "" }); } return t("vip.historyEarning", { name: extractName(desc) || "VIP" }); },
                 deposit: () => { if (desc.includes("qaytarildi") || desc.includes("fond")) return t("vip.historyFundReturn"); return t("vip.historyDeposit"); },
                 withdrawal: () => { if (hasStatusFormat) return t("vip.historyWithdrawalMethod", { method: methodInfo }); return t("vip.historyWithdrawal", { commission: "10%" }); },
-                withdrawal_cancel: () => t("vip.historyWithdrawalCancel"),
+                withdrawal_cancel: () => {
+                  if (desc.startsWith("refund|")) {
+                    const rParts = desc.split("|");
+                    return t("vip.historyWithdrawalRefundDetail", { amount: Number(rParts[1]).toFixed(2), commission: Number(rParts[2]).toFixed(2) });
+                  }
+                  return t("vip.historyWithdrawalCancel");
+                },
                 vip_purchase: () => { const name = extractName(desc); if (desc.includes("uzaytirildi")) return t("vip.historyVipExtend", { name }); return t("vip.historyVipPurchase", { name }); },
                 fund_invest: () => t("vip.historyFundInvest"),
                 commission: () => t("vip.historyCommission"),
@@ -152,9 +161,16 @@ export function FinancialHistoryModal({
                     <div>
                       <p className="text-foreground text-sm font-medium">{label}</p>
                       {hasStatusFormat && (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className={`text-[10px] font-semibold ${statusColor}`}>{statusLabel}</span>
-                          {methodInfo && <span className="text-muted-foreground text-[10px]">• {methodInfo}</span>}
+                        <div className="flex flex-col gap-0.5 mt-0.5">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`text-[10px] font-semibold ${statusColor}`}>{statusLabel}</span>
+                            {methodInfo && <span className="text-muted-foreground text-[10px]">• {methodInfo}</span>}
+                          </div>
+                          {withdrawalCommission && withdrawalNet && (
+                            <span className="text-muted-foreground text-[10px]">
+                              {t("vip.historyWithdrawalCommission", { commission: Number(withdrawalCommission).toFixed(2), net: withdrawalNet })}
+                            </span>
+                          )}
                         </div>
                       )}
                       <p className="text-muted-foreground text-[10px] mt-0.5">{new Date(h.createdAt).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>

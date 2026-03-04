@@ -224,9 +224,11 @@ router.post("/api/admin/withdrawals/:id/reject", requireAdmin, asyncHandler(asyn
       .limit(10);
     const match = entries.find(e => e.description?.includes(withdrawal.id));
     if (match) {
-      await tx.update(balanceHistory).set({ description: `Yechish rad etildi — qaytarildi ${withdrawal.amount} USDT` }).where(eq(balanceHistory.id, match.id));
+      const matchParts = match.description?.split("|") || [];
+      matchParts[0] = "rejected";
+      await tx.update(balanceHistory).set({ description: matchParts.join("|") }).where(eq(balanceHistory.id, match.id));
     }
-    await tx.insert(balanceHistory).values({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `Yechish bekor qilindi — qaytarildi ${withdrawal.amount} USDT` });
+    await tx.insert(balanceHistory).values({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `refund|${withdrawal.amount}|${withdrawal.commission}` });
   });
   sendNotification(withdrawal.userId, "system", "withdrawal_rejected", "withdrawal_rejected", { amount: withdrawal.amount });
   res.json({ message: "Yechish rad etildi va balans qaytarildi" });
