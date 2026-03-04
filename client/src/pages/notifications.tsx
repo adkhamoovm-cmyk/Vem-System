@@ -46,7 +46,7 @@ function getLocalizedText(text: string, locale: string): string {
   try {
     const parsed = JSON.parse(text);
     if (parsed && typeof parsed === "object") {
-      return parsed[locale] || parsed.uz || parsed.en || text;
+      return parsed[locale] || parsed.en || parsed.ru || parsed.uz || text;
     }
   } catch {}
   return text;
