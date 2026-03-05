@@ -4,7 +4,7 @@ import { pool } from "../db";
 import { db } from "../db";
 import { users, taskHistory, balanceHistory, referrals } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
-import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts, getUzbDayNow, getUzbToday, getUzbRealNow, DAY_RESET_SQL_INTERVAL } from "../lib/helpers";
+import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts, getUzbDayNow, getUzbToday, getUzbRealNow, DAY_OFFSET_HOURS } from "../lib/helpers";
 
 const router = Router();
 
@@ -72,7 +72,7 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
     }
 
     const [existing] = await tx.select().from(taskHistory).where(
-      and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt} + INTERVAL '${dsql.raw(DAY_RESET_SQL_INTERVAL)}') = ${today}`)
+      and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt} + make_interval(hours => ${DAY_OFFSET_HOURS})) = ${today}`)
     ).limit(1);
     if (existing) {
       throw new Error("ALREADY_WATCHED");

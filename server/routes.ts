@@ -68,6 +68,16 @@ export async function registerRoutes(
   setupDailyProfits();
 
   app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    if (res.headersSent) return;
+    const knownErrors: Record<string, { status: number; message: string }> = {
+      NOT_FOUND: { status: 404, message: "Topilmadi" },
+      ALREADY_PROCESSED: { status: 400, message: "So'rov allaqachon ko'rib chiqilgan" },
+      INSUFFICIENT_BALANCE: { status: 400, message: "Mablag' yetarli emas" },
+    };
+    const known = knownErrors[err.message];
+    if (known) {
+      return res.status(known.status).json({ message: known.message });
+    }
     console.error(`[${new Date().toISOString()}] Unhandled error:`, err);
     res.status(500).json({ message: "Xatolik yuz berdi" });
   });

@@ -76,12 +76,12 @@ router.post("/api/auth/register", authRateLimiter, validateBody(authSchemas.regi
   res.json({ user: { ...user, password: undefined, fundPassword: undefined } });
 }));
 
-router.post("/api/auth/reset-cancel", async (req: Request, res: Response) => {
+router.post("/api/auth/reset-cancel", asyncHandler(async (req: Request, res: Response) => {
   req.session.resetStep = undefined;
   req.session.resetPhone = undefined;
   req.session.resetVerifyType = undefined;
   res.json({ success: true });
-});
+}));
 
 router.post("/api/auth/reset-step1", authRateLimiter, validateBody(authSchemas.resetStep1), asyncHandler(async (req: Request, res: Response) => {
   const { phone } = req.body;
@@ -270,7 +270,10 @@ router.get("/api/admin/pin-status", requireAuth, asyncHandler(async (req: Reques
 router.post("/api/admin/change-pin", pinRateLimiter, requireAdmin, validateBody(adminSchemas.changePin), asyncHandler(async (req: Request, res: Response) => {
   const { currentPin, newPin } = req.body;
   const dbPin = await storage.getPlatformSetting("admin_pin");
-  const adminPin = dbPin || process.env.ADMIN_PIN || "077077";
+  const adminPin = dbPin || process.env.ADMIN_PIN;
+  if (!adminPin) {
+    return res.status(500).json({ message: "Admin PIN sozlanmagan" });
+  }
   if (currentPin !== adminPin) {
     return res.status(400).json({ message: "Joriy PIN kod noto'g'ri" });
   }
@@ -278,7 +281,7 @@ router.post("/api/admin/change-pin", pinRateLimiter, requireAdmin, validateBody(
   res.json({ message: "PIN kod muvaffaqiyatli o'zgartirildi" });
 }));
 
-router.post("/api/auth/logout", async (req: Request, res: Response) => {
+router.post("/api/auth/logout", asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId;
   if (userId) {
     try {
@@ -290,6 +293,6 @@ router.post("/api/auth/logout", async (req: Request, res: Response) => {
   req.session.destroy(() => {
     res.json({ message: "Chiqish muvaffaqiyatli" });
   });
-});
+}));
 
 export default router;

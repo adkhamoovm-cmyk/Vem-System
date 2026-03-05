@@ -145,46 +145,71 @@ router.get("/api/admin/deposits", requireAdmin, asyncHandler(async (_req: Reques
 }));
 
 router.post("/api/admin/deposits/:id/approve", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
-  const deposit = await storage.getDepositById(req.params.id as string);
-  if (!deposit) return res.status(404).json({ message: "Depozit topilmadi" });
-  if (deposit.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan depozitlar tasdiqlanishi mumkin" });
+  const depositId = req.params.id as string;
 
-  let amountInUSDT = deposit.amount;
-  if (deposit.currency === "UZS") {
-    amountInUSDT = (Number(deposit.amount) / 12100).toFixed(2);
-  }
+  let amountInUSDT = "";
+  let depositUserId = "";
 
   await db.transaction(async (tx) => {
-    await tx.update(depositRequests).set({ status: "approved", reviewedAt: new Date() }).where(eq(depositRequests.id, deposit.id));
-    await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${amountInUSDT}::numeric` }).where(eq(users.id, deposit.userId));
-    await tx.update(users).set({ totalDeposit: dsql`${users.totalDeposit}::numeric + ${amountInUSDT}::numeric` }).where(eq(users.id, deposit.userId));
+    const [lockedDeposit] = await tx.select().from(depositRequests).where(eq(depositRequests.id, depositId)).for("update");
+    if (!lockedDeposit) throw new Error("NOT_FOUND");
+    if (lockedDeposit.status !== "pending") throw new Error("ALREADY_PROCESSED");
+
+    amountInUSDT = lockedDeposit.amount;
+    depositUserId = lockedDeposit.userId;
+    if (lockedDeposit.currency === "UZS") {
+      amountInUSDT = (Number(lockedDeposit.amount) / 12100).toFixed(2);
+    }
+
+    await tx.update(depositRequests).set({ status: "approved", reviewedAt: new Date() }).where(eq(depositRequests.id, lockedDeposit.id));
+    await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${amountInUSDT}::numeric` }).where(eq(users.id, lockedDeposit.userId));
+    await tx.update(users).set({ totalDeposit: dsql`${users.totalDeposit}::numeric + ${amountInUSDT}::numeric` }).where(eq(users.id, lockedDeposit.userId));
     const entries = await tx.select().from(balanceHistory)
-      .where(and(eq(balanceHistory.userId, deposit.userId), eq(balanceHistory.type, "deposit")))
+      .where(and(eq(balanceHistory.userId, lockedDeposit.userId), eq(balanceHistory.type, "deposit")))
       .orderBy(desc(balanceHistory.createdAt))
       .limit(10);
-    const searchStr = `${Number(deposit.amount).toFixed(2)} ${deposit.currency}`;
+    const searchStr = `${Number(lockedDeposit.amount).toFixed(2)} ${lockedDeposit.currency}`;
     const match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
     if (match) {
-      await tx.update(balanceHistory).set({ amount: amountInUSDT, description: `Depozit tasdiqlandi (${deposit.currency === "UZS" ? deposit.amount + " UZS → " : ""}${amountInUSDT} USDT)` }).where(eq(balanceHistory.id, match.id));
+      await tx.update(balanceHistory).set({ amount: amountInUSDT, description: `Depozit tasdiqlandi (${lockedDeposit.currency === "UZS" ? lockedDeposit.amount + " UZS → " : ""}${amountInUSDT} USDT)` }).where(eq(balanceHistory.id, match.id));
     }
   });
-  sendNotification(deposit.userId, "deposit_confirmed", "deposit_approved", "deposit_approved", { amount: amountInUSDT });
+  sendNotification(depositUserId, "deposit_confirmed", "deposit_approved", "deposit_approved", { amount: amountInUSDT });
   res.json({ message: "Depozit tasdiqlandi va balansga qo'shildi" });
 }));
 
 router.post("/api/admin/deposits/:id/reject", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
-  const deposit = await storage.getDepositById(req.params.id as string);
-  if (!deposit) return res.status(404).json({ message: "Depozit topilmadi" });
-  if (deposit.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan depozitlar rad etilishi mumkin" });
+  const depositId = req.params.id as string;
+  let depositAmount = "";
+  let depositCurrency = "";
+  let depositUserId = "";
 
-  let amountInUSDT = deposit.amount;
-  if (deposit.currency === "UZS") {
-    amountInUSDT = (Number(deposit.amount) / 12100).toFixed(2);
-  }
+  await db.transaction(async (tx) => {
+    const [lockedDeposit] = await tx.select().from(depositRequests).where(eq(depositRequests.id, depositId)).for("update");
+    if (!lockedDeposit) throw new Error("NOT_FOUND");
+    if (lockedDeposit.status !== "pending") throw new Error("ALREADY_PROCESSED");
 
-  await storage.updateDepositStatus(deposit.id, "rejected");
-  await storage.updateDepositHistoryStatus(deposit.userId, deposit.amount, deposit.currency, "rejected", amountInUSDT);
-  sendNotification(deposit.userId, "system", "deposit_rejected", "deposit_rejected", { amount: deposit.amount, currency: deposit.currency });
+    depositAmount = lockedDeposit.amount;
+    depositCurrency = lockedDeposit.currency || "USDT";
+    depositUserId = lockedDeposit.userId;
+
+    let amountInUSDT = lockedDeposit.amount;
+    if (lockedDeposit.currency === "UZS") {
+      amountInUSDT = (Number(lockedDeposit.amount) / 12100).toFixed(2);
+    }
+
+    await tx.update(depositRequests).set({ status: "rejected", reviewedAt: new Date() }).where(eq(depositRequests.id, lockedDeposit.id));
+    const entries = await tx.select().from(balanceHistory)
+      .where(and(eq(balanceHistory.userId, lockedDeposit.userId), eq(balanceHistory.type, "deposit")))
+      .orderBy(desc(balanceHistory.createdAt))
+      .limit(10);
+    const searchStr = `${Number(lockedDeposit.amount).toFixed(2)} ${lockedDeposit.currency}`;
+    const match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
+    if (match) {
+      await tx.update(balanceHistory).set({ description: `Depozit rad etildi (${amountInUSDT} USDT)` }).where(eq(balanceHistory.id, match.id));
+    }
+  });
+  sendNotification(depositUserId, "system", "deposit_rejected", "deposit_rejected", { amount: depositAmount, currency: depositCurrency });
   res.json({ message: "Depozit rad etildi" });
 }));
 
@@ -201,36 +226,62 @@ router.get("/api/admin/withdrawals", requireAdmin, asyncHandler(async (_req: Req
 }));
 
 router.post("/api/admin/withdrawals/:id/approve", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
-  const withdrawal = await storage.getWithdrawalById(req.params.id as string);
-  if (!withdrawal) return res.status(404).json({ message: "So'rov topilmadi" });
-  if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar tasdiqlanishi mumkin" });
-  await storage.updateWithdrawalStatus(withdrawal.id, "approved");
-  await storage.updateWithdrawalHistoryStatus(withdrawal.userId, withdrawal.id, "approved");
-  sendNotification(withdrawal.userId, "withdrawal_done", "withdrawal_approved", "withdrawal_approved", { amount: withdrawal.netAmount });
+  const withdrawalId = req.params.id as string;
+  let wUserId = "";
+  let wNetAmount = "";
+
+  await db.transaction(async (tx) => {
+    const [lockedW] = await tx.select().from(withdrawalRequests).where(eq(withdrawalRequests.id, withdrawalId)).for("update");
+    if (!lockedW) throw new Error("NOT_FOUND");
+    if (lockedW.status !== "pending") throw new Error("ALREADY_PROCESSED");
+
+    wUserId = lockedW.userId;
+    wNetAmount = lockedW.netAmount;
+
+    await tx.update(withdrawalRequests).set({ status: "approved", reviewedAt: new Date() }).where(eq(withdrawalRequests.id, lockedW.id));
+    const entries = await tx.select().from(balanceHistory)
+      .where(and(eq(balanceHistory.userId, lockedW.userId), eq(balanceHistory.type, "withdrawal")))
+      .orderBy(desc(balanceHistory.createdAt))
+      .limit(10);
+    const match = entries.find(e => e.description?.includes(lockedW.id));
+    if (match) {
+      const matchParts = match.description?.split("|") || [];
+      matchParts[0] = "approved";
+      await tx.update(balanceHistory).set({ description: matchParts.join("|") }).where(eq(balanceHistory.id, match.id));
+    }
+  });
+  sendNotification(wUserId, "withdrawal_done", "withdrawal_approved", "withdrawal_approved", { amount: wNetAmount });
   res.json({ message: "Yechish tasdiqlandi" });
 }));
 
 router.post("/api/admin/withdrawals/:id/reject", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
-  const withdrawal = await storage.getWithdrawalById(req.params.id as string);
-  if (!withdrawal) return res.status(404).json({ message: "So'rov topilmadi" });
-  if (withdrawal.status !== "pending") return res.status(400).json({ message: "Faqat kutilayotgan so'rovlar rad etilishi mumkin" });
+  const withdrawalId = req.params.id as string;
+  let wUserId = "";
+  let wAmount = "";
 
   await db.transaction(async (tx) => {
-    await tx.update(withdrawalRequests).set({ status: "rejected", reviewedAt: new Date() }).where(eq(withdrawalRequests.id, withdrawal.id));
-    await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${withdrawal.amount}::numeric` }).where(eq(users.id, withdrawal.userId));
+    const [lockedW] = await tx.select().from(withdrawalRequests).where(eq(withdrawalRequests.id, withdrawalId)).for("update");
+    if (!lockedW) throw new Error("NOT_FOUND");
+    if (lockedW.status !== "pending") throw new Error("ALREADY_PROCESSED");
+
+    wUserId = lockedW.userId;
+    wAmount = lockedW.amount;
+
+    await tx.update(withdrawalRequests).set({ status: "rejected", reviewedAt: new Date() }).where(eq(withdrawalRequests.id, lockedW.id));
+    await tx.update(users).set({ balance: dsql`${users.balance}::numeric + ${lockedW.amount}::numeric` }).where(eq(users.id, lockedW.userId));
     const entries = await tx.select().from(balanceHistory)
-      .where(and(eq(balanceHistory.userId, withdrawal.userId), eq(balanceHistory.type, "withdrawal")))
+      .where(and(eq(balanceHistory.userId, lockedW.userId), eq(balanceHistory.type, "withdrawal")))
       .orderBy(desc(balanceHistory.createdAt))
       .limit(10);
-    const match = entries.find(e => e.description?.includes(withdrawal.id));
+    const match = entries.find(e => e.description?.includes(lockedW.id));
     if (match) {
       const matchParts = match.description?.split("|") || [];
       matchParts[0] = "rejected";
       await tx.update(balanceHistory).set({ description: matchParts.join("|") }).where(eq(balanceHistory.id, match.id));
     }
-    await tx.insert(balanceHistory).values({ userId: withdrawal.userId, type: "withdrawal_cancel", amount: withdrawal.amount, description: `refund|${withdrawal.amount}|${withdrawal.commission}` });
+    await tx.insert(balanceHistory).values({ userId: lockedW.userId, type: "withdrawal_cancel", amount: lockedW.amount, description: `refund|${lockedW.amount}|${lockedW.commission}` });
   });
-  sendNotification(withdrawal.userId, "system", "withdrawal_rejected", "withdrawal_rejected", { amount: withdrawal.amount });
+  sendNotification(wUserId, "system", "withdrawal_rejected", "withdrawal_rejected", { amount: wAmount });
   res.json({ message: "Yechish rad etildi va balans qaytarildi" });
 }));
 
@@ -543,44 +594,48 @@ export function setupDailyProfits() {
       for (const inv of activeInvestments) {
         if (inv.lastProfitDate === today) continue;
 
-        const plan = await storage.getFundPlan(inv.fundPlanId);
-        const planName = inv.planName || plan?.name || "Fund";
-        const notificationsToSend: Array<{ userId: string; type: string; titleKey: string; msgKey: string; params: Record<string, string> }> = [];
+        try {
+          const plan = await storage.getFundPlan(inv.fundPlanId);
+          const planName = inv.planName || plan?.name || "Fund";
+          const notificationsToSend: Array<{ userId: string; type: string; titleKey: string; msgKey: string; params: Record<string, string> }> = [];
 
-        await db.transaction(async (tx) => {
-          const [lockedInv] = await tx.select({ lastProfitDate: investments.lastProfitDate, status: investments.status })
-            .from(investments).where(eq(investments.id, inv.id)).for("update");
-          if (!lockedInv || lockedInv.lastProfitDate === today || lockedInv.status !== "active") return;
+          await db.transaction(async (tx) => {
+            const [lockedInv] = await tx.select({ lastProfitDate: investments.lastProfitDate, status: investments.status })
+              .from(investments).where(eq(investments.id, inv.id)).for("update");
+            if (!lockedInv || lockedInv.lastProfitDate === today || lockedInv.status !== "active") return;
 
-          await tx.update(users)
-            .set({ balance: dsql`${users.balance}::numeric + ${inv.dailyProfit}::numeric` })
-            .where(eq(users.id, inv.userId));
-          await tx.update(investments)
-            .set({ lastProfitDate: today })
-            .where(eq(investments.id, inv.id));
-          await tx.insert(balanceHistory).values({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
-          notificationsToSend.push({ userId: inv.userId, type: "task_reward", titleKey: "fund_profit", msgKey: "fund_profit", params: { amount: inv.dailyProfit, name: planName } });
-
-          if (inv.endDate && new Date(inv.endDate) <= uzbNow) {
+            await tx.update(users)
+              .set({ balance: dsql`${users.balance}::numeric + ${inv.dailyProfit}::numeric` })
+              .where(eq(users.id, inv.userId));
             await tx.update(investments)
-              .set({ status: "completed" })
+              .set({ lastProfitDate: today })
               .where(eq(investments.id, inv.id));
-            if (plan?.returnPrincipal) {
-              await tx.update(users)
-                .set({ balance: dsql`${users.balance}::numeric + ${inv.investedAmount}::numeric` })
-                .where(eq(users.id, inv.userId));
-              await tx.insert(balanceHistory).values({ userId: inv.userId, type: "fund_return", amount: inv.investedAmount, description: `${planName} fond investitsiyasi qaytarildi — ${inv.investedAmount} USDT` });
-              notificationsToSend.push({ userId: inv.userId, type: "deposit_confirmed", titleKey: "fund_returned", msgKey: "fund_returned", params: { amount: inv.investedAmount, name: planName } });
-            }
-          }
-        });
+            await tx.insert(balanceHistory).values({ userId: inv.userId, type: "fund_profit", amount: inv.dailyProfit, description: `${planName} fond daromadi +${inv.dailyProfit} USDT` });
+            notificationsToSend.push({ userId: inv.userId, type: "task_reward", titleKey: "fund_profit", msgKey: "fund_profit", params: { amount: inv.dailyProfit, name: planName } });
 
-        for (const n of notificationsToSend) {
-          sendNotification(n.userId, n.type, n.titleKey, n.msgKey, n.params);
+            if (inv.endDate && new Date(inv.endDate) <= uzbNow) {
+              await tx.update(investments)
+                .set({ status: "completed" })
+                .where(eq(investments.id, inv.id));
+              if (plan?.returnPrincipal) {
+                await tx.update(users)
+                  .set({ balance: dsql`${users.balance}::numeric + ${inv.investedAmount}::numeric` })
+                  .where(eq(users.id, inv.userId));
+                await tx.insert(balanceHistory).values({ userId: inv.userId, type: "fund_return", amount: inv.investedAmount, description: `${planName} fond investitsiyasi qaytarildi — ${inv.investedAmount} USDT` });
+                notificationsToSend.push({ userId: inv.userId, type: "deposit_confirmed", titleKey: "fund_returned", msgKey: "fund_returned", params: { amount: inv.investedAmount, name: planName } });
+              }
+            }
+          });
+
+          for (const n of notificationsToSend) {
+            sendNotification(n.userId, n.type, n.titleKey, n.msgKey, n.params);
+          }
+        } catch (invError) {
+          console.error(`[Cron] Error processing investment ${inv.id}:`, invError);
         }
       }
     } catch (error) {
-      console.error("[Cron] Error processing daily profits:", error);
+      console.error("[Cron] Fatal error in daily profits:", error);
     }
   }
 

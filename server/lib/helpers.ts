@@ -26,6 +26,7 @@ export function getUzbRealNow(): Date {
 }
 
 export const DAY_RESET_SQL_INTERVAL = `${DAY_OFFSET_MS / 3600000} hours`;
+export const DAY_OFFSET_HOURS = DAY_OFFSET_MS / 3600000;
 
 const vapidPublic = process.env.VAPID_PUBLIC_KEY || "";
 const vapidPrivate = process.env.VAPID_PRIVATE_KEY || "";

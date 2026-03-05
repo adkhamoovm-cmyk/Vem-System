@@ -5,6 +5,15 @@ import { serveStatic } from "./static";
 import { createServer } from "http";
 import { seedDatabase } from "./seed";
 
+process.on("unhandledRejection", (reason) => {
+  console.error("[CRITICAL] Unhandled Promise Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("[CRITICAL] Uncaught Exception:", err);
+  setTimeout(() => process.exit(1), 1000);
+});
+
 const app = express();
 app.set("trust proxy", 1);
 app.use(compression());
