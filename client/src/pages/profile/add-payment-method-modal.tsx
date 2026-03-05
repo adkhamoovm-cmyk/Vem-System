@@ -250,7 +250,7 @@ export function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; 
                         autoComplete="email"
                         value={exchangeEmail}
                         onChange={(e) => setExchangeEmail(e.target.value)}
-                        placeholder={t("profile.enterEmailPlaceholder")}
+                        placeholder=""
                         className="mt-1.5 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11"
                         data-testid="input-exchange-email"
                       />
