@@ -38,9 +38,9 @@ const translations: Record<Locale, any> = { uz, ru, en, es, tr };
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("vem-locale") as Locale) || "ru";
+      return (localStorage.getItem("vem-locale") as Locale) || "en";
     }
-    return "ru";
+    return "en";
   });
 
   useEffect(() => {
