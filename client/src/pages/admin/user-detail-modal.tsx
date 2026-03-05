@@ -348,17 +348,41 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
             <div>
               <p className="text-muted-foreground text-xs font-semibold mb-2">{t("admin.paymentMethods")}</p>
               {detail.paymentMethods.map((m: PaymentMethod) => (
-                <div key={m.id} className="bg-card rounded-lg p-2.5 border border-border flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2">
-                    {m.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Wallet className="w-3.5 h-3.5 text-primary" />}
-                    <div>
-                      <p className="text-foreground text-xs">{m.type === "bank" ? `${m.bankName} - ${m.cardNumber}` : `${m.exchangeName} - ${m.walletAddress?.slice(0, 20)}...`}</p>
-                      <p className="text-muted-foreground text-[10px]">{m.type === "bank" ? m.holderName : "BEP20"}</p>
+                <div key={m.id} className="bg-card rounded-lg p-2.5 border border-border mb-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {m.type === "bank" ? <CreditCard className="w-3.5 h-3.5 text-[#3B82F6] shrink-0" /> : <Wallet className="w-3.5 h-3.5 text-primary shrink-0" />}
+                      <p className="text-foreground text-xs font-medium truncate">
+                        {m.type === "bank" ? m.bankName : m.exchangeName}
+                      </p>
                     </div>
+                    <Button size="sm" onClick={() => deleteMethodMutation.mutate(m.id)} variant="ghost" className="text-primary h-6 px-2 shrink-0" data-testid={`button-delete-method-${m.id}`}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
                   </div>
-                  <Button size="sm" onClick={() => deleteMethodMutation.mutate(m.id)} variant="ghost" className="text-primary h-6 px-2" data-testid={`button-delete-method-${m.id}`}>
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
+                  <div className="ml-5.5 mt-1.5 space-y-0.5 pl-[22px]">
+                    {m.type === "bank" ? (
+                      <>
+                        <p className="text-muted-foreground text-[10px]">{t("admin.owner")}: <span className="text-foreground">{m.holderName}</span></p>
+                        <p className="text-muted-foreground text-[10px]">{t("admin.card")}: <span className="text-foreground font-mono">{m.cardNumber}</span></p>
+                      </>
+                    ) : (
+                      <>
+                        {m.exchangeUid && (
+                          <p className="text-muted-foreground text-[10px]">UID: <span className="text-foreground font-mono font-semibold">{m.exchangeUid}</span></p>
+                        )}
+                        {m.exchangeEmail && (
+                          <p className="text-muted-foreground text-[10px]">{t("admin.email")}: <span className="text-foreground">{m.exchangeEmail}</span></p>
+                        )}
+                        {m.walletAddress && (
+                          <p className="text-muted-foreground text-[10px]">{t("admin.address")}: <span className="text-foreground font-mono">{m.walletAddress}</span></p>
+                        )}
+                        {m.exchangeUid && (
+                          <span className="inline-block mt-1 text-[9px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded-md border border-emerald-500/20">{t("admin.fastTransfer")}</span>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
