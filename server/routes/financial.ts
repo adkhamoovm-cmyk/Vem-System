@@ -162,7 +162,7 @@ router.get("/api/payment-methods", requireAuth, asyncHandler(async (req: Request
 
 router.post("/api/payment-methods", requireAuth, validateBody(financialSchemas.createPaymentMethod), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
-  const { type, bankName, exchangeName, cardNumber, walletAddress, holderName, fundPassword } = req.body;
+  const { type, bankName, exchangeName, cardNumber, walletAddress, holderName, exchangeUid, exchangeEmail, fundPassword } = req.body;
 
   const user = await storage.getUser(userId);
   if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
@@ -195,6 +195,8 @@ router.post("/api/payment-methods", requireAuth, validateBody(financialSchemas.c
     cardNumber: type === "bank" ? cardNumber : undefined,
     walletAddress: type === "usdt" ? walletAddress : undefined,
     holderName: type === "bank" ? holderName : undefined,
+    exchangeUid: type === "usdt" ? (exchangeUid || undefined) : undefined,
+    exchangeEmail: type === "usdt" ? (exchangeEmail || undefined) : undefined,
   });
 
   res.json({ method, message: "To'lov usuli saqlandi!" });

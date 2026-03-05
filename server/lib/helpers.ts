@@ -301,6 +301,8 @@ export const financialSchemas = {
     cardNumber: z.string().optional(),
     walletAddress: z.string().optional(),
     holderName: z.string().optional(),
+    exchangeUid: z.string().optional(),
+    exchangeEmail: z.string().email("Email formati noto'g'ri").optional().or(z.literal("")),
     fundPassword: z.string({ required_error: "Moliya paroli kerak" }).min(1, "Moliya paroli kerak"),
   }),
   createDeposit: z.object({

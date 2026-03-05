@@ -88,8 +88,19 @@ export function WithdrawalsTab({ withdrawals, users: allUsers }: { withdrawals: 
                         </>
                       ) : (
                         <>
+                          <p className="text-foreground text-xs">{t("admin.exchange")}: <span className="text-foreground font-semibold">{pm.exchangeName}</span></p>
+                          {pm.exchangeUid && (
+                            <p className="text-foreground text-xs">UID: <span className="text-foreground font-mono font-semibold">{pm.exchangeUid}</span></p>
+                          )}
+                          {pm.exchangeEmail && (
+                            <p className="text-foreground text-xs">{t("admin.email")}: <span className="text-foreground font-semibold">{pm.exchangeEmail}</span></p>
+                          )}
                           <p className="text-foreground text-xs">{t("admin.address")}: <span className="text-foreground font-mono text-[10px]">{pm.walletAddress}</span></p>
-                          <p className="text-foreground text-xs">{t("admin.exchange")}: <span className="text-foreground">{pm.exchangeName}</span></p>
+                          {pm.exchangeUid && (
+                            <div className="mt-1.5 flex items-center gap-1.5 bg-emerald-500/10 rounded-md px-2 py-1 border border-emerald-500/20" data-testid={`badge-fast-transfer-${w.id}`}>
+                              <span className="text-emerald-500 text-[10px] font-bold">{t("admin.fastTransfer")}</span>
+                            </div>
+                          )}
                         </>
                       )}
                     </div>

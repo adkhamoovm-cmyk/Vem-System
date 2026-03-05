@@ -286,10 +286,10 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-foreground text-xs font-medium">
-                          {m.type === "bank" ? `${m.bankName} •••• ${m.cardNumber?.slice(-4)}` : `${m.exchangeName} • BEP20`}
+                          {m.type === "bank" ? `${m.bankName} •••• ${m.cardNumber?.slice(-4)}` : `${m.exchangeName} • ${m.exchangeUid ? "UID" : "BEP20"}`}
                         </p>
                         <p className="text-muted-foreground text-[10px] truncate mt-0.5">
-                          {m.type === "bank" ? m.holderName : m.walletAddress}
+                          {m.type === "bank" ? m.holderName : (m.exchangeUid ? `UID: ${m.exchangeUid}` : m.walletAddress)}
                         </p>
                       </div>
                       <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${

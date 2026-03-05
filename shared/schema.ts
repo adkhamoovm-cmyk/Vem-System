@@ -107,6 +107,8 @@ export const paymentMethods = pgTable("payment_methods", {
   cardNumber: text("card_number"),
   walletAddress: text("wallet_address"),
   holderName: text("holder_name"),
+  exchangeUid: text("exchange_uid"),
+  exchangeEmail: text("exchange_email"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

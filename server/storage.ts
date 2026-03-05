@@ -40,7 +40,7 @@ export interface IStorage {
   updateInvestmentLastProfitDate(id: string, date: string): Promise<void>;
   getUserPaymentMethods(userId: string): Promise<PaymentMethod[]>;
   getAllPaymentMethods(): Promise<PaymentMethod[]>;
-  createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string }): Promise<PaymentMethod>;
+  createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string; exchangeUid?: string; exchangeEmail?: string }): Promise<PaymentMethod>;
   createDepositRequest(data: { userId: string; amount: string; currency: string; paymentType: string; receiptUrl?: string }): Promise<DepositRequest>;
   getUserDepositRequests(userId: string): Promise<DepositRequest[]>;
   createWithdrawalRequest(data: { userId: string; paymentMethodId: string; amount: string; commission: string; netAmount: string }): Promise<WithdrawalRequest>;
@@ -300,7 +300,7 @@ export class DatabaseStorage implements IStorage {
     return db.select().from(paymentMethods);
   }
 
-  async createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string }): Promise<PaymentMethod> {
+  async createPaymentMethod(data: { userId: string; type: string; bankName?: string; exchangeName?: string; cardNumber?: string; walletAddress?: string; holderName?: string; exchangeUid?: string; exchangeEmail?: string }): Promise<PaymentMethod> {
     const [method] = await db.insert(paymentMethods).values(data).returning();
     return method;
   }

@@ -169,6 +169,20 @@ export function FinanceServiceModal({
                   <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
                 </div>
               </div>
+              {usdtWallet.exchangeUid && (
+                <div className="mb-2.5 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-emerald-700/70 dark:text-emerald-400/60 text-[10px] uppercase tracking-wider">UID</span>
+                    <span className="text-[#14532d] dark:text-white font-mono text-xs" data-testid="text-exchange-uid">{usdtWallet.exchangeUid}</span>
+                  </div>
+                  {usdtWallet.exchangeEmail && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-emerald-700/70 dark:text-emerald-400/60 text-[10px] uppercase tracking-wider">{t("profile.emailLabel")}</span>
+                      <span className="text-[#14532d] dark:text-white text-xs" data-testid="text-exchange-email">{usdtWallet.exchangeEmail}</span>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <p className="text-[#14532d] dark:text-white font-mono text-xs tracking-wider" data-testid="text-wallet-address">
                   {showWalletAddress ? usdtWallet.walletAddress : `${usdtWallet.walletAddress?.slice(0, 6)}••••••${usdtWallet.walletAddress?.slice(-6)}`}
