@@ -4,7 +4,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import {
-  Globe, ChevronRight, ChevronDown, Wallet, CreditCard,
+  ChevronRight, ChevronDown, Wallet, CreditCard,
   ArrowUpCircle, CheckCircle, Clock, Lock, History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -227,10 +227,10 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
                 data-testid="button-withdraw-crypto"
               >
                 <div className="w-12 h-12 bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 rounded-xl flex items-center justify-center">
-                  <Globe className="w-6 h-6 text-yellow-500" />
+                  <Wallet className="w-6 h-6 text-yellow-500" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-foreground font-semibold text-sm">BSC (BEP20)</p>
+                  <p className="text-foreground font-semibold text-sm">{t("profile.cryptoWallet")}</p>
                   <p className="text-muted-foreground text-[10px] mt-0.5">{t("profile.minWithdrawalLabel", { amount: String(minWithdrawalUsdt) })}</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-yellow-500 transition-colors" />

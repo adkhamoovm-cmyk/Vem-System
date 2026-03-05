@@ -575,6 +575,7 @@
     "cryptoUsdt": "Kripto (USDT)",
     "trc20Network": "BSC (BEP20) tarmoq orqali",
     "bankCardUzs": "Bank kartasi (UZS)",
+    "cryptoWallet": "Kripto / Elektron hamyon",
     "uzcardHumo": "Uzcard / Humo orqali",
     "paymentRequisites": "To'lov rekvizitlari",
     "walletAddressLabel": "Hamyon manzili",

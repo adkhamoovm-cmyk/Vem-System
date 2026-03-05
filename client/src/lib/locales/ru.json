@@ -575,6 +575,7 @@
     "cryptoUsdt": "Крипто (USDT)",
     "trc20Network": "Через сеть BSC (BEP20)",
     "bankCardUzs": "Банковская карта (UZS)",
+    "cryptoWallet": "Крипто / Электронный кошелёк",
     "uzcardHumo": "Через Uzcard / Humo",
     "paymentRequisites": "Платёжные реквизиты",
     "walletAddressLabel": "Адрес кошелька",

@@ -575,6 +575,7 @@
     "cryptoUsdt": "Crypto (USDT)",
     "trc20Network": "Via BSC (BEP20) network",
     "bankCardUzs": "Bank card (UZS)",
+    "cryptoWallet": "Crypto / E-wallet",
     "uzcardHumo": "Via Uzcard / Humo",
     "paymentRequisites": "Payment details",
     "walletAddressLabel": "Wallet address",

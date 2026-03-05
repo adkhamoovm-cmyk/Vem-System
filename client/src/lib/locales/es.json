@@ -575,6 +575,7 @@
     "cryptoUsdt": "Crypto (USDT)",
     "trc20Network": "Vía red BSC (BEP20)",
     "bankCardUzs": "Tarjeta bancaria (UZS)",
+    "cryptoWallet": "Cripto / Billetera electrónica",
     "uzcardHumo": "Vía Uzcard / Humo",
     "paymentRequisites": "Detalles de pago",
     "walletAddressLabel": "Dirección de billetera",

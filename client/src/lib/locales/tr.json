@@ -575,6 +575,7 @@
     "cryptoUsdt": "Kripto (USDT)",
     "trc20Network": "BSC (BEP20) ağı üzerinden",
     "bankCardUzs": "Banka kartı (UZS)",
+    "cryptoWallet": "Kripto / E-cüzdan",
     "uzcardHumo": "Uzcard / Humo üzerinden",
     "paymentRequisites": "Ödeme detayları",
     "walletAddressLabel": "Cüzdan adresi",
