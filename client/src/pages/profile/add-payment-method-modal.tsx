@@ -302,7 +302,7 @@ export function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; 
                       autoComplete="off"
                       value={walletAddress}
                       onChange={(e) => setWalletAddress(e.target.value)}
-                      placeholder="T..."
+                      placeholder=""
                       className="mt-1.5 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 font-mono text-xs"
                       data-testid="input-wallet-address"
                     />
