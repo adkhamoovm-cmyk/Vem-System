@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useI18n } from "@/lib/i18n";
+import { PinInput } from "@/components/pin-input";
 
 export function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; onClose: () => void; type: "bank" | "usdt" }) {
   const { toast } = useToast();
@@ -194,19 +195,13 @@ export function AddPaymentMethodModal({ open, onClose, type }: { open: boolean; 
               </div>
             </div>
 
-            <div>
-              <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.fundPassword")}</label>
-              <Input
-                type="password"
-                autoComplete="off"
-                value={fundPassword}
-                onChange={(e) => setFundPassword(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder={t("profile.sixDigitPin")}
-                maxLength={6}
-                className="mt-1.5 bg-card border-border text-foreground placeholder:text-muted-foreground rounded-xl h-11 text-center font-mono tracking-[0.5em]"
-                data-testid="input-fund-password"
-              />
-            </div>
+            <PinInput
+              value={fundPassword}
+              onChange={setFundPassword}
+              label={t("profile.fundPassword")}
+              variant="default"
+              testId="input-fund-password"
+            />
 
             <div className="flex gap-2">
               <Button

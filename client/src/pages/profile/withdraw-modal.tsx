@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import type { User, PaymentMethod } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { formatUZS } from "@/lib/utils";
+import { PinInput } from "@/components/pin-input";
 
 export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: boolean; onClose: () => void; user: User; paymentMethods: PaymentMethod[] }) {
   const { toast } = useToast();
@@ -335,21 +336,13 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
                 )}
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-muted-foreground text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                  <Lock className="w-3 h-3" /> {t("profile.fundPassword")}
-                </label>
-                <Input
-                  type="password"
-                  autoComplete="off"
-                  value={fundPassword}
-                  onChange={(e) => setFundPassword(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  placeholder="• • • • • •"
-                  maxLength={6}
-                  className="bg-background border-border text-foreground placeholder:text-muted-foreground rounded-xl h-12 text-center font-mono tracking-[0.5em] text-lg focus:border-primary"
-                  data-testid="input-withdraw-fund-password"
-                />
-              </div>
+              <PinInput
+                value={fundPassword}
+                onChange={setFundPassword}
+                label={t("profile.fundPassword")}
+                variant="withdraw"
+                testId="input-withdraw-fund-password"
+              />
 
               <Button
                 onClick={() => withdrawMutation.mutate()}

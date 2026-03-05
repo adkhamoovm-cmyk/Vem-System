@@ -7,6 +7,7 @@ import { Wallet, Lock, TrendingUp, DollarSign, Infinity, ArrowRight, X, CheckCir
 import type { User, FundPlan, Investment } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import CelebrationModal from "@/components/celebration-modal";
+import { PinInput } from "@/components/pin-input";
 
 interface CelebrationData {
   type: "vip_activated" | "vip_extended" | "fund_invested";
@@ -574,27 +575,15 @@ export default function FundPage() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground mb-1.5 block uppercase tracking-wider">
-                    {t("fund.fundCodeLabel")}
-                  </label>
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    maxLength={6}
-                    autoComplete="off"
-                    value={pin}
-                    onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                    placeholder="••••••"
-                    className="w-full border border-border bg-transparent text-foreground rounded-xl px-4 py-3 text-center text-xl tracking-[0.5em] focus:outline-none focus:border-primary transition-colors"
-                    data-testid="input-fund-pin"
-                    autoFocus
-                  />
-                  <p className="text-muted-foreground text-xs mt-1.5 text-center">
-                    {t("fund.fundCodeHint")}
-                  </p>
-                </div>
+                <PinInput
+                  value={pin}
+                  onChange={setPin}
+                  label={t("fund.fundCodeLabel")}
+                  hint={t("fund.fundCodeHint")}
+                  variant="fund"
+                  testId="input-fund-pin"
+                  autoFocus
+                />
 
                 <Button
                   className={`w-full font-bold rounded-xl h-12 text-base shadow-lg bg-gradient-to-r ${planColors[selectedPlan.name]?.gradient || "from-primary to-blue-600"} text-white`}
