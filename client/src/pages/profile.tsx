@@ -141,6 +141,20 @@ export default function ProfilePage() {
     5: Gem, 6: Crown, 7: Trophy, 8: Rocket, 9: Zap, 10: Globe,
   };
 
+  const vipBadgeStyles: Record<number, string> = {
+    0: "bg-gray-500/25 text-gray-100",
+    1: "bg-amber-500/25 text-amber-100",
+    2: "bg-sky-500/25 text-sky-100",
+    3: "bg-violet-500/25 text-violet-100",
+    4: "bg-orange-500/25 text-orange-100",
+    5: "bg-cyan-500/25 text-cyan-100",
+    6: "bg-yellow-500/25 text-yellow-100",
+    7: "bg-rose-500/25 text-rose-100",
+    8: "bg-indigo-500/25 text-indigo-100",
+    9: "bg-fuchsia-500/25 text-fuchsia-100",
+    10: "bg-emerald-500/25 text-emerald-100",
+  };
+
   if (isLoading) {
     return (
       <div className="p-4 space-y-4 animate-pulse">
@@ -204,8 +218,9 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2 mt-1">
                 {(() => {
                   const VipLevelIcon = vipIconMap[user.vipLevel] || Star;
+                  const badgeStyle = vipBadgeStyles[user.vipLevel] || "bg-white/20 text-white";
                   return (
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-white/20 text-white backdrop-blur-sm flex items-center gap-1 shadow-sm">
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1 shadow-sm border border-white/10 ${badgeStyle}`}>
                       {user.vipLevel >= 0 && <VipLevelIcon className="w-3 h-3" />}
                       {user.vipLevel < 0 ? t("profile.notEmployee") : getVipName(user.vipLevel, locale)}
                     </span>
