@@ -10,7 +10,7 @@ import {
   ArrowDownCircle, ArrowUpCircle, Globe,
   History, TrendingUp, Landmark,
   GraduationCap, Star, Gem, Flame, Trophy, Rocket, Zap, BellRing,
-  Monitor
+  Monitor, CalendarClock
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
@@ -199,7 +199,7 @@ export default function ProfilePage() {
               </div>
               <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} data-testid="input-avatar-file" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <h2 className="text-white font-bold text-lg drop-shadow-sm" data-testid="text-profile-name">{displayName}</h2>
               <div className="flex items-center gap-2 mt-1">
                 {(() => {
@@ -217,6 +217,29 @@ export default function ProfilePage() {
                 <Copy className="w-3 h-3 text-white/40 group-hover:text-white/80 transition-colors" />
               </button>
             </div>
+            {user.vipLevel > 0 && user.vipExpiresAt && (() => {
+              const expiresAt = new Date(user.vipExpiresAt);
+              const now = new Date();
+              const daysLeft = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+              const isExpired = daysLeft <= 0;
+              const isWarning = daysLeft > 0 && daysLeft <= 7;
+              const dd = String(expiresAt.getDate()).padStart(2, "0");
+              const mm = String(expiresAt.getMonth() + 1).padStart(2, "0");
+              const yyyy = expiresAt.getFullYear();
+              return (
+                <div className="flex flex-col items-center gap-1" data-testid="vip-expiry-info">
+                  <div className={`w-11 h-11 rounded-full flex items-center justify-center ${isExpired ? "bg-red-500/20" : isWarning ? "bg-amber-500/20" : "bg-white/10"} backdrop-blur-sm`}>
+                    <CalendarClock className={`w-5 h-5 ${isExpired ? "text-red-300" : isWarning ? "text-amber-300" : "text-white/80"}`} />
+                  </div>
+                  <span className={`text-[9px] font-semibold ${isExpired ? "text-red-300" : isWarning ? "text-amber-300" : "text-white/70"}`}>
+                    {dd}.{mm}.{yyyy}
+                  </span>
+                  <span className={`text-[8px] font-medium ${isExpired ? "text-red-400" : isWarning ? "text-amber-400" : "text-white/50"}`}>
+                    {isExpired ? t("dashboard.vipExpired") : t("dashboard.vipExpiresIn", { days: daysLeft })}
+                  </span>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
