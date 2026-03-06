@@ -426,13 +426,18 @@ export default function VipPage() {
             return (
               <div
                 key={pkg.id}
-                className={`bg-card rounded-2xl border overflow-hidden shadow-sm transition-all card-hover animate-fade-up ${
+                className={`rounded-2xl border overflow-hidden shadow-sm transition-all card-hover animate-fade-up ${
                   isCurrentLevel
                     ? `ring-1 ${colors.border} shadow-md ${colors.glow}`
                     : isLocked
                     ? "border-border/30 opacity-60"
                     : "border-border/50"
                 }`}
+                style={{
+                  backgroundColor: isLocked ? "var(--card)" : undefined,
+                  background: isLocked ? undefined : `linear-gradient(135deg, ${colors.primary}08, ${colors.primary}15, ${colors.primary}05)`,
+                  borderColor: isLocked ? undefined : `${colors.primary}20`,
+                }}
                 data-testid={`card-vip-${pkg.level}`}
               >
                 {isCurrentLevel && (
