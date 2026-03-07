@@ -45,7 +45,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
     animTimerRef.current = setTimeout(() => setAnimating(false), 600);
   };
 
-  const locales: Locale[] = ["uz", "ru", "en", "es", "tr"];
+  const locales: Locale[] = ["en", "es", "tr", "ru", "uz"];
 
   return (
     <div className="relative" ref={ref}>
