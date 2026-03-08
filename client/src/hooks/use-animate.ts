@@ -72,7 +72,7 @@ export function useStaggerAnimate(count: number, baseDelay = 0, stagger = 80) {
         if (entry.isIntersecting) {
           for (let i = 0; i < count; i++) {
             const id = setTimeout(() => {
-              setVisibleItems((prev) => new Set([...prev, i]));
+              setVisibleItems((prev) => new Set(Array.from(prev).concat(i)));
             }, baseDelay + i * stagger);
             timerIds.push(id);
           }

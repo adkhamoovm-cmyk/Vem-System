@@ -209,7 +209,7 @@ export function SessionsModal({ open, onClose }: { open: boolean; onClose: () =>
                         <span className={`text-xs font-semibold ${isLogin ? "text-emerald-500" : isForceLogout ? "text-amber-500" : "text-red-500"}`}>
                           {isLogin ? t("profile.sessionLogin") : isForceLogout ? t("profile.sessionForceLogout") : t("profile.sessionLogout")}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">{formatDate(s.createdAt as string | Date)}</span>
+                        <span className="text-[10px] text-muted-foreground">{formatDate(String(s.createdAt))}</span>
                       </div>
                       <div className="flex items-center gap-1.5 mb-0.5">
                         <DeviceIcon className="w-3 h-3 text-muted-foreground shrink-0" />

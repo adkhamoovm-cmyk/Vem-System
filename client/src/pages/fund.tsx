@@ -145,8 +145,8 @@ export default function FundPage() {
   const totalDailyProfit = activeInvestments.reduce((sum, i) => sum + Number(i.dailyProfit), 0);
   const totalInvested = activeInvestments.reduce((sum, i) => sum + Number(i.investedAmount), 0);
 
-  const daysUntilExpiry = activeInvestments[0]?.daysLeft != null
-    ? activeInvestments[0].daysLeft
+  const daysUntilExpiry = (activeInvestments[0] as any)?.daysLeft != null
+    ? (activeInvestments[0] as any).daysLeft
     : (activeInvestments[0]?.endDate
       ? Math.max(0, Math.floor((new Date(String(activeInvestments[0].endDate)).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
       : null);

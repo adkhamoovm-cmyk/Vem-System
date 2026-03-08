@@ -141,7 +141,8 @@ router.get("/api/notifications/unread-count", requireAuth, asyncHandler(async (r
 
 router.post("/api/notifications/:id/read", requireAuth, asyncHandler(async (req: Request, res: Response) => {
   const userId = (req.session as any).userId;
-  await storage.markNotificationRead(req.params.id, userId);
+  const notificationId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  await storage.markNotificationRead(notificationId, userId);
   res.json({ ok: true });
 }));
 
