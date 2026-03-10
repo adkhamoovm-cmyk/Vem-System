@@ -232,7 +232,7 @@ export default function ProfilePage() {
                 <Copy className="w-3 h-3 text-white/40 group-hover:text-white/80 transition-colors" />
               </button>
             </div>
-            {user.vipLevel > 0 && user.vipExpiresAt && (() => {
+            {user.vipExpiresAt && (() => {
               const expiresAt = new Date(user.vipExpiresAt);
               const now = new Date();
               const daysLeft = Math.max(0, Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
