@@ -439,7 +439,7 @@
     "faqQ2": "Günlük görevler nasıl çalışır ve ne kadar sürer?",
     "faqA2": "Her gün VIP seviyenize göre belirli sayıda kısa video (fragman) atanır. Her videoyu sonuna kadar izledikten sonra USDT ödülü anında hesabınıza yatırılır. Tüm görevler genellikle 10-20 dakikada tamamlanır.",
     "faqQ3": "Çekim koşulları ve programı nedir?",
-    "faqA3": "\"Profil\" bölümüne gidin ve \"Çekim\" butonuna dokunun. Minimum çekim 2 USDT'den başlar. Çekim komisyonu döviz kurlarına bağlı olarak gerçek zamanlı değişebilir. Talepler Pazartesi'den Cumartesi'ye, 11:00-17:00 arası işlenir.",
+    "faqA3": "\"Profil\" bölümüne gidin ve \"Çekim\" butonuna dokunun. Minimum çekim 2 USDT'den başlar. Çekim komisyonu döviz kurlarına bağlı olarak gerçek zamanlı değişebilir. Talepler Pazartesi'den Cumartesi'ye işlenir:\n\n🇺🇸 ABD (EST): 01:00 — 07:00\n🇹🇷 Türkiye: 09:00 — 15:00\n🇩🇪 Almanya: 07:00 — 13:00\n🇷🇺 Rusya (MSK): 09:00 — 15:00\n🇺🇿 Özbekistan: 11:00 — 17:00",
     "faqQ4": "Çekim komisyonu neden değişiyor?",
     "faqA4": "VEM Media uluslararası kripto borsalarıyla gerçek zamanlı çalışmaktadır. Borsalardaki ağ ücretleri piyasa koşullarına bağlı olarak artabilir veya azalabilir — bu tamamen normaldir.\n\nSabit koşullarla para çekmek istiyorsanız, yerel banka kartı çekim yöntemini kullanın — kripto ağ ücretlerine tabi değildir.",
     "faqQ5": "\"Stajyer\" (Başlangıç) seviyesi nedir?",
