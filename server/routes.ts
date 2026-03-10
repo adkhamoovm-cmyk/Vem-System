@@ -57,6 +57,13 @@ export async function registerRoutes(
 
   app.use("/api/", apiRateLimiter);
 
+  app.use("/uploads/receipts", (req: Request, res: Response, next: NextFunction) => {
+    if (!req.session.userId) {
+      return res.status(401).json({ message: "Avtorizatsiya talab qilinadi" });
+    }
+    next();
+  }, express.static(path.join(process.cwd(), "uploads", "receipts")));
+
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
   app.use(authRoutes);

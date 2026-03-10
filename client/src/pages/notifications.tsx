@@ -7,10 +7,13 @@ import { Link } from "wouter";
 import type { Notification } from "@shared/schema";
 
 function linkifyText(text: string): string {
-  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   return escaped.replace(
-    /(https?:\/\/[^\s<]+)/g,
-    '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80">$1</a>'
+    /(https?:\/\/[^\s<&"']+)/g,
+    (url) => {
+      const safeUrl = url.replace(/[^a-zA-Z0-9\-._~:/?#\[\]@!$&'()*+,;=%]/g, encodeURIComponent);
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80">${url}</a>`;
+    }
   );
 }
 
