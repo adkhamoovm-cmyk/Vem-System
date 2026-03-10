@@ -4,14 +4,14 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
   Monitor, Globe, X, Shield, LogOut, LogIn,
-  Smartphone, Laptop, Tablet
+  Smartphone, Laptop, Tablet, Clock, Wifi
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { UserSessionLog } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 
-function parseDevice(ua: string | null): { name: string; icon: "phone" | "tablet" | "laptop" } {
-  if (!ua) return { name: "Unknown", icon: "laptop" };
+function parseDevice(ua: string | null): { name: string; icon: "phone" | "tablet" | "laptop"; browser: string; os: string } {
+  if (!ua) return { name: "Unknown", icon: "laptop", browser: "Browser", os: "" };
   const lower = ua.toLowerCase();
   const isTablet = /ipad|tablet|tab/i.test(lower);
   const isMobile = /mobile|android|iphone/i.test(lower);
@@ -31,9 +31,9 @@ function parseDevice(ua: string | null): { name: string; icon: "phone" | "tablet
   else if (/linux/i.test(lower)) os = "Linux";
 
   const name = os ? `${browser} · ${os}` : browser;
-  if (isTablet) return { name, icon: "tablet" };
-  if (isMobile) return { name, icon: "phone" };
-  return { name, icon: "laptop" };
+  if (isTablet) return { name, icon: "tablet", browser, os };
+  if (isMobile) return { name, icon: "phone", browser, os };
+  return { name, icon: "laptop", browser, os };
 }
 
 function maskIp(ip: string): string {
@@ -46,6 +46,17 @@ function maskIp(ip: string): string {
   const parts = ip.split(".");
   if (parts.length === 4) return parts[0] + "." + "***" + "." + "***" + "." + parts[3];
   return ip;
+}
+
+function timeAgo(dateStr: string, t: (key: string, params?: Record<string, string | number>) => string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diff = Math.floor((now - then) / 1000);
+  if (diff < 60) return t("profile.timeJustNow");
+  if (diff < 3600) return t("profile.timeMinAgo", { n: Math.floor(diff / 60) });
+  if (diff < 86400) return t("profile.timeHourAgo", { n: Math.floor(diff / 3600) });
+  if (diff < 604800) return t("profile.timeDayAgo", { n: Math.floor(diff / 86400) });
+  return t("profile.timeWeekAgo", { n: Math.floor(diff / 604800) });
 }
 
 type ActiveSession = { sid: string; ip: string; userAgent: string; lastActive: string; isCurrent: boolean };
@@ -92,48 +103,77 @@ export function SessionsModal({ open, onClose }: { open: boolean; onClose: () =>
     return `${day}.${mon}.${year} ${hours}:${mins}`;
   };
 
+  const DeviceIconComponent = ({ icon, className }: { icon: string; className?: string }) => {
+    if (icon === "phone") return <Smartphone className={className} />;
+    if (icon === "tablet") return <Tablet className={className} />;
+    return <Laptop className={className} />;
+  };
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-background border-border p-0 max-w-md w-full h-[80vh] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col" aria-describedby="sessions-desc">
+      <DialogContent className="bg-background border-border/60 p-0 max-w-md w-full h-[80vh] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col shadow-2xl" aria-describedby="sessions-desc">
         <DialogTitle className="sr-only">{t("profile.sessions")}</DialogTitle>
-        <div className="bg-gradient-to-br from-cyan-500/20 via-card to-card px-4 pt-5 pb-4 border-b border-border shrink-0">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-              <Monitor className="w-5 h-5 text-cyan-500" />
+
+        <div className="relative shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-transparent" />
+          <div className="relative px-5 pt-5 pb-4">
+            <div className="flex items-center gap-3.5 mb-4">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center ring-1 ring-cyan-500/20">
+                <Monitor className="w-5 h-5 text-cyan-400" />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-foreground font-bold text-[15px] tracking-tight">{t("profile.sessions")}</h2>
+                <p id="sessions-desc" className="text-muted-foreground text-xs mt-0.5">{t("profile.sessionsDesc")}</p>
+              </div>
+              <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-semibold text-emerald-400">{activeSessions.length}</span>
+              </div>
             </div>
-            <div>
-              <h2 className="text-foreground font-bold text-base">{t("profile.sessions")}</h2>
-              <p id="sessions-desc" className="text-muted-foreground text-xs">{t("profile.sessionsDesc")}</p>
+
+            <div className="flex gap-1 bg-muted/40 rounded-xl p-1 backdrop-blur-sm ring-1 ring-border/30">
+              <button
+                onClick={() => setTab("active")}
+                className={`flex-1 text-xs font-semibold py-2 rounded-lg transition-all duration-200 ${tab === "active"
+                  ? "bg-card text-foreground shadow-sm ring-1 ring-border/50"
+                  : "text-muted-foreground hover:text-foreground"
+                }`}
+                data-testid="tab-active-sessions"
+              >
+                <div className="flex items-center justify-center gap-1.5">
+                  <Wifi className="w-3 h-3" />
+                  {t("profile.sessionActive")}
+                </div>
+              </button>
+              <button
+                onClick={() => setTab("history")}
+                className={`flex-1 text-xs font-semibold py-2 rounded-lg transition-all duration-200 ${tab === "history"
+                  ? "bg-card text-foreground shadow-sm ring-1 ring-border/50"
+                  : "text-muted-foreground hover:text-foreground"
+                }`}
+                data-testid="tab-session-history"
+              >
+                <div className="flex items-center justify-center gap-1.5">
+                  <Clock className="w-3 h-3" />
+                  {t("profile.sessionHistory")}
+                </div>
+              </button>
             </div>
           </div>
-          <div className="flex gap-1 bg-muted/50 rounded-lg p-0.5">
-            <button
-              onClick={() => setTab("active")}
-              className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-colors ${tab === "active" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-              data-testid="tab-active-sessions"
-            >
-              {t("profile.sessionActive")} ({activeSessions.length})
-            </button>
-            <button
-              onClick={() => setTab("history")}
-              className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-colors ${tab === "history" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-              data-testid="tab-session-history"
-            >
-              {t("profile.sessionHistory")}
-            </button>
-          </div>
+          <div className="h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
         </div>
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
           {isLoading ? (
-            <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map(i => (
-                <div key={i} className="bg-card rounded-xl p-3 border border-border/50 animate-pulse">
-                  <div className="flex gap-3">
-                    <div className="w-9 h-9 bg-muted rounded-lg" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3 bg-muted rounded w-24" />
-                      <div className="h-2.5 bg-muted rounded w-32" />
-                      <div className="h-2.5 bg-muted rounded w-20" />
+            <div className="space-y-2.5">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="rounded-2xl p-4 border border-border/30 animate-pulse bg-card/50">
+                  <div className="flex gap-3.5">
+                    <div className="w-10 h-10 bg-muted/60 rounded-xl" />
+                    <div className="flex-1 space-y-2.5">
+                      <div className="h-3.5 bg-muted/60 rounded-lg w-28" />
+                      <div className="h-2.5 bg-muted/40 rounded-lg w-36" />
+                      <div className="h-2.5 bg-muted/40 rounded-lg w-20" />
                     </div>
                   </div>
                 </div>
@@ -141,44 +181,74 @@ export function SessionsModal({ open, onClose }: { open: boolean; onClose: () =>
             </div>
           ) : tab === "active" ? (
             activeSessions.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-                <Monitor className="w-10 h-10 mb-3 opacity-40" />
-                <p className="text-sm">{t("profile.sessionNoData")}</p>
+              <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                <div className="w-16 h-16 rounded-2xl bg-muted/30 flex items-center justify-center mb-4">
+                  <Monitor className="w-7 h-7 opacity-30" />
+                </div>
+                <p className="text-sm font-medium">{t("profile.sessionNoData")}</p>
               </div>
             ) : (
-              activeSessions.map((s) => {
+              activeSessions.map((s, idx) => {
                 const device = parseDevice(s.userAgent);
-                const DeviceIcon = device.icon === "phone" ? Smartphone : device.icon === "tablet" ? Tablet : Laptop;
                 return (
-                  <div key={s.sid} className={`bg-card rounded-xl p-3 border ${s.isCurrent ? "border-cyan-500/50" : "border-border/50"} hover:border-border transition-colors`} data-testid={`active-session-${s.sid}`}>
+                  <div
+                    key={s.sid}
+                    className={`group rounded-2xl p-3.5 border transition-all duration-200 ${
+                      s.isCurrent
+                        ? "bg-gradient-to-br from-cyan-500/[0.06] to-blue-500/[0.03] border-cyan-500/30 ring-1 ring-cyan-500/10"
+                        : "bg-card/60 border-border/40 hover:border-border/70 hover:bg-card/80"
+                    }`}
+                    style={{ animationDelay: `${idx * 50}ms` }}
+                    data-testid={`active-session-${s.sid}`}
+                  >
                     <div className="flex gap-3">
-                      <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${s.isCurrent ? "bg-cyan-500/15" : "bg-emerald-500/15"}`}>
-                        <DeviceIcon className={`w-4 h-4 ${s.isCurrent ? "text-cyan-500" : "text-emerald-500"}`} />
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        s.isCurrent
+                          ? "bg-gradient-to-br from-cyan-500/20 to-blue-500/15"
+                          : "bg-emerald-500/10"
+                      }`}>
+                        <DeviceIconComponent
+                          icon={device.icon}
+                          className={`w-[18px] h-[18px] ${s.isCurrent ? "text-cyan-400" : "text-emerald-400"}`}
+                        />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-xs font-semibold text-foreground">{device.name}</span>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[13px] font-semibold text-foreground">{device.name}</span>
                             {s.isCurrent && (
-                              <span className="text-[9px] bg-cyan-500/20 text-cyan-400 px-1.5 py-0.5 rounded-full font-medium">{t("profile.sessionCurrent")}</span>
+                              <span className="text-[9px] bg-cyan-500/15 text-cyan-400 px-2 py-0.5 rounded-full font-bold tracking-wide uppercase ring-1 ring-cyan-500/20">
+                                {t("profile.sessionCurrent")}
+                              </span>
                             )}
                           </div>
+                          <span className="text-[10px] text-muted-foreground/70">{timeAgo(s.lastActive, t)}</span>
                         </div>
-                        {s.ip && (
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Globe className="w-3 h-3 text-muted-foreground shrink-0" />
-                            <span className="text-[11px] text-muted-foreground font-mono">{maskIp(s.ip)}</span>
+
+                        <div className="flex items-center gap-3">
+                          {s.ip && (
+                            <div className="flex items-center gap-1">
+                              <Globe className="w-3 h-3 text-muted-foreground/60" />
+                              <span className="text-[11px] text-muted-foreground font-mono">{maskIp(s.ip)}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1">
+                            <div className={`w-1.5 h-1.5 rounded-full ${s.isCurrent ? "bg-cyan-400" : "bg-emerald-400"}`} />
+                            <span className="text-[10px] text-muted-foreground/70">{t("profile.sessionOnline")}</span>
                           </div>
-                        )}
+                        </div>
+
                         {!s.isCurrent && (
                           <button
                             onClick={() => terminateMutation.mutate(s.sid)}
                             disabled={terminateMutation.isPending}
-                            className="flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 transition-colors mt-0.5"
+                            className="flex items-center gap-1.5 text-[11px] text-red-400/80 hover:text-red-400 transition-all mt-2 group/btn"
                             data-testid={`terminate-session-${s.sid}`}
                           >
-                            <X className="w-3 h-3" />
-                            {t("profile.sessionTerminate")}
+                            <div className="w-5 h-5 rounded-md bg-red-500/10 flex items-center justify-center group-hover/btn:bg-red-500/15 transition-colors">
+                              <X className="w-3 h-3" />
+                            </div>
+                            <span className="font-medium">{t("profile.sessionTerminate")}</span>
                           </button>
                         )}
                       </div>
@@ -188,39 +258,69 @@ export function SessionsModal({ open, onClose }: { open: boolean; onClose: () =>
               })
             )
           ) : sessions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-              <Monitor className="w-10 h-10 mb-3 opacity-40" />
-              <p className="text-sm">{t("profile.sessionNoData")}</p>
+            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+              <div className="w-16 h-16 rounded-2xl bg-muted/30 flex items-center justify-center mb-4">
+                <Clock className="w-7 h-7 opacity-30" />
+              </div>
+              <p className="text-sm font-medium">{t("profile.sessionNoData")}</p>
             </div>
           ) : (
-            sessions.map((s) => {
+            sessions.map((s, idx) => {
               const device = parseDevice(s.userAgent);
-              const DeviceIcon = device.icon === "phone" ? Smartphone : device.icon === "tablet" ? Tablet : Laptop;
               const isLogin = s.action === "login";
               const isForceLogout = s.action === "force_logout";
+              const actionColor = isLogin ? "emerald" : isForceLogout ? "amber" : "red";
+              const colorMap = {
+                emerald: { bg: "bg-emerald-500/10", text: "text-emerald-400", ring: "ring-emerald-500/15", gradient: "from-emerald-500/[0.06] to-emerald-500/[0.02]" },
+                amber: { bg: "bg-amber-500/10", text: "text-amber-400", ring: "ring-amber-500/15", gradient: "from-amber-500/[0.06] to-amber-500/[0.02]" },
+                red: { bg: "bg-red-500/10", text: "text-red-400", ring: "ring-red-500/15", gradient: "from-red-500/[0.06] to-red-500/[0.02]" },
+              };
+              const colors = colorMap[actionColor];
+
               return (
-                <div key={s.id} className="bg-card rounded-xl p-3 border border-border/50 hover:border-border transition-colors" data-testid={`session-${s.id}`}>
+                <div
+                  key={s.id}
+                  className={`rounded-2xl p-3.5 border border-border/30 hover:border-border/50 transition-all duration-200 bg-card/50`}
+                  style={{ animationDelay: `${idx * 30}ms` }}
+                  data-testid={`session-${s.id}`}
+                >
                   <div className="flex gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${isLogin ? "bg-emerald-500/15" : isForceLogout ? "bg-amber-500/15" : "bg-red-500/15"}`}>
-                      {isLogin ? <LogIn className="w-4 h-4 text-emerald-500" /> : isForceLogout ? <Shield className="w-4 h-4 text-amber-500" /> : <LogOut className="w-4 h-4 text-red-500" />}
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${colors.bg}`}>
+                      {isLogin ? (
+                        <LogIn className={`w-[18px] h-[18px] ${colors.text}`} />
+                      ) : isForceLogout ? (
+                        <Shield className={`w-[18px] h-[18px] ${colors.text}`} />
+                      ) : (
+                        <LogOut className={`w-[18px] h-[18px] ${colors.text}`} />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={`text-xs font-semibold ${isLogin ? "text-emerald-500" : isForceLogout ? "text-amber-500" : "text-red-500"}`}>
-                          {isLogin ? t("profile.sessionLogin") : isForceLogout ? t("profile.sessionForceLogout") : t("profile.sessionLogout")}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">{formatDate(String(s.createdAt))}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 mb-0.5">
-                        <DeviceIcon className="w-3 h-3 text-muted-foreground shrink-0" />
-                        <span className="text-xs text-foreground/80 truncate">{device.name}</span>
-                      </div>
-                      {s.ip && (
-                        <div className="flex items-center gap-1.5">
-                          <Globe className="w-3 h-3 text-muted-foreground shrink-0" />
-                          <span className="text-[11px] text-muted-foreground font-mono">{maskIp(s.ip)}</span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-bold ${colors.text}`}>
+                            {isLogin ? t("profile.sessionLogin") : isForceLogout ? t("profile.sessionForceLogout") : t("profile.sessionLogout")}
+                          </span>
+                          <span className={`text-[9px] ${colors.bg} ${colors.text} px-1.5 py-0.5 rounded-full font-semibold ring-1 ${colors.ring}`}>
+                            {isLogin ? "↗" : isForceLogout ? "⚡" : "↙"}
+                          </span>
                         </div>
-                      )}
+                        <span className="text-[10px] text-muted-foreground/60">{formatDate(String(s.createdAt))}</span>
+                      </div>
+                      <div className="flex items-center gap-2.5">
+                        <div className="flex items-center gap-1">
+                          <DeviceIconComponent icon={device.icon} className="w-3 h-3 text-muted-foreground/60" />
+                          <span className="text-[11px] text-foreground/70">{device.name}</span>
+                        </div>
+                        {s.ip && (
+                          <>
+                            <span className="text-muted-foreground/30">·</span>
+                            <div className="flex items-center gap-1">
+                              <Globe className="w-3 h-3 text-muted-foreground/50" />
+                              <span className="text-[10px] text-muted-foreground/60 font-mono">{maskIp(s.ip)}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
