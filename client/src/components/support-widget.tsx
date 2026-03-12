@@ -25,7 +25,7 @@ const supportLinks = [
     icon: Users,
     url: "https://t.me/+rO6-eoMDl0EyYWNh",
     color: "#10B981",
-    labelKey: "help.community",
+    labelKey: "help.communityGroup",
     descKey: "help.userGroup",
   },
 ];
