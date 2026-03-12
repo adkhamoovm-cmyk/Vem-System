@@ -33,7 +33,7 @@ export default function HelpPage() {
       color: "#10B981",
       items: [
         { label: t("help.officialChannel"), value: "t.me/Vem_Official", link: "https://t.me/Vem_Official", icon: MessageCircle },
-        { label: t("help.communityGroup"), value: t("help.userGroup"), link: "https://t.me/+rO6-eoMDl0EyYWNh", icon: Users },
+        { label: t("help.communityGroup"), value: t("help.communityGroup"), link: "https://t.me/+rO6-eoMDl0EyYWNh", icon: Users },
       ],
     },
   ];
