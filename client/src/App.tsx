@@ -12,6 +12,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { OfflineBanner } from "@/components/offline-banner";
 
+const LandingPage = lazy(() => import("@/pages/landing"));
 const AuthPage = lazy(() => import("@/pages/auth"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
 const TasksPage = lazy(() => import("@/pages/tasks"));
@@ -110,7 +111,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/">
-        <Redirect to="/login" />
+        {() => (
+          <Suspense fallback={<PageLoader />}>
+            <LandingPage />
+          </Suspense>
+        )}
       </Route>
       <Route path="/login">
         {() => <AuthRoute component={AuthPage} />}
