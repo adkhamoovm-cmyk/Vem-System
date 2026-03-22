@@ -74,20 +74,22 @@ router.post("/api/admin/users/:id/withdrawal-ban", requireAdmin, validateBody(ad
 }));
 
 router.post("/api/admin/users/:id/balance", requireAdmin, validateBody(adminSchemas.setBalance), asyncHandler(async (req: Request, res: Response) => {
-  const { balance } = req.body;
-  const numBalance = Number(balance);
-  if (isNaN(numBalance) || numBalance < 0) {
+  const { amount, mode } = req.body;
+  const numAmount = Number(amount);
+  if (isNaN(numAmount) || numAmount <= 0) {
     return res.status(400).json({ message: "Noto'g'ri balans qiymati" });
   }
   const targetId = req.params.id as string;
+  const delta = mode === "subtract" ? -numAmount : numAmount;
 
   await db.transaction(async (tx) => {
     const [locked] = await tx.select({ balance: users.balance }).from(users).where(eq(users.id, targetId)).for("update");
     if (!locked) throw new Error("USER_NOT_FOUND");
     const oldBalance = Number(locked.balance);
-    const diff = numBalance - oldBalance;
-    await tx.update(users).set({ balance: numBalance.toFixed(2) }).where(eq(users.id, targetId));
-    await tx.insert(balanceHistory).values({ userId: targetId, type: "admin_adjust", amount: diff.toFixed(2), description: `Texnik bo'lim tomonidan balans o'zgartirildi` });
+    const newBalance = Math.max(0, oldBalance + delta);
+    await tx.update(users).set({ balance: newBalance.toFixed(2) }).where(eq(users.id, targetId));
+    const actualDiff = newBalance - oldBalance;
+    await tx.insert(balanceHistory).values({ userId: targetId, type: "admin_adjust", amount: actualDiff.toFixed(2), description: `Texnik bo'lim tomonidan balans o'zgartirildi` });
   }).catch((err) => {
     if (err.message === "USER_NOT_FOUND") {
       return res.status(404).json({ message: "Foydalanuvchi topilmadi" });
@@ -206,7 +208,10 @@ router.post("/api/admin/deposits/:id/reject", requireAdmin, asyncHandler(async (
     const searchStr = `${Number(lockedDeposit.amount).toFixed(2)} ${lockedDeposit.currency}`;
     const match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
     if (match) {
-      await tx.update(balanceHistory).set({ description: `Depozit rad etildi (${amountInUSDT} USDT)` }).where(eq(balanceHistory.id, match.id));
+      const origParts = (match.description || "").split("|");
+      const methodPart = origParts[1] || "";
+      const amountPart = origParts[2] || `${amountInUSDT} USDT`;
+      await tx.update(balanceHistory).set({ amount: "0.00", description: `rejected|${methodPart}|${amountPart}` }).where(eq(balanceHistory.id, match.id));
     }
   });
   sendNotification(depositUserId, "system", "deposit_rejected", "deposit_rejected", { amount: depositAmount, currency: depositCurrency });

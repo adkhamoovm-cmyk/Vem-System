@@ -80,8 +80,8 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
   });
 
   const balanceMutation = useMutation({
-    mutationFn: async (finalBalance: string) => {
-      await apiRequest("POST", `/api/admin/users/${userId}/balance`, { balance: finalBalance });
+    mutationFn: async (payload: { amount: string; mode: "add" | "subtract" }) => {
+      await apiRequest("POST", `/api/admin/users/${userId}/balance`, payload);
     },
     onSuccess: () => {
       toast({ title: t("admin.balanceUpdated") });
@@ -261,10 +261,7 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
               <div className="flex gap-2">
                 <Button size="sm" disabled={!balanceAmount || Number(balanceAmount) <= 0}
                   onClick={() => {
-                    const current = Number(user.balance);
-                    const amt = Number(balanceAmount);
-                    const final_ = balanceMode === "add" ? current + amt : Math.max(0, current - amt);
-                    balanceMutation.mutate(final_.toFixed(2));
+                    balanceMutation.mutate({ amount: Number(balanceAmount).toFixed(2), mode: balanceMode });
                   }}
                   className={`h-8 text-xs ${balanceMode === "add" ? "bg-[#4ADE80] text-black" : "bg-primary text-foreground"}`}
                   data-testid="button-balance-confirm"

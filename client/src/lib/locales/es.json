@@ -349,6 +349,7 @@
     "historyWithdrawalRefundDetail": "Reembolsado: {amount} USDT (incl. {commission} USDT de comisión)",
     "historyAdminAdjust": "Saldo ajustado por departamento técnico",
     "historyDeposit": "Depósito acreditado",
+    "historyDepositRejected": "Depósito rechazado",
     "historyFundInvest": "Inversión en fondo",
     "historyCommission": "Comisión de referido",
     "historyRefund": "Monto no recuperado de VIP reembolsado",

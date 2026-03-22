@@ -349,6 +349,7 @@
     "historyWithdrawalRefundDetail": "Qaytarildi: {amount} USDT (komissiya {commission} USDT bilan)",
     "historyAdminAdjust": "Texnik bo'lim tomonidan balans o'zgartirildi",
     "historyDeposit": "Depozit kiritildi",
+    "historyDepositRejected": "Depozit rad etildi",
     "historyFundInvest": "Fondga investitsiya",
     "historyCommission": "Referal komissiyasi",
     "historyRefund": "VIP oqlanmagan qism qaytarildi",

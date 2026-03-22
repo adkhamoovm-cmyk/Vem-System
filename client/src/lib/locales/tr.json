@@ -349,6 +349,7 @@
     "historyWithdrawalRefundDetail": "İade edildi: {amount} USDT ({commission} USDT komisyon dahil)",
     "historyAdminAdjust": "Bakiye teknik departman tarafından düzenlendi",
     "historyDeposit": "Yatırım onaylandı",
+    "historyDepositRejected": "Yatırım reddedildi",
     "historyFundInvest": "Fon yatırımı",
     "historyCommission": "Referans komisyonu",
     "historyRefund": "VIP geri kazanılmamış tutar iade edildi",

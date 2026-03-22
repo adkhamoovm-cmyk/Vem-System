@@ -321,7 +321,8 @@ export const adminSchemas = {
     banned: z.boolean({ required_error: "Ban holati kerak" }),
   }),
   setBalance: z.object({
-    balance: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().min(0, "Balans manfiy bo'lishi mumkin emas")),
+    amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().gt(0, "Miqdor 0 dan katta bo'lishi kerak")),
+    mode: z.enum(["add", "subtract"], { required_error: "Rejim kerak (add yoki subtract)" }),
   }),
   setVip: z.object({
     level: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(-1).max(10)),

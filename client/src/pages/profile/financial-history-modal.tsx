@@ -42,7 +42,7 @@ export function FinancialHistoryModal({
                 <span className="text-emerald-500 text-[9px] font-medium">{t("profile.filterDeposit")}</span>
               </div>
               <p className="text-emerald-500 font-bold text-xs">
-                +{balHistory.filter(h => h.type === "deposit" && Number(h.amount) > 0).reduce((s, h) => s + Number(h.amount), 0).toFixed(2)} USDT
+                +{balHistory.filter(h => h.type === "deposit" && Number(h.amount) > 0 && !(h.description || "").startsWith("rejected|")).reduce((s, h) => s + Number(h.amount), 0).toFixed(2)} USDT
               </p>
             </div>
             <div className="bg-amber-500/10 rounded-xl p-2">
@@ -114,7 +114,8 @@ export function FinancialHistoryModal({
                 refund: { icon: RotateCcw, color: "#34D399" },
                 admin_adjust: { icon: Settings, color: "hsl(var(--muted-foreground))" },
               };
-              const config = typeIcons[h.type] || { icon: ScrollText, color: "hsl(var(--muted-foreground))" };
+              const baseConfig = typeIcons[h.type] || { icon: ScrollText, color: "hsl(var(--muted-foreground))" };
+              const config = (h.type === "deposit" && (h.description || "").startsWith("rejected|")) ? { icon: ArrowDownCircle, color: "#EF4444" } : baseConfig;
               const IconComp = config.icon;
               const desc = h.description || "";
               const parts = desc.split("|");
@@ -133,7 +134,7 @@ export function FinancialHistoryModal({
               const extractName = (d: string) => { const m = d.match(/^(\w+)\s/); return m ? m[1] : "VIP"; };
               const typeMap: Record<string, () => string> = {
                 earning: () => { if (desc.includes("Fond") || desc.includes("fond")) return t("vip.historyFundProfit"); if (desc.includes("Promokod") || desc.includes("promokod")) { const codeMatch = desc.match(/Promokod:\s*(.+)/i); return t("vip.historyPromo", { code: codeMatch ? codeMatch[1] : "" }); } return t("vip.historyEarning", { name: extractName(desc) || "VIP" }); },
-                deposit: () => { if (desc.includes("qaytarildi") || desc.includes("fond")) return t("vip.historyFundReturn"); return t("vip.historyDeposit"); },
+                deposit: () => { if (desc.includes("qaytarildi") || desc.includes("fond")) return t("vip.historyFundReturn"); if (entryStatus === "rejected") return t("vip.historyDepositRejected"); return t("vip.historyDeposit"); },
                 withdrawal: () => { if (hasStatusFormat) return t("vip.historyWithdrawalMethod", { method: methodInfo }); return t("vip.historyWithdrawal", { commission: "10%" }); },
                 withdrawal_cancel: () => {
                   if (desc.startsWith("refund|")) {

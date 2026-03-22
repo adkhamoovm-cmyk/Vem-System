@@ -349,6 +349,7 @@
     "historyWithdrawalRefundDetail": "Refunded: {amount} USDT (incl. {commission} USDT commission)",
     "historyAdminAdjust": "Balance adjusted by technical department",
     "historyDeposit": "Deposit credited",
+    "historyDepositRejected": "Deposit rejected",
     "historyFundInvest": "Fund investment",
     "historyCommission": "Referral commission",
     "historyRefund": "VIP unrecouped amount refunded",

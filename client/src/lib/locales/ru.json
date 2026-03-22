@@ -349,6 +349,7 @@
     "historyWithdrawalRefundDetail": "Возврат: {amount} USDT (включая комиссию {commission} USDT)",
     "historyAdminAdjust": "Баланс изменён тех. отделом",
     "historyDeposit": "Депозит зачислен",
+    "historyDepositRejected": "Депозит отклонён",
     "historyFundInvest": "Инвестиция в Фонд",
     "historyCommission": "Реферальная комиссия",
     "historyRefund": "Возврат неокупленной суммы VIP",
