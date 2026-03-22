@@ -135,6 +135,7 @@
     "scrollToAccept": "Прокрутите вниз, чтобы принять",
     "readAndAgree": "Прочитал и согласен",
     "keepReading": "Читайте дальше...",
+    "phoneOnlyDigits": "Введите только цифры",
     "phoneValidation": "Введите номер телефона",
     "passwordValidation": "Пароль должен содержать минимум 6 символов",
     "fundPasswordValidation": "Пароль для вывода должен состоять из 6 цифр",

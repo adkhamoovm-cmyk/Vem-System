@@ -135,6 +135,7 @@
     "scrollToAccept": "Kabul etmek için en alta kaydırın",
     "readAndAgree": "Okudum ve kabul ediyorum",
     "keepReading": "Okumaya devam edin...",
+    "phoneOnlyDigits": "Sadece rakam girin",
     "phoneValidation": "Telefon numarası girin",
     "passwordValidation": "Şifre en az 6 karakter olmalıdır",
     "fundPasswordValidation": "Çekim şifresi 6 haneli olmalıdır",

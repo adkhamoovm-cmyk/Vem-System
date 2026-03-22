@@ -135,6 +135,7 @@
     "scrollToAccept": "Qabul qilish uchun pastga qadar o'qing",
     "readAndAgree": "O'qidim va roziman",
     "keepReading": "O'qishni davom eting...",
+    "phoneOnlyDigits": "Faqat raqamlar kiriting",
     "phoneValidation": "Telefon raqamini kiriting",
     "passwordValidation": "Parol kamida 6 ta belgidan iborat bo'lishi kerak",
     "fundPasswordValidation": "Pul yechish paroli 6 ta raqamdan iborat bo'lishi kerak",

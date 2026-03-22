@@ -259,7 +259,7 @@ export function validateBody(schema: ZodSchema) {
 
 export const authSchemas = {
   register: z.object({
-    phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak").max(20),
+    phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak").max(20).regex(/^\+?\d+$/, "Telefon raqami faqat raqamlardan iborat bo'lishi kerak"),
     password: z.string({ required_error: "Parol kerak" }).min(6, "Parol kamida 6 ta belgi"),
     fundPassword: z.string({ required_error: "Moliya paroli kerak" }).length(6, "PIN kod 6 ta raqam bo'lishi kerak").regex(/^\d{6}$/, "PIN faqat raqamlardan iborat"),
     referralCode: z.string().optional(),

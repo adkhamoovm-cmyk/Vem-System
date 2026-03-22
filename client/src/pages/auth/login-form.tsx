@@ -44,7 +44,7 @@ export function LoginForm({ countryCodes, locale, t, translateServerMessage, sho
   const savedPhone = rememberMe ? (localStorage.getItem("vem_phone") || "") : "";
 
   const loginSchema = z.object({
-    phone: z.string().min(5, t("auth.phoneValidation")),
+    phone: z.string().min(5, t("auth.phoneValidation")).regex(/^\d+$/, t("auth.phoneOnlyDigits")),
     password: z.string().min(4, t("auth.passwordRequired")),
   });
   type LoginFormData = z.infer<typeof loginSchema>;
@@ -138,7 +138,7 @@ export function LoginForm({ countryCodes, locale, t, translateServerMessage, sho
                     </div>
                     <div className="relative flex-1 group">
                       <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                      <Input {...field} placeholder="" autoComplete="tel" className="pl-11 h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl transition-all duration-200" data-testid="input-phone" />
+                      <Input {...field} placeholder="" autoComplete="tel" inputMode="numeric" pattern="[0-9]*" onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ""))} className="pl-11 h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl transition-all duration-200" data-testid="input-phone" />
                     </div>
                   </div>
                 </FormControl>

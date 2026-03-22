@@ -43,7 +43,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
   useEffect(() => { if (refCode) setShowReferral(true); }, [refCode]);
 
   const registerSchema = z.object({
-    phone: z.string().min(5, t("auth.phoneValidation")),
+    phone: z.string().min(5, t("auth.phoneValidation")).regex(/^\d+$/, t("auth.phoneOnlyDigits")),
     password: z.string().min(6, t("auth.passwordValidation")),
     fundPassword: z.string().length(6, t("auth.fundPasswordValidation")).regex(/^\d{6}$/, t("auth.onlyNumbers")),
     captcha: z.boolean().refine(val => val === true, t("auth.captchaValidation")),
@@ -154,7 +154,7 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                         </div>
                         <div className="relative flex-1 group">
                           <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                          <Input {...field} placeholder="" autoComplete="tel" className="pl-11 h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl transition-all duration-200" data-testid="input-phone-reg" />
+                          <Input {...field} placeholder="" autoComplete="tel" inputMode="numeric" pattern="[0-9]*" onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ""))} className="pl-11 h-12 bg-muted/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:ring-2 focus:ring-primary/15 rounded-xl transition-all duration-200" data-testid="input-phone-reg" />
                         </div>
                       </div>
                     </FormControl>

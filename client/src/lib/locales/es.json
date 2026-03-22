@@ -135,6 +135,7 @@
     "scrollToAccept": "Desplázate hasta el final para aceptar",
     "readAndAgree": "He leído y acepto",
     "keepReading": "Sigue leyendo...",
+    "phoneOnlyDigits": "Ingrese solo dígitos",
     "phoneValidation": "Ingresa número de teléfono",
     "passwordValidation": "La contraseña debe tener al menos 6 caracteres",
     "fundPasswordValidation": "La contraseña de retiro debe ser de 6 dígitos",

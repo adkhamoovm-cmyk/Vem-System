@@ -135,6 +135,7 @@
     "scrollToAccept": "Scroll to the bottom to accept",
     "readAndAgree": "I have read and agree",
     "keepReading": "Keep reading...",
+    "phoneOnlyDigits": "Enter digits only",
     "phoneValidation": "Enter phone number",
     "passwordValidation": "Password must be at least 6 characters",
     "fundPasswordValidation": "Withdrawal password must be 6 digits",
