@@ -13,7 +13,6 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { OfflineBanner } from "@/components/offline-banner";
 
 const LandingPage = lazy(() => import("@/pages/landing"));
-const AuthPage = lazy(() => import("@/pages/auth"));
 const DashboardPage = lazy(() => import("@/pages/dashboard"));
 const TasksPage = lazy(() => import("@/pages/tasks"));
 const ReferralPage = lazy(() => import("@/pages/referral"));
@@ -43,7 +42,7 @@ function ProtectedRoute({ component: Component }: { component: React.ComponentTy
   if (isLoading) return <PageLoader />;
   if (error && error.message === "ACCOUNT_BANNED") {
     localStorage.setItem("vem-banned", "1");
-    return <Redirect to="/login" />;
+    return <Redirect to="/" />;
   }
   if (!user) return <Redirect to="/login" />;
 
@@ -65,7 +64,7 @@ function AdminRoute({ component: Component }: { component: React.ComponentType }
   if (isLoading) return <PageLoader />;
   if (error && error.message === "ACCOUNT_BANNED") {
     localStorage.setItem("vem-banned", "1");
-    return <Redirect to="/login" />;
+    return <Redirect to="/" />;
   }
   if (!user || !user.isAdmin) return <Redirect to="/dashboard" />;
 
@@ -78,28 +77,12 @@ function AdminRoute({ component: Component }: { component: React.ComponentType }
   );
 }
 
-function AuthRoute({ component: Component }: { component: React.ComponentType }) {
-  const { data: user, isLoading } = useQuery<User>({
-    queryKey: ["/api/auth/me"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
-  });
-
-  if (isLoading) return <PageLoader />;
-  if (user) return <Redirect to="/dashboard" />;
-
-  return (
-    <Suspense fallback={<PageLoader />}>
-      <Component />
-    </Suspense>
-  );
-}
-
 function BannedListener() {
   const [, navigate] = useLocation();
   useEffect(() => {
     const handler = () => {
       queryClient.clear();
-      navigate("/login");
+      navigate("/");
     };
     window.addEventListener("vem-account-banned", handler);
     return () => window.removeEventListener("vem-account-banned", handler);
@@ -118,10 +101,18 @@ function Router() {
         )}
       </Route>
       <Route path="/login">
-        {() => <AuthRoute component={AuthPage} />}
+        {() => (
+          <Suspense fallback={<PageLoader />}>
+            <LandingPage initialAuth="login" />
+          </Suspense>
+        )}
       </Route>
       <Route path="/register">
-        {() => <AuthRoute component={AuthPage} />}
+        {() => (
+          <Suspense fallback={<PageLoader />}>
+            <LandingPage initialAuth="register" />
+          </Suspense>
+        )}
       </Route>
       <Route path="/dashboard">
         {() => <ProtectedRoute component={DashboardPage} />}

@@ -137,11 +137,11 @@ const partnerBrands = [
   { name: "Hulu", color: "#1CE783" },
 ];
 
-export default function LandingPage() {
+export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "register" }) {
   const [, navigate] = useLocation();
   const { t } = useI18n();
   const { theme, toggleTheme } = useTheme();
-  const [authModal, setAuthModal] = useState<null | "login" | "register">(null);
+  const [authModal, setAuthModal] = useState<null | "login" | "register">(initialAuth || null);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -154,6 +154,16 @@ export default function LandingPage() {
   useEffect(() => {
     if (user && !isLoading) navigate("/dashboard");
   }, [user, isLoading, navigate]);
+
+  const openAuth = (tab: "login" | "register") => {
+    setAuthModal(tab);
+    navigate(tab === "login" ? "/login" : "/register");
+  };
+
+  const closeAuth = () => {
+    setAuthModal(null);
+    navigate("/");
+  };
 
   const openResetModal = async () => {
     try { await apiRequest("POST", "/api/auth/reset-cancel", {}); } catch {}
@@ -182,14 +192,6 @@ export default function LandingPage() {
     { qKey: "landing.faq6Q", aKey: "landing.faq6A" },
   ];
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/30">
@@ -207,7 +209,7 @@ export default function LandingPage() {
               {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button
-              onClick={() => setAuthModal("login")}
+              onClick={() => openAuth("login")}
               className="hidden sm:flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
               data-testid="button-header-login"
             >
@@ -215,7 +217,7 @@ export default function LandingPage() {
               {t("auth.login")}
             </button>
             <button
-              onClick={() => setAuthModal("register")}
+              onClick={() => openAuth("register")}
               className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-primary to-blue-600 text-white text-sm font-semibold rounded-xl shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:brightness-110 active:scale-[0.97] transition-all"
               data-testid="button-header-register"
             >
@@ -252,7 +254,7 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-14">
             <button
-              onClick={() => setAuthModal("register")}
+              onClick={() => openAuth("register")}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-bold text-base rounded-2xl shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:brightness-110 active:scale-[0.97] transition-all"
               data-testid="button-hero-register"
             >
@@ -260,7 +262,7 @@ export default function LandingPage() {
               {t("landing.getStarted")}
             </button>
             <button
-              onClick={() => setAuthModal("login")}
+              onClick={() => openAuth("login")}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-muted/50 border border-border/50 text-foreground font-semibold text-base rounded-2xl hover:bg-muted/80 transition-all"
               data-testid="button-hero-login"
             >
@@ -390,7 +392,7 @@ export default function LandingPage() {
           <h2 className="text-2xl sm:text-3xl font-extrabold mb-4" data-testid="text-cta-title">{t("landing.ctaTitle")}</h2>
           <p className="text-muted-foreground text-base max-w-lg mx-auto mb-8">{t("landing.ctaDesc")}</p>
           <button
-            onClick={() => setAuthModal("register")}
+            onClick={() => openAuth("register")}
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-bold text-base rounded-2xl shadow-xl shadow-primary/25 hover:shadow-primary/40 hover:brightness-110 active:scale-[0.97] transition-all"
             data-testid="button-cta-register"
           >
@@ -428,8 +430,8 @@ export default function LandingPage() {
       {authModal && (
         <AuthModal
           activeTab={authModal}
-          onTabChange={setAuthModal}
-          onClose={() => setAuthModal(null)}
+          onTabChange={(tab) => openAuth(tab)}
+          onClose={closeAuth}
           onForgotPassword={openResetModal}
           showResetPassword={showResetPassword}
           setShowResetPassword={setShowResetPassword}
