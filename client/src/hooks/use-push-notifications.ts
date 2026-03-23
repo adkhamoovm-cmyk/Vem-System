@@ -6,6 +6,16 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const checkSubscription = useCallback(async () => {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      setIsSubscribed(!!sub);
+    } catch {
+      setIsSubscribed(false);
+    }
+  }, []);
+
   useEffect(() => {
     const supported = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
     setIsSupported(supported);
@@ -16,19 +26,9 @@ export function usePushNotifications() {
 
   useEffect(() => {
     if (!isSupported) return;
-    const interval = setInterval(checkSubscription, 2000);
+    const interval = setInterval(checkSubscription, 3000);
     return () => clearInterval(interval);
   }, [isSupported, checkSubscription]);
-
-  const checkSubscription = useCallback(async () => {
-    try {
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.getSubscription();
-      setIsSubscribed(!!sub);
-    } catch {
-      setIsSubscribed(false);
-    }
-  }, []);
 
   const subscribe = useCallback(async () => {
     if (!isSupported) return false;
