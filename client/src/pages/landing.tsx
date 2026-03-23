@@ -122,13 +122,21 @@ function AuthModal({ activeTab, onTabChange, onClose, onForgotPassword, showRese
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    document.body.style.position = "fixed";
+    document.body.style.inset = "0";
+    document.body.style.width = "100%";
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.inset = "";
+      document.body.style.width = "";
+    };
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4" data-testid="auth-modal">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" style={{ touchAction: "none" }} data-testid="auth-modal">
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full sm:max-w-[440px] max-h-[92vh] overflow-y-auto animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300 overscroll-contain">
+      <div className="relative w-full sm:max-w-[440px] max-h-[92vh] overflow-y-auto overscroll-contain animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
         <div className="absolute -inset-[1px] rounded-t-[24px] sm:rounded-[24px] bg-gradient-to-b from-primary/30 via-border/20 to-border/60 pointer-events-none" />
         <div className="relative bg-card/95 backdrop-blur-xl rounded-t-[24px] sm:rounded-[24px] px-4 py-6 sm:p-7 shadow-2xl shadow-black/40">
           <div className="w-10 h-1 rounded-full bg-muted-foreground/20 mx-auto mb-4 sm:hidden" />
