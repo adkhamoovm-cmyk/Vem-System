@@ -1057,6 +1057,19 @@
       "days": "Hace {count} días"
     }
   },
+  "welcome": {
+    "title": "Bienvenido a VEM Media",
+    "subtitle": "Algunas cosas para empezar",
+    "greeting": "¡Bienvenido! Antes de comenzar, aquí tienes una orientación rápida para que sepas exactamente por dónde empezar.",
+    "step1Title": "Completa las tareas diarias",
+    "step1Desc": "Ve a la sección de Tareas para ver videos cortos de nuestras plataformas asociadas y ganar recompensas por cada uno.",
+    "step2Title": "Contacta a tu gerente de referidos",
+    "step2Desc": "Tu gerente o curador de referidos es tu primer punto de contacto para cualquier pregunta sobre paquetes, planes o cómo empezar.",
+    "step3Title": "¿Necesitas ayuda?",
+    "step3Desc": "Para soporte general o problemas técnicos, comunícate con nuestro equipo de soporte en Telegram. Estamos aquí para ti.",
+    "supportHint": "Equipo de soporte:",
+    "understood": "¡Entendido, vamos!"
+  },
   "landing": {
     "heroBadge": "Plataforma Ver-y-Ganar",
     "heroTitle1": "Mira contenido.",

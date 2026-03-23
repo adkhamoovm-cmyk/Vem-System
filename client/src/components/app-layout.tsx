@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { SupportWidget } from "@/components/support-widget";
 import { NotificationPrompt } from "@/components/notification-prompt";
+import { WelcomeBanner } from "@/components/welcome-banner";
 import type { User, Broadcast } from "@shared/schema";
 import vemLogo from "@assets/photo_2026-02-24_19-42-53-removebg-preview_1771944480591.png";
 
@@ -131,6 +132,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background pb-20">
       <BroadcastModal />
       <NotificationPrompt />
+      <WelcomeBanner user={user} />
 
       <header className="sticky top-0 z-50 bg-background/90 backdrop-blur-md border-b border-border/50">
         <div className="max-w-lg mx-auto flex items-center justify-between px-4 h-12">

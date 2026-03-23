@@ -1057,6 +1057,19 @@
       "days": "{count} days ago"
     }
   },
+  "welcome": {
+    "title": "Welcome to VEM Media",
+    "subtitle": "A few things to get you started",
+    "greeting": "Welcome! Before you dive in, here's a quick orientation so you know exactly where to begin.",
+    "step1Title": "Complete daily tasks",
+    "step1Desc": "Go to the Tasks section to watch short videos from our partner platforms and earn rewards for each one.",
+    "step2Title": "Contact your referral manager",
+    "step2Desc": "Your referral manager or curator is your first point of contact for any questions about packages, plans, or getting set up.",
+    "step3Title": "Need help?",
+    "step3Desc": "For general support or technical issues, reach out to our support team on Telegram. We're here for you.",
+    "supportHint": "Support team:",
+    "understood": "Got it, let's go!"
+  },
   "landing": {
     "heroBadge": "Watch-to-Earn Platform",
     "heroTitle1": "Watch Content.",

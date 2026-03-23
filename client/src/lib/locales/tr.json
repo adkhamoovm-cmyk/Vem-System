@@ -1057,6 +1057,19 @@
       "days": "{count} gün önce"
     }
   },
+  "welcome": {
+    "title": "VEM Media'ya Hoş Geldiniz",
+    "subtitle": "Başlamak için birkaç önemli bilgi",
+    "greeting": "Hoş geldiniz! Başlamadan önce, tam olarak nereden başlayacağınızı bilmeniz için kısa bir yönlendirme.",
+    "step1Title": "Günlük görevleri tamamlayın",
+    "step1Desc": "Ortak platformlarımızdan kısa videolar izlemek ve her biri için ödül kazanmak için Görevler bölümüne gidin.",
+    "step2Title": "Referans yöneticinizle iletişime geçin",
+    "step2Desc": "Referans yöneticiniz veya küratörünüz, paketler, planlar veya kurulum hakkındaki sorularınız için ilk başvuru noktanızdır.",
+    "step3Title": "Yardıma mı ihtiyacınız var?",
+    "step3Desc": "Genel destek veya teknik sorunlar için Telegram'dan destek ekibimize ulaşın. Sizin için buradayız.",
+    "supportHint": "Destek ekibi:",
+    "understood": "Anladım, başlayalım!"
+  },
   "landing": {
     "heroBadge": "İzle-Kazan Platformu",
     "heroTitle1": "İçerik izleyin.",

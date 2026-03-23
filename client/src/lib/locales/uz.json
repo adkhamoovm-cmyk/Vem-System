@@ -1057,6 +1057,19 @@
       "days": "{count} kun oldin"
     }
   },
+  "welcome": {
+    "title": "VEM Media'ga xush kelibsiz",
+    "subtitle": "Boshlash uchun bir necha muhim ma'lumot",
+    "greeting": "Xush kelibsiz! Ishni boshlashdan oldin, nima qilishni aniq bilishingiz uchun qisqacha yo'l-yo'riq.",
+    "step1Title": "Kunlik vazifalarni bajaring",
+    "step1Desc": "Hamkor platformalarimizdan qisqa videolar ko'rish va har biri uchun mukofot olish uchun Vazifalar bo'limiga o'ting.",
+    "step2Title": "Referal menejeringiz bilan bog'laning",
+    "step2Desc": "Referal menejeringiz yoki kuratoringiz — paketlar, rejalar yoki boshlash bo'yicha barcha savollaringiz uchun birinchi murojaat manbaingiz.",
+    "step3Title": "Yordam kerakmi?",
+    "step3Desc": "Umumiy yordam yoki texnik muammolar uchun Telegram orqali qo'llab-quvvatlash jamoamizga murojaat qiling. Biz siz uchun shu yerdamiz.",
+    "supportHint": "Qo'llab-quvvatlash jamoasi:",
+    "understood": "Tushundim, boshlaymiz!"
+  },
   "landing": {
     "heroBadge": "Ko'rish orqali daromad platformasi",
     "heroTitle1": "Kontent ko'ring.",
