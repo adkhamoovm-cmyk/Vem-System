@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
-import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2 } from "lucide-react";
+import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe } from "lucide-react";
 import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv } from "react-icons/si";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
@@ -359,19 +359,20 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             </button>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6" data-testid="stats-row">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5" data-testid="stats-row">
             {[
-              { value: 50000, suffix: "+", display: "50K+", labelKey: "landing.statUsers", icon: Users },
-              { value: 11, suffix: "", display: "11", labelKey: "landing.statVipLevels", icon: Crown },
-              { value: 24, suffix: "/7", display: "24/7", labelKey: "landing.statSupport", icon: Shield },
+              { display: "6+", labelKey: "landing.statPlatforms", icon: Globe },
+              { display: "150+", labelKey: "landing.statCountries", icon: Users },
+              { display: "$2M+", labelKey: "landing.statPaid", icon: TrendingUp },
+              { display: "24/7", labelKey: "landing.statSupport", icon: Shield },
             ].map((stat, i) => (
-              <div key={stat.labelKey} className={`group flex items-center gap-3 px-5 py-3 bg-card/40 border border-border/30 rounded-2xl backdrop-blur-sm hover:bg-card/60 hover:border-border/50 hover:shadow-lg transition-all duration-300 opacity-0 ${heroReveal.isVisible ? "animate-fade-scale" : ""}`} style={{ animationDelay: `${0.6 + i * 0.15}s`, animationFillMode: "forwards" }}>
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                  <stat.icon className="w-4 h-4 text-primary" />
+              <div key={stat.labelKey} className={`group flex items-center gap-2.5 px-4 py-2.5 bg-card/40 border border-border/30 rounded-xl backdrop-blur-sm hover:bg-card/60 hover:border-border/50 hover:shadow-lg transition-all duration-300 opacity-0 ${heroReveal.isVisible ? "animate-fade-scale" : ""}`} style={{ animationDelay: `${0.6 + i * 0.12}s`, animationFillMode: "forwards" }}>
+                <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                  <stat.icon className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <div className="text-left">
-                  <span className="text-lg font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent block leading-tight">{stat.display}</span>
-                  <span className="text-muted-foreground text-xs">{t(stat.labelKey)}</span>
+                  <span className="text-base font-extrabold bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent block leading-tight">{stat.display}</span>
+                  <span className="text-muted-foreground text-[10px] sm:text-xs">{t(stat.labelKey)}</span>
                 </div>
               </div>
             ))}
