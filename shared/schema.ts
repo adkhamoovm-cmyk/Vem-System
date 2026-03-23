@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, decimal, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, decimal, uniqueIndex, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -65,7 +65,9 @@ export const taskHistory = pgTable("task_history", {
   videoId: text("video_id").notNull(),
   reward: decimal("reward", { precision: 10, scale: 2 }).notNull(),
   completedAt: timestamp("completed_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("task_history_user_id_idx").on(table.userId),
+]);
 
 export const referrals = pgTable("referrals", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -73,7 +75,9 @@ export const referrals = pgTable("referrals", {
   referredId: text("referred_id").notNull(),
   level: integer("level").notNull(),
   commission: decimal("commission", { precision: 10, scale: 2 }).notNull().default("0"),
-});
+}, (table) => [
+  index("referrals_referrer_id_idx").on(table.referrerId),
+]);
 
 export const fundPlans = pgTable("fund_plans", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -96,7 +100,9 @@ export const investments = pgTable("investments", {
   endDate: timestamp("end_date"),
   status: text("status").notNull().default("active"),
   lastProfitDate: text("last_profit_date"),
-});
+}, (table) => [
+  index("investments_user_id_idx").on(table.userId),
+]);
 
 export const paymentMethods = pgTable("payment_methods", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
@@ -165,7 +171,9 @@ export const balanceHistory = pgTable("balance_history", {
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  index("balance_history_user_id_idx").on(table.userId),
+]);
 
 export const insertUserSchema = createInsertSchema(users).pick({
   phone: true,

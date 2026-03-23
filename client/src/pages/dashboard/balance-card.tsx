@@ -1,6 +1,5 @@
 import { Link } from "wouter";
-import { TrendingUp, ArrowRightLeft, CheckCheck, AlertTriangle } from "lucide-react";
-import { GraduationCap, Star, Flame, Gem, Crown, Trophy, Rocket, Zap, Globe } from "lucide-react";
+import { TrendingUp, ArrowRightLeft, CheckCheck, AlertTriangle, GraduationCap, Star, Flame, Gem, Crown, Trophy, Rocket, Zap, Globe } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { User, VipPackage } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
