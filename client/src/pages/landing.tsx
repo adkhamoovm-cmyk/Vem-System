@@ -303,7 +303,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${headerScrolled ? "bg-background/90 backdrop-blur-xl border-b border-border/40 shadow-lg shadow-black/5" : "bg-transparent"}`}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <img src={vemLogo} alt="VEM" className="h-9 transition-transform duration-300 hover:scale-105" style={{ imageRendering: "auto", filter: "contrast(1.05) brightness(1.02)" }} />
+            <img src={vemLogo} alt="VEM" className="h-14 transition-transform duration-300 hover:scale-105" style={{ imageRendering: "auto", filter: "contrast(1.05) brightness(1.02)" }} />
           </div>
           <div className="flex items-center gap-2">
             <LanguageSwitcher compact />
