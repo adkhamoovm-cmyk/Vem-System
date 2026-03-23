@@ -18,6 +18,9 @@ async function throwIfResNotOk(res: Response) {
       handleBannedRedirect();
       throw new Error("ACCOUNT_BANNED");
     }
+    if (res.status === 401) {
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+    }
     throw new Error(message);
   }
 }

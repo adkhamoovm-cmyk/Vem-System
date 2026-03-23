@@ -58,12 +58,6 @@ router.get("/api/admin/users/:id", requireAdmin, asyncHandler(async (req: Reques
 router.post("/api/admin/users/:id/ban", requireAdmin, validateBody(adminSchemas.banUser), asyncHandler(async (req: Request, res: Response) => {
   const { isBanned } = req.body;
   await storage.banUser(req.params.id as string, isBanned);
-  if (isBanned) {
-    await pool.query(
-      `DELETE FROM user_sessions WHERE (sess->>'userId') = $1`,
-      [req.params.id]
-    );
-  }
   res.json({ message: isBanned ? "Foydalanuvchi bloklandi" : "Foydalanuvchi blokdan chiqarildi" });
 }));
 
