@@ -306,6 +306,11 @@ router.post("/api/profile/change-password", requireAuth, validateBody(userSchema
   }
   const hashedNew = await hashPassword(newPassword);
   await storage.updateUserPassword(req.session.userId!, hashedNew);
+  const currentSid = req.sessionID;
+  await pool.query(
+    `DELETE FROM user_sessions WHERE (sess->>'userId') = $1 AND sid != $2`,
+    [req.session.userId!, currentSid]
+  );
   res.json({ message: "Parol muvaffaqiyatli o'zgartirildi" });
 }));
 

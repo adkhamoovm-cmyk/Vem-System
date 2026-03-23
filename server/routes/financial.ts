@@ -240,7 +240,7 @@ router.post("/api/deposit", requireAuth, withdrawRateLimiter, uploadReceipt.sing
 
   const depositMethodLabel = paymentType === "crypto" ? `USDT (Crypto)` : `Bank karta (${currency})`;
   const pendingAmountUSDT = currency === "UZS" ? (numAmount / 12100).toFixed(2) : numAmount.toFixed(2);
-  await storage.addBalanceHistory({ userId, type: "deposit", amount: pendingAmountUSDT, description: `pending|${depositMethodLabel}|${numAmount.toFixed(2)} ${currency}` });
+  await storage.addBalanceHistory({ userId, type: "deposit", amount: pendingAmountUSDT, description: `pending|${depositMethodLabel}|${numAmount.toFixed(2)} ${currency}|${deposit.id}` });
 
   res.json({ deposit, message: "So'rov yuborildi! Moliya bo'limi tekshirgandan so'ng balansingizga qo'shiladi." });
 }));
@@ -313,18 +313,6 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
   if (uzbHour < withdrawalStartHour || uzbHour >= withdrawalEndHour) {
     return res.status(400).json({ message: `Pul yechish faqat ${withdrawalStartHour}:00 dan ${withdrawalEndHour}:00 gacha mumkin` });
   }
-  const todayStr = getUzbToday();
-  const todayWithdrawals = await storage.getUserWithdrawalRequests(userId);
-  const withdrawalsToday = todayWithdrawals.filter(w => {
-    if (w.status === "rejected") return false;
-    const wDay = new Date(new Date(w.createdAt).getTime() + DAY_OFFSET_MS);
-    const wDate = wDay.toISOString().split("T")[0];
-    return wDate === todayStr;
-  });
-  if (withdrawalsToday.length >= maxDailyWithdrawals) {
-    return res.status(400).json({ message: `Kuniga faqat ${maxDailyWithdrawals} marta pul yechish mumkin. Ertaga qayta urinib ko'ring.` });
-  }
-
   const numAmount = Number(amount);
   const method = (await storage.getUserPaymentMethods(userId)).find(m => m.id === paymentMethodId);
   if (!method) {
@@ -357,6 +345,18 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
         throw new Error("INSUFFICIENT_BALANCE");
       }
 
+      const todayStr = getUzbToday();
+      const todayWithdrawals = await tx.select().from(withdrawalRequests).where(eq(withdrawalRequests.userId, userId));
+      const withdrawalsToday = todayWithdrawals.filter(w => {
+        if (w.status === "rejected") return false;
+        const wDay = new Date(new Date(w.createdAt).getTime() + DAY_OFFSET_MS);
+        const wDate = wDay.toISOString().split("T")[0];
+        return wDate === todayStr;
+      });
+      if (withdrawalsToday.length >= maxDailyWithdrawals) {
+        throw new Error("DAILY_LIMIT_EXCEEDED");
+      }
+
       await tx.update(users)
         .set({ balance: dsql`${users.balance}::numeric - ${numAmount.toFixed(2)}::numeric` })
         .where(eq(users.id, userId));
@@ -375,6 +375,9 @@ router.post("/api/withdraw", requireAuth, withdrawRateLimiter, validateBody(fina
   } catch (err: unknown) {
     if (err instanceof Error && err.message === "INSUFFICIENT_BALANCE") {
       return res.status(400).json({ message: "Balansingiz yetarli emas" });
+    }
+    if (err instanceof Error && err.message === "DAILY_LIMIT_EXCEEDED") {
+      return res.status(400).json({ message: `Kuniga faqat ${maxDailyWithdrawals} marta pul yechish mumkin. Ertaga qayta urinib ko'ring.` });
     }
     throw err;
   }

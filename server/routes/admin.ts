@@ -163,9 +163,12 @@ router.post("/api/admin/deposits/:id/approve", requireAdmin, asyncHandler(async 
     const entries = await tx.select().from(balanceHistory)
       .where(and(eq(balanceHistory.userId, lockedDeposit.userId), eq(balanceHistory.type, "deposit")))
       .orderBy(desc(balanceHistory.createdAt))
-      .limit(10);
-    const searchStr = `${Number(lockedDeposit.amount).toFixed(2)} ${lockedDeposit.currency}`;
-    const match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
+      .limit(50);
+    let match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(lockedDeposit.id));
+    if (!match) {
+      const searchStr = `${Number(lockedDeposit.amount).toFixed(2)} ${lockedDeposit.currency}`;
+      match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
+    }
     if (match) {
       await tx.update(balanceHistory).set({ amount: amountInUSDT, description: `Depozit tasdiqlandi (${lockedDeposit.currency === "UZS" ? lockedDeposit.amount + " UZS → " : ""}${amountInUSDT} USDT)` }).where(eq(balanceHistory.id, match.id));
     }
@@ -198,9 +201,12 @@ router.post("/api/admin/deposits/:id/reject", requireAdmin, asyncHandler(async (
     const entries = await tx.select().from(balanceHistory)
       .where(and(eq(balanceHistory.userId, lockedDeposit.userId), eq(balanceHistory.type, "deposit")))
       .orderBy(desc(balanceHistory.createdAt))
-      .limit(10);
-    const searchStr = `${Number(lockedDeposit.amount).toFixed(2)} ${lockedDeposit.currency}`;
-    const match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
+      .limit(50);
+    let match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(lockedDeposit.id));
+    if (!match) {
+      const searchStr = `${Number(lockedDeposit.amount).toFixed(2)} ${lockedDeposit.currency}`;
+      match = entries.find(e => e.description?.startsWith("pending|") && e.description?.includes(searchStr));
+    }
     if (match) {
       const origParts = (match.description || "").split("|");
       const methodPart = origParts[1] || "";
@@ -241,7 +247,7 @@ router.post("/api/admin/withdrawals/:id/approve", requireAdmin, asyncHandler(asy
     const entries = await tx.select().from(balanceHistory)
       .where(and(eq(balanceHistory.userId, lockedW.userId), eq(balanceHistory.type, "withdrawal")))
       .orderBy(desc(balanceHistory.createdAt))
-      .limit(10);
+      .limit(50);
     const match = entries.find(e => e.description?.includes(lockedW.id));
     if (match) {
       const matchParts = match.description?.split("|") || [];
@@ -271,7 +277,7 @@ router.post("/api/admin/withdrawals/:id/reject", requireAdmin, asyncHandler(asyn
     const entries = await tx.select().from(balanceHistory)
       .where(and(eq(balanceHistory.userId, lockedW.userId), eq(balanceHistory.type, "withdrawal")))
       .orderBy(desc(balanceHistory.createdAt))
-      .limit(10);
+      .limit(50);
     const match = entries.find(e => e.description?.includes(lockedW.id));
     if (match) {
       const matchParts = match.description?.split("|") || [];
