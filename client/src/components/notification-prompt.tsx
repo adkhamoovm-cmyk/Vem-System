@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Bell, X, Zap, MessageCircle, Gift } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 
 const PROMPT_KEY = "vem-notif-prompt-shown";
 const PROMPT_DELAY = 3000;
@@ -63,19 +64,21 @@ const texts: Record<string, {
 
 export function NotificationPrompt() {
   const { locale } = useI18n();
+  const { isSupported, isSubscribed, subscribe } = usePushNotifications();
   const [show, setShow] = useState(false);
   const [animateOut, setAnimateOut] = useState(false);
 
   useEffect(() => {
-    if (!("Notification" in window)) return;
-    if (Notification.permission === "granted" || Notification.permission === "denied") return;
+    if (!isSupported) return;
+    if (isSubscribed) return;
+    if (typeof Notification !== "undefined" && (Notification.permission === "granted" || Notification.permission === "denied")) return;
 
     const alreadyShown = localStorage.getItem(PROMPT_KEY);
     if (alreadyShown) return;
 
     const timer = setTimeout(() => setShow(true), PROMPT_DELAY);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isSupported, isSubscribed]);
 
   const handleClose = () => {
     setAnimateOut(true);
@@ -89,22 +92,7 @@ export function NotificationPrompt() {
     localStorage.setItem(PROMPT_KEY, "accepted");
     setAnimateOut(true);
     setTimeout(() => setShow(false), 300);
-
-    try {
-      const permission = await Notification.requestPermission();
-      if (permission === "granted" && "serviceWorker" in navigator) {
-        const reg = await navigator.serviceWorker.ready;
-        const sub = await reg.pushManager.getSubscription();
-        if (!sub) {
-          try {
-            await reg.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: undefined,
-            });
-          } catch {}
-        }
-      }
-    } catch {}
+    await subscribe();
   };
 
   if (!show) return null;

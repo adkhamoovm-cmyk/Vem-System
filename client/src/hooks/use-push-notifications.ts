@@ -12,7 +12,13 @@ export function usePushNotifications() {
     if (supported) {
       checkSubscription();
     }
-  }, []);
+  }, [checkSubscription]);
+
+  useEffect(() => {
+    if (!isSupported) return;
+    const interval = setInterval(checkSubscription, 2000);
+    return () => clearInterval(interval);
+  }, [isSupported, checkSubscription]);
 
   const checkSubscription = useCallback(async () => {
     try {
