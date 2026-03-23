@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { ArrowRight, CheckCircle } from "lucide-react";
 
 export function SliderCaptcha({ onVerified, t }: { onVerified: () => void; t: (key: string) => string }) {
@@ -6,45 +6,78 @@ export function SliderCaptcha({ onVerified, t }: { onVerified: () => void; t: (k
   const [isDragging, setIsDragging] = useState(false);
   const [verified, setVerified] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
 
-  const handleStart = useCallback((_clientX: number) => {
-    if (verified) return;
-    setIsDragging(true);
-  }, [verified]);
+  const getMaxX = useCallback(() => {
+    if (!trackRef.current) return 250;
+    return trackRef.current.getBoundingClientRect().width - 48;
+  }, []);
 
   const handleMove = useCallback((clientX: number) => {
-    if (!isDragging || !trackRef.current || verified) return;
+    if (!draggingRef.current || !trackRef.current) return;
     const rect = trackRef.current.getBoundingClientRect();
-    const maxX = rect.width - 44;
+    const maxX = rect.width - 48;
     const x = Math.max(0, Math.min(clientX - rect.left - 22, maxX));
     setSliderPos(x);
     if (x >= maxX - 5) {
       setVerified(true);
+      draggingRef.current = false;
       setIsDragging(false);
       setSliderPos(maxX);
       onVerified();
     }
-  }, [isDragging, verified, onVerified]);
+  }, [onVerified]);
 
   const handleEnd = useCallback(() => {
-    if (!verified) setSliderPos(0);
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
     setIsDragging(false);
+    setSliderPos(0);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const onMouseMove = (e: MouseEvent) => {
+      e.preventDefault();
+      handleMove(e.clientX);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      handleMove(e.touches[0].clientX);
+    };
+    const onMouseUp = () => handleEnd();
+    const onTouchEnd = () => handleEnd();
+
+    document.addEventListener("mousemove", onMouseMove, { passive: false });
+    document.addEventListener("mouseup", onMouseUp);
+    document.addEventListener("touchmove", onTouchMove, { passive: false });
+    document.addEventListener("touchend", onTouchEnd);
+
+    return () => {
+      document.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseup", onMouseUp);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [isDragging, handleMove, handleEnd]);
+
+  const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    if (verified) return;
+    e.preventDefault();
+    e.stopPropagation();
+    draggingRef.current = true;
+    setIsDragging(true);
   }, [verified]);
 
-  const trackWidth = trackRef.current?.getBoundingClientRect().width || 300;
-  const maxX = trackWidth - 48;
+  const maxX = getMaxX();
   const progress = maxX > 0 ? Math.min((sliderPos / maxX) * 100, 100) : 0;
 
   return (
     <div
       ref={trackRef}
-      className={`relative h-[52px] rounded-xl select-none overflow-hidden transition-all duration-500 ${verified ? "bg-gradient-to-r from-emerald-500/10 to-green-500/10" : "bg-muted/50"}`}
+      className={`relative h-[52px] rounded-xl select-none overflow-hidden touch-none transition-all duration-500 ${verified ? "bg-gradient-to-r from-emerald-500/10 to-green-500/10" : "bg-muted/50"}`}
       style={{ border: verified ? "1.5px solid rgba(34,197,94,0.3)" : "1.5px solid hsl(var(--border) / 0.5)" }}
-      onMouseMove={(e) => handleMove(e.clientX)}
-      onMouseUp={handleEnd}
-      onMouseLeave={handleEnd}
-      onTouchMove={(e) => handleMove(e.touches[0].clientX)}
-      onTouchEnd={handleEnd}
       data-testid="captcha-slider-track"
     >
       <div
@@ -68,10 +101,10 @@ export function SliderCaptcha({ onVerified, t }: { onVerified: () => void; t: (k
         )}
       </div>
       <div
-        className={`absolute top-[5px] w-[42px] h-[42px] rounded-lg flex items-center justify-center z-20 transition-all duration-150 ${verified ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-lg shadow-emerald-500/30" : isDragging ? "bg-gradient-to-br from-primary to-blue-600 text-white shadow-xl shadow-primary/30 scale-105" : "bg-card text-primary border border-border/50 shadow-md"}`}
-        style={{ left: `${sliderPos + 4}px`, cursor: verified ? "default" : isDragging ? "grabbing" : "grab" }}
-        onMouseDown={(e) => handleStart(e.clientX)}
-        onTouchStart={(e) => handleStart(e.touches[0].clientX)}
+        className={`absolute top-[5px] w-[42px] h-[42px] rounded-lg flex items-center justify-center z-20 transition-shadow duration-150 ${verified ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-lg shadow-emerald-500/30" : isDragging ? "bg-gradient-to-br from-primary to-blue-600 text-white shadow-xl shadow-primary/30 scale-105" : "bg-card text-primary border border-border/50 shadow-md"}`}
+        style={{ left: `${sliderPos + 4}px`, cursor: verified ? "default" : isDragging ? "grabbing" : "grab", touchAction: "none" }}
+        onMouseDown={handleStart}
+        onTouchStart={handleStart}
         data-testid="captcha-slider-handle"
       >
         {verified ? <CheckCircle className="w-5 h-5" /> : <ArrowRight className="w-5 h-5" />}
