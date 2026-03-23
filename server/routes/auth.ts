@@ -72,7 +72,10 @@ router.post("/api/auth/register", authRateLimiter, validateBody(authSchemas.regi
   req.session.userId = user.id;
   const ip = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
   const ua = req.headers["user-agent"] || "";
+  (req.session as any).ip = ip;
+  (req.session as any).userAgent = ua;
   await storage.updateUserLoginInfo(user.id, ip, ua);
+  await storage.logSession({ userId: user.id, action: "login", ip, userAgent: ua });
   res.json({ user: { ...user, password: undefined, fundPassword: undefined } });
 }));
 
