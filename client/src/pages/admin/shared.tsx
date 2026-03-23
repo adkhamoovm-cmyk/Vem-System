@@ -6,7 +6,7 @@ import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 
-export type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor" | "vip-manage" | "promo" | "broadcasts";
+export type Tab = "dashboard" | "users" | "deposits" | "withdrawals" | "settings" | "referrals" | "multi" | "stajyor" | "vip-manage" | "promo" | "broadcasts" | "passive";
 
 export function StatusBadge({ status }: { status: string }) {
   const { t } = useI18n();

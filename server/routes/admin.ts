@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { storage } from "../storage";
 import { requireAuth, requireAdmin, sendNotification, sendRawNotification, hashPassword, pinRateLimiter, webpush, asyncHandler, validateBody, adminSchemas, userSchemas, getUzbDayNow, getUzbToday } from "../lib/helpers";
 import { users, depositRequests, withdrawalRequests, balanceHistory, investments, promoCodes, promoCodeUsages, stajyorRequests } from "@shared/schema";
-import { eq, and, desc, sql as dsql } from "drizzle-orm";
+import { eq, and, desc, gte, sql as dsql } from "drizzle-orm";
 import { db } from "../db";
 import { pool } from "../db";
 
@@ -587,6 +587,33 @@ router.post("/api/admin/promo-codes/:id/deactivate", requireAdmin, asyncHandler(
 router.delete("/api/admin/promo-codes/:id", requireAdmin, asyncHandler(async (req: Request, res: Response) => {
   await storage.deletePromoCode(req.params.id as string);
   res.json({ message: "Promokod o'chirildi" });
+}));
+
+router.get("/api/admin/passive-users", requireAdmin, asyncHandler(async (_req: Request, res: Response) => {
+  const result = await db.select({
+    id: users.id,
+    phone: users.phone,
+    numericId: users.numericId,
+    vipLevel: users.vipLevel,
+    balance: users.balance,
+    totalDeposit: users.totalDeposit,
+    totalEarnings: users.totalEarnings,
+    lastLoginIp: users.lastLoginIp,
+    isBanned: users.isBanned,
+    withdrawalBanned: users.withdrawalBanned,
+    vipExpiresAt: users.vipExpiresAt,
+    createdAt: users.createdAt,
+    referralCount: dsql<number>`COALESCE((SELECT COUNT(*) FROM referrals WHERE referrals.referrer_id = ${users.id} AND referrals.level = 1), 0)`,
+  })
+    .from(users)
+    .where(and(
+      gte(users.vipLevel, 1),
+      eq(users.isAdmin, false),
+    ))
+    .orderBy(desc(users.vipLevel), desc(users.totalDeposit));
+
+  const passive = result.filter(u => Number(u.referralCount) === 0);
+  res.json(passive);
 }));
 
 export function setupDailyProfits() {

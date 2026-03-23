@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Users, ArrowDownCircle, ArrowUpCircle, Settings, Crown,
-  Shield, AlertTriangle, Trophy, UserPlus, Activity, Megaphone, Mail
+  Shield, AlertTriangle, Trophy, UserPlus, Activity, Megaphone, Mail, UserX
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, StajyorRequest } from "@shared/schema";
@@ -19,6 +19,7 @@ import { StajyorTab } from "./admin/stajyor-tab";
 import { VipManageTab } from "./admin/vip-manage-tab";
 import { PromoCodesTab } from "./admin/promo-codes-tab";
 import { BroadcastsTab } from "./admin/broadcasts-tab";
+import { PassiveUsersTab } from "./admin/passive-users-tab";
 
 export default function AdminPage() {
   const { t } = useI18n();
@@ -61,6 +62,7 @@ export default function AdminPage() {
     { id: "stajyor", label: t("admin.stajyor"), icon: UserPlus, badge: pendingStajyor || undefined },
     { id: "users", label: t("admin.users"), icon: Users, badge: allUsers.length },
     { id: "referrals", label: t("admin.topReferrals"), icon: Trophy },
+    { id: "passive", label: t("admin.passiveUsers"), icon: UserX },
     { id: "multi", label: t("admin.multiAccount"), icon: AlertTriangle },
     { id: "settings", label: t("admin.settings"), icon: Settings },
     { id: "vip-manage", label: t("admin.vipManagement"), icon: Crown },
@@ -177,6 +179,7 @@ export default function AdminPage() {
         {tab === "deposits" && <DepositsTab deposits={deposits} users={allUsers} />}
         {tab === "withdrawals" && <WithdrawalsTab withdrawals={withdrawals} users={allUsers} />}
         {tab === "referrals" && <TopReferrersTab />}
+        {tab === "passive" && <PassiveUsersTab />}
         {tab === "multi" && <MultiAccountsTab />}
         {tab === "settings" && <SettingsTab />}
         {tab === "vip-manage" && <VipManageTab />}
