@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Link } from "wouter";
-import { TrendingUp, ArrowRightLeft, CheckCheck, AlertTriangle, GraduationCap, Star, Flame, Gem, Crown, Trophy, Rocket, Zap, Globe } from "lucide-react";
+import { TrendingUp, ArrowRightLeft, CheckCheck, AlertTriangle, GraduationCap, Star, Flame, Gem, Crown, Trophy, Rocket, Zap, Globe, RefreshCw } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { queryClient } from "@/lib/queryClient";
 import type { User, VipPackage } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
@@ -27,6 +29,19 @@ interface BalanceCardProps {
 export function BalanceCard({ user, currentPkg, dailyPotential, todayEarned, vipDaysLeft }: BalanceCardProps) {
   const { t, locale } = useI18n();
   const balance = Number(user.balance);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    if (refreshing) return;
+    setRefreshing(true);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] }),
+      queryClient.invalidateQueries({ queryKey: ["/api/balance-history"] }),
+      queryClient.invalidateQueries({ queryKey: ["/api/investments"] }),
+      queryClient.invalidateQueries({ queryKey: ["/api/referrals/stats"] }),
+    ]);
+    setTimeout(() => setRefreshing(false), 800);
+  };
 
   return (
     <>
@@ -99,7 +114,17 @@ export function BalanceCard({ user, currentPkg, dailyPotential, todayEarned, vip
             </div>
             <div className="flex items-end justify-between" data-testid="text-balance">
               <div>
-                <p className="text-white font-bold text-3xl tracking-tight">{balance.toFixed(2)} <span className="text-emerald-300 text-sm font-semibold">USDT</span></p>
+                <div className="flex items-center gap-2">
+                  <p className="text-white font-bold text-3xl tracking-tight">{balance.toFixed(2)} <span className="text-emerald-300 text-sm font-semibold">USDT</span></p>
+                  <button
+                    onClick={handleRefresh}
+                    disabled={refreshing}
+                    className="w-7 h-7 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 active:scale-90 transition-all mt-0.5"
+                    data-testid="button-refresh-balance"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+                  </button>
+                </div>
                 <p className="text-white/50 text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
               </div>
               <div className="text-right space-y-1">
