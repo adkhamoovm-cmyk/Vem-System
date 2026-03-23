@@ -371,7 +371,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             {[
               { display: "6+", labelKey: "landing.statPlatforms", icon: Globe },
               { display: "10+", labelKey: "landing.statCountries", icon: Users },
-              { display: "$2M+", labelKey: "landing.statPaid", icon: TrendingUp },
+              { display: "500+", labelKey: "landing.statPartners", icon: TrendingUp },
               { display: "24/7", labelKey: "landing.statSupport", icon: Shield },
             ].map((stat, i) => (
               <div key={stat.labelKey} className={`group flex items-center gap-2.5 px-4 py-2.5 bg-card/40 border border-border/30 rounded-xl backdrop-blur-sm hover:bg-card/60 hover:border-border/50 hover:shadow-lg transition-all duration-300 opacity-0 ${heroReveal.isVisible ? "animate-fade-scale" : ""}`} style={{ animationDelay: `${0.6 + i * 0.12}s`, animationFillMode: "forwards" }}>
