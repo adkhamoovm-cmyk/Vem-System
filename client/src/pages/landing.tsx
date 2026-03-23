@@ -349,7 +349,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-16">
             <button
               onClick={() => openAuth("register")}
-              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 px-9 py-4.5 bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-bold text-base rounded-2xl shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/35 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 relative overflow-hidden"
+              className="group w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-bold text-base rounded-2xl shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/35 hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 relative overflow-hidden"
               data-testid="button-hero-register"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
@@ -359,7 +359,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             </button>
             <button
               onClick={() => openAuth("login")}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-9 py-4.5 bg-card/60 border border-border/40 text-foreground font-semibold text-base rounded-2xl hover:bg-card/80 hover:border-border/60 hover:scale-[1.02] active:scale-[0.97] backdrop-blur-sm transition-all duration-300"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-white/5 border border-white/15 text-white font-semibold text-base rounded-2xl hover:bg-white/10 hover:border-white/25 hover:scale-[1.02] active:scale-[0.97] backdrop-blur-sm transition-all duration-300"
               data-testid="button-hero-login"
             >
               <LogIn className="w-5 h-5" />
