@@ -387,15 +387,18 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
               {t("landing.partnersTitle")}
             </p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-5" data-testid="partners-row">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5" data-testid="partners-row">
             {partners.map((p, i) => (
               <div
                 key={p.name}
-                className={`group flex items-center gap-3 px-6 py-4 bg-card/40 border border-border/20 rounded-2xl backdrop-blur-sm hover:bg-card/70 hover:border-border/40 hover:shadow-xl ${p.glow} hover:scale-[1.04] active:scale-[0.98] transition-all duration-300 cursor-default opacity-0 ${partnersReveal.isVisible ? "animate-fade-scale" : ""}`}
+                className={`group relative flex flex-col items-center justify-center gap-3 px-5 py-6 sm:py-8 bg-card/30 border border-border/15 rounded-3xl backdrop-blur-sm hover:bg-card/60 hover:border-border/40 hover:shadow-2xl ${p.glow} hover:scale-[1.05] active:scale-[0.97] transition-all duration-500 cursor-default opacity-0 ${partnersReveal.isVisible ? "animate-fade-scale" : ""}`}
                 style={{ animationDelay: `${i * 0.1}s`, animationFillMode: "forwards" }}
               >
-                <p.icon className="w-7 h-7 transition-transform duration-300 group-hover:scale-110" style={{ color: p.color }} />
-                <span className="text-foreground/70 font-bold text-sm group-hover:text-foreground transition-colors duration-300">{p.name}</span>
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5 group-hover:border-white/10 transition-all duration-500 group-hover:scale-110">
+                  <p.icon className="w-8 h-8 sm:w-10 sm:h-10 transition-all duration-500 group-hover:scale-110" style={{ color: p.color }} />
+                </div>
+                <span className="text-foreground/60 font-bold text-sm group-hover:text-foreground transition-colors duration-300">{p.name}</span>
               </div>
             ))}
           </div>
