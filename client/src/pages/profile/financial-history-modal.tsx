@@ -179,7 +179,15 @@ export function FinancialHistoryModal({
                   </div>
                   <div className="text-right shrink-0 ml-2">
                     <p className={`text-sm font-bold ${entryStatus === "rejected" ? "text-red-500" : isPositive ? "text-emerald-500 dark:text-emerald-400" : "text-primary"}`}>
-                      {entryStatus === "rejected" ? `-${Number(h.amount).toFixed(2)}` : `${isPositive ? "+" : ""}${Number(h.amount).toFixed(2)}`}
+                      {(() => {
+                        if (entryStatus === "rejected") {
+                          const rejAmtPart = parts[2] || "";
+                          const rejNum = parseFloat(rejAmtPart);
+                          const displayAmt = !isNaN(rejNum) && rejNum > 0 ? rejNum.toFixed(2) : Number(h.amount).toFixed(2);
+                          return `-${displayAmt}`;
+                        }
+                        return `${isPositive ? "+" : ""}${Number(h.amount).toFixed(2)}`;
+                      })()}
                     </p>
                     <p className="text-muted-foreground text-[10px]">USDT</p>
                   </div>
