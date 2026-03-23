@@ -74,6 +74,7 @@ router.post("/api/auth/register", authRateLimiter, validateBody(authSchemas.regi
   const ua = req.headers["user-agent"] || "";
   (req.session as any).ip = ip;
   (req.session as any).userAgent = ua;
+  await new Promise<void>((resolve, reject) => req.session.save((err) => err ? reject(err) : resolve()));
   await storage.updateUserLoginInfo(user.id, ip, ua);
   await storage.logSession({ userId: user.id, action: "login", ip, userAgent: ua });
   res.json({ user: { ...user, password: undefined, fundPassword: undefined } });
@@ -223,6 +224,7 @@ router.post("/api/auth/login", authRateLimiter, validateBody(authSchemas.login),
   const ua = req.headers["user-agent"] || "";
   (req.session as any).ip = ip;
   (req.session as any).userAgent = ua;
+  await new Promise<void>((resolve, reject) => req.session.save((err) => err ? reject(err) : resolve()));
   await storage.updateUserLoginInfo(user.id, ip, ua);
   await storage.logSession({ userId: user.id, action: "login", ip, userAgent: ua });
   res.json({ user: { ...user, password: undefined, fundPassword: undefined } });

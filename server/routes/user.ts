@@ -348,14 +348,18 @@ router.get("/api/my-sessions", requireAuth, asyncHandler(async (req: Request, re
     `SELECT sid, sess, expire FROM user_sessions WHERE (sess->>'userId') = $1 AND expire > NOW()`,
     [userId]
   );
+  const currentIp = req.headers["x-forwarded-for"]?.toString().split(",")[0] || req.ip || "";
+  const currentUa = req.headers["user-agent"] || "";
+
   for (const row of rows.rows) {
     const sess = typeof row.sess === "string" ? JSON.parse(row.sess) : row.sess;
+    const isCurrent = row.sid === req.sessionID;
     activeSessions.push({
       sid: row.sid,
-      ip: sess.ip || "",
-      userAgent: sess.userAgent || "",
+      ip: sess.ip || (isCurrent ? currentIp : ""),
+      userAgent: sess.userAgent || (isCurrent ? currentUa : ""),
       lastActive: row.expire,
-      isCurrent: row.sid === req.sessionID,
+      isCurrent,
     });
   }
 
