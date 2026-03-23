@@ -370,7 +370,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5" data-testid="stats-row">
             {[
               { display: "6+", labelKey: "landing.statPlatforms", icon: Globe },
-              { display: "9", labelKey: "landing.statCountries", icon: Users },
+              { display: "10+", labelKey: "landing.statCountries", icon: Users },
               { display: "$2M+", labelKey: "landing.statPaid", icon: TrendingUp },
               { display: "24/7", labelKey: "landing.statSupport", icon: Shield },
             ].map((stat, i) => (
