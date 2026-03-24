@@ -42,21 +42,58 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
   const refCode = params.get("ref") || "";
   useEffect(() => { if (refCode) setShowReferral(true); }, [refCode]);
 
-  const UZB_VALID_PREFIXES = ["20","33","50","55","71","77","88","90","91","93","94","95","97","98","99"];
+  type PhoneRule = {
+    localLengths: number[];
+    prefixLen?: number;
+    validPrefixes?: string[];
+    minFirstDigit?: number;
+    maxFirstDigit?: number;
+  };
+
+  const PHONE_RULES: Record<string, PhoneRule> = {
+    UZ: { localLengths: [9],      prefixLen: 2, validPrefixes: ["20","33","50","55","71","77","88","90","91","93","94","95","97","98","99"] },
+    RU: { localLengths: [10],     prefixLen: 1, validPrefixes: ["9"] },
+    KZ: { localLengths: [10],     prefixLen: 1, validPrefixes: ["7"] },
+    DE: { localLengths: [10, 11], prefixLen: 2, validPrefixes: ["15","16","17"] },
+    US: { localLengths: [10],     minFirstDigit: 2, maxFirstDigit: 9 },
+    GB: { localLengths: [10],     prefixLen: 1, validPrefixes: ["7"] },
+    KR: { localLengths: [10, 11], prefixLen: 2, validPrefixes: ["01"] },
+    TR: { localLengths: [10],     prefixLen: 1, validPrefixes: ["5"] },
+    CN: { localLengths: [11],     prefixLen: 1, validPrefixes: ["1"] },
+    IN: { localLengths: [10],     prefixLen: 1, validPrefixes: ["6","7","8","9"] },
+    JP: { localLengths: [10, 11], prefixLen: 2, validPrefixes: ["07","08","09"] },
+    AE: { localLengths: [9],      prefixLen: 1, validPrefixes: ["5"] },
+    TJ: { localLengths: [9] },
+    KG: { localLengths: [9] },
+    TM: { localLengths: [8] },
+  };
 
   const registerSchema = z.object({
     phone: z.string().min(5, t("auth.phoneValidation")).regex(/^\d+$/, t("auth.phoneOnlyDigits")).superRefine((val, ctx) => {
-      if (regCountry.code !== "+998") return;
-      if (val.length !== 9) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneLength9") });
+      const rule = PHONE_RULES[regCountry.country];
+      if (!rule) return;
+      if (!rule.localLengths.includes(val.length)) {
+        const expected = rule.localLengths.join("/");
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `${t("auth.phoneInvalidLength")} (${expected})` });
         return;
       }
-      const prefix = val.slice(0, 2);
-      if (!UZB_VALID_PREFIXES.includes(prefix)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneInvalidPrefix") });
-        return;
+      if (rule.prefixLen && rule.validPrefixes) {
+        const prefix = val.slice(0, rule.prefixLen);
+        const ok = rule.validPrefixes.some(p => prefix.startsWith(p));
+        if (!ok) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneInvalidPrefix") });
+          return;
+        }
       }
-      if (/^(\d)\1{8}$/.test(val)) {
+      if (rule.minFirstDigit !== undefined || rule.maxFirstDigit !== undefined) {
+        const first = parseInt(val[0], 10);
+        if ((rule.minFirstDigit !== undefined && first < rule.minFirstDigit) ||
+            (rule.maxFirstDigit !== undefined && first > rule.maxFirstDigit)) {
+          ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneInvalidPrefix") });
+          return;
+        }
+      }
+      if (/^(\d)\1+$/.test(val)) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneFake") });
       }
     }),

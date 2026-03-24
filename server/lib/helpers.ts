@@ -257,23 +257,90 @@ export function validateBody(schema: ZodSchema) {
   };
 }
 
-const UZB_VALID_PREFIXES = ["20","33","50","55","71","77","88","90","91","93","94","95","97","98","99"];
+type PhoneRule = {
+  localLengths: number[];
+  prefixLen?: number;
+  validPrefixes?: string[];
+  minFirstDigit?: number;
+  maxFirstDigit?: number;
+};
 
-function validateUzbPhone(phone: string): string | null {
-  const digits = phone.replace(/^\+/, "");
-  if (!digits.startsWith("998")) return null;
-  const local = digits.slice(3);
-  if (local.length !== 9) return "O'zbekiston raqami 9 ta raqamdan iborat bo'lishi kerak";
-  const prefix = local.slice(0, 2);
-  if (!UZB_VALID_PREFIXES.includes(prefix)) return `Noto'g'ri operator kodi. Ruxsat etilgan: ${UZB_VALID_PREFIXES.join(", ")}`;
-  if (/^(\d)\1{8}$/.test(local)) return "Bunday raqamdan foydalanib bo'lmaydi";
+const PHONE_RULES: Record<string, PhoneRule> = {
+  UZ: { localLengths: [9],      prefixLen: 2, validPrefixes: ["20","33","50","55","71","77","88","90","91","93","94","95","97","98","99"] },
+  RU: { localLengths: [10],     prefixLen: 1, validPrefixes: ["9"] },
+  KZ: { localLengths: [10],     prefixLen: 1, validPrefixes: ["7"] },
+  DE: { localLengths: [10, 11], prefixLen: 2, validPrefixes: ["15","16","17"] },
+  US: { localLengths: [10],     minFirstDigit: 2, maxFirstDigit: 9 },
+  GB: { localLengths: [10],     prefixLen: 1, validPrefixes: ["7"] },
+  KR: { localLengths: [10, 11], prefixLen: 2, validPrefixes: ["01"] },
+  TR: { localLengths: [10],     prefixLen: 1, validPrefixes: ["5"] },
+  CN: { localLengths: [11],     prefixLen: 1, validPrefixes: ["1"] },
+  IN: { localLengths: [10],     prefixLen: 1, validPrefixes: ["6","7","8","9"] },
+  JP: { localLengths: [10, 11], prefixLen: 2, validPrefixes: ["07","08","09"] },
+  AE: { localLengths: [9],      prefixLen: 1, validPrefixes: ["5"] },
+  TJ: { localLengths: [9] },
+  KG: { localLengths: [9] },
+  TM: { localLengths: [8] },
+};
+
+const DIAL_CODE_COUNTRIES: Array<{ dialCode: string; countries: string[] }> = [
+  { dialCode: "998", countries: ["UZ"] },
+  { dialCode: "996", countries: ["KG"] },
+  { dialCode: "993", countries: ["TM"] },
+  { dialCode: "992", countries: ["TJ"] },
+  { dialCode: "971", countries: ["AE"] },
+  { dialCode: "91",  countries: ["IN"] },
+  { dialCode: "90",  countries: ["TR"] },
+  { dialCode: "86",  countries: ["CN"] },
+  { dialCode: "82",  countries: ["KR"] },
+  { dialCode: "81",  countries: ["JP"] },
+  { dialCode: "49",  countries: ["DE"] },
+  { dialCode: "44",  countries: ["GB"] },
+  { dialCode: "7",   countries: ["RU", "KZ"] },
+  { dialCode: "1",   countries: ["US"] },
+];
+
+function checkPhoneRule(local: string, rule: PhoneRule): string | null {
+  if (!rule.localLengths.includes(local.length)) {
+    const expected = rule.localLengths.join(" yoki ");
+    return `Raqam ${expected} ta raqamdan iborat bo'lishi kerak`;
+  }
+  if (rule.prefixLen && rule.validPrefixes) {
+    const prefix = local.slice(0, rule.prefixLen);
+    const ok = rule.validPrefixes.some(p => prefix.startsWith(p));
+    if (!ok) return "Noto'g'ri operator kodi";
+  }
+  if (rule.minFirstDigit !== undefined || rule.maxFirstDigit !== undefined) {
+    const first = parseInt(local[0], 10);
+    if ((rule.minFirstDigit !== undefined && first < rule.minFirstDigit) ||
+        (rule.maxFirstDigit !== undefined && first > rule.maxFirstDigit)) {
+      return "Noto'g'ri operator kodi";
+    }
+  }
+  if (/^(\d)\1+$/.test(local)) return "Bunday raqamdan foydalanib bo'lmaydi";
   return null;
+}
+
+function validatePhoneByDialCode(phone: string): string | null {
+  const digits = phone.replace(/^\+/, "");
+  const match = DIAL_CODE_COUNTRIES.find(({ dialCode }) => digits.startsWith(dialCode));
+  if (!match) return null;
+  const local = digits.slice(match.dialCode.length);
+  for (const country of match.countries) {
+    const rule = PHONE_RULES[country];
+    if (!rule) continue;
+    const err = checkPhoneRule(local, rule);
+    if (!err) return null;
+  }
+  const rule = PHONE_RULES[match.countries[0]];
+  if (!rule) return null;
+  return checkPhoneRule(local, rule);
 }
 
 export const authSchemas = {
   register: z.object({
     phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak").max(20).regex(/^\+?\d+$/, "Telefon raqami faqat raqamlardan iborat bo'lishi kerak").superRefine((val, ctx) => {
-      const err = validateUzbPhone(val);
+      const err = validatePhoneByDialCode(val);
       if (err) ctx.addIssue({ code: z.ZodIssueCode.custom, message: err });
     }),
     password: z.string({ required_error: "Parol kerak" }).min(6, "Parol kamida 6 ta belgi"),
