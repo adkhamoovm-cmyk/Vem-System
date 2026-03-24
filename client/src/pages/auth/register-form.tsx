@@ -42,8 +42,24 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
   const refCode = params.get("ref") || "";
   useEffect(() => { if (refCode) setShowReferral(true); }, [refCode]);
 
+  const UZB_VALID_PREFIXES = ["20","33","50","55","71","77","88","90","91","93","94","95","97","98","99"];
+
   const registerSchema = z.object({
-    phone: z.string().min(5, t("auth.phoneValidation")).regex(/^\d+$/, t("auth.phoneOnlyDigits")),
+    phone: z.string().min(5, t("auth.phoneValidation")).regex(/^\d+$/, t("auth.phoneOnlyDigits")).superRefine((val, ctx) => {
+      if (regCountry.code !== "+998") return;
+      if (val.length !== 9) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneLength9") });
+        return;
+      }
+      const prefix = val.slice(0, 2);
+      if (!UZB_VALID_PREFIXES.includes(prefix)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneInvalidPrefix") });
+        return;
+      }
+      if (/^(\d)\1{8}$/.test(val)) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: t("auth.phoneFake") });
+      }
+    }),
     password: z.string().min(6, t("auth.passwordValidation")),
     fundPassword: z.string().length(6, t("auth.fundPasswordValidation")).regex(/^\d{6}$/, t("auth.onlyNumbers")),
     captcha: z.boolean().refine(val => val === true, t("auth.captchaValidation")),

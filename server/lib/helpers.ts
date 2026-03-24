@@ -257,9 +257,25 @@ export function validateBody(schema: ZodSchema) {
   };
 }
 
+const UZB_VALID_PREFIXES = ["20","33","50","55","71","77","88","90","91","93","94","95","97","98","99"];
+
+function validateUzbPhone(phone: string): string | null {
+  const digits = phone.replace(/^\+/, "");
+  if (!digits.startsWith("998")) return null;
+  const local = digits.slice(3);
+  if (local.length !== 9) return "O'zbekiston raqami 9 ta raqamdan iborat bo'lishi kerak";
+  const prefix = local.slice(0, 2);
+  if (!UZB_VALID_PREFIXES.includes(prefix)) return `Noto'g'ri operator kodi. Ruxsat etilgan: ${UZB_VALID_PREFIXES.join(", ")}`;
+  if (/^(\d)\1{8}$/.test(local)) return "Bunday raqamdan foydalanib bo'lmaydi";
+  return null;
+}
+
 export const authSchemas = {
   register: z.object({
-    phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak").max(20).regex(/^\+?\d+$/, "Telefon raqami faqat raqamlardan iborat bo'lishi kerak"),
+    phone: z.string({ required_error: "Telefon raqami kerak" }).min(5, "Telefon raqami kerak").max(20).regex(/^\+?\d+$/, "Telefon raqami faqat raqamlardan iborat bo'lishi kerak").superRefine((val, ctx) => {
+      const err = validateUzbPhone(val);
+      if (err) ctx.addIssue({ code: z.ZodIssueCode.custom, message: err });
+    }),
     password: z.string({ required_error: "Parol kerak" }).min(6, "Parol kamida 6 ta belgi"),
     fundPassword: z.string({ required_error: "Moliya paroli kerak" }).length(6, "PIN kod 6 ta raqam bo'lishi kerak").regex(/^\d{6}$/, "PIN faqat raqamlardan iborat"),
     referralCode: z.string().optional(),
