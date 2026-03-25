@@ -8,6 +8,7 @@ import { SiTelegram, SiWhatsapp } from "react-icons/si";
 import { useState, useEffect, useRef } from "react";
 import type { User as UserType } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
+import { copyToClipboard } from "@/lib/utils";
 import { getVipName } from "@/lib/vip-utils";
 
 interface ReferralStats {
@@ -121,10 +122,14 @@ export default function ReferralPage() {
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(referralLink);
-      setCopied(true);
-      toast({ title: t("common.copied"), description: t("referral.linkCopied") });
-      setTimeout(() => setCopied(false), 2000);
+      const ok = await copyToClipboard(referralLink);
+      if (ok) {
+        setCopied(true);
+        toast({ title: t("common.copied"), description: t("referral.linkCopied") });
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        toast({ title: t("common.error"), description: t("referral.copyFailed"), variant: "destructive" });
+      }
     } catch {
       toast({ title: t("common.error"), description: t("referral.copyFailed"), variant: "destructive" });
     }
@@ -132,10 +137,14 @@ export default function ReferralPage() {
 
   const copyCode = async () => {
     try {
-      await navigator.clipboard.writeText(referralCode);
-      setCodeCopied(true);
-      toast({ title: t("common.copied"), description: t("referral.codeCopied") });
-      setTimeout(() => setCodeCopied(false), 2000);
+      const ok = await copyToClipboard(referralCode);
+      if (ok) {
+        setCodeCopied(true);
+        toast({ title: t("common.copied"), description: t("referral.codeCopied") });
+        setTimeout(() => setCodeCopied(false), 2000);
+      } else {
+        toast({ title: t("common.error"), description: t("referral.copyFailed"), variant: "destructive" });
+      }
     } catch {
       toast({ title: t("common.error"), description: t("referral.copyFailed"), variant: "destructive" });
     }

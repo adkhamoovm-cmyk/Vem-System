@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import type { User, DepositSetting } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
+import { copyToClipboard } from "@/lib/utils";
 import { QRCodeSVG } from "qrcode.react";
 import { UZS_RATE, formatUZS } from "@/lib/utils";
 
@@ -36,9 +37,9 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
   const bankRequisites = depositRequisites.filter(r => r.type === "bank");
   const usdtRequisites = depositRequisites.filter(r => r.type === "usdt");
 
-  const copyToClipboard = (text: string, field: string) => {
+  const handleCopy = async (text: string, field: string) => {
     try {
-      navigator.clipboard.writeText(text);
+      await copyToClipboard(text);
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
     } catch {
@@ -221,7 +222,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
                             <div className="flex items-center gap-2">
                               <code className="text-emerald-500 dark:text-emerald-400 text-xs font-mono flex-1 break-all leading-relaxed">{req.walletAddress}</code>
                               <button
-                                onClick={() => copyToClipboard(req.walletAddress || "", `wallet-${req.id}`)}
+                                onClick={() => handleCopy(req.walletAddress || "", `wallet-${req.id}`)}
                                 className="shrink-0 w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center hover:border-[#4ADE80] transition-colors"
                                 data-testid={`button-copy-wallet-${req.id}`}
                               >
@@ -265,7 +266,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
                           <div className="flex items-center gap-2">
                             <code className="text-foreground text-sm font-mono tracking-wider">{req.cardNumber}</code>
                             <button
-                              onClick={() => copyToClipboard(req.cardNumber || "", `card-${req.id}`)}
+                              onClick={() => handleCopy(req.cardNumber || "", `card-${req.id}`)}
                               className="shrink-0 w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center hover:border-[#3B82F6] transition-colors"
                               data-testid={`button-copy-card-${req.id}`}
                             >

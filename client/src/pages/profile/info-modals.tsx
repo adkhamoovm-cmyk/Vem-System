@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { copyToClipboard } from "@/lib/utils";
 import {
   Shield, Lock, Phone, CreditCard, Copy, Wallet,
   CheckCircle, Eye, EyeOff, Landmark, Monitor, Headphones
@@ -53,7 +54,7 @@ export function SecretInfoModal({ open, onClose, user, balance }: { open: boolea
             <div className="flex items-center justify-between pl-9">
               <p className="text-foreground font-semibold text-[15px] font-mono tracking-wider" data-testid="text-secret-referral">{user.referralCode}</p>
               <button
-                onClick={() => { navigator.clipboard.writeText(user.referralCode); toast({ title: t("common.success") }); }}
+                onClick={async () => { await copyToClipboard(user.referralCode); toast({ title: t("common.success") }); }}
                 className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors active:scale-95"
                 data-testid="button-copy-referral-secret"
               >

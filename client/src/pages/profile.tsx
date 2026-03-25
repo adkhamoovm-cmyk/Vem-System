@@ -13,6 +13,7 @@ import {
   Monitor, CalendarClock
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { copyToClipboard } from "@/lib/utils";
 import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { Button } from "@/components/ui/button";
 import type { User, PaymentMethod, DepositRequest, WithdrawalRequest, BalanceHistory } from "@shared/schema";
@@ -129,9 +130,9 @@ export default function ProfilePage() {
     if (file) avatarMutation.mutate(file);
   };
 
-  const copyId = () => {
+  const copyId = async () => {
     if (user?.numericId) {
-      navigator.clipboard.writeText(user.numericId);
+      await copyToClipboard(user.numericId);
       toast({ title: t("common.success") });
     }
   };
