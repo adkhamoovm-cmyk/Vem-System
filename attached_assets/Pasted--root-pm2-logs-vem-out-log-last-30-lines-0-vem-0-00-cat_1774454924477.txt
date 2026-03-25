@@ -1,0 +1,46 @@
+/root/.pm2/logs/vem-out.log last 30 lines:
+0|vem      | ":"0.00","category":"Tele-shou"},{"id":"9c0d7228-0630-4265-b28e-2fa7acc263d3","title":"You: Season 5","thumbnail":"https://img.youtube.com/vi/qRBD9JyGfHc/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=qRBD9JyGfHc","actors":"Penn Badgley, Charlotte Ritchie","rating":"4.5","releaseDate":"2025-04-24","country":"AQSH","duration":22,"reward":"0.00","category":"Tele-shou"},{"id":"0005080e-37d6-4e16-adbe-790907b34d91","title":"Alien: Earth","thumbnail":"https://img.youtube.com/vi/bXGv4FPjskY/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=bXGv4FPjskY","actors":"Sydney Chandler, Timothy Olyphant","rating":"4.6","releaseDate":"2025-07-22","country":"AQSH","duration":25,"reward":"0.00","category":"Tele-shou"},{"id":"25d70533-37cc-4386-8507-379b6ab06dc9","title":"The Diplomat: Season 3","thumbnail":"https://img.youtube.com/vi/X_VuLWenA7w/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=X_VuLWenA7w","actors":"Keri Russell, Rufus Sewell","rating":"4.4","releaseDate":"2025-03-01","country":"AQSH","duration":22,"reward":"0.00","category":"Tele-shou"},{"id":"825bcc47-ba8a-4df1-9f0d-b14e703641db","title":"Cobra Kai: Season 6","thumbnail":"https://img.youtube.com/vi/h-_mXqWGP4s/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=h-_mXqWGP4s","actors":"Ralph Macchio, William Zabka, Xolo Maridueña","rating":"4.6","releaseDate":"2025-02-13","country":"AQSH","duration":24,"reward":"0.00","category":"Tele-shou"},{"id":"3cde3099-6eea-46f8-83ca-ccca0839354b","title":"Black Mirror: Season 7","thumbnail":"https://img.youtube.com/vi/R-NQJVF0eis/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=R-NQJVF0eis","actors":"Awkwafina, Peter Capaldi, Rashida Jones","rating":"4.7","releaseDate":"2025-04-10","country":"Buyuk Britaniya","duration":26,"reward":"0.00","category":"Tele-shou"},{"id":"9b4ef9a8-cf47-48cf-ad50-ec056110d20e","title":"Spider-Man: Across the Spider-Verse","thumbnail":"https://img.youtube.com/vi/shW9i6k8cB0/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=shW9i6k8cB0","actors":"Shameik Moore, Hailee Steinfeld, Oscar Isaac","rating":"4.9","releaseDate":"2023-06-02","country":"AQSH","duration":24,"reward":"0.00","category":"Treyler"},{"id":"e92b3892-7eb7-487b-86ee-a3dded3ba6ab","title":"Parasite","thumbnail":"https://img.youtube.com/vi/5xH0HfJHsaY/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=5xH0HfJHsaY","actors":"Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong","rating":"4.9","releaseDate":"2019-05-30","country":"Janubiy Koreya","duration":24,"reward":"0.00","category":"Treyler"},{"id":"9819e460-2ec8-475a-b967-c360c90d056e","title":"Everything Everywhere All at Once","thumbnail":"https://img.youtube.com/vi/wxN1T1qdQ-I/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=wxN1T1qdQ-I","actors":"Michelle Yeoh, Stephanie Hsu, Ke Huy Quan","rating":"4.8","releaseDate":"2022-03-25","country":"AQSH","duration":25,"reward":"0.00","category":"Treyler"},{"id":"6dc28c19-b741-498a-a921-c060e83d6675","title":"The Shawshank Redemption","thumbnail":"https://img.youtube.com/vi/NmzuHjWmXOc/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=NmzuHjWmXOc","actors":"Tim Robbins, Morgan Freeman","rating":"4.9","releaseDate":"1994-09-23","country":"AQSH","duration":24,"reward":"0.00","category":"Treyler"},{"id":"7893cbae-63ef-4dfc-800a-a87ebabaade5","title":"Fight Club","thumbnail":"https://img.youtube.com/vi/qtRKdVHc-cE/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=qtRKdVHc-cE","actors":"Brad Pitt, Edward Norton, Helena Bonham Carter","rating":"4.8","releaseDate":"1999-10-15","country":"AQSH","duration":22,"reward":"0.00","category":"Treyler"},{"id":"7665ee11-88a0-4784-a0dd-a9d93e51b4d8","title":"Pulp Fiction","thumbnail":"https://img.youtube.com/vi/s7EdQ4FqbhY/maxresdefault.jpg","videoUrl":"https://www.youtube.com/watch?v=s7EdQ4FqbhY","actors":"John Travolta, Uma Thurman, Samuel L. Jackson","rating":"4.9","releaseDate":"1994-10-14","country":"AQSH","duration":25,"reward":"0.00","category":"Treyler"}]
+0|vem      | 3:56:22 PM [express] GET /api/referrals/stats 200 in 30ms :: {"level1":{"count":0,"commission":"0"},"level2":{"count":0,"commission":"0"},"level3":{"count":0,"commission":"0"}}
+0|vem      | 3:56:22 PM [express] GET /api/balance-history 200 in 42ms :: {"data":[{"id":"eeb79513-c05f-49e3-b1b7-05aa1582f2cc","userId":"b6c26486-a33b-41da-8a06-21ffae83dab3","type":"earning","amount":"53.00","description":"Video ko'rish daromadi (M10)","createdAt":"2026-03-25T14:28:15.510Z"},{"id":"354a3c30-a985-4296-ac6c-d9f3776c91ac","userId":"b6c26486-a33b-41da-8a06-21ffae83dab3","type":"earning","amount":"53.00","description":"Video ko'rish daromadi (M10)","createdAt":"2026-03-25T13:55:00.178Z"},{"id":"0d98b092-6e5c-4d76-9f59-64183b80d9a7","userId":"b6c26486-a33b-41da-8a06-21ffae83dab3","type":"earning","amount":"53.00","description":"Video ko'rish daromadi (M10)","createdAt":"2026-03-25T13:51:31.187Z"}],"total":3,"page":1,"limit":20,"totalPages":1}
+0|vem      | 3:56:22 PM [express] GET /api/investments 200 in 5ms :: []
+0|vem      | 3:56:37 PM [express] GET /api/notifications/unread-count 304 in 13ms :: {"count":0}
+0|vem      | 3:56:44 PM [express] GET /api/referrals/users 200 in 13ms :: []
+0|vem      | 3:56:44 PM [express] GET /api/referrals/extended-stats 200 in 15ms :: {"vipDistribution":{},"thisMonthEarnings":"0.00","lastMonthEarnings":"0.00","recentActivity":[],"activeReferrals":0,"totalReferrals":0}
+0|vem      | 3:56:48 PM [express] GET /api/payment-methods 200 in 21ms :: []
+0|vem      | 3:56:48 PM [express] GET /api/platform-settings 200 in 26ms :: {"withdrawalCommissionPercent":10,"minWithdrawalUsdt":3,"minWithdrawalBank":2,"withdrawalStartHour":11,"withdrawalEndHour":17,"maxDailyWithdrawals":1,"withdrawalEnabled":true}
+0|vem      | 3:56:48 PM [express] GET /api/withdrawals 200 in 28ms :: []
+0|vem      | 3:56:48 PM [express] GET /api/deposits 200 in 22ms :: []
+0|vem      | 3:56:52 PM [express] GET /api/notifications/unread-count 304 in 8ms :: {"count":0}
+0|vem      | 3:59:24 PM [express] GET /api/notifications/unread-count 304 in 20ms :: {"count":0}
+
+/root/.pm2/logs/vem-error.log last 30 lines:
+0|vem      |     at setupUserModules (node:internal/process/pre_execution:206:5)
+0|vem      |     at prepareExecution (node:internal/process/pre_execution:159:5)
+0|vem      |     at prepareMainThreadExecution (node:internal/process/pre_execution:53:10)
+0|vem      |     at node:internal/main/run_main_module:11:19 {
+0|vem      |   code: 'MODULE_NOT_FOUND',
+0|vem      |   requireStack: [ 'internal/preload' ]
+0|vem      | }
+0|vem      | 
+0|vem      | Node.js v20.20.1
+0|vem      | node:internal/modules/cjs/loader:1210
+0|vem      |   throw err;
+0|vem      |   ^
+0|vem      | 
+0|vem      | Error: Cannot find module 'dotenv/config'
+0|vem      | Require stack:
+0|vem      | - internal/preload
+0|vem      |     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+0|vem      |     at Module._load (node:internal/modules/cjs/loader:1038:27)
+0|vem      |     at internalRequire (node:internal/modules/cjs/loader:219:19)
+0|vem      |     at Module._preloadModules (node:internal/modules/cjs/loader:1785:5)
+0|vem      |     at loadPreloadModules (node:internal/process/pre_execution:745:5)
+0|vem      |     at setupUserModules (node:internal/process/pre_execution:206:5)
+0|vem      |     at prepareExecution (node:internal/process/pre_execution:159:5)
+0|vem      |     at prepareMainThreadExecution (node:internal/process/pre_execution:53:10)
+0|vem      |     at node:internal/main/run_main_module:11:19 {
+0|vem      |   code: 'MODULE_NOT_FOUND',
+0|vem      |   requireStack: [ 'internal/preload' ]
+0|vem      | }
+0|vem      | 
+0|vem      | Node.js v20.20.1

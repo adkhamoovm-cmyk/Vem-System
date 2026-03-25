@@ -1,0 +1,34 @@
+root@vultr:/var/www/vem# cd /var/www/vem
+pm2 logs --lines 30
+[TAILING] Tailing last 30 lines for [all] processes (change the value with --lines option)
+/root/.pm2/pm2.log last 30 lines:
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:05:59: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] starting in -fork mode-
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] online
+PM2        | 2026-03-25T16:06:00: PM2 log: App [vem:0] exited with code [1] via signal [SIGINT]
+PM2        | 2026-03-25T16:06:00: PM2 log: Script /var/www/vem/dist/index.cjs had too many unstable restarts (16). Stopped. "errored"
