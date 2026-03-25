@@ -26,190 +26,82 @@ export async function seedDatabase() {
     await db.execute(sql.raw(idx));
   }
 
-  await db.execute(sql`DELETE FROM ${vipPackages}`);
-  await db.insert(vipPackages).values([
-    {
-      name: "Stajyor",
-      price: "0",
-      dailyTasks: 3,
-      perVideoReward: "0.31",
-      dailyEarning: "0.93",
-      level: 0,
-      durationDays: 3,
-      isLocked: false,
-      emoji: "\u{1F193}",
-      description: "Boshlang'ich sinov davri",
-    },
-    {
-      name: "M1",
-      price: "27",
-      dailyTasks: 5,
-      perVideoReward: "0.20",
-      dailyEarning: "1.00",
-      level: 1,
-      durationDays: 85,
-      isLocked: false,
-      emoji: "\u{1F949}",
-      description: "Kuniga 5 ta video vazifa",
-    },
-    {
-      name: "M2",
-      price: "63",
-      dailyTasks: 6,
-      perVideoReward: "0.42",
-      dailyEarning: "2.52",
-      level: 2,
-      durationDays: 85,
-      isLocked: false,
-      emoji: "\u{1F948}",
-      description: "Kuniga 6 ta video vazifa",
-    },
-    {
-      name: "M3",
-      price: "147",
-      dailyTasks: 10,
-      perVideoReward: "0.60",
-      dailyEarning: "6.00",
-      level: 3,
-      durationDays: 85,
-      isLocked: false,
-      emoji: "\u{1F947}",
-      description: "Kuniga 10 ta video vazifa",
-    },
-    {
-      name: "M4",
-      price: "343",
-      dailyTasks: 14,
-      perVideoReward: "1.05",
-      dailyEarning: "14.70",
-      level: 4,
-      durationDays: 85,
-      isLocked: true,
-      emoji: "\u{1F512}",
-      description: "Kuniga 14 ta video vazifa",
-    },
-    {
-      name: "M5",
-      price: "800",
-      dailyTasks: 18,
-      perVideoReward: "2.00",
-      dailyEarning: "36.00",
-      level: 5,
-      durationDays: 85,
-      isLocked: true,
-      emoji: "\u{1F512}",
-      description: "Kuniga 18 ta video vazifa",
-    },
-    {
-      name: "M6",
-      price: "1860",
-      dailyTasks: 20,
-      perVideoReward: "4.30",
-      dailyEarning: "86.00",
-      level: 6,
-      durationDays: 85,
-      isLocked: true,
-      emoji: "\u{1F512}",
-      description: "Kuniga 20 ta video vazifa",
-    },
-    {
-      name: "M7",
-      price: "4350",
-      dailyTasks: 25,
-      perVideoReward: "8.20",
-      dailyEarning: "205.00",
-      level: 7,
-      durationDays: 85,
-      isLocked: true,
-      emoji: "\u{1F512}",
-      description: "Kuniga 25 ta video vazifa",
-    },
-    {
-      name: "M8",
-      price: "10150",
-      dailyTasks: 30,
-      perVideoReward: "16.00",
-      dailyEarning: "480.00",
-      level: 8,
-      durationDays: 85,
-      isLocked: true,
-      emoji: "\u{1F512}",
-      description: "Kuniga 30 ta video vazifa",
-    },
-    {
-      name: "M9",
-      price: "23500",
-      dailyTasks: 40,
-      perVideoReward: "28.00",
-      dailyEarning: "1120.00",
-      level: 9,
-      durationDays: 85,
-      isLocked: true,
-      emoji: "\u{1F512}",
-      description: "Kuniga 40 ta video vazifa",
-    },
-    {
-      name: "M10",
-      price: "55000",
-      dailyTasks: 50,
-      perVideoReward: "53.00",
-      dailyEarning: "2650.00",
-      level: 10,
-      durationDays: 85,
-      isLocked: true,
-      emoji: "\u{1F451}",
-      description: "Kuniga 50 ta video vazifa",
-    },
-  ]);
+  const vipDefs = [
+    { name: "Stajyor", price: "0", dailyTasks: 3, perVideoReward: "0.31", dailyEarning: "0.93", level: 0, durationDays: 3, isLocked: false, emoji: "\u{1F193}", description: "Boshlang'ich sinov davri" },
+    { name: "M1", price: "27", dailyTasks: 5, perVideoReward: "0.20", dailyEarning: "1.00", level: 1, durationDays: 85, isLocked: true, emoji: "\u{1F947}", description: "Kuniga 5 ta video vazifa" },
+    { name: "M2", price: "59", dailyTasks: 6, perVideoReward: "0.47", dailyEarning: "2.80", level: 2, durationDays: 85, isLocked: true, emoji: "\u{1F948}", description: "Kuniga 6 ta video vazifa" },
+    { name: "M3", price: "159", dailyTasks: 8, perVideoReward: "1.00", dailyEarning: "8.00", level: 3, durationDays: 85, isLocked: true, emoji: "\u{1F949}", description: "Kuniga 8 ta video vazifa" },
+    { name: "M4", price: "359", dailyTasks: 10, perVideoReward: "2.00", dailyEarning: "20.00", level: 4, durationDays: 85, isLocked: true, emoji: "\u{1F3C6}", description: "Kuniga 10 ta video vazifa" },
+    { name: "M5", price: "759", dailyTasks: 15, perVideoReward: "3.00", dailyEarning: "45.00", level: 5, durationDays: 85, isLocked: true, emoji: "\u{1F31F}", description: "Kuniga 15 ta video vazifa" },
+    { name: "M6", price: "1599", dailyTasks: 20, perVideoReward: "5.00", dailyEarning: "100.00", level: 6, durationDays: 85, isLocked: true, emoji: "\u{1F4AB}", description: "Kuniga 20 ta video vazifa" },
+    { name: "M7", price: "3999", dailyTasks: 25, perVideoReward: "9.00", dailyEarning: "225.00", level: 7, durationDays: 85, isLocked: true, emoji: "\u{1F680}", description: "Kuniga 25 ta video vazifa" },
+    { name: "M8", price: "8999", dailyTasks: 30, perVideoReward: "17.00", dailyEarning: "510.00", level: 8, durationDays: 85, isLocked: true, emoji: "\u{1F4E1}", description: "Kuniga 30 ta video vazifa" },
+    { name: "M9", price: "19999", dailyTasks: 40, perVideoReward: "28.00", dailyEarning: "1120.00", level: 9, durationDays: 85, isLocked: true, emoji: "\u{1F30C}", description: "Kuniga 40 ta video vazifa" },
+    { name: "M10", price: "55000", dailyTasks: 50, perVideoReward: "53.00", dailyEarning: "2650.00", level: 10, durationDays: 85, isLocked: true, emoji: "\u{1F451}", description: "Kuniga 50 ta video vazifa" },
+  ];
+  const existingVip = await db.select().from(vipPackages);
+  for (const def of vipDefs) {
+    const exists = existingVip.find(p => p.name === def.name);
+    if (!exists) {
+      await db.insert(vipPackages).values(def);
+    } else {
+      await db.update(vipPackages).set(def).where(eq(vipPackages.id, exists.id));
+    }
+  }
   console.log("VIP packages seeded (11 tiers)");
 
-  await db.execute(sql`DELETE FROM ${videos}`);
-  {
-    await db.insert(videos).values([
-      { title: "Squid Game: Season 2", thumbnail: "https://img.youtube.com/vi/Ed1sGgHUo88/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=Ed1sGgHUo88", actors: "Lee Jung-jae, Wi Ha-jun, Gong Yoo", rating: "4.9", releaseDate: "2025-12-26", country: "Janubiy Koreya", duration: 25, reward: "0", category: "Tele-shou" },
-      { title: "The Last of Us: Season 2", thumbnail: "https://img.youtube.com/vi/_zHPsmXCjB0/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=_zHPsmXCjB0", actors: "Pedro Pascal, Bella Ramsey", rating: "4.8", releaseDate: "2026-04-13", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
-      { title: "Wednesday: Season 2", thumbnail: "https://img.youtube.com/vi/ueCc-AYUMRs/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=ueCc-AYUMRs", actors: "Jenna Ortega, Catherine Zeta-Jones", rating: "4.7", releaseDate: "2026-08-06", country: "AQSH", duration: 28, reward: "0", category: "Tele-shou" },
-      { title: "Stranger Things: Season 4", thumbnail: "https://img.youtube.com/vi/JfVOs4VSpmA/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=JfVOs4VSpmA", actors: "Millie Bobby Brown, Finn Wolfhard", rating: "4.8", releaseDate: "2022-05-27", country: "AQSH", duration: 30, reward: "0", category: "Tele-shou" },
-      { title: "House of the Dragon: Season 2", thumbnail: "https://img.youtube.com/vi/YN2H_sKcmGw/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=YN2H_sKcmGw", actors: "Matt Smith, Emma D'Arcy", rating: "4.7", releaseDate: "2024-06-16", country: "AQSH", duration: 25, reward: "0", category: "Tele-shou" },
-      { title: "Money Heist: Berlin", thumbnail: "https://img.youtube.com/vi/u3V5KDHRQvk/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=u3V5KDHRQvk", actors: "Pedro Alonso, Michelle Jenner", rating: "4.3", releaseDate: "2023-12-29", country: "Ispaniya", duration: 20, reward: "0", category: "Tele-shou" },
-      { title: "The Penguin", thumbnail: "https://img.youtube.com/vi/gn5QmllRCn4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=gn5QmllRCn4", actors: "Colin Farrell, Cristin Milioti", rating: "4.6", releaseDate: "2024-09-19", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
-      { title: "Shōgun", thumbnail: "https://img.youtube.com/vi/C5pHpQqhmR4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=C5pHpQqhmR4", actors: "Hiroyuki Sanada, Cosmo Jarvis, Anna Sawai", rating: "4.9", releaseDate: "2024-02-27", country: "Yaponiya", duration: 26, reward: "0", category: "Tele-shou" },
-      { title: "Fallout", thumbnail: "https://img.youtube.com/vi/TcMBFSGVi1c/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=TcMBFSGVi1c", actors: "Ella Purnell, Walton Goggins, Aaron Moten", rating: "4.7", releaseDate: "2024-04-10", country: "AQSH", duration: 24, reward: "0", category: "Tele-shou" },
-      { title: "3 Body Problem", thumbnail: "https://img.youtube.com/vi/PLLQK9la6Go/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=PLLQK9la6Go", actors: "Jovan Adepo, John Bradley, Rosalind Chao", rating: "4.4", releaseDate: "2024-03-21", country: "AQSH", duration: 28, reward: "0", category: "Tele-shou" },
-      { title: "The Bear: Season 3", thumbnail: "https://img.youtube.com/vi/pBk4NYhWNMM/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=pBk4NYhWNMM", actors: "Jeremy Allen White, Ayo Edebiri, Ebon Moss-Bachrach", rating: "4.6", releaseDate: "2024-06-27", country: "AQSH", duration: 20, reward: "0", category: "Tele-shou" },
-      { title: "Arcane: Season 2", thumbnail: "https://img.youtube.com/vi/L0MK7qz13bU/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=L0MK7qz13bU", actors: "Hailee Steinfeld, Ella Purnell, Katie Leung", rating: "4.9", releaseDate: "2024-11-09", country: "AQSH", duration: 23, reward: "0", category: "Tele-shou" },
-      { title: "Reacher: Season 3", thumbnail: "https://img.youtube.com/vi/ue80QwXMRHg/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=ue80QwXMRHg", actors: "Alan Ritchson, Maria Sten", rating: "4.5", releaseDate: "2025-02-20", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
-      { title: "Loki: Season 2", thumbnail: "https://img.youtube.com/vi/nW948Va-l10/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=nW948Va-l10", actors: "Tom Hiddleston, Owen Wilson, Sophia Di Martino", rating: "4.7", releaseDate: "2023-10-06", country: "AQSH", duration: 24, reward: "0", category: "Tele-shou" },
-      { title: "The Mandalorian", thumbnail: "https://img.youtube.com/vi/CmRih_VtVAs/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=CmRih_VtVAs", actors: "Pedro Pascal, Katee Sackhoff", rating: "4.8", releaseDate: "2023-03-01", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
-      { title: "Rings of Power", thumbnail: "https://img.youtube.com/vi/WzhW20hLp6M/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=WzhW20hLp6M", actors: "Morfydd Clark, Robert Aramayo", rating: "4.5", releaseDate: "2024-08-29", country: "AQSH", duration: 26, reward: "0", category: "Tele-shou" },
-      { title: "Peaky Blinders: Season 6", thumbnail: "https://img.youtube.com/vi/oVzVdvGIC7U/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=oVzVdvGIC7U", actors: "Cillian Murphy, Tom Hardy, Helen McCrory", rating: "4.8", releaseDate: "2022-02-27", country: "Buyuk Britaniya", duration: 25, reward: "0", category: "Tele-shou" },
-      { title: "Ozark: Final Season", thumbnail: "https://img.youtube.com/vi/cKOegEuCcfw/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=cKOegEuCcfw", actors: "Jason Bateman, Laura Linney, Julia Garner", rating: "4.7", releaseDate: "2022-04-29", country: "AQSH", duration: 24, reward: "0", category: "Tele-shou" },
-      { title: "Invincible", thumbnail: "https://img.youtube.com/vi/WgU7P6o-GkM/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=WgU7P6o-GkM", actors: "Steven Yeun, J.K. Simmons, Sandra Oh", rating: "4.8", releaseDate: "2023-11-03", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
-      { title: "Better Call Saul: Final Season", thumbnail: "https://img.youtube.com/vi/Fp9pNPdNwjI/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=Fp9pNPdNwjI", actors: "Bob Odenkirk, Rhea Seehorn, Jonathan Banks", rating: "4.9", releaseDate: "2022-04-18", country: "AQSH", duration: 28, reward: "0", category: "Tele-shou" },
-
-      { title: "Thunderbolts*", thumbnail: "https://img.youtube.com/vi/-sAOWhvheK8/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=-sAOWhvheK8", actors: "Florence Pugh, Sebastian Stan", rating: "4.6", releaseDate: "2025-05-02", country: "AQSH", duration: 24, reward: "0", category: "Treyler" },
-      { title: "Mission Impossible: Final Reckoning", thumbnail: "https://img.youtube.com/vi/fsQgc9pCyDU/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=fsQgc9pCyDU", actors: "Tom Cruise, Hayley Atwell", rating: "4.9", releaseDate: "2025-05-23", country: "AQSH", duration: 26, reward: "0", category: "Treyler" },
-      { title: "Avatar 3: Fire and Ash", thumbnail: "https://img.youtube.com/vi/xxEt9fnILgQ/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=xxEt9fnILgQ", actors: "Sam Worthington, Zoe Saldana", rating: "4.8", releaseDate: "2025-12-19", country: "AQSH", duration: 28, reward: "0", category: "Treyler" },
-      { title: "Dune: Part Two", thumbnail: "https://img.youtube.com/vi/8g18jFHCLXk/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=8g18jFHCLXk", actors: "Timothée Chalamet, Zendaya, Austin Butler", rating: "4.8", releaseDate: "2024-03-01", country: "AQSH", duration: 25, reward: "0", category: "Treyler" },
-      { title: "Deadpool & Wolverine", thumbnail: "https://img.youtube.com/vi/cqGjhVJWtEg/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=cqGjhVJWtEg", actors: "Ryan Reynolds, Hugh Jackman", rating: "4.7", releaseDate: "2024-07-26", country: "AQSH", duration: 23, reward: "0", category: "Treyler" },
-      { title: "Gladiator II", thumbnail: "https://img.youtube.com/vi/KK8FHdFluOQ/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=KK8FHdFluOQ", actors: "Paul Mescal, Pedro Pascal, Denzel Washington", rating: "4.6", releaseDate: "2024-11-22", country: "AQSH", duration: 27, reward: "0", category: "Treyler" },
-      { title: "Wicked", thumbnail: "https://img.youtube.com/vi/6COmYeLsz4c/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=6COmYeLsz4c", actors: "Ariana Grande, Cynthia Erivo", rating: "4.7", releaseDate: "2024-11-22", country: "AQSH", duration: 26, reward: "0", category: "Treyler" },
-      { title: "Joker: Folie à Deux", thumbnail: "https://img.youtube.com/vi/mqqft2x_Aa4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=mqqft2x_Aa4", actors: "Joaquin Phoenix, Lady Gaga", rating: "4.3", releaseDate: "2024-10-04", country: "AQSH", duration: 24, reward: "0", category: "Treyler" },
-      { title: "Godzilla x Kong: The New Empire", thumbnail: "https://img.youtube.com/vi/Rt_UqUm38BI/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=Rt_UqUm38BI", actors: "Rebecca Hall, Brian Tyree Henry", rating: "4.4", releaseDate: "2024-03-29", country: "AQSH", duration: 22, reward: "0", category: "Treyler" },
-      { title: "Venom: The Last Dance", thumbnail: "https://img.youtube.com/vi/YoHD9XEInc0/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=YoHD9XEInc0", actors: "Tom Hardy, Chiwetel Ejiofor", rating: "4.2", releaseDate: "2024-10-25", country: "AQSH", duration: 21, reward: "0", category: "Treyler" },
-      { title: "Inside Out 2", thumbnail: "https://img.youtube.com/vi/d9MyW72ELq0/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=d9MyW72ELq0", actors: "Amy Poehler, Maya Hawke", rating: "4.8", releaseDate: "2024-06-14", country: "AQSH", duration: 20, reward: "0", category: "Treyler" },
-      { title: "The Wild Robot", thumbnail: "https://img.youtube.com/vi/giXco2jaZ_4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=giXco2jaZ_4", actors: "Lupita Nyong'o, Pedro Pascal, Kit Connor", rating: "4.9", releaseDate: "2024-09-27", country: "AQSH", duration: 22, reward: "0", category: "Treyler" },
-      { title: "Oppenheimer", thumbnail: "https://img.youtube.com/vi/uYPbbksJxIg/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=uYPbbksJxIg", actors: "Cillian Murphy, Emily Blunt, Robert Downey Jr.", rating: "4.9", releaseDate: "2023-07-21", country: "AQSH", duration: 30, reward: "0", category: "Treyler" },
-      { title: "John Wick: Chapter 4", thumbnail: "https://img.youtube.com/vi/t433PEQGErc/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=t433PEQGErc", actors: "Keanu Reeves, Donnie Yen, Bill Skarsgård", rating: "4.8", releaseDate: "2023-03-24", country: "AQSH", duration: 26, reward: "0", category: "Treyler" },
-      { title: "Top Gun: Maverick", thumbnail: "https://img.youtube.com/vi/wS_qbDztgVY/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=wS_qbDztgVY", actors: "Tom Cruise, Miles Teller, Jennifer Connelly", rating: "4.9", releaseDate: "2022-05-27", country: "AQSH", duration: 24, reward: "0", category: "Treyler" },
-      { title: "Kung Fu Panda 4", thumbnail: "https://img.youtube.com/vi/_inKs4eeHiI/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=_inKs4eeHiI", actors: "Jack Black, Awkwafina, Viola Davis", rating: "4.5", releaseDate: "2024-03-08", country: "AQSH", duration: 20, reward: "0", category: "Treyler" },
-      { title: "Furiosa: A Mad Max Saga", thumbnail: "https://img.youtube.com/vi/XJMuhwVlca4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=XJMuhwVlca4", actors: "Anya Taylor-Joy, Chris Hemsworth", rating: "4.6", releaseDate: "2024-05-24", country: "Avstraliya", duration: 28, reward: "0", category: "Treyler" },
-      { title: "Inception", thumbnail: "https://img.youtube.com/vi/8YjFbMbfXaQ/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=8YjFbMbfXaQ", actors: "Leonardo DiCaprio, Tom Hardy, Joseph Gordon-Levitt", rating: "4.9", releaseDate: "2010-07-16", country: "AQSH", duration: 28, reward: "0", category: "Treyler" },
-      { title: "Interstellar", thumbnail: "https://img.youtube.com/vi/u9Mv98Gr5pY/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=u9Mv98Gr5pY", actors: "Matthew McConaughey, Anne Hathaway, Jessica Chastain", rating: "4.9", releaseDate: "2014-11-07", country: "AQSH", duration: 30, reward: "0", category: "Treyler" },
-      { title: "Moana 2", thumbnail: "https://img.youtube.com/vi/hDZ7y8RP5HE/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=hDZ7y8RP5HE", actors: "Auli'i Cravalho, Dwayne Johnson", rating: "4.6", releaseDate: "2024-11-27", country: "AQSH", duration: 22, reward: "0", category: "Treyler" },
-    ]);
-    console.log("Videos seeded (20 TV shows + 20 trailers)");
+  const videoDefs = [
+    { title: "Squid Game: Season 2", thumbnail: "https://img.youtube.com/vi/Ed1sGgHUo88/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=Ed1sGgHUo88", actors: "Lee Jung-jae, Wi Ha-jun, Gong Yoo", rating: "4.9", releaseDate: "2025-12-26", country: "Janubiy Koreya", duration: 25, reward: "0", category: "Tele-shou" },
+    { title: "The Last of Us: Season 2", thumbnail: "https://img.youtube.com/vi/_zHPsmXCjB0/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=_zHPsmXCjB0", actors: "Pedro Pascal, Bella Ramsey", rating: "4.8", releaseDate: "2026-04-13", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
+    { title: "Wednesday: Season 2", thumbnail: "https://img.youtube.com/vi/ueCc-AYUMRs/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=ueCc-AYUMRs", actors: "Jenna Ortega, Catherine Zeta-Jones", rating: "4.7", releaseDate: "2026-08-06", country: "AQSH", duration: 28, reward: "0", category: "Tele-shou" },
+    { title: "Stranger Things: Season 4", thumbnail: "https://img.youtube.com/vi/JfVOs4VSpmA/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=JfVOs4VSpmA", actors: "Millie Bobby Brown, Finn Wolfhard", rating: "4.8", releaseDate: "2022-05-27", country: "AQSH", duration: 30, reward: "0", category: "Tele-shou" },
+    { title: "House of the Dragon: Season 2", thumbnail: "https://img.youtube.com/vi/YN2H_sKcmGw/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=YN2H_sKcmGw", actors: "Matt Smith, Emma D'Arcy", rating: "4.7", releaseDate: "2024-06-16", country: "AQSH", duration: 25, reward: "0", category: "Tele-shou" },
+    { title: "Money Heist: Berlin", thumbnail: "https://img.youtube.com/vi/u3V5KDHRQvk/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=u3V5KDHRQvk", actors: "Pedro Alonso, Michelle Jenner", rating: "4.3", releaseDate: "2023-12-29", country: "Ispaniya", duration: 20, reward: "0", category: "Tele-shou" },
+    { title: "The Penguin", thumbnail: "https://img.youtube.com/vi/gn5QmllRCn4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=gn5QmllRCn4", actors: "Colin Farrell, Cristin Milioti", rating: "4.6", releaseDate: "2024-09-19", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
+    { title: "Shōgun", thumbnail: "https://img.youtube.com/vi/C5pHpQqhmR4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=C5pHpQqhmR4", actors: "Hiroyuki Sanada, Cosmo Jarvis, Anna Sawai", rating: "4.9", releaseDate: "2024-02-27", country: "Janubiy Koreya", duration: 26, reward: "0", category: "Tele-shou" },
+    { title: "Fallout", thumbnail: "https://img.youtube.com/vi/TcMBFSGVi1c/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=TcMBFSGVi1c", actors: "Ella Purnell, Walton Goggins, Aaron Moten", rating: "4.7", releaseDate: "2024-04-10", country: "AQSH", duration: 24, reward: "0", category: "Tele-shou" },
+    { title: "3 Body Problem", thumbnail: "https://img.youtube.com/vi/PLLQK9la6Go/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=PLLQK9la6Go", actors: "Jovan Adepo, John Bradley, Rosalind Chao", rating: "4.4", releaseDate: "2024-03-21", country: "AQSH", duration: 28, reward: "0", category: "Tele-shou" },
+    { title: "The Bear: Season 3", thumbnail: "https://img.youtube.com/vi/pBk4NYhWNMM/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=pBk4NYhWNMM", actors: "Jeremy Allen White, Ayo Edebiri, Ebon Moss-Bachrach", rating: "4.6", releaseDate: "2024-06-27", country: "AQSH", duration: 20, reward: "0", category: "Tele-shou" },
+    { title: "Arcane: Season 2", thumbnail: "https://img.youtube.com/vi/L0MK7qz13bU/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=L0MK7qz13bU", actors: "Hailee Steinfeld, Ella Purnell, Katie Leung", rating: "4.9", releaseDate: "2024-11-09", country: "AQSH", duration: 23, reward: "0", category: "Tele-shou" },
+    { title: "Reacher: Season 3", thumbnail: "https://img.youtube.com/vi/ue80QwXMRHg/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=ue80QwXMRHg", actors: "Alan Ritchson, Maria Sten", rating: "4.5", releaseDate: "2025-02-20", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
+    { title: "Loki: Season 2", thumbnail: "https://img.youtube.com/vi/nW948Va-l10/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=nW948Va-l10", actors: "Tom Hiddleston, Owen Wilson, Sophia Di Martino", rating: "4.7", releaseDate: "2023-10-06", country: "AQSH", duration: 24, reward: "0", category: "Tele-shou" },
+    { title: "The Mandalorian", thumbnail: "https://img.youtube.com/vi/CmRih_VtVAs/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=CmRih_VtVAs", actors: "Pedro Pascal, Katee Sackhoff", rating: "4.8", releaseDate: "2023-03-01", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
+    { title: "Rings of Power", thumbnail: "https://img.youtube.com/vi/WzhW20hLp6M/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=WzhW20hLp6M", actors: "Morfydd Clark, Robert Aramayo", rating: "4.5", releaseDate: "2024-08-29", country: "AQSH", duration: 26, reward: "0", category: "Tele-shou" },
+    { title: "Peaky Blinders: Season 6", thumbnail: "https://img.youtube.com/vi/oVzVdvGIC7U/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=oVzVdvGIC7U", actors: "Cillian Murphy, Tom Hardy, Helen McCrory", rating: "4.8", releaseDate: "2022-02-27", country: "Buyuk Britaniya", duration: 25, reward: "0", category: "Tele-shou" },
+    { title: "Ozark: Final Season", thumbnail: "https://img.youtube.com/vi/cKOegEuCcfw/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=cKOegEuCcfw", actors: "Jason Bateman, Laura Linney, Julia Garner", rating: "4.7", releaseDate: "2022-04-29", country: "AQSH", duration: 24, reward: "0", category: "Tele-shou" },
+    { title: "Invincible", thumbnail: "https://img.youtube.com/vi/WgU7P6o-GkM/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=WgU7P6o-GkM", actors: "Steven Yeun, J.K. Simmons, Sandra Oh", rating: "4.8", releaseDate: "2023-11-03", country: "AQSH", duration: 22, reward: "0", category: "Tele-shou" },
+    { title: "Better Call Saul: Final Season", thumbnail: "https://img.youtube.com/vi/Fp9pNPdNwjI/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=Fp9pNPdNwjI", actors: "Bob Odenkirk, Rhea Seehorn, Jonathan Banks", rating: "4.9", releaseDate: "2022-04-18", country: "AQSH", duration: 28, reward: "0", category: "Tele-shou" },
+    { title: "Thunderbolts*", thumbnail: "https://img.youtube.com/vi/-sAOWhvheK8/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=-sAOWhvheK8", actors: "Florence Pugh, Sebastian Stan", rating: "4.6", releaseDate: "2025-05-02", country: "AQSH", duration: 24, reward: "0", category: "Treyler" },
+    { title: "Mission Impossible: Final Reckoning", thumbnail: "https://img.youtube.com/vi/fsQgc9pCyDU/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=fsQgc9pCyDU", actors: "Tom Cruise, Hayley Atwell", rating: "4.9", releaseDate: "2025-05-23", country: "AQSH", duration: 26, reward: "0", category: "Treyler" },
+    { title: "Avatar 3: Fire and Ash", thumbnail: "https://img.youtube.com/vi/xxEt9fnILgQ/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=xxEt9fnILgQ", actors: "Sam Worthington, Zoe Saldana", rating: "4.8", releaseDate: "2025-12-19", country: "AQSH", duration: 28, reward: "0", category: "Treyler" },
+    { title: "Dune: Part Two", thumbnail: "https://img.youtube.com/vi/8g18jFHCLXk/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=8g18jFHCLXk", actors: "Timothée Chalamet, Zendaya, Austin Butler", rating: "4.8", releaseDate: "2024-03-01", country: "AQSH", duration: 25, reward: "0", category: "Treyler" },
+    { title: "Deadpool & Wolverine", thumbnail: "https://img.youtube.com/vi/cqGjhVJWtEg/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=cqGjhVJWtEg", actors: "Ryan Reynolds, Hugh Jackman", rating: "4.7", releaseDate: "2024-07-26", country: "AQSH", duration: 23, reward: "0", category: "Treyler" },
+    { title: "Gladiator II", thumbnail: "https://img.youtube.com/vi/KK8FHdFluOQ/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=KK8FHdFluOQ", actors: "Paul Mescal, Pedro Pascal, Denzel Washington", rating: "4.6", releaseDate: "2024-11-22", country: "AQSH", duration: 27, reward: "0", category: "Treyler" },
+    { title: "Wicked", thumbnail: "https://img.youtube.com/vi/6COmYeLsz4c/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=6COmYeLsz4c", actors: "Ariana Grande, Cynthia Erivo", rating: "4.7", releaseDate: "2024-11-22", country: "AQSH", duration: 26, reward: "0", category: "Treyler" },
+    { title: "Joker: Folie à Deux", thumbnail: "https://img.youtube.com/vi/mqqft2x_Aa4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=mqqft2x_Aa4", actors: "Joaquin Phoenix, Lady Gaga", rating: "4.3", releaseDate: "2024-10-04", country: "AQSH", duration: 24, reward: "0", category: "Treyler" },
+    { title: "Godzilla x Kong: The New Empire", thumbnail: "https://img.youtube.com/vi/Rt_UqUm38BI/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=Rt_UqUm38BI", actors: "Rebecca Hall, Brian Tyree Henry", rating: "4.4", releaseDate: "2024-03-29", country: "AQSH", duration: 22, reward: "0", category: "Treyler" },
+    { title: "Venom: The Last Dance", thumbnail: "https://img.youtube.com/vi/YoHD9XEInc0/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=YoHD9XEInc0", actors: "Tom Hardy, Chiwetel Ejiofor", rating: "4.2", releaseDate: "2024-10-25", country: "AQSH", duration: 21, reward: "0", category: "Treyler" },
+    { title: "Inside Out 2", thumbnail: "https://img.youtube.com/vi/d9MyW72ELq0/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=d9MyW72ELq0", actors: "Amy Poehler, Maya Hawke", rating: "4.8", releaseDate: "2024-06-14", country: "AQSH", duration: 20, reward: "0", category: "Treyler" },
+    { title: "The Wild Robot", thumbnail: "https://img.youtube.com/vi/giXco2jaZ_4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=giXco2jaZ_4", actors: "Lupita Nyong'o, Pedro Pascal, Kit Connor", rating: "4.9", releaseDate: "2024-09-27", country: "AQSH", duration: 22, reward: "0", category: "Treyler" },
+    { title: "Oppenheimer", thumbnail: "https://img.youtube.com/vi/uYPbbksJxIg/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=uYPbbksJxIg", actors: "Cillian Murphy, Emily Blunt, Robert Downey Jr.", rating: "4.9", releaseDate: "2023-07-21", country: "AQSH", duration: 30, reward: "0", category: "Treyler" },
+    { title: "John Wick: Chapter 4", thumbnail: "https://img.youtube.com/vi/t433PEQGErc/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=t433PEQGErc", actors: "Keanu Reeves, Donnie Yen, Bill Skarsgård", rating: "4.8", releaseDate: "2023-03-24", country: "AQSH", duration: 26, reward: "0", category: "Treyler" },
+    { title: "Top Gun: Maverick", thumbnail: "https://img.youtube.com/vi/wS_qbDztgVY/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=wS_qbDztgVY", actors: "Tom Cruise, Miles Teller, Jennifer Connelly", rating: "4.9", releaseDate: "2022-05-27", country: "AQSH", duration: 24, reward: "0", category: "Treyler" },
+    { title: "Kung Fu Panda 4", thumbnail: "https://img.youtube.com/vi/_inKs4eeHiI/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=_inKs4eeHiI", actors: "Jack Black, Awkwafina, Viola Davis", rating: "4.5", releaseDate: "2024-03-08", country: "AQSH", duration: 20, reward: "0", category: "Treyler" },
+    { title: "Furiosa: A Mad Max Saga", thumbnail: "https://img.youtube.com/vi/XJMuhwVlca4/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=XJMuhwVlca4", actors: "Anya Taylor-Joy, Chris Hemsworth", rating: "4.6", releaseDate: "2024-05-24", country: "Avstraliya", duration: 28, reward: "0", category: "Treyler" },
+    { title: "Inception", thumbnail: "https://img.youtube.com/vi/8YjFbMbfXaQ/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=8YjFbMbfXaQ", actors: "Leonardo DiCaprio, Tom Hardy, Joseph Gordon-Levitt", rating: "4.9", releaseDate: "2010-07-16", country: "AQSH", duration: 28, reward: "0", category: "Treyler" },
+    { title: "Interstellar", thumbnail: "https://img.youtube.com/vi/u9Mv98Gr5pY/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=u9Mv98Gr5pY", actors: "Matthew McConaughey, Anne Hathaway, Jessica Chastain", rating: "4.9", releaseDate: "2014-11-07", country: "AQSH", duration: 30, reward: "0", category: "Treyler" },
+    { title: "Moana 2", thumbnail: "https://img.youtube.com/vi/hDZ7y8RP5HE/maxresdefault.jpg", videoUrl: "https://www.youtube.com/watch?v=hDZ7y8RP5HE", actors: "Auli'i Cravalho, Dwayne Johnson", rating: "4.6", releaseDate: "2024-11-27", country: "AQSH", duration: 22, reward: "0", category: "Treyler" },
+  ];
+  const existingVideos = await db.select().from(videos);
+  for (const def of videoDefs) {
+    const exists = existingVideos.find(v => v.title === def.title);
+    if (!exists) {
+      await db.insert(videos).values(def);
+    } else {
+      await db.update(videos).set(def).where(eq(videos.id, exists.id));
+    }
   }
+  console.log("Videos seeded (20 TV shows + 20 trailers)");
 
   const existingPlans = await db.select().from(fundPlans);
   const planDefs = [
