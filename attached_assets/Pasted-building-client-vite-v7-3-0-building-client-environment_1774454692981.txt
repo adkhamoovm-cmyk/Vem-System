@@ -1,0 +1,125 @@
+building client...
+vite v7.3.0 building client environment for production...
+transforming (6) ../node_modules/@tanstack/react-query/build/modern/index.js
+A PostCSS plugin did not pass the `from` option to `postcss.parse`. This may cause imported assets to be incorrectly transformed. If you've recently added a PostCSS plugin that raised this warning, please contact the package author to fix the issue.
+✓ 80 modules transformed.
+✗ Build failed in 5.57s
+[vite]: Rollup failed to resolve import "plyr" from "/var/www/vem/client/src/components/plyr-player.tsx".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`
+    at viteLog (/var/www/vem/node_modules/vite/dist/node/chunks/config.js:33634:57)
+    at <anonymous> (/var/www/vem/node_modules/vite/dist/node/chunks/config.js:33668:73)
+    at onwarn (/var/www/vem/node_modules/@vitejs/plugin-react/dist/index.js:90:7)
+    at <anonymous> (/var/www/vem/node_modules/vite/dist/node/chunks/config.js:33668:28)
+    at onRollupLog (/var/www/vem/node_modules/vite/dist/node/chunks/config.js:33663:63)
+    at onLog (/var/www/vem/node_modules/vite/dist/node/chunks/config.js:33466:4)
+    at <anonymous> (/var/www/vem/node_modules/rollup/dist/es/shared/node-entry.js:20981:32)
+    at Object.logger (/var/www/vem/node_modules/rollup/dist/es/shared/node-entry.js:22968:9)
+    at ModuleLoader.handleInvalidResolvedId (/var/www/vem/node_modules/rollup/dist/es/shared/node-entry.js:21712:26)
+    at <anonymous> (/var/www/vem/node_modules/rollup/dist/es/shared/node-entry.js:21670:26) {
+  watchFiles: [
+    '/var/www/vem/client/index.html',
+    '/var/www/vem/client/src/main.tsx',
+    '/var/www/vem/package.json',
+    '/var/www/vem/node_modules/react/jsx-runtime.js',
+    '/var/www/vem/node_modules/react-dom/client.js',
+    '/var/www/vem/client/src/index.css',
+    '/var/www/vem/client/src/App.tsx',
+    '/var/www/vem/node_modules/react/cjs/react-jsx-runtime.production.min.js',
+    '/var/www/vem/node_modules/react-dom/index.js',
+    '/var/www/vem/node_modules/@tanstack/react-query/build/modern/index.js',
+    '/var/www/vem/node_modules/react/index.js',
+    '/var/www/vem/node_modules/wouter/esm/index.js',
+    '/var/www/vem/client/src/lib/queryClient.ts',
+    '/var/www/vem/client/src/components/ui/toaster.tsx',
+    '/var/www/vem/client/src/components/ui/tooltip.tsx',
+    '/var/www/vem/client/src/components/theme-provider.tsx',
+    '/var/www/vem/client/src/lib/i18n.tsx',
+    '/var/www/vem/client/src/pages/not-found.tsx',
+    '/var/www/vem/client/src/components/app-layout.tsx',
+    '/var/www/vem/client/src/components/error-boundary.tsx',
+    '/var/www/vem/client/src/pages/tasks.tsx',
+    '/var/www/vem/client/src/components/offline-banner.tsx',
+    '/var/www/vem/client/src/pages/landing.tsx',
+    '/var/www/vem/client/src/pages/dashboard.tsx',
+    '/var/www/vem/client/src/pages/trends.tsx',
+    '/var/www/vem/client/src/pages/vip.tsx',
+    '/var/www/vem/client/src/pages/referral.tsx',
+    '/var/www/vem/client/src/pages/admin.tsx',
+    '/var/www/vem/client/src/pages/help.tsx',
+    '/var/www/vem/client/src/pages/profile.tsx',
+    '/var/www/vem/client/src/pages/fund.tsx',
+    '/var/www/vem/client/src/pages/promo.tsx',
+    '/var/www/vem/client/src/pages/notifications.tsx',
+    '/var/www/vem/client/src/global.d.ts',
+    '/var/www/vem/client/src/hooks/use-animate.ts',
+    '/var/www/vem/client/src/hooks/use-push-notifications.ts',
+    '/var/www/vem/client/src/hooks/use-toast.ts',
+    '/var/www/vem/client/src/lib/utils.ts',
+    '/var/www/vem/client/src/lib/vip-utils.ts',
+    '/var/www/vem/client/src/components/celebration-modal.tsx',
+    '/var/www/vem/client/src/components/language-switcher.tsx',
+    '/var/www/vem/client/src/components/notification-prompt.tsx',
+    '/var/www/vem/client/src/components/pin-input.tsx',
+    '/var/www/vem/client/src/components/plyr-player.tsx',
+    '/var/www/vem/client/src/components/support-widget.tsx',
+    '/var/www/vem/client/src/components/ui/accordion.tsx',
+    '/var/www/vem/client/src/components/ui/alert-dialog.tsx',
+    '/var/www/vem/client/src/components/ui/alert.tsx',
+    '/var/www/vem/client/src/components/ui/aspect-ratio.tsx',
+    '/var/www/vem/client/src/components/ui/avatar.tsx',
+    '/var/www/vem/client/src/components/ui/badge.tsx',
+    '/var/www/vem/client/src/components/ui/breadcrumb.tsx',
+    '/var/www/vem/client/src/components/ui/button.tsx',
+    '/var/www/vem/client/src/components/ui/calendar.tsx',
+    '/var/www/vem/client/src/components/ui/card.tsx',
+    '/var/www/vem/client/src/components/ui/carousel.tsx',
+    '/var/www/vem/client/src/components/ui/chart.tsx',
+    '/var/www/vem/client/src/components/ui/checkbox.tsx',
+    '/var/www/vem/client/src/components/ui/collapsible.tsx',
+    '/var/www/vem/client/src/components/ui/command.tsx',
+    '/var/www/vem/client/src/components/ui/context-menu.tsx',
+    '/var/www/vem/client/src/components/ui/dialog.tsx',
+    '/var/www/vem/client/src/components/ui/drawer.tsx',
+    '/var/www/vem/client/src/components/ui/dropdown-menu.tsx',
+    '/var/www/vem/client/src/components/ui/form.tsx',
+    '/var/www/vem/client/src/components/ui/hover-card.tsx',
+    '/var/www/vem/client/src/components/ui/input-otp.tsx',
+    '/var/www/vem/client/src/components/ui/input.tsx',
+    '/var/www/vem/client/src/components/ui/label.tsx',
+    '/var/www/vem/client/src/components/ui/menubar.tsx',
+    '/var/www/vem/client/src/components/ui/navigation-menu.tsx',
+    '/var/www/vem/client/src/components/ui/pagination.tsx',
+    '/var/www/vem/client/src/components/ui/popover.tsx',
+    '/var/www/vem/client/src/components/ui/progress.tsx',
+    '/var/www/vem/client/src/components/ui/radio-group.tsx',
+    '/var/www/vem/client/src/components/ui/resizable.tsx',
+    '/var/www/vem/client/src/components/ui/scroll-area.tsx',
+    '/var/www/vem/client/src/components/ui/select.tsx',
+    '/var/www/vem/client/src/components/ui/separator.tsx',
+    '/var/www/vem/client/src/components/ui/sheet.tsx',
+    '/var/www/vem/client/src/components/ui/sidebar.tsx',
+    '/var/www/vem/client/src/components/ui/skeleton.tsx',
+    '/var/www/vem/client/src/components/ui/slider.tsx',
+    '/var/www/vem/client/src/components/ui/switch.tsx',
+    '/var/www/vem/client/src/components/ui/table.tsx',
+    '/var/www/vem/client/src/components/ui/tabs.tsx',
+    '/var/www/vem/client/src/components/ui/textarea.tsx',
+    '/var/www/vem/client/src/components/ui/toast.tsx',
+    '/var/www/vem/client/src/components/ui/toggle-group.tsx',
+    '/var/www/vem/client/src/components/ui/toggle.tsx',
+    '/var/www/vem/client/src/components/welcome-banner.tsx',
+    '/var/www/vem/client/src/hooks/use-mobile.tsx',
+    '/var/www/vem/client/src/pages/admin/admin-dashboard.tsx',
+    '/var/www/vem/client/src/pages/admin/broadcasts-tab.tsx',
+    '/var/www/vem/client/src/pages/admin/deposits-tab.tsx',
+    '/var/www/vem/client/src/pages/admin/multi-accounts-tab.tsx',
+    '/var/www/vem/client/src/pages/admin/passive-users-tab.tsx',
+    '/var/www/vem/client/src/pages/admin/promo-codes-tab.tsx',
+    '/var/www/vem/client/src/pages/admin/settings-tab.tsx',
+    '/var/www/vem/client/src/pages/admin/shared.tsx',
+    ... 60 more items
+  ]
+}
+root@vultr:/var/www/vem# 
