@@ -113,6 +113,7 @@ function VideoPlayerModal({
                 alt="Video thumbnail"
                 loading="lazy"
                 className="w-full h-full object-cover"
+                onError={(e) => { (e.target as HTMLImageElement).src = hqThumbnail; }}
                 data-testid="img-thumbnail"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/10 flex flex-col items-center justify-center">

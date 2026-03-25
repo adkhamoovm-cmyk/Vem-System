@@ -149,6 +149,12 @@ function PreviewModal({ video, open, onClose, locale }: { video: Video; open: bo
                 src={video.thumbnail}
                 alt={video.title}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement;
+                  if (img.src.includes("maxresdefault")) {
+                    img.src = img.src.replace("maxresdefault", "hqdefault");
+                  }
+                }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -163,10 +169,11 @@ function PreviewModal({ video, open, onClose, locale }: { video: Video; open: bo
             </div>
           ) : videoId ? (
             <iframe
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
+              src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
               className="w-full h-full"
               allow="autoplay; encrypted-media; fullscreen"
               allowFullScreen
+              referrerPolicy="no-referrer"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -443,7 +450,7 @@ export default function TrendsPage() {
                 <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
                   <div className="relative w-36 shrink-0" data-testid={`trend-top-${video.id}`}>
                     <div className="w-36 h-52 rounded-2xl overflow-hidden bg-card shadow-md">
-                      <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" onError={(e) => { const img = e.target as HTMLImageElement; if (img.src.includes("maxresdefault")) img.src = img.src.replace("maxresdefault", "hqdefault"); }} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-2xl" />
                     </div>
                     <div className="absolute top-2 left-2">
@@ -487,7 +494,7 @@ export default function TrendsPage() {
               <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
                 <div className="relative w-28 shrink-0" data-testid={`trend-new-${video.id}`}>
                   <div className="w-28 h-40 rounded-xl overflow-hidden bg-card shadow-md">
-                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" onError={(e) => { const img = e.target as HTMLImageElement; if (img.src.includes("maxresdefault")) img.src = img.src.replace("maxresdefault", "hqdefault"); }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent rounded-xl" />
                   </div>
                   <div className="absolute top-2 left-2">
@@ -537,7 +544,7 @@ export default function TrendsPage() {
               <div key={video.id} onClick={() => setPreviewVideo(video)} className="cursor-pointer">
                 <div className="bg-card rounded-2xl overflow-hidden border border-border hover:border-primary/40 transition-colors" data-testid={`trend-card-${video.id}`}>
                   <div className="relative aspect-[3/4] bg-card">
-                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" loading="lazy" onError={(e) => { const img = e.target as HTMLImageElement; if (img.src.includes("maxresdefault")) img.src = img.src.replace("maxresdefault", "hqdefault"); }} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
                     <div className="absolute top-2 right-2">
                       <span className="bg-red-600 text-white text-[8px] font-bold px-2 py-0.5 rounded">
