@@ -2,10 +2,21 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Megaphone, BellRing, Send, Trash2 } from "lucide-react";
+import { Megaphone, BellRing, Send, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/lib/i18n";
+
+function linkifyText(text: string): string {
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  return escaped.replace(
+    /(https?:\/\/[^\s<&"']+)/g,
+    (url) => {
+      const safeUrl = url.replace(/[^a-zA-Z0-9\-._~:/?#\[\]@!$&'()*+,;=%]/g, encodeURIComponent);
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-primary underline hover:text-primary/80 break-all">${url}</a>`;
+    }
+  );
+}
 
 interface BroadcastItem {
   id: string;
@@ -206,28 +217,50 @@ export function BroadcastsTab() {
         ) : (
           <div className="divide-y divide-border">
             {broadcastList.map((b: BroadcastItem) => (
-              <div key={b.id} className="p-4 flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                  <Megaphone className="w-3.5 h-3.5 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-foreground text-sm font-semibold">{b.title}</p>
-                  <p className="text-muted-foreground text-[11px] mt-0.5 line-clamp-2">{b.message}</p>
-                  <p className="text-muted-foreground text-[10px] mt-1">{new Date(b.createdAt).toLocaleString("uz-UZ")}</p>
-                </div>
-                <button
-                  onClick={() => deleteMutation.mutate(b.id)}
-                  disabled={deleteMutation.isPending}
-                  className="text-red-500 hover:text-red-600 transition-colors p-1 shrink-0"
-                  data-testid={`button-delete-broadcast-${b.id}`}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              <BroadcastListItem key={b.id} item={b} onDelete={(id) => deleteMutation.mutate(id)} deleting={deleteMutation.isPending} />
             ))}
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function BroadcastListItem({ item, onDelete, deleting }: { item: BroadcastItem; onDelete: (id: string) => void; deleting: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const isLong = item.message.length > 120;
+
+  return (
+    <div className="p-4 flex items-start gap-3">
+      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+        <Megaphone className="w-3.5 h-3.5 text-primary" />
+      </div>
+      <div className="flex-1 min-w-0 overflow-hidden">
+        <p className="text-foreground text-sm font-semibold break-words">{item.title}</p>
+        <div
+          className={`text-muted-foreground text-[12px] mt-1 whitespace-pre-wrap break-words leading-relaxed ${!expanded && isLong ? "line-clamp-3" : ""}`}
+          dangerouslySetInnerHTML={{ __html: linkifyText(item.message) }}
+        />
+        {isLong && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex items-center gap-1 text-primary text-[11px] font-medium mt-1 hover:underline"
+            data-testid={`button-expand-broadcast-${item.id}`}
+          >
+            {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            {expanded ? "Yopish" : "To'liq ko'rish"}
+          </button>
+        )}
+        <p className="text-muted-foreground text-[10px] mt-1.5">{new Date(item.createdAt).toLocaleString("uz-UZ")}</p>
+      </div>
+      <button
+        onClick={() => onDelete(item.id)}
+        disabled={deleting}
+        className="text-red-500 hover:text-red-600 transition-colors p-1 shrink-0"
+        data-testid={`button-delete-broadcast-${item.id}`}
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
     </div>
   );
 }
