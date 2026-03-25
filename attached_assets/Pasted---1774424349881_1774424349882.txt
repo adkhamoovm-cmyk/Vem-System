@@ -1,0 +1,26 @@
+└────┴────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+root@vultr:/var/www/vem# pm2 logs vem --lines 10
+[TAILING] Tailing last 10 lines for [vem] process (change the value with --lines option)
+/root/.pm2/logs/vem-error.log last 10 lines:
+0|vem      | [2026-03-25T07:09:19.331Z] Unhandled error: Error: ENOENT: no such file or directory, open '/var/www/vem/dist/table.sql'
+0|vem      |     at async open (node:internal/fs/promises:634:25)
+0|vem      |     at async Object.readFile (node:internal/fs/promises:1236:14)
+0|vem      |     at async n._rawEnsureSessionStoreTable (/var/www/vem/dist/index.cjs:74:28756)
+0|vem      |     at async n._asyncQuery (/var/www/vem/dist/index.cjs:74:29841) {
+0|vem      |   errno: -2,
+0|vem      |   code: 'ENOENT',
+0|vem      |   syscall: 'open',
+0|vem      |   path: '/var/www/vem/dist/table.sql'
+0|vem      | }
+
+/root/.pm2/logs/vem-out.log last 10 lines:
+0|vem      | 7:38:12 AM [express] GET /api/broadcasts/unread 200 in 6ms :: []
+0|vem      | 7:38:12 AM [express] GET /api/notifications/unread-count 200 in 5ms :: {"count":0}
+0|vem      | 7:38:13 AM [express] GET /api/referrals/users 304 in 7ms :: []
+0|vem      | 7:38:13 AM [express] GET /api/referrals/stats 304 in 8ms :: {"level1":{"count":0,"commission":"0"},"level2":{"count":0,"commission":"0"},"level3":{"count":0,"commission":"0"}}
+0|vem      | 7:38:13 AM [express] GET /api/referrals/extended-stats 304 in 7ms :: {"vipDistribution":{},"thisMonthEarnings":"0.00","lastMonthEarnings":"0.00","recentActivity":[],"activeReferrals":0,"totalReferrals":0}
+0|vem      | 7:38:14 AM [express] GET /api/payment-methods 304 in 14ms :: []
+0|vem      | 7:38:14 AM [express] GET /api/platform-settings 304 in 17ms :: {"withdrawalCommissionPercent":10,"minWithdrawalUsdt":3,"minWithdrawalBank":2,"withdrawalStartHour":11,"withdrawalEndHour":17,"maxDailyWithdrawals":1,"withdrawalEnabled":true}
+0|vem      | 7:38:14 AM [express] GET /api/deposits 304 in 15ms :: []
+0|vem      | 7:38:14 AM [express] GET /api/withdrawals 304 in 17ms :: []
+0|vem      | 7:38:14 AM [express] GET /api/balance-history 304 in 17ms :: {"data":[],"total":0,"page":1,"limit":20,"totalPages":0}
