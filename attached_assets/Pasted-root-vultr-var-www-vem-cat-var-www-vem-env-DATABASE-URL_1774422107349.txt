@@ -1,0 +1,29 @@
+root@vultr:/var/www/vem# cat /var/www/vem/.env
+DATABASE_URL=postgresql://vem_admin:MyBlue16..@localhost:5432/vem_db
+NODE_ENV=production
+PORT=5000
+SESSION_SECRET=aae710f658ba3efa7df8c10d1c8d4d652331e8cf7fa1a0b1c553d05f0a2e0c0e
+root@vultr:/var/www/vem# cd /var/www/vem
+pm2 delete vem
+pm2 start dist/index.cjs --name "vem" --env production --node-args="-r dotenv/config"
+[PM2] Applying action deleteProcessId on app [vem](ids: [ 0 ])
+[PM2] [vem](0) ✓
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Starting /var/www/vem/dist/index.cjs in fork_mode (1 instance)
+[PM2] Done.
+┌────┬────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name   │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ vem    │ default     │ 1.0.0   │ fork    │ 20722    │ 0s     │ 0    │ online    │ 0%       │ 17.4mb   │ root     │ disabled │
+└────┴────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+root@vultr:/var/www/vem# pm2 delete vem
+pm2 start ecosystem.config.cjs
+[PM2] Applying action deleteProcessId on app [vem](ids: [ 0 ])
+[PM2] [vem](0) ✓
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2][ERROR] File ecosystem.config.cjs not found
+root@vultr:/var/www/vem#
