@@ -102,7 +102,19 @@ router.post("/api/admin/users/:id/vip", requireAdmin, validateBody(adminSchemas.
   if (isNaN(numLevel) || numLevel < -1 || numLevel > 10 || isNaN(numLimit) || numLimit < 0) {
     return res.status(400).json({ message: "Noto'g'ri VIP daraja yoki limit qiymati" });
   }
-  await storage.setUserVipLevel(req.params.id as string, numLevel, numLimit);
+  const userId = req.params.id as string;
+  await storage.setUserVipLevel(userId, numLevel, numLimit);
+
+  if (numLevel >= 0) {
+    const packages = await storage.getVipPackages();
+    const pkg = packages.find(p => p.level === numLevel);
+    const durationDays = pkg?.durationDays || 60;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + durationDays);
+    await storage.setUserVipExpiry(userId, expiresAt);
+    await storage.setUserVipPurchaseInfo(userId, new Date(), "0");
+  }
+
   res.json({ message: "VIP daraja yangilandi" });
 }));
 
