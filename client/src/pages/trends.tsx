@@ -8,6 +8,7 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
 import { useI18n, type Locale } from "@/lib/i18n";
+import PlyrPlayer from "@/components/plyr-player";
 
 const COUNTRY_TRANSLATIONS: Record<string, Record<Locale, string>> = {
   "AQSH":         { uz: "AQSH",          ru: "США",           en: "USA",            es: "EE.UU.",        tr: "ABD" },
@@ -133,7 +134,6 @@ function PreviewModal({ video, open, onClose, locale }: { video: Video; open: bo
   const { t } = useI18n();
   const videoId = video.videoUrl ? getYouTubeId(video.videoUrl) : null;
   const flag = getFlag(video.country);
-  const embedUrl = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1` : "";
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) { setPlaying(false); onClose(); } }}>
@@ -165,14 +165,7 @@ function PreviewModal({ video, open, onClose, locale }: { video: Video; open: bo
               </div>
             </div>
           ) : videoId ? (
-            <iframe
-              src={embedUrl}
-              className="w-full h-full"
-              allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
-              allowFullScreen
-              referrerPolicy="no-referrer"
-              style={{ border: "none" }}
-            />
+            <PlyrPlayer videoId={videoId} autoplay={true} controls={true} className="w-full h-full" />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <p className="text-muted-foreground text-sm">{t("trends.videoNotLoaded")}</p>

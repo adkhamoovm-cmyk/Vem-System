@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,7 @@ import type { User, VipPackage } from "@shared/schema";
 import { Link } from "wouter";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
+import PlyrPlayer from "@/components/plyr-player";
 
 function isSunday() {
   return new Date().getDay() === 0;
@@ -57,12 +58,8 @@ function VideoPlayerModal({
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [completed, setCompleted] = useState(false);
-  const [embedLoaded, setEmbedLoaded] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
   const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   const hqThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-  const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=0&showinfo=0&iv_load_policy=3`;
 
   const completeMutation = useMutation({
     mutationFn: async () => {
@@ -83,7 +80,6 @@ function VideoPlayerModal({
       setStarted(false);
       setTimeLeft(TIMER_DURATION);
       setCompleted(false);
-      setEmbedLoaded(false);
     }
   }, [open]);
 
@@ -139,26 +135,8 @@ function VideoPlayerModal({
             </div>
           ) : !completed ? (
             <>
-              <div className="w-full h-full relative overflow-hidden">
-                {!embedLoaded && (
-                  <img
-                    src={thumbnailUrl}
-                    alt="Video"
-                    className="w-full h-full object-cover absolute inset-0"
-                    onError={(e) => { (e.target as HTMLImageElement).src = hqThumbnail; }}
-                  />
-                )}
-                <iframe
-                  ref={iframeRef}
-                  src={embedUrl}
-                  className={`w-full h-full absolute inset-0 transition-opacity duration-500 ${embedLoaded ? "opacity-100" : "opacity-0"}`}
-                  allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
-                  allowFullScreen
-                  referrerPolicy="no-referrer"
-                  style={{ border: "none" }}
-                  onLoad={() => setEmbedLoaded(true)}
-                  data-testid="video-player"
-                />
+              <div className="w-full h-full relative overflow-hidden" data-testid="video-player">
+                <PlyrPlayer videoId={videoId} autoplay={true} controls={false} className="w-full h-full" />
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
                   <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/10">
                     <Clock className="w-3.5 h-3.5 text-primary" />
