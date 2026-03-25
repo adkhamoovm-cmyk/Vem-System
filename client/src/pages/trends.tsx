@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import {
@@ -129,57 +129,46 @@ function HorizontalCardSkeleton() {
 }
 
 function PreviewModal({ video, open, onClose, locale }: { video: Video; open: boolean; onClose: () => void; locale: Locale }) {
-  const [playing, setPlaying] = useState(false);
   const { t } = useI18n();
-  const videoId = video.videoUrl ? getYouTubeId(video.videoUrl) : null;
   const flag = getFlag(video.country);
 
-  useEffect(() => {
-    if (!open) setPlaying(false);
-  }, [open]);
+  const handleWatchOnYouTube = () => {
+    if (video.videoUrl) {
+      window.open(video.videoUrl, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
       <DialogContent className="bg-card border-border max-w-lg rounded-2xl p-0 overflow-hidden" aria-describedby="preview-desc">
         <DialogTitle className="sr-only">{video.title}</DialogTitle>
         <div className="relative aspect-video bg-black">
-          {!playing ? (
-            <div className="relative w-full h-full">
-              <img
-                src={video.thumbnail}
-                alt={video.title}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  if (img.src.includes("maxresdefault")) {
-                    img.src = img.src.replace("maxresdefault", "hqdefault");
-                  }
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <button
-                  onClick={() => setPlaying(true)}
-                  className="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-xl shadow-primary/30 hover:scale-105 transition-transform"
-                  data-testid="button-play-trend"
-                >
-                  <Play className="w-7 h-7 text-primary-foreground ml-1" />
-                </button>
-              </div>
-            </div>
-          ) : videoId ? (
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`}
-              className="w-full h-full"
-              allow="autoplay; encrypted-media; fullscreen"
-              allowFullScreen
-              referrerPolicy="no-referrer"
+          <div className="relative w-full h-full">
+            <img
+              src={video.thumbnail}
+              alt={video.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const img = e.target as HTMLImageElement;
+                if (img.src.includes("maxresdefault")) {
+                  img.src = img.src.replace("maxresdefault", "hqdefault");
+                }
+              }}
             />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <p className="text-muted-foreground text-sm">{t("trends.videoNotLoaded")}</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <button
+                onClick={handleWatchOnYouTube}
+                className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl shadow-red-600/30 hover:scale-105 transition-transform"
+                data-testid="button-play-trend"
+              >
+                <Play className="w-7 h-7 text-white ml-1" />
+              </button>
+              <span className="text-white text-xs mt-3 font-medium drop-shadow-lg bg-black/50 backdrop-blur-sm px-4 py-1.5 rounded-full">
+                YouTube {t("trends.openInYouTube") || "da ochish"}
+              </span>
             </div>
-          )}
+          </div>
         </div>
         <div className="p-4">
           <h3 className="text-foreground font-bold text-base">{video.title}</h3>
