@@ -86,7 +86,7 @@ export function PassiveUsersTab() {
 
       <div className="bg-card rounded-xl border border-border/50 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
+          <table className="w-full min-w-[600px] text-xs">
             <thead>
               <tr className="border-b border-border bg-muted/30">
                 <th className="text-left text-muted-foreground font-semibold py-3 px-3 text-[10px] uppercase tracking-widest">{t("admin.phone")}</th>

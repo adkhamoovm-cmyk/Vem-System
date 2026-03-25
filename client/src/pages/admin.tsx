@@ -204,7 +204,7 @@ export default function AdminPage() {
         </div>
       )}
 
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 overflow-hidden">
         <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border/50">
           <div className="flex items-center gap-3 px-4 py-3">
             <button
@@ -227,7 +227,7 @@ export default function AdminPage() {
                 </>
               )}
             </div>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2 shrink-0">
               {pendingDeposits > 0 && (
                 <button onClick={() => setTab("deposits")} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 text-[11px] font-medium hover:bg-emerald-500/20 transition-colors" data-testid="badge-pending-deposits">
                   <ArrowDownCircle className="w-3.5 h-3.5" />
@@ -244,7 +244,7 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <main className="p-3 sm:p-4 lg:p-6">
+        <main className="p-3 sm:p-4 lg:p-6 overflow-x-auto">
           {tab === "dashboard" && <AdminDashboard users={allUsers} deposits={deposits} withdrawals={withdrawals} />}
           {tab === "stajyor" && <StajyorTab users={allUsers} />}
           {tab === "users" && <UsersTab users={allUsers} />}
