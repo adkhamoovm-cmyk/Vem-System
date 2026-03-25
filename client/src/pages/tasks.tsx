@@ -41,12 +41,6 @@ const youtubeVideos = [
 
 const TIMER_DURATION = 30;
 
-const PIPED_INSTANCES = [
-  "piped.video",
-  "piped.privacydev.net",
-  "watch.whatever.social",
-];
-
 function VideoPlayerModal({
   videoId,
   perVideoReward,
@@ -63,19 +57,12 @@ function VideoPlayerModal({
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [completed, setCompleted] = useState(false);
-  const [pipedIndex, setPipedIndex] = useState(0);
-  const [embedError, setEmbedError] = useState(false);
+  const [embedLoaded, setEmbedLoaded] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   const hqThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-
-  const getEmbedUrl = (index: number) => {
-    if (index < PIPED_INSTANCES.length) {
-      return `https://${PIPED_INSTANCES[index]}/embed/${videoId}?autoplay=1&mute=0`;
-    }
-    return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-  };
+  const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&controls=0&showinfo=0&iv_load_policy=3`;
 
   const completeMutation = useMutation({
     mutationFn: async () => {
@@ -96,8 +83,7 @@ function VideoPlayerModal({
       setStarted(false);
       setTimeLeft(TIMER_DURATION);
       setCompleted(false);
-      setPipedIndex(0);
-      setEmbedError(false);
+      setEmbedLoaded(false);
     }
   }, [open]);
 
@@ -115,18 +101,6 @@ function VideoPlayerModal({
     }, 1000);
     return () => clearInterval(timer);
   }, [started, completed]);
-
-  useEffect(() => {
-    if (!started || completed || embedError) return;
-    const timeout = setTimeout(() => {
-      if (pipedIndex < PIPED_INSTANCES.length) {
-        setPipedIndex(prev => prev + 1);
-      } else {
-        setEmbedError(true);
-      }
-    }, 8000);
-    return () => clearTimeout(timeout);
-  }, [started, pipedIndex, completed, embedError]);
 
   const progress = started ? ((TIMER_DURATION - timeLeft) / TIMER_DURATION) * 100 : 0;
 
@@ -166,14 +140,23 @@ function VideoPlayerModal({
           ) : !completed ? (
             <>
               <div className="w-full h-full relative overflow-hidden">
+                {!embedLoaded && (
+                  <img
+                    src={thumbnailUrl}
+                    alt="Video"
+                    className="w-full h-full object-cover absolute inset-0"
+                    onError={(e) => { (e.target as HTMLImageElement).src = hqThumbnail; }}
+                  />
+                )}
                 <iframe
                   ref={iframeRef}
-                  src={getEmbedUrl(pipedIndex)}
-                  className="w-full h-full absolute inset-0"
-                  allow="autoplay; encrypted-media; fullscreen"
+                  src={embedUrl}
+                  className={`w-full h-full absolute inset-0 transition-opacity duration-500 ${embedLoaded ? "opacity-100" : "opacity-0"}`}
+                  allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
                   allowFullScreen
                   referrerPolicy="no-referrer"
                   style={{ border: "none" }}
+                  onLoad={() => setEmbedLoaded(true)}
                   data-testid="video-player"
                 />
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">

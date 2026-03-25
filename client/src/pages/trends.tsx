@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import {
@@ -128,45 +128,15 @@ function HorizontalCardSkeleton() {
   );
 }
 
-const PIPED_INSTANCES = [
-  "piped.video",
-  "piped.privacydev.net",
-  "watch.whatever.social",
-];
-
 function PreviewModal({ video, open, onClose, locale }: { video: Video; open: boolean; onClose: () => void; locale: Locale }) {
   const [playing, setPlaying] = useState(false);
-  const [pipedIndex, setPipedIndex] = useState(0);
   const { t } = useI18n();
   const videoId = video.videoUrl ? getYouTubeId(video.videoUrl) : null;
   const flag = getFlag(video.country);
-  const retryTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  const getEmbedUrl = (index: number) => {
-    if (!videoId) return "";
-    if (index < PIPED_INSTANCES.length) {
-      return `https://${PIPED_INSTANCES[index]}/embed/${videoId}?autoplay=1&mute=0`;
-    }
-    return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
-  };
-
-  const handlePlay = () => {
-    setPlaying(true);
-    setPipedIndex(0);
-    retryTimer.current = setTimeout(() => {
-      setPipedIndex(1);
-    }, 8000);
-  };
-
-  const handleClose = () => {
-    setPlaying(false);
-    setPipedIndex(0);
-    if (retryTimer.current) clearTimeout(retryTimer.current);
-    onClose();
-  };
+  const embedUrl = videoId ? `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1` : "";
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) { setPlaying(false); onClose(); } }}>
       <DialogContent className="bg-card border-border max-w-lg rounded-2xl p-0 overflow-hidden" aria-describedby="preview-desc">
         <DialogTitle className="sr-only">{video.title}</DialogTitle>
         <div className="relative aspect-video bg-black">
@@ -186,7 +156,7 @@ function PreviewModal({ video, open, onClose, locale }: { video: Video; open: bo
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <button
-                  onClick={handlePlay}
+                  onClick={() => setPlaying(true)}
                   className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl shadow-red-600/30 hover:scale-105 transition-transform"
                   data-testid="button-play-trend"
                 >
@@ -196,9 +166,9 @@ function PreviewModal({ video, open, onClose, locale }: { video: Video; open: bo
             </div>
           ) : videoId ? (
             <iframe
-              src={getEmbedUrl(pipedIndex)}
+              src={embedUrl}
               className="w-full h-full"
-              allow="autoplay; encrypted-media; fullscreen"
+              allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
               allowFullScreen
               referrerPolicy="no-referrer"
               style={{ border: "none" }}
