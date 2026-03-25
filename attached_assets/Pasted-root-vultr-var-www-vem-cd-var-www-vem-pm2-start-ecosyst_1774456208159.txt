@@ -1,0 +1,30 @@
+root@vultr:/var/www/vem# cd /var/www/vem
+pm2 start ecosystem.config.cjs
+pm2 logs vem --lines 5
+[PM2][WARN] Applications vem not running, starting...
+[PM2] App [vem] launched (1 instances)
+┌────┬────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name   │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ vem    │ default     │ 1.0.0   │ fork    │ 29715    │ 0s     │ 0    │ online    │ 0%       │ 20.0mb   │ root     │ disabled │
+└────┴────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[TAILING] Tailing last 5 lines for [vem] process (change the value with --lines option)
+/root/.pm2/logs/vem-out.log last 5 lines:
+0|vem      | 4:27:19 PM [express] GET /api/platform-settings 200 in 16ms :: {"withdrawalCommissionPercent":10,"minWithdrawalUsdt":3,"minWithdrawalBank":2,"withdrawalStartHour":11,"withdrawalEndHour":17,"maxDailyWithdrawals":1,"withdrawalEnabled":true}
+0|vem      | 4:27:19 PM [express] GET /api/withdrawals 200 in 17ms :: []
+0|vem      | 4:27:19 PM [express] GET /api/deposits 200 in 16ms :: []
+0|vem      | 4:28:11 PM [express] Seed error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+0|vem      | 4:28:11 PM [express] serving on port 5000
+
+/root/.pm2/logs/vem-error.log last 5 lines:
+0|vem      | [Cron] Fatal error in daily profits: Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+0|vem      |     at /var/www/vem/dist/index.cjs:74:13326
+0|vem      |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|vem      |     at async /var/www/vem/dist/index.cjs:82:32540
+0|vem      |     at async Timeout.t [as _onTimeout] (/var/www/vem/dist/index.cjs:82:205509)
+
+0|vem  | VIP packages seeded (11 tiers)
+0|vem  | Videos seeded (20 TV shows + 20 trailers)
+0|vem  | Fund plans seeded (4 F-Series) - IDs preserved
+0|vem  | 4:29:44 PM [express] Database seeded successfully
+0|vem  | 4:29:44 PM [express] serving on port 5000
