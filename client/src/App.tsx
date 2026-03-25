@@ -69,11 +69,9 @@ function AdminRoute({ component: Component }: { component: React.ComponentType }
   if (!user || !user.isAdmin) return <Redirect to="/dashboard" />;
 
   return (
-    <AppLayout>
-      <Suspense fallback={<PageLoader />}>
-        <Component />
-      </Suspense>
-    </AppLayout>
+    <Suspense fallback={<PageLoader />}>
+      <Component />
+    </Suspense>
   );
 }
 
