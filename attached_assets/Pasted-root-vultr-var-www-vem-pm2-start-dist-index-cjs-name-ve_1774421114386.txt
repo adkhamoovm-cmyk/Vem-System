@@ -1,0 +1,146 @@
+root@vultr:/var/www/vem# pm2 start dist/index.cjs --name "vem"
+pm2 startup
+pm2 save
+
+                        -------------
+
+__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
+ _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
+  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
+   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
+    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
+     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
+      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
+       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
+        _\///______________\///______________\///__\///////////////__
+
+
+                          Runtime Edition
+
+        PM2 is a Production Process Manager for Node.js applications
+                     with a built-in Load Balancer.
+
+                Start and Daemonize any application:
+                $ pm2 start app.js
+
+                Load Balance 4 instances of api.js:
+                $ pm2 start api.js -i 4
+
+                Monitor in production:
+                $ pm2 monitor
+
+                Make pm2 auto-boot at server restart:
+                $ pm2 startup
+
+                To go further checkout:
+                http://pm2.io/
+
+
+                        -------------
+
+[PM2] Spawning PM2 daemon with pm2_home=/root/.pm2
+[PM2] PM2 Successfully daemonized
+[PM2] Starting /var/www/vem/dist/index.cjs in fork_mode (1 instance)
+[PM2] Done.
+┌────┬────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name   │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ vem    │ default     │ 1.0.0   │ fork    │ 19963    │ 0s     │ 0    │ online    │ 0%       │ 28.6mb   │ root     │ disabled │
+└────┴────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Init System found: systemd
+Platform systemd
+Template
+[Unit]
+Description=PM2 process manager
+Documentation=https://pm2.keymetrics.io/
+After=network.target
+
+[Service]
+Type=forking
+User=root
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PM2_HOME=/root/.pm2
+PIDFile=/root/.pm2/pm2.pid
+Restart=on-failure
+
+ExecStart=/usr/lib/node_modules/pm2/bin/pm2 resurrect
+ExecReload=/usr/lib/node_modules/pm2/bin/pm2 reload all
+ExecStop=/usr/lib/node_modules/pm2/bin/pm2 kill
+
+[Install]
+WantedBy=multi-user.target
+
+Target path
+/etc/systemd/system/pm2-root.service
+Command list
+[ 'systemctl enable pm2-root' ]
+[PM2] Writing init configuration in /etc/systemd/system/pm2-root.service
+[PM2] Making script booting at startup...
+[PM2] [-] Executing: systemctl enable pm2-root...
+Created symlink /etc/systemd/system/multi-user.target.wants/pm2-root.service → /etc/systemd/system/pm2-root.service.
+[PM2] [v] Command successfully executed.
++---------------------------------------+
+[PM2] Freeze a process list on reboot via:
+$ pm2 save
+
+[PM2] Remove init script via:
+$ pm2 unstartup systemd
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+root@vultr:/var/www/vem# server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+Command 'server' not found, did you mean:
+  command 'serve' from snap serve (0.3.0)
+  command 'serveo' from snap serveo (0.0.10)
+  command 'kserver' from deb freewnn-kserver (1.1.1~a021+cvs20130302-7build1)
+  command 'cserver' from deb freewnn-cserver (1.1.1~a021+cvs20130302-7build1)
+  command 'jserver' from deb freewnn-jserver (1.1.1~a021+cvs20130302-7build1)
+  command 'semver' from deb node-semver (7.5.4+~7.5.0-2)
+See 'snap info <snapname>' for additional versions.
+Command 'listen' not found, but can be installed with:
+apt install ruby-listen
+server_name: command not found
+Command 'location' not found, but can be installed with:
+apt install location
+proxy_pass: command not found
+proxy_http_version: command not found
+proxy_set_header: command not found
+proxy_set_header: command not found
+proxy_set_header: command not found
+proxy_set_header: command not found
+proxy_set_header: command not found
+proxy_cache_bypass: command not found
+-bash: syntax error near unexpected token `}'
+-bash: syntax error near unexpected token `}'
+root@vultr:/var/www/vem# ln -s /etc/nginx/sites-available/vem /etc/nginx/sites-enabled/
+rm -f /etc/nginx/sites-enabled/default
+nginx -t
+systemctl restart nginx
+ufw allow OpenSSH
+ufw allow 'Nginx Full'
+ufw --force enable
+2026/03/25 06:44:56 [emerg] 20119#20119: open() "/etc/nginx/sites-enabled/vem" failed (2: No such file or directory) in /etc/nginx/nginx.conf:60
+nginx: configuration file /etc/nginx/nginx.conf test failed
+Job for nginx.service failed because the control process exited with error code.
+See "systemctl status nginx.service" and "journalctl -xeu nginx.service" for details.
+Rule added
+Rule added (v6)
+Rule added
+Rule added (v6)
+Firewall is active and enabled on system startup
