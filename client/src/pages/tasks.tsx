@@ -59,7 +59,7 @@ function VideoPlayerModal({
   const [completed, setCompleted] = useState(false);
 
   const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-  const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1`;
+  const hqThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
   const completeMutation = useMutation({
     mutationFn: async () => {
@@ -134,17 +134,37 @@ function VideoPlayerModal({
             </div>
           ) : !completed ? (
             <>
-              <iframe
-                src={iframeSrc}
-                className="w-full h-full"
-                allow="autoplay; encrypted-media"
-                allowFullScreen={false}
-                data-testid="video-iframe"
-              />
+              <div className="w-full h-full relative overflow-hidden">
+                <img
+                  src={thumbnailUrl}
+                  alt="Video"
+                  className="w-full h-full object-cover animate-slow-zoom"
+                  onError={(e) => { (e.target as HTMLImageElement).src = hqThumbnail; }}
+                  data-testid="img-playing"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="relative w-16 h-16">
+                    <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
+                      <circle cx="32" cy="32" r="28" fill="none" stroke="url(#timerGrad)" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - progress / 100)}`} className="transition-all duration-1000" />
+                      <defs>
+                        <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="hsl(var(--primary))" />
+                          <stop offset="100%" stopColor="#3b82f6" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-white font-mono font-bold text-lg" data-testid="text-timer">{timeLeft}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
                 <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/10">
                   <Clock className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-white text-xs font-mono font-bold tracking-wide" data-testid="text-timer">
+                  <span className="text-white text-xs font-mono font-bold tracking-wide">
                     {t("tasks.timeLeft", { time: timeLeft })}
                   </span>
                 </div>
