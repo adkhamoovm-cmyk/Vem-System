@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import {
@@ -128,47 +128,86 @@ function HorizontalCardSkeleton() {
   );
 }
 
-function PreviewModal({ video, open, onClose, locale }: { video: Video; open: boolean; onClose: () => void; locale: Locale }) {
-  const { t } = useI18n();
-  const flag = getFlag(video.country);
+const PIPED_INSTANCES = [
+  "piped.video",
+  "piped.privacydev.net",
+  "watch.whatever.social",
+];
 
-  const handleWatchOnYouTube = () => {
-    if (video.videoUrl) {
-      window.open(video.videoUrl, "_blank", "noopener,noreferrer");
+function PreviewModal({ video, open, onClose, locale }: { video: Video; open: boolean; onClose: () => void; locale: Locale }) {
+  const [playing, setPlaying] = useState(false);
+  const [pipedIndex, setPipedIndex] = useState(0);
+  const { t } = useI18n();
+  const videoId = video.videoUrl ? getYouTubeId(video.videoUrl) : null;
+  const flag = getFlag(video.country);
+  const retryTimer = useRef<ReturnType<typeof setTimeout>>();
+
+  const getEmbedUrl = (index: number) => {
+    if (!videoId) return "";
+    if (index < PIPED_INSTANCES.length) {
+      return `https://${PIPED_INSTANCES[index]}/embed/${videoId}?autoplay=1&mute=0`;
     }
+    return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+  };
+
+  const handlePlay = () => {
+    setPlaying(true);
+    setPipedIndex(0);
+    retryTimer.current = setTimeout(() => {
+      setPipedIndex(1);
+    }, 8000);
+  };
+
+  const handleClose = () => {
+    setPlaying(false);
+    setPipedIndex(0);
+    if (retryTimer.current) clearTimeout(retryTimer.current);
+    onClose();
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose(); }}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); }}>
       <DialogContent className="bg-card border-border max-w-lg rounded-2xl p-0 overflow-hidden" aria-describedby="preview-desc">
         <DialogTitle className="sr-only">{video.title}</DialogTitle>
         <div className="relative aspect-video bg-black">
-          <div className="relative w-full h-full">
-            <img
-              src={video.thumbnail}
-              alt={video.title}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const img = e.target as HTMLImageElement;
-                if (img.src.includes("maxresdefault")) {
-                  img.src = img.src.replace("maxresdefault", "hqdefault");
-                }
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <button
-                onClick={handleWatchOnYouTube}
-                className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl shadow-red-600/30 hover:scale-105 transition-transform"
-                data-testid="button-play-trend"
-              >
-                <Play className="w-7 h-7 text-white ml-1" />
-              </button>
-              <span className="text-white text-xs mt-3 font-medium drop-shadow-lg bg-black/50 backdrop-blur-sm px-4 py-1.5 rounded-full">
-                YouTube {t("trends.openInYouTube") || "da ochish"}
-              </span>
+          {!playing ? (
+            <div className="relative w-full h-full">
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement;
+                  if (img.src.includes("maxresdefault")) {
+                    img.src = img.src.replace("maxresdefault", "hqdefault");
+                  }
+                }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <button
+                  onClick={handlePlay}
+                  className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-xl shadow-red-600/30 hover:scale-105 transition-transform"
+                  data-testid="button-play-trend"
+                >
+                  <Play className="w-7 h-7 text-white ml-1" />
+                </button>
+              </div>
             </div>
-          </div>
+          ) : videoId ? (
+            <iframe
+              src={getEmbedUrl(pipedIndex)}
+              className="w-full h-full"
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+              referrerPolicy="no-referrer"
+              style={{ border: "none" }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <p className="text-muted-foreground text-sm">{t("trends.videoNotLoaded")}</p>
+            </div>
+          )}
         </div>
         <div className="p-4">
           <h3 className="text-foreground font-bold text-base">{video.title}</h3>

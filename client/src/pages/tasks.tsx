@@ -41,6 +41,12 @@ const youtubeVideos = [
 
 const TIMER_DURATION = 30;
 
+const PIPED_INSTANCES = [
+  "piped.video",
+  "piped.privacydev.net",
+  "watch.whatever.social",
+];
+
 function VideoPlayerModal({
   videoId,
   perVideoReward,
@@ -57,9 +63,19 @@ function VideoPlayerModal({
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIMER_DURATION);
   const [completed, setCompleted] = useState(false);
+  const [pipedIndex, setPipedIndex] = useState(0);
+  const [embedError, setEmbedError] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   const hqThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+  const getEmbedUrl = (index: number) => {
+    if (index < PIPED_INSTANCES.length) {
+      return `https://${PIPED_INSTANCES[index]}/embed/${videoId}?autoplay=1&mute=0`;
+    }
+    return `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+  };
 
   const completeMutation = useMutation({
     mutationFn: async () => {
@@ -80,6 +96,8 @@ function VideoPlayerModal({
       setStarted(false);
       setTimeLeft(TIMER_DURATION);
       setCompleted(false);
+      setPipedIndex(0);
+      setEmbedError(false);
     }
   }, [open]);
 
@@ -97,6 +115,18 @@ function VideoPlayerModal({
     }, 1000);
     return () => clearInterval(timer);
   }, [started, completed]);
+
+  useEffect(() => {
+    if (!started || completed || embedError) return;
+    const timeout = setTimeout(() => {
+      if (pipedIndex < PIPED_INSTANCES.length) {
+        setPipedIndex(prev => prev + 1);
+      } else {
+        setEmbedError(true);
+      }
+    }, 8000);
+    return () => clearTimeout(timeout);
+  }, [started, pipedIndex, completed, embedError]);
 
   const progress = started ? ((TIMER_DURATION - timeLeft) / TIMER_DURATION) * 100 : 0;
 
@@ -136,49 +166,34 @@ function VideoPlayerModal({
           ) : !completed ? (
             <>
               <div className="w-full h-full relative overflow-hidden">
-                <img
-                  src={thumbnailUrl}
-                  alt="Video"
-                  className="w-full h-full object-cover animate-slow-zoom"
-                  onError={(e) => { (e.target as HTMLImageElement).src = hqThumbnail; }}
-                  data-testid="img-playing"
+                <iframe
+                  ref={iframeRef}
+                  src={getEmbedUrl(pipedIndex)}
+                  className="w-full h-full absolute inset-0"
+                  allow="autoplay; encrypted-media; fullscreen"
+                  allowFullScreen
+                  referrerPolicy="no-referrer"
+                  style={{ border: "none" }}
+                  data-testid="video-player"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/40" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="relative w-16 h-16">
-                    <svg className="w-full h-full -rotate-90" viewBox="0 0 64 64">
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="3" />
-                      <circle cx="32" cy="32" r="28" fill="none" stroke="url(#timerGrad)" strokeWidth="3" strokeLinecap="round" strokeDasharray={`${2 * Math.PI * 28}`} strokeDashoffset={`${2 * Math.PI * 28 * (1 - progress / 100)}`} className="transition-all duration-1000" />
-                      <defs>
-                        <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="hsl(var(--primary))" />
-                          <stop offset="100%" stopColor="#3b82f6" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-white font-mono font-bold text-lg" data-testid="text-timer">{timeLeft}</span>
-                    </div>
+                <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
+                  <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/10">
+                    <Clock className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-white text-xs font-mono font-bold tracking-wide">
+                      {t("tasks.timeLeft", { time: timeLeft })}
+                    </span>
+                  </div>
+                  <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 border border-white/10">
+                    <span className="text-emerald-400 font-bold text-xs">+${perVideoReward.toFixed(2)}</span>
                   </div>
                 </div>
-              </div>
-              <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
-                <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/10">
-                  <Clock className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-white text-xs font-mono font-bold tracking-wide">
-                    {t("tasks.timeLeft", { time: timeLeft })}
-                  </span>
-                </div>
-                <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 border border-white/10">
-                  <span className="text-emerald-400 font-bold text-xs">+${perVideoReward.toFixed(2)}</span>
-                </div>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
-                <div className="h-1.5 bg-white/10">
-                  <div
-                    className="h-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-1000 shadow-sm shadow-primary/50"
-                    style={{ width: `${progress}%` }}
-                  />
+                <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none">
+                  <div className="h-1.5 bg-white/10">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary to-blue-500 transition-all duration-1000 shadow-sm shadow-primary/50"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
                 </div>
               </div>
             </>
