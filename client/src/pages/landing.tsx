@@ -147,7 +147,7 @@ function AuthModal({ activeTab, onTabChange, onClose, onForgotPassword, showRese
             <img src={vemLogo} alt="VEM" className="h-14 mx-auto" style={{ imageRendering: "auto", filter: "contrast(1.05) brightness(1.02)" }} />
           </div>
           <div className="relative flex bg-muted/30 rounded-2xl p-1.5 border border-border/30 mb-5" data-testid="auth-tabs">
-            <div className="absolute top-1.5 bottom-1.5 rounded-xl bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/20 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]" style={{ left: activeTab === "login" ? "6px" : "calc(50% + 3px)", right: activeTab === "login" ? "calc(50% + 3px)" : "6px" }} />
+            <div className="absolute top-1.5 bottom-1.5 rounded-xl bg-gradient-to-r from-primary to-blue-600 shadow-lg shadow-primary/20 transition-all duration-300 ease-in-out" style={{ left: activeTab === "login" ? "6px" : "calc(50% + 3px)", right: activeTab === "login" ? "calc(50% + 3px)" : "6px" }} />
             <button onClick={() => switchTab("login")} className={`relative flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-colors duration-300 z-10 ${activeTab === "login" ? "text-white" : "text-muted-foreground hover:text-foreground"}`} data-testid="tab-login">
               <LogIn className="w-4 h-4" />{t("auth.login")}
             </button>
@@ -510,7 +510,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
                     <ChevronDown className={`w-4 h-4 transition-colors duration-300 ${openFaq === i ? "text-primary" : "text-muted-foreground"}`} />
                   </div>
                 </button>
-                <div className={`grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${openFaq === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                <div className={`grid transition-all duration-500 ease-out ${openFaq === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
                   <div className="overflow-hidden">
                     <p className="px-6 pb-5 text-muted-foreground text-sm leading-relaxed">{t(faq.aKey)}</p>
                   </div>

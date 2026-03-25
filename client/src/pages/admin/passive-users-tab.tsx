@@ -157,7 +157,7 @@ export function PassiveUsersTab() {
       </div>
 
       {selectedUserId && (
-        <UserDetailModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
+        <UserDetailModal userId={selectedUserId} open={!!selectedUserId} onClose={() => setSelectedUserId(null)} />
       )}
     </div>
   );
