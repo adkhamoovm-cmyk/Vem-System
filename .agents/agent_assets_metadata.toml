@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "u9fBXgFn8D97ulFtkjtDw"
+uri = "file://VULTR_DEPLOY_GUIDE.md"
+type = "text"
+title = "VEM - Vultr Serverga Ko'chirish Qo'llanmasi"
