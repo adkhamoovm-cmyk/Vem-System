@@ -1,0 +1,31 @@
+0|vem      | 7:07:43 AM [express] GET /api/auth/me 401 in 7ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 7:08:10 AM [express] POST /api/auth/register 500 in 118ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 7:08:17 AM [express] POST /api/auth/register 400 in 3ms :: {"message":"Bu telefon raqami allaqachon ro'yxatdan o'tgan"}
+0|vem      | 7:08:42 AM [express] POST /api/auth/login 500 in 52ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 7:08:51 AM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 7:08:56 AM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 7:08:56 AM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 7:09:19 AM [express] POST /api/auth/register 500 in 100ms :: {"message":"Xatolik yuz berdi"}
+
+/root/.pm2/logs/vem-error.log last 20 lines:
+0|vem      | [2026-03-25T07:08:42.189Z] Unhandled error: Error: ENOENT: no such file or directory, open '/var/www/vem/dist/table.sql'
+0|vem      |     at async open (node:internal/fs/promises:634:25)
+0|vem      |     at async Object.readFile (node:internal/fs/promises:1236:14)
+0|vem      |     at async n._rawEnsureSessionStoreTable (/var/www/vem/dist/index.cjs:74:28756)
+0|vem      |     at async n._asyncQuery (/var/www/vem/dist/index.cjs:74:29841) {
+0|vem      |   errno: -2,
+0|vem      |   code: 'ENOENT',
+0|vem      |   syscall: 'open',
+0|vem      |   path: '/var/www/vem/dist/table.sql'
+0|vem      | }
+0|vem      | [2026-03-25T07:09:19.331Z] Unhandled error: Error: ENOENT: no such file or directory, open '/var/www/vem/dist/table.sql'
+0|vem      |     at async open (node:internal/fs/promises:634:25)
+0|vem      |     at async Object.readFile (node:internal/fs/promises:1236:14)
+0|vem      |     at async n._rawEnsureSessionStoreTable (/var/www/vem/dist/index.cjs:74:28756)
+0|vem      |     at async n._asyncQuery (/var/www/vem/dist/index.cjs:74:29841) {
+0|vem      |   errno: -2,
+0|vem      |   code: 'ENOENT',
+0|vem      |   syscall: 'open',
+0|vem      |   path: '/var/www/vem/dist/table.sql'
+0|vem      | }
+
