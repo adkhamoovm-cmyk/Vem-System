@@ -21,7 +21,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
   const { t, locale, translateServerMessage } = useI18n();
   const [, setLocation] = useLocation();
   const [paymentType, setPaymentType] = useState<"crypto" | "local" | null>(null);
-  const [cryptoNetwork, setCryptoNetwork] = useState<"TRC20" | "BEP20" | null>(null);
+  const [cryptoNetwork, setCryptoNetwork] = useState<"BEP20" | null>(null);
   const [amount, setAmount] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -149,7 +149,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
             <div className="space-y-3 pt-4">
               <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider">{t("profile.selectPaymentType")}</p>
               <button
-                onClick={() => setPaymentType("crypto")}
+                onClick={() => { setPaymentType("crypto"); setCryptoNetwork("BEP20"); }}
                 className="w-full bg-card rounded-xl p-4 border border-border hover:border-primary/50 transition-colors flex items-center gap-3 text-left group"
                 data-testid="button-deposit-crypto"
               >
@@ -158,7 +158,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
                 </div>
                 <div className="flex-1">
                   <p className="text-foreground font-semibold text-sm">{t("profile.cryptoUsdt")}</p>
-                  <p className="text-muted-foreground text-xs mt-0.5">via TRC20 / BSC (BEP20)</p>
+                  <p className="text-muted-foreground text-xs mt-0.5">via BSC (BEP20)</p>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </button>
@@ -179,46 +179,9 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
             </div>
           ) : (
             <div className="space-y-4 pt-4">
-              <button onClick={() => { if (paymentType === "crypto" && cryptoNetwork) { setCryptoNetwork(null); } else { setPaymentType(null); setCryptoNetwork(null); } }} className="text-muted-foreground text-xs flex items-center gap-1.5 hover:text-foreground transition-colors">
+              <button onClick={() => { setPaymentType(null); setCryptoNetwork(null); }} className="text-muted-foreground text-xs flex items-center gap-1.5 hover:text-foreground transition-colors">
                 <ChevronDown className="w-3.5 h-3.5 rotate-90" /> {t("profile.back")}
               </button>
-
-              {paymentType === "crypto" && !cryptoNetwork && (
-                <div className="space-y-3">
-                  <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.selectNetwork")}</p>
-                  <button
-                    onClick={() => setCryptoNetwork("TRC20")}
-                    className="w-full bg-card rounded-xl p-3.5 border border-border hover:border-primary/50 transition-colors flex items-center gap-3 text-left group"
-                    data-testid="button-network-trc20"
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-br from-red-500/20 to-red-500/5 rounded-xl flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-red-500" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-foreground font-semibold text-sm">TRC20</p>
-                      <p className="text-muted-foreground text-[10px] mt-0.5">TRON Network</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </button>
-                  <button
-                    onClick={() => setCryptoNetwork("BEP20")}
-                    className="w-full bg-card rounded-xl p-3.5 border border-border hover:border-primary/50 transition-colors flex items-center gap-3 text-left group"
-                    data-testid="button-network-bep20"
-                  >
-                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 rounded-xl flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-yellow-500" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-foreground font-semibold text-sm">BSC (BEP20)</p>
-                      <p className="text-muted-foreground text-[10px] mt-0.5">Binance Smart Chain</p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </button>
-                  <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
-                    <p className="text-amber-500 text-xs font-semibold">{t("profile.attentionTrc20")}</p>
-                  </div>
-                </div>
-              )}
 
               {paymentType === "crypto" && cryptoNetwork && (() => {
                 const filteredReqs = usdtRequisites.filter(r => (r.networkType || "BEP20") === cryptoNetwork);
@@ -228,11 +191,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
                       <Wallet className="w-3.5 h-3.5" /> {t("profile.paymentRequisites")} · {cryptoNetwork}
                     </p>
                     <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
-                      <p className="text-amber-500 text-xs font-semibold">
-                        {cryptoNetwork === "TRC20"
-                          ? t("profile.attentionTrc20Deposit")
-                          : t("profile.attentionTrc20")}
-                      </p>
+                      <p className="text-amber-500 text-xs font-semibold">{t("profile.attentionTrc20Deposit")}</p>
                     </div>
                     {filteredReqs.map((req) => (
                       <div key={req.id} className="bg-background rounded-xl border border-primary/20 overflow-hidden">

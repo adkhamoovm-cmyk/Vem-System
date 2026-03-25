@@ -411,13 +411,6 @@ export function SettingsTab() {
                 className="bg-card border-border text-foreground h-9 text-sm font-mono" data-testid="input-setting-wallet" />
               <div className="flex gap-2">
                 <button
-                  onClick={() => setNetworkType("TRC20")}
-                  className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${networkType === "TRC20" ? "bg-red-500/20 border-red-500 text-red-500" : "bg-card border-border text-muted-foreground hover:border-muted-foreground"}`}
-                  data-testid="button-network-trc20"
-                >
-                  TRC20
-                </button>
-                <button
                   onClick={() => setNetworkType("BEP20")}
                   className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-colors ${networkType === "BEP20" ? "bg-yellow-500/20 border-yellow-500 text-yellow-500" : "bg-card border-border text-muted-foreground hover:border-muted-foreground"}`}
                   data-testid="button-network-bep20"
