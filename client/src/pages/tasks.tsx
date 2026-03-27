@@ -14,19 +14,19 @@ function isSunday() {
   return new Date().getDay() === 0;
 }
 
-const FALLBACK_IDS = [
-  "dQw4w9WgXcQ", "kJQP7kiw5Fk", "JGwWNGJdvx8", "RgKAFK5djSk", "OPf0YbXqDm0",
-  "fJ9rUzIMcZQ", "9bZkp7q19f0", "hT_nvWreIhg", "CevxZvSJLk8", "2Vv-BfVoq4g",
-  "e-ORhEE9VVg", "PT2_F-1esPk", "IcrbM1l_BoI", "lp-EO5I60KA", "7wtfhZwyrcc",
-  "eVTXPUF4Oz4", "kXYiU_JCYtU", "YlUKcNNmywk", "Zi_XLOBDo_Y", "RBumgq5yVrA",
-];
-
 function YouTubePlayer({ videoId, allVideos }: { videoId: string; allVideos?: string[] }) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<any>(null);
   const [currentId, setCurrentId] = useState(videoId);
   const [attempt, setAttempt] = useState(0);
   const triedRef = useRef<Set<string>>(new Set());
   const [showFallback, setShowFallback] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     setCurrentId(videoId);
@@ -35,41 +35,96 @@ function YouTubePlayer({ videoId, allVideos }: { videoId: string; allVideos?: st
     triedRef.current = new Set();
   }, [videoId]);
 
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (!event.origin.includes("youtube")) return;
-      try {
-        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-        if (data?.event === "onError" || data?.info?.errorCode) {
-          const code = data?.info?.errorCode || data?.info;
-          if (code === 150 || code === 101 || code === 153 || code === 2) {
-            triedRef.current.add(currentId);
-            const pool = allVideos?.length ? allVideos : FALLBACK_IDS;
-            const remaining = pool.filter(id => !triedRef.current.has(id));
-            if (remaining.length > 0) {
-              const next = remaining[Math.floor(Math.random() * remaining.length)];
-              setCurrentId(next);
-              setAttempt(a => a + 1);
-            } else {
-              const fallbackRemaining = FALLBACK_IDS.filter(id => !triedRef.current.has(id));
-              if (fallbackRemaining.length > 0) {
-                setCurrentId(fallbackRemaining[0]);
-                setAttempt(a => a + 1);
-              } else {
-                setShowFallback(true);
-              }
-            }
-          }
-        }
-      } catch {}
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, [currentId, allVideos]);
+  const tryNextVideo = useCallback(() => {
+    if (!mountedRef.current) return;
+    triedRef.current.add(currentId);
+    const pool = allVideos?.length ? allVideos : youtubeVideos;
+    const remaining = pool.filter(id => !triedRef.current.has(id));
+    if (remaining.length > 0 && attempt < 10) {
+      const next = remaining[Math.floor(Math.random() * remaining.length)];
+      setCurrentId(next);
+      setAttempt(a => a + 1);
+    } else {
+      setShowFallback(true);
+    }
+  }, [currentId, allVideos, attempt]);
 
   useEffect(() => {
-    if (attempt > 8) setShowFallback(true);
-  }, [attempt]);
+    if (showFallback || !containerRef.current) return;
+
+    const containerId = `yt-player-${Date.now()}-${attempt}`;
+    const div = document.createElement("div");
+    div.id = containerId;
+    div.style.width = "100%";
+    div.style.height = "100%";
+    containerRef.current.innerHTML = "";
+    containerRef.current.appendChild(div);
+
+    let destroyed = false;
+
+    const createPlayer = () => {
+      if (destroyed) return;
+      try {
+        if (playerRef.current) {
+          try { playerRef.current.destroy(); } catch {}
+        }
+        playerRef.current = new (window as any).YT.Player(containerId, {
+          videoId: currentId,
+          width: "100%",
+          height: "100%",
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            rel: 0,
+            modestbranding: 1,
+            playsinline: 1,
+            iv_load_policy: 3,
+          },
+          events: {
+            onReady: () => {},
+            onError: (e: any) => {
+              if (!destroyed) tryNextVideo();
+            },
+            onStateChange: (e: any) => {
+              if (e.data === -1) {
+                setTimeout(() => {
+                  if (!destroyed && playerRef.current) {
+                    try {
+                      const state = playerRef.current.getPlayerState?.();
+                      if (state === -1 || state === undefined) tryNextVideo();
+                    } catch { tryNextVideo(); }
+                  }
+                }, 3000);
+              }
+            },
+          },
+        });
+      } catch { if (!destroyed) tryNextVideo(); }
+    };
+
+    if ((window as any).YT?.Player) {
+      createPlayer();
+    } else {
+      if (!document.querySelector('script[src*=\"youtube.com/iframe_api\"]')) {
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+      }
+      const prev = (window as any).onYouTubeIframeAPIReady;
+      (window as any).onYouTubeIframeAPIReady = () => {
+        if (prev) prev();
+        createPlayer();
+      };
+    }
+
+    return () => {
+      destroyed = true;
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+        playerRef.current = null;
+      }
+    };
+  }, [currentId, attempt, showFallback, tryNextVideo]);
 
   if (showFallback) {
     return (
@@ -84,18 +139,7 @@ function YouTubePlayer({ videoId, allVideos }: { videoId: string; allVideos?: st
     );
   }
 
-  return (
-    <iframe
-      ref={iframeRef}
-      key={`yt-${currentId}-${attempt}`}
-      src={`https://www.youtube.com/embed/${currentId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&widget_referrer=${encodeURIComponent(window.location.origin)}`}
-      className="w-full h-full absolute inset-0"
-      allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
-      allowFullScreen
-      style={{ border: "none" }}
-      referrerPolicy="origin"
-    />
-  );
+  return <div ref={containerRef} className="w-full h-full absolute inset-0" />;
 }
 
 const youtubeVideos = [

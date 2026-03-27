@@ -12,13 +12,22 @@ import { useI18n, type Locale } from "@/lib/i18n";
 const TREND_FALLBACK_IDS = [
   "dQw4w9WgXcQ", "kJQP7kiw5Fk", "JGwWNGJdvx8", "RgKAFK5djSk", "OPf0YbXqDm0",
   "fJ9rUzIMcZQ", "9bZkp7q19f0", "hT_nvWreIhg", "CevxZvSJLk8", "2Vv-BfVoq4g",
+  "TcMBFSGVi1c", "EXeTwQWrcwY", "Way9Dexny3w", "JfVOs4VSpmA", "shW9i6k8cB0",
 ];
 
 function TrendYouTubePlayer({ videoId }: { videoId: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<any>(null);
   const [currentId, setCurrentId] = useState(videoId);
   const [attempt, setAttempt] = useState(0);
   const triedRef = useRef<Set<string>>(new Set());
   const [showFallback, setShowFallback] = useState(false);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => {
     setCurrentId(videoId);
@@ -27,33 +36,74 @@ function TrendYouTubePlayer({ videoId }: { videoId: string }) {
     triedRef.current = new Set();
   }, [videoId]);
 
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (!event.origin.includes("youtube")) return;
-      try {
-        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
-        if (data?.event === "onError" || data?.info?.errorCode) {
-          const code = data?.info?.errorCode || data?.info;
-          if (code === 150 || code === 101 || code === 153 || code === 2) {
-            triedRef.current.add(currentId);
-            const remaining = TREND_FALLBACK_IDS.filter(id => !triedRef.current.has(id));
-            if (remaining.length > 0) {
-              setCurrentId(remaining[Math.floor(Math.random() * remaining.length)]);
-              setAttempt(a => a + 1);
-            } else {
-              setShowFallback(true);
-            }
-          }
-        }
-      } catch {}
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, [currentId]);
+  const tryNext = () => {
+    if (!mountedRef.current) return;
+    triedRef.current.add(currentId);
+    const remaining = TREND_FALLBACK_IDS.filter(id => !triedRef.current.has(id));
+    if (remaining.length > 0 && attempt < 6) {
+      setCurrentId(remaining[Math.floor(Math.random() * remaining.length)]);
+      setAttempt(a => a + 1);
+    } else {
+      setShowFallback(true);
+    }
+  };
 
   useEffect(() => {
-    if (attempt > 5) setShowFallback(true);
-  }, [attempt]);
+    if (showFallback || !containerRef.current) return;
+    const containerId = `trend-yt-${Date.now()}-${attempt}`;
+    const div = document.createElement("div");
+    div.id = containerId;
+    div.style.width = "100%";
+    div.style.height = "100%";
+    containerRef.current.innerHTML = "";
+    containerRef.current.appendChild(div);
+
+    let destroyed = false;
+    const createPlayer = () => {
+      if (destroyed) return;
+      try {
+        if (playerRef.current) { try { playerRef.current.destroy(); } catch {} }
+        playerRef.current = new (window as any).YT.Player(containerId, {
+          videoId: currentId,
+          width: "100%",
+          height: "100%",
+          playerVars: { autoplay: 1, rel: 0, modestbranding: 1, playsinline: 1 },
+          events: {
+            onError: () => { if (!destroyed) tryNext(); },
+            onStateChange: (e: any) => {
+              if (e.data === -1) {
+                setTimeout(() => {
+                  if (!destroyed && playerRef.current) {
+                    try {
+                      const s = playerRef.current.getPlayerState?.();
+                      if (s === -1 || s === undefined) tryNext();
+                    } catch { tryNext(); }
+                  }
+                }, 3000);
+              }
+            },
+          },
+        });
+      } catch { if (!destroyed) tryNext(); }
+    };
+
+    if ((window as any).YT?.Player) {
+      createPlayer();
+    } else {
+      if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+      }
+      const prev = (window as any).onYouTubeIframeAPIReady;
+      (window as any).onYouTubeIframeAPIReady = () => { if (prev) prev(); createPlayer(); };
+    }
+
+    return () => {
+      destroyed = true;
+      if (playerRef.current) { try { playerRef.current.destroy(); } catch {} playerRef.current = null; }
+    };
+  }, [currentId, attempt, showFallback]);
 
   if (showFallback) {
     return (
@@ -66,17 +116,7 @@ function TrendYouTubePlayer({ videoId }: { videoId: string }) {
     );
   }
 
-  return (
-    <iframe
-      key={`trend-yt-${currentId}-${attempt}`}
-      src={`https://www.youtube.com/embed/${currentId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`}
-      className="w-full h-full"
-      allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
-      allowFullScreen
-      style={{ border: "none" }}
-      referrerPolicy="origin"
-    />
-  );
+  return <div ref={containerRef} className="w-full h-full" />;
 }
 
 const COUNTRY_TRANSLATIONS: Record<string, Record<Locale, string>> = {
