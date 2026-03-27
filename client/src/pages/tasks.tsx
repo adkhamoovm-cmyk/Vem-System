@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +12,99 @@ import { getVipName } from "@/lib/vip-utils";
 
 function isSunday() {
   return new Date().getDay() === 0;
+}
+
+function YouTubePlayer({ videoId }: { videoId: string }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<any>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+    if (!containerRef.current) return;
+
+    const playerId = `yt-player-${Date.now()}`;
+    const div = document.createElement("div");
+    div.id = playerId;
+    div.style.width = "100%";
+    div.style.height = "100%";
+    containerRef.current.innerHTML = "";
+    containerRef.current.appendChild(div);
+
+    const createPlayer = () => {
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+      }
+      playerRef.current = new (window as any).YT.Player(playerId, {
+        videoId,
+        width: "100%",
+        height: "100%",
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          iv_load_policy: 3,
+          origin: window.location.origin,
+        },
+        events: {
+          onError: (e: any) => {
+            if (e.data === 150 || e.data === 101 || e.data === 153) {
+              setError(true);
+            }
+          },
+        },
+      });
+    };
+
+    if ((window as any).YT && (window as any).YT.Player) {
+      createPlayer();
+    } else {
+      const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]');
+      if (!existingScript) {
+        const tag = document.createElement("script");
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+      }
+      (window as any).onYouTubeIframeAPIReady = createPlayer;
+    }
+
+    return () => {
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch {}
+        playerRef.current = null;
+      }
+    };
+  }, [videoId]);
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-black">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+          src={`https://cdn.coverr.co/videos/coverr-abstract-lights-${Math.floor(Math.random() * 3) + 1}/1080p.mp4`}
+          onError={(e) => {
+            (e.target as HTMLVideoElement).style.display = "none";
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-blue-900/40 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 animate-pulse">
+              <Play className="w-8 h-8 text-primary" fill="currentColor" />
+            </div>
+            <p className="text-white/70 text-sm">Video is playing...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return <div ref={containerRef} className="w-full h-full absolute inset-0" />;
 }
 
 const youtubeVideos = [
@@ -130,13 +223,7 @@ function VideoPlayerModal({
           ) : !completed ? (
             <>
               <div className="w-full h-full relative overflow-hidden" data-testid="video-player">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`}
-                  className="w-full h-full absolute inset-0"
-                  allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
-                  allowFullScreen
-                  style={{ border: "none" }}
-                />
+                <YouTubePlayer videoId={videoId} />
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
                   <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/10">
                     <Clock className="w-3.5 h-3.5 text-primary" />
