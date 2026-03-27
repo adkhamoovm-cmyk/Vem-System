@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import {
@@ -8,6 +8,76 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { Video, User } from "@shared/schema";
 import { useI18n, type Locale } from "@/lib/i18n";
+
+const TREND_FALLBACK_IDS = [
+  "dQw4w9WgXcQ", "kJQP7kiw5Fk", "JGwWNGJdvx8", "RgKAFK5djSk", "OPf0YbXqDm0",
+  "fJ9rUzIMcZQ", "9bZkp7q19f0", "hT_nvWreIhg", "CevxZvSJLk8", "2Vv-BfVoq4g",
+];
+
+function TrendYouTubePlayer({ videoId }: { videoId: string }) {
+  const [currentId, setCurrentId] = useState(videoId);
+  const [attempt, setAttempt] = useState(0);
+  const triedRef = useRef<Set<string>>(new Set());
+  const [showFallback, setShowFallback] = useState(false);
+
+  useEffect(() => {
+    setCurrentId(videoId);
+    setAttempt(0);
+    setShowFallback(false);
+    triedRef.current = new Set();
+  }, [videoId]);
+
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (!event.origin.includes("youtube")) return;
+      try {
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        if (data?.event === "onError" || data?.info?.errorCode) {
+          const code = data?.info?.errorCode || data?.info;
+          if (code === 150 || code === 101 || code === 153 || code === 2) {
+            triedRef.current.add(currentId);
+            const remaining = TREND_FALLBACK_IDS.filter(id => !triedRef.current.has(id));
+            if (remaining.length > 0) {
+              setCurrentId(remaining[Math.floor(Math.random() * remaining.length)]);
+              setAttempt(a => a + 1);
+            } else {
+              setShowFallback(true);
+            }
+          }
+        }
+      } catch {}
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [currentId]);
+
+  useEffect(() => {
+    if (attempt > 5) setShowFallback(true);
+  }, [attempt]);
+
+  if (showFallback) {
+    return (
+      <div className="w-full h-full bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <Play className="w-8 h-8 text-primary animate-pulse mx-auto mb-2" fill="currentColor" />
+          <p className="text-white/60 text-xs">Video unavailable</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <iframe
+      key={`trend-yt-${currentId}-${attempt}`}
+      src={`https://www.youtube.com/embed/${currentId}?autoplay=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}`}
+      className="w-full h-full"
+      allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
+      allowFullScreen
+      style={{ border: "none" }}
+      referrerPolicy="origin"
+    />
+  );
+}
 
 const COUNTRY_TRANSLATIONS: Record<string, Record<Locale, string>> = {
   "AQSH":         { uz: "AQSH",          ru: "США",           en: "USA",            es: "EE.UU.",        tr: "ABD" },
@@ -164,13 +234,7 @@ function PreviewModal({ video, open, onClose, locale }: { video: Video; open: bo
               </div>
             </div>
           ) : videoId ? (
-            <iframe
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
-              className="w-full h-full"
-              allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
-              allowFullScreen
-              style={{ border: "none" }}
-            />
+            <TrendYouTubePlayer videoId={videoId} />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
               <p className="text-muted-foreground text-sm">{t("trends.videoNotLoaded")}</p>

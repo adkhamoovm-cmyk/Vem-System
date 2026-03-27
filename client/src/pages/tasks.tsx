@@ -14,117 +14,109 @@ function isSunday() {
   return new Date().getDay() === 0;
 }
 
-function YouTubePlayer({ videoId }: { videoId: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
-  const [error, setError] = useState(false);
+const FALLBACK_IDS = [
+  "dQw4w9WgXcQ", "kJQP7kiw5Fk", "JGwWNGJdvx8", "RgKAFK5djSk", "OPf0YbXqDm0",
+  "fJ9rUzIMcZQ", "9bZkp7q19f0", "hT_nvWreIhg", "CevxZvSJLk8", "2Vv-BfVoq4g",
+  "e-ORhEE9VVg", "PT2_F-1esPk", "IcrbM1l_BoI", "lp-EO5I60KA", "7wtfhZwyrcc",
+  "eVTXPUF4Oz4", "kXYiU_JCYtU", "YlUKcNNmywk", "Zi_XLOBDo_Y", "RBumgq5yVrA",
+];
+
+function YouTubePlayer({ videoId, allVideos }: { videoId: string; allVideos?: string[] }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [currentId, setCurrentId] = useState(videoId);
+  const [attempt, setAttempt] = useState(0);
+  const triedRef = useRef<Set<string>>(new Set());
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
-    setError(false);
-    if (!containerRef.current) return;
-
-    const playerId = `yt-player-${Date.now()}`;
-    const div = document.createElement("div");
-    div.id = playerId;
-    div.style.width = "100%";
-    div.style.height = "100%";
-    containerRef.current.innerHTML = "";
-    containerRef.current.appendChild(div);
-
-    const createPlayer = () => {
-      if (playerRef.current) {
-        try { playerRef.current.destroy(); } catch {}
-      }
-      playerRef.current = new (window as any).YT.Player(playerId, {
-        videoId,
-        width: "100%",
-        height: "100%",
-        playerVars: {
-          autoplay: 1,
-          mute: 1,
-          rel: 0,
-          modestbranding: 1,
-          playsinline: 1,
-          iv_load_policy: 3,
-          origin: window.location.origin,
-        },
-        events: {
-          onError: (e: any) => {
-            if (e.data === 150 || e.data === 101 || e.data === 153) {
-              setError(true);
-            }
-          },
-        },
-      });
-    };
-
-    if ((window as any).YT && (window as any).YT.Player) {
-      createPlayer();
-    } else {
-      const existingScript = document.querySelector('script[src*="youtube.com/iframe_api"]');
-      if (!existingScript) {
-        const tag = document.createElement("script");
-        tag.src = "https://www.youtube.com/iframe_api";
-        document.head.appendChild(tag);
-      }
-      (window as any).onYouTubeIframeAPIReady = createPlayer;
-    }
-
-    return () => {
-      if (playerRef.current) {
-        try { playerRef.current.destroy(); } catch {}
-        playerRef.current = null;
-      }
-    };
+    setCurrentId(videoId);
+    setAttempt(0);
+    setShowFallback(false);
+    triedRef.current = new Set();
   }, [videoId]);
 
-  if (error) {
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (!event.origin.includes("youtube")) return;
+      try {
+        const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+        if (data?.event === "onError" || data?.info?.errorCode) {
+          const code = data?.info?.errorCode || data?.info;
+          if (code === 150 || code === 101 || code === 153 || code === 2) {
+            triedRef.current.add(currentId);
+            const pool = allVideos?.length ? allVideos : FALLBACK_IDS;
+            const remaining = pool.filter(id => !triedRef.current.has(id));
+            if (remaining.length > 0) {
+              const next = remaining[Math.floor(Math.random() * remaining.length)];
+              setCurrentId(next);
+              setAttempt(a => a + 1);
+            } else {
+              const fallbackRemaining = FALLBACK_IDS.filter(id => !triedRef.current.has(id));
+              if (fallbackRemaining.length > 0) {
+                setCurrentId(fallbackRemaining[0]);
+                setAttempt(a => a + 1);
+              } else {
+                setShowFallback(true);
+              }
+            }
+          }
+        }
+      } catch {}
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [currentId, allVideos]);
+
+  useEffect(() => {
+    if (attempt > 8) setShowFallback(true);
+  }, [attempt]);
+
+  if (showFallback) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-black">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover"
-          src={`https://cdn.coverr.co/videos/coverr-abstract-lights-${Math.floor(Math.random() * 3) + 1}/1080p.mp4`}
-          onError={(e) => {
-            (e.target as HTMLVideoElement).style.display = "none";
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-blue-900/40 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3 animate-pulse">
-              <Play className="w-8 h-8 text-primary" fill="currentColor" />
-            </div>
-            <p className="text-white/70 text-sm">Video is playing...</p>
+      <div className="w-full h-full absolute inset-0 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3">
+            <Play className="w-8 h-8 text-primary animate-pulse" fill="currentColor" />
           </div>
+          <p className="text-white/60 text-xs">Video streaming...</p>
         </div>
       </div>
     );
   }
 
-  return <div ref={containerRef} className="w-full h-full absolute inset-0" />;
+  return (
+    <iframe
+      ref={iframeRef}
+      key={`yt-${currentId}-${attempt}`}
+      src={`https://www.youtube.com/embed/${currentId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1&enablejsapi=1&origin=${encodeURIComponent(window.location.origin)}&widget_referrer=${encodeURIComponent(window.location.origin)}`}
+      className="w-full h-full absolute inset-0"
+      allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
+      allowFullScreen
+      style={{ border: "none" }}
+      referrerPolicy="origin"
+    />
+  );
 }
 
 const youtubeVideos = [
-  "Ed1sGgHUo88", "_zHPsmXCjB0", "ueCc-AYUMRs", "JfVOs4VSpmA", "YN2H_sKcmGw",
-  "ZONoMgeGAbI", "gn5QmllRCn4", "C5pHpQqhmR4", "0kQ8i2FpRDk", "PLLQK9la6Go",
-  "f_bhYFCtavY", "L0MK7qz13bU", "ue80QwXMRHg", "nW948Va-l10", "CmRih_VtVAs",
-  "WzhW20hLp6M", "oVzVdvGIC7U", "cKOegEuCcfw", "WgU7P6o-GkM", "Fp9pNPdNwjI",
-  "-sAOWhvheK8", "fsQgc9pCyDU", "xxEt9fnILgQ", "8g18jFHCLXk", "cqGjhVJWtEg",
-  "KK8FHdFluOQ", "6COmYeLsz4c", "mqqft2x_Aa4", "Rt_UqUm38BI", "YoHD9XEInc0",
-  "d9MyW72ELq0", "shW9i6k8cB0", "u3V5KDHRQvk", "pBk4NYhWNMM", "EXeTwQWrcwY",
-  "vKQi3bBA1y8", "TcMBFSGVi1c", "5xH0HfJHsaY", "NmzuHjWmXOc", "qtRKdVHc-cE",
-  "s7EdQ4FqbhY", "UaVTIH8mujA", "kVrqfYjkTdQ", "bLvqoHBptjg", "owK1qxDselE",
-  "iszwuX1AK6A", "5iaYLCiq5RM", "0fUCuvNlOCg", "LoebZZ8K5N0", "hEJnMQG9ev8",
-  "38A__WT3-o0", "giXco2jaZ_4", "uYPbbksJxIg", "t433PEQGErc", "wS_qbDztgVY",
-  "_inKs4eeHiI", "XJMuhwVlca4", "8YjFbMbfXaQ", "u9Mv98Gr5pY", "hDZ7y8RP5HE",
-  "1pHDWnXmK7Y", "y2dfTxk58mg", "18QQWa5MEcs", "jan5CFWs9ic", "mcvLKldPM08",
-  "gbNzxvz2_H4", "LhRXf-yEQqA", "iV46TJKL8cU", "22w7z_lT6YM", "bKGxHflevuk",
-  "ETVi5_cnnaE", "NLOp_6uPccQ", "wxN1T1uxQ2g", "7xALolZzhSM", "duN-KQgOjYs",
-  "XwQRkOK5KC4", "_UXKlYvLGJY", "x8FUUxj6yOA", "kQdEHQLHDAI", "ZbsiKjVAV28",
-  "l6UX4V71jzc", "k1g4Ohe_Hs8", "1iqra1ojEvM",
+  "dQw4w9WgXcQ", "kJQP7kiw5Fk", "JGwWNGJdvx8", "RgKAFK5djSk", "OPf0YbXqDm0",
+  "fJ9rUzIMcZQ", "9bZkp7q19f0", "hT_nvWreIhg", "CevxZvSJLk8", "e-ORhEE9VVg",
+  "PT2_F-1esPk", "IcrbM1l_BoI", "2Vv-BfVoq4g", "lp-EO5I60KA", "7wtfhZwyrcc",
+  "eVTXPUF4Oz4", "kXYiU_JCYtU", "YlUKcNNmywk", "Zi_XLOBDo_Y", "RBumgq5yVrA",
+  "sY1S34973zA", "UqyT8IEBkvY", "TcMBFSGVi1c", "LXb3EKWsInQ", "TnGl01FkMMo",
+  "uxpDa-c-4Mc", "RFinNxS5KN4", "V1bFr2SWP1I", "EXeTwQWrcwY", "8Qn_spdM5Zg",
+  "Way9Dexny3w", "sGbxmsDFVnE", "KlyXNRrsk4A", "n1WpP7iowLc", "YR12Z8f1Dh8",
+  "pRpeEdMmmQ0", "HhHwnrlZRus", "qSqVVswa420", "avz06PDqDbM", "n9xhJrPXop4",
+  "JfVOs4VSpmA", "u34gHaRiBIU", "LDG9bisJEaI", "PHzOOQfhPFg", "oyEuk8j8imI",
+  "vKA4w2O61Xo", "oU4Rk0NATNs", "kOHB85vDuow", "DYYtuKyMtY8", "3cqU1pFRqYE",
+  "Ed1sGgHUo88", "_zHPsmXCjB0", "ueCc-AYUMRs", "YN2H_sKcmGw", "nW948Va-l10",
+  "shW9i6k8cB0", "d9MyW72ELq0", "mqqft2x_Aa4", "Rt_UqUm38BI", "YoHD9XEInc0",
+  "giXco2jaZ_4", "wxN1T1uxQ2g", "vKQi3bBA1y8", "s7EdQ4FqbhY", "u3V5KDHRQvk",
+  "pBk4NYhWNMM", "EXeTwQWrcwY", "5xH0HfJHsaY", "bK6ldnjE3Y0", "5PSNL1qE6VY",
+  "szby7ZHLnkA", "Q0CbN8sfihY", "Z1BCujX3pw8", "zAGVQLHvwOY", "6ZfuNTqbHE8",
+  "gn5QmllRCn4", "PLLQK9la6Go", "L0MK7qz13bU", "fsQgc9pCyDU", "xxEt9fnILgQ",
+  "8g18jFHCLXk", "cqGjhVJWtEg", "KK8FHdFluOQ", "6COmYeLsz4c", "ByXuk9QqQkk",
+  "nyc6RJEEe0U", "xLCn88bfW1o", "VYOjWnS4cMY",
 ];
 
 const TIMER_DURATION = 30;
@@ -223,7 +215,7 @@ function VideoPlayerModal({
           ) : !completed ? (
             <>
               <div className="w-full h-full relative overflow-hidden" data-testid="video-player">
-                <YouTubePlayer videoId={videoId} />
+                <YouTubePlayer videoId={videoId} allVideos={youtubeVideos} />
                 <div className="absolute top-3 left-3 right-3 flex items-center justify-between z-10 pointer-events-none">
                   <div className="bg-black/60 backdrop-blur-md rounded-full px-3.5 py-2 flex items-center gap-2 border border-white/10">
                     <Clock className="w-3.5 h-3.5 text-primary" />
