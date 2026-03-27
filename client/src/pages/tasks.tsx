@@ -131,7 +131,7 @@ function VideoPlayerModal({
             <>
               <div className="w-full h-full relative overflow-hidden" data-testid="video-player">
                 <iframe
-                  src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1&controls=0&showinfo=0&iv_load_policy=3`}
+                  src={`https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3`}
                   className="w-full h-full absolute inset-0"
                   allow="autoplay; encrypted-media; fullscreen; accelerometer; gyroscope"
                   allowFullScreen
