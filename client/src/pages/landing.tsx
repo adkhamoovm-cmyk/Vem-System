@@ -506,35 +506,56 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
         </div>
       </section>
 
-      <section className="py-24 sm:py-32 relative border-t border-b border-border/10" id="how-it-works">
-        <div className="absolute inset-0 bg-gradient-to-b from-muted/20 via-transparent to-muted/20 pointer-events-none" />
-        <div ref={stepsReveal.ref} className={`relative max-w-5xl mx-auto px-4 sm:px-6 transition-all duration-800 ${stepsReveal.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/8 border border-blue-500/15 rounded-full text-blue-500 text-xs font-semibold uppercase tracking-wider mb-5">
+      <section className="py-28 sm:py-36 relative overflow-hidden" id="how-it-works">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/5 to-background" />
+          <div className="section-blur absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full blur-[180px] opacity-[0.07] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+        </div>
+        <div ref={stepsReveal.ref} className={`relative max-w-6xl mx-auto px-4 sm:px-6 transition-all duration-800 ${stepsReveal.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/15 rounded-full text-blue-400 text-xs font-semibold uppercase tracking-[0.15em] mb-6 backdrop-blur-sm">
               <CheckCircle2 className="w-3.5 h-3.5" />
               {t("landing.stepsTitle")}
             </div>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-5 tracking-tight" data-testid="text-steps-title">{t("landing.stepsTitle")}</h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto leading-relaxed">{t("landing.stepsDesc")}</p>
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 tracking-tight leading-[1.1]" data-testid="text-steps-title">
+              {t("landing.stepsTitle")}
+            </h2>
+            <p className="text-muted-foreground text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">{t("landing.stepsDesc")}</p>
           </div>
+
           <div className="relative">
-            <div className="hidden sm:block absolute top-[60px] left-[16%] right-[16%] h-[2px] bg-gradient-to-r from-primary/0 via-primary/30 to-primary/0" />
-            <div className="space-y-8 sm:space-y-0 sm:grid sm:grid-cols-3 sm:gap-10">
+            <div className="hidden lg:block absolute top-[72px] left-[20%] right-[20%] h-px">
+              <div className="w-full h-full bg-gradient-to-r from-transparent via-border/50 to-transparent" />
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-primary/20 to-transparent animate-pulse" style={{ animationDuration: "3s" }} />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 lg:gap-8">
               {steps.map((s, i) => (
                 <div
                   key={i}
-                  className={`relative text-center group opacity-0 ${stepsReveal.isVisible ? "animate-slide-up" : ""}`}
-                  style={{ animationDelay: `${i * 0.2}s`, animationFillMode: "forwards" }}
+                  className={`relative group opacity-0 ${stepsReveal.isVisible ? "animate-slide-up" : ""}`}
+                  style={{ animationDelay: `${i * 0.15}s`, animationFillMode: "forwards" }}
                   data-testid={`card-step-${i}`}
                 >
-                  <div className="relative inline-flex items-center justify-center mb-7">
-                    <div className={`w-[72px] h-[72px] rounded-[22px] bg-gradient-to-br ${s.color} flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`} style={{ animation: `float ${3 + i * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.3}s` }}>
-                      <s.icon className="w-8 h-8 text-white" />
+                  <div className="relative bg-card/30 backdrop-blur-sm border border-border/10 rounded-3xl p-8 sm:p-10 text-center hover:bg-card/50 hover:border-border/25 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 h-full">
+                    <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+
+                    <div className="relative inline-flex items-center justify-center mb-8">
+                      <div className="absolute inset-0 w-[90px] h-[90px] -m-[9px] rounded-[26px] bg-gradient-to-br opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl" style={{ backgroundImage: `linear-gradient(to bottom right, var(--tw-gradient-stops))` }} />
+                      <div className={`relative w-[72px] h-[72px] rounded-[22px] bg-gradient-to-br ${s.color} flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-500`}>
+                        <s.icon className="w-8 h-8 text-white drop-shadow-lg" />
+                        <div className={`absolute inset-0 rounded-[22px] bg-gradient-to-br ${s.color} opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500`} />
+                      </div>
+                      <div className="absolute -top-3 -right-3 w-9 h-9 rounded-xl bg-background/90 backdrop-blur-sm border border-border/30 text-foreground text-xs font-black flex items-center justify-center shadow-lg">
+                        {s.num}
+                      </div>
                     </div>
-                    <span className="absolute -top-3 -right-3 w-8 h-8 rounded-xl bg-background border-2 border-border/50 text-foreground text-xs font-extrabold flex items-center justify-center shadow-md">{s.num}</span>
+
+                    <h3 className="text-foreground font-bold text-xl mb-3 tracking-tight">{t(s.titleKey)}</h3>
+                    <p className="text-muted-foreground text-[15px] leading-[1.7] max-w-[280px] mx-auto">{t(s.descKey)}</p>
+
+                    <div className={`mt-6 mx-auto w-12 h-1 rounded-full bg-gradient-to-r ${s.color} opacity-40 group-hover:opacity-80 group-hover:w-20 transition-all duration-500`} />
                   </div>
-                  <h3 className="text-foreground font-bold text-lg mb-2.5">{t(s.titleKey)}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mx-auto">{t(s.descKey)}</p>
                 </div>
               ))}
             </div>
