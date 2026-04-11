@@ -99,7 +99,7 @@ export function SecretInfoModal({ open, onClose, user, balance }: { open: boolea
 
 export function FinanceServiceModal({
   open, onClose, bankCard, usdtWallet,
-  onAddBankCard, onAddUsdtWallet
+  onAddBankCard, onAddUsdtWallet, uzsEnabled = false
 }: {
   open: boolean;
   onClose: (val: boolean) => void;
@@ -107,6 +107,7 @@ export function FinanceServiceModal({
   usdtWallet: PaymentMethod | undefined;
   onAddBankCard: () => void;
   onAddUsdtWallet: () => void;
+  uzsEnabled?: boolean;
 }) {
   const { t } = useI18n();
   const [showCardNumber, setShowCardNumber] = useState(false);
@@ -123,39 +124,41 @@ export function FinanceServiceModal({
             </div>
             <div>
               <h2 className="text-foreground font-bold text-base">{t("profile.financeService")}</h2>
-              <p id="finance-service-desc" className="text-muted-foreground text-xs">{bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")} · {usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
+              <p id="finance-service-desc" className="text-muted-foreground text-xs">{uzsEnabled ? (bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")) + " · " : ""}{usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
             </div>
           </div>
         </div>
         <div className="p-4 space-y-3">
-          {bankCard ? (
-            <div className="bg-gradient-to-br from-[#dbeafe] to-[#bfdbfe] dark:from-[#1e3a5f] dark:to-[#0f2440] rounded-xl p-4 border border-[#93c5fd] dark:border-[#2a4a6f] relative overflow-hidden" data-testid="card-bank-linked">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-[#2563eb] dark:text-[#60A5FA]" />
-                  <span className="text-[#2563eb] dark:text-[#60A5FA] text-xs font-semibold uppercase tracking-wider">{bankCard.bankName}</span>
+          {uzsEnabled && (
+            bankCard ? (
+              <div className="bg-gradient-to-br from-[#dbeafe] to-[#bfdbfe] dark:from-[#1e3a5f] dark:to-[#0f2440] rounded-xl p-4 border border-[#93c5fd] dark:border-[#2a4a6f] relative overflow-hidden" data-testid="card-bank-linked">
+                <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-[#2563eb] dark:text-[#60A5FA]" />
+                    <span className="text-[#2563eb] dark:text-[#60A5FA] text-xs font-semibold uppercase tracking-wider">{bankCard.bankName}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-emerald-600 dark:text-emerald-400 text-[10px]">{t("common.active")}</span>
+                <div className="flex items-center justify-between">
+                  <p className="text-[#1e3a5f] dark:text-white font-mono text-sm tracking-widest" data-testid="text-card-number">
+                    {showCardNumber ? bankCard.cardNumber : `${bankCard.cardNumber?.slice(0, 4)} •••• •••• ${bankCard.cardNumber?.slice(-4)}`}
+                  </p>
+                  <button onClick={() => setShowCardNumber(!showCardNumber)} className="text-[#2563eb] dark:text-[#60A5FA]" data-testid="button-toggle-card">
+                    {showCardNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
+                <p className="text-[#3b82f6] dark:text-[#8ab4f8] text-xs mt-2">{bankCard.holderName}</p>
               </div>
-              <div className="flex items-center justify-between">
-                <p className="text-[#1e3a5f] dark:text-white font-mono text-sm tracking-widest" data-testid="text-card-number">
-                  {showCardNumber ? bankCard.cardNumber : `${bankCard.cardNumber?.slice(0, 4)} •••• •••• ${bankCard.cardNumber?.slice(-4)}`}
-                </p>
-                <button onClick={() => setShowCardNumber(!showCardNumber)} className="text-[#2563eb] dark:text-[#60A5FA]" data-testid="button-toggle-card">
-                  {showCardNumber ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              <p className="text-[#3b82f6] dark:text-[#8ab4f8] text-xs mt-2">{bankCard.holderName}</p>
-            </div>
-          ) : (
-            <button onClick={onAddBankCard} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#3B82F6] transition-colors" data-testid="button-add-bank-card">
-              <CreditCard className="w-4 h-4 text-[#3B82F6]" />
-              <span className="text-muted-foreground text-sm">{t("profile.linkBankCard")}</span>
-            </button>
+            ) : (
+              <button onClick={onAddBankCard} className="w-full bg-card border border-dashed border-border rounded-xl p-4 flex items-center justify-center gap-2 hover:border-[#3B82F6] transition-colors" data-testid="button-add-bank-card">
+                <CreditCard className="w-4 h-4 text-[#3B82F6]" />
+                <span className="text-muted-foreground text-sm">{t("profile.linkBankCard")}</span>
+              </button>
+            )
           )}
           {usdtWallet ? (
             <div className="bg-gradient-to-br from-[#dcfce7] to-[#bbf7d0] dark:from-[#1a2e1a] dark:to-[#0f1f0f] rounded-xl p-4 border border-[#86efac] dark:border-[#2a4a2a] relative overflow-hidden" data-testid="card-usdt-linked">

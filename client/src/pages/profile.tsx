@@ -345,7 +345,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <span className="text-foreground text-sm font-medium">{t("profile.financeService")}</span>
-                  <p className="text-muted-foreground text-[10px]">{bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")} · {usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
+                  <p className="text-muted-foreground text-[10px]">{uzsEnabled ? (bankCard ? t("profile.cardLinked") : t("profile.cardNotLinked")) + " · " : ""}{usdtWallet ? t("profile.walletLinked") : t("profile.walletNotLinked")}</p>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
@@ -522,6 +522,7 @@ export default function ProfilePage() {
           usdtWallet={usdtWallet}
           onAddBankCard={() => { setShowFinanceService(false); setShowAddBankCard(true); }}
           onAddUsdtWallet={() => { setShowFinanceService(false); setShowAddUsdtWallet(true); }}
+          uzsEnabled={uzsEnabled}
         />
 
         <ChangePasswordModal open={showChangePassword} onClose={setShowChangePassword} />
