@@ -1163,7 +1163,13 @@
     "downloadClose": "Закрыть",
     "downloadIosGuide": "Инструкция установки для iOS",
     "downloadRating": "Рейтинг",
-    "downloadUsers": "Пользователей"
+    "downloadUsers": "Пользователей",
+    "downloadAndroidGuide": "Инструкция для Android",
+    "downloadAndroidGuideDesc": "Добавьте на главный экран через Chrome",
+    "downloadAndroidStep1": "Откройте сайт в браузере Chrome",
+    "downloadAndroidStep2": "Нажмите ⋮ меню в правом верхнем углу",
+    "downloadAndroidStep3": "Выберите «Добавить на главный экран»",
+    "downloadAndroidStep4": "Нажмите «Добавить»"
   },
   "reports": {
     "title": "Отчёт",

@@ -1163,7 +1163,13 @@
     "downloadClose": "Yopish",
     "downloadIosGuide": "iOS o'rnatish qo'llanmasi",
     "downloadRating": "Reyting",
-    "downloadUsers": "Foydalanuvchilar"
+    "downloadUsers": "Foydalanuvchilar",
+    "downloadAndroidGuide": "Android o'rnatish qo'llanmasi",
+    "downloadAndroidGuideDesc": "Chrome brauzer orqali bosh sahifaga qo'shing",
+    "downloadAndroidStep1": "Chrome brauzerida saytni oching",
+    "downloadAndroidStep2": "Yuqori o'ng burchakdagi ⋮ menyu tugmasini bosing",
+    "downloadAndroidStep3": "\"Bosh sahifaga qo'shish\" ni tanlang",
+    "downloadAndroidStep4": "\"Qo'shish\" tugmasini bosing"
   },
   "reports": {
     "title": "Hisobot",

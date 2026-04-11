@@ -1163,7 +1163,13 @@
     "downloadClose": "Close",
     "downloadIosGuide": "iOS Installation Guide",
     "downloadRating": "Rating",
-    "downloadUsers": "Users"
+    "downloadUsers": "Users",
+    "downloadAndroidGuide": "Android Installation Guide",
+    "downloadAndroidGuideDesc": "Add to Home Screen via Chrome",
+    "downloadAndroidStep1": "Open the website in Chrome browser",
+    "downloadAndroidStep2": "Tap the ⋮ menu in the top right corner",
+    "downloadAndroidStep3": "Select \"Add to Home Screen\"",
+    "downloadAndroidStep4": "Tap \"Add\""
   },
   "reports": {
     "title": "Report",

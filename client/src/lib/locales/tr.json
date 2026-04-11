@@ -1163,7 +1163,13 @@
     "downloadClose": "Kapat",
     "downloadIosGuide": "iOS Kurulum Kılavuzu",
     "downloadRating": "Puan",
-    "downloadUsers": "Kullanıcılar"
+    "downloadUsers": "Kullanıcılar",
+    "downloadAndroidGuide": "Android Kurulum Kılavuzu",
+    "downloadAndroidGuideDesc": "Chrome ile Ana Ekrana ekleyin",
+    "downloadAndroidStep1": "Chrome tarayıcısında web sitesini açın",
+    "downloadAndroidStep2": "Sağ üst köşedeki ⋮ menüye dokunun",
+    "downloadAndroidStep3": "\"Ana Ekrana Ekle\" yi seçin",
+    "downloadAndroidStep4": "\"Ekle\" ye dokunun"
   },
   "reports": {
     "title": "Rapor",

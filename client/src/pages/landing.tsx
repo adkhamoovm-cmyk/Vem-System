@@ -203,6 +203,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [showIosGuide, setShowIosGuide] = useState(false);
+  const [showAndroidGuide, setShowAndroidGuide] = useState(false);
 
   useIsSafari();
 
@@ -250,17 +251,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
     if (isIos) {
       setShowIosGuide(true);
     } else {
-      const link = document.createElement("a");
-      link.href = window.location.origin;
-      const intentUrl = `intent://${window.location.host}#Intent;scheme=https;package=com.android.chrome;end`;
-      if (/android/i.test(ua)) {
-        window.location.href = intentUrl;
-        setTimeout(() => {
-          window.open(window.location.origin, "_blank");
-        }, 500);
-      } else {
-        window.open(window.location.origin, "_blank");
-      }
+      setShowAndroidGuide(true);
     }
   }, []);
 
@@ -723,6 +714,60 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
           </div>
         </div>
       </section>
+
+      {showAndroidGuide && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" style={{ touchAction: "none" }} data-testid="android-guide-modal">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowAndroidGuide(false)} />
+          <div className="relative w-full sm:max-w-[420px] max-h-[85vh] overflow-y-auto overscroll-contain animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
+            <div className="relative bg-card rounded-t-[24px] sm:rounded-[24px] px-5 py-7 sm:p-8 shadow-2xl shadow-black/40">
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/20 mx-auto mb-5 sm:hidden" />
+              <button onClick={() => setShowAndroidGuide(false)} className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all z-10" data-testid="button-close-android-guide">
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="text-center mb-7">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/25">
+                  <svg className="w-9 h-9" viewBox="0 0 24 24">
+                    <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z" fill="#4285F4"/>
+                    <path d="M14.497 14.707l2.302-2.302 2.108 1.22a1 1 0 0 1 0 1.56l-2.108 1.22-2.302-1.698z" fill="#FBBC04"/>
+                    <path d="M5.864 2.658L14.5 11.293l2.302-2.302L5.864 2.658z" fill="#EA4335"/>
+                    <path d="M5.864 21.342l8.633-8.635 2.302 2.302-10.935 6.333z" fill="#34A853"/>
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-1">{t("landing.downloadAndroidGuide")}</h3>
+                <p className="text-muted-foreground text-sm">{t("landing.downloadAndroidGuideDesc")}</p>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { step: 1, icon: Globe, text: t("landing.downloadAndroidStep1"), color: "from-blue-500 to-cyan-500" },
+                  { step: 2, icon: Smartphone, text: t("landing.downloadAndroidStep2"), color: "from-green-500 to-emerald-500" },
+                  { step: 3, icon: Monitor, text: t("landing.downloadAndroidStep3"), color: "from-purple-500 to-violet-500" },
+                  { step: 4, icon: CheckCircle2, text: t("landing.downloadAndroidStep4"), color: "from-amber-500 to-orange-500" },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-center gap-4 p-4 bg-muted/30 border border-border/20 rounded-2xl" data-testid={`android-step-${item.step}`}>
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0 shadow-md`}>
+                      <item.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Step {item.step}</span>
+                      <p className="text-sm font-medium text-foreground">{item.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setShowAndroidGuide(false)}
+                className="w-full mt-6 py-3.5 bg-primary text-white font-semibold rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-200"
+                data-testid="button-android-guide-close"
+              >
+                {t("landing.downloadClose")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showIosGuide && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" style={{ touchAction: "none" }} data-testid="ios-guide-modal">
