@@ -45,7 +45,8 @@ export async function seedDatabase() {
     if (!exists) {
       await db.insert(vipPackages).values(def);
     } else {
-      await db.update(vipPackages).set(def).where(eq(vipPackages.id, exists.id));
+      const { isLocked, ...updateFields } = def;
+      await db.update(vipPackages).set(updateFields).where(eq(vipPackages.id, exists.id));
     }
   }
   console.log("VIP packages seeded (11 tiers)");
