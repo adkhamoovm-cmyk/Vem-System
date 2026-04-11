@@ -1137,5 +1137,29 @@
     "support": "Поддержка",
     "channel": "Канал",
     "community": "Сообщество"
+  },
+  "reports": {
+    "title": "Отчёт",
+    "subtitle": "Отчёт о доходах",
+    "today": "Сегодня",
+    "yesterday": "Вчера",
+    "week": "Неделя",
+    "periodToday": "Сегодня",
+    "periodWeek": "Неделя",
+    "period30": "30 дней",
+    "periodAll": "Всё время",
+    "todayTotal": "Доход за сегодня",
+    "weeklyTotal": "Доход за неделю",
+    "monthlyTotal": "Доход за 30 дней",
+    "allTimeTotal": "Общий доход",
+    "dailyChart": "Дневной график",
+    "earningTypes": "Типы доходов",
+    "totalLabel": "Итого",
+    "taskEarnings": "Доход от заданий",
+    "referralEarnings": "Доход от рефералов",
+    "fundEarnings": "Доход от инвестиций",
+    "promoEarnings": "Доход от промокодов",
+    "adminEarnings": "Техническая корректировка",
+    "quickReport": "Отчёт"
   }
 }

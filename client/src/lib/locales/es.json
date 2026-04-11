@@ -1137,5 +1137,29 @@
     "support": "Soporte",
     "channel": "Canal",
     "community": "Comunidad"
+  },
+  "reports": {
+    "title": "Informe",
+    "subtitle": "Informe de ganancias",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "week": "Semana",
+    "periodToday": "Hoy",
+    "periodWeek": "Semana",
+    "period30": "30 días",
+    "periodAll": "Todo",
+    "todayTotal": "Ganancias totales de hoy",
+    "weeklyTotal": "Ganancias semanales",
+    "monthlyTotal": "Ganancias de 30 días",
+    "allTimeTotal": "Ganancias totales",
+    "dailyChart": "Gráfico diario",
+    "earningTypes": "Tipos de ganancias",
+    "totalLabel": "Total",
+    "taskEarnings": "Ganancias por tareas",
+    "referralEarnings": "Ganancias por referidos",
+    "fundEarnings": "Ganancias por inversión",
+    "promoEarnings": "Ganancias por códigos promocionales",
+    "adminEarnings": "Ajuste técnico",
+    "quickReport": "Informe"
   }
 }

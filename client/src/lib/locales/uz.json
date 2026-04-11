@@ -1137,5 +1137,29 @@
     "support": "Yordam",
     "channel": "Kanal",
     "community": "Jamoa"
+  },
+  "reports": {
+    "title": "Hisobot",
+    "subtitle": "Daromadlar hisoboti",
+    "today": "Bugun",
+    "yesterday": "Kecha",
+    "week": "Hafta",
+    "periodToday": "Bugun",
+    "periodWeek": "Hafta",
+    "period30": "30 kun",
+    "periodAll": "Hammasi",
+    "todayTotal": "Bugungi jami daromad",
+    "weeklyTotal": "Haftalik jami daromad",
+    "monthlyTotal": "30 kunlik jami daromad",
+    "allTimeTotal": "Umumiy jami daromad",
+    "dailyChart": "Kunlik grafik",
+    "earningTypes": "Daromad turlari",
+    "totalLabel": "Jami",
+    "taskEarnings": "Vazifalar daromadi",
+    "referralEarnings": "Agent daromadi (Referal)",
+    "fundEarnings": "Investitsiya daromadi",
+    "promoEarnings": "Promokod daromadi",
+    "adminEarnings": "Texnik bo'lim",
+    "quickReport": "Hisobot"
   }
 }

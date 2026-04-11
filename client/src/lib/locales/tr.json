@@ -1137,5 +1137,29 @@
     "support": "Destek",
     "channel": "Kanal",
     "community": "Topluluk"
+  },
+  "reports": {
+    "title": "Rapor",
+    "subtitle": "Kazanç raporu",
+    "today": "Bugün",
+    "yesterday": "Dün",
+    "week": "Hafta",
+    "periodToday": "Bugün",
+    "periodWeek": "Hafta",
+    "period30": "30 gün",
+    "periodAll": "Tümü",
+    "todayTotal": "Bugünkü toplam kazanç",
+    "weeklyTotal": "Haftalık toplam kazanç",
+    "monthlyTotal": "30 günlük toplam kazanç",
+    "allTimeTotal": "Toplam kazanç",
+    "dailyChart": "Günlük grafik",
+    "earningTypes": "Kazanç türleri",
+    "totalLabel": "Toplam",
+    "taskEarnings": "Görev kazancı",
+    "referralEarnings": "Referans kazancı",
+    "fundEarnings": "Yatırım kazancı",
+    "promoEarnings": "Promosyon kodu kazancı",
+    "adminEarnings": "Teknik düzeltme",
+    "quickReport": "Rapor"
   }
 }

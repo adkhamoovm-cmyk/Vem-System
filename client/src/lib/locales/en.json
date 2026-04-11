@@ -1137,5 +1137,29 @@
     "support": "Support",
     "channel": "Channel",
     "community": "Community"
+  },
+  "reports": {
+    "title": "Report",
+    "subtitle": "Earnings report",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "week": "Week",
+    "periodToday": "Today",
+    "periodWeek": "Week",
+    "period30": "30 days",
+    "periodAll": "All time",
+    "todayTotal": "Today's total earnings",
+    "weeklyTotal": "Weekly total earnings",
+    "monthlyTotal": "30-day total earnings",
+    "allTimeTotal": "All-time total earnings",
+    "dailyChart": "Daily chart",
+    "earningTypes": "Earning types",
+    "totalLabel": "Total",
+    "taskEarnings": "Task earnings",
+    "referralEarnings": "Referral earnings",
+    "fundEarnings": "Investment earnings",
+    "promoEarnings": "Promo code earnings",
+    "adminEarnings": "Technical adjustment",
+    "quickReport": "Report"
   }
 }
