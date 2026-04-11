@@ -470,6 +470,7 @@ export const userSchemas = {
   }),
   purchaseVip: z.object({
     packageId: z.string({ required_error: "Paket tanlang" }).min(1, "Paket tanlang"),
+    fundPassword: z.string({ required_error: "Moliya paroli kerak" }).min(1, "Moliya paroli kerak"),
   }),
   changePassword: z.object({
     currentPassword: z.string({ required_error: "Joriy parol kerak" }).min(1, "Joriy parol kerak"),
