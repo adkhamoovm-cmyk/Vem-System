@@ -3,11 +3,12 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Sparkles, ChevronRight, ArrowUpRight, Shield } from "lucide-react";
+import { Crown, CheckCircle, Lock, DollarSign, Film, Calendar, TrendingUp, Send, Clock, MessageSquare, Sparkles, ChevronRight, ArrowUpRight, Shield, X, ShieldCheck } from "lucide-react";
 import type { VipPackage, User, StajyorRequest } from "@shared/schema";
 import { useI18n } from "@/lib/i18n";
 import { getVipName } from "@/lib/vip-utils";
 import CelebrationModal from "@/components/celebration-modal";
+import { PinInput } from "@/components/pin-input";
 
 interface CelebrationData {
   type: "vip_activated" | "vip_extended" | "fund_invested";
@@ -218,6 +219,9 @@ export default function VipPage() {
   const [stajyorMsg, setStajyorMsg] = useState("");
   const [expandedPkg, setExpandedPkg] = useState<string | null>(null);
   const [celebrationData, setCelebrationData] = useState<CelebrationData | null>(null);
+  const [pinModal, setPinModal] = useState<{ packageId: string; packageName: string; price: string; level: number } | null>(null);
+  const [pinValue, setPinValue] = useState("");
+  const [pinError, setPinError] = useState("");
 
   const { data: packages, isLoading } = useQuery<VipPackage[]>({
     queryKey: ["/api/vip-packages"],
@@ -233,12 +237,25 @@ export default function VipPage() {
     enabled: !!user && user.vipLevel < 0,
   });
 
+  const openPinModal = (pkg: VipPackage) => {
+    setPinValue("");
+    setPinError("");
+    setPinModal({ packageId: pkg.id, packageName: pkg.name, price: pkg.price, level: pkg.level });
+  };
+
+  const closePinModal = () => {
+    setPinModal(null);
+    setPinValue("");
+    setPinError("");
+  };
+
   const purchaseMutation = useMutation({
-    mutationFn: async (packageId: string) => {
-      const res = await apiRequest("POST", "/api/vip/purchase", { packageId });
+    mutationFn: async ({ packageId, fundPassword }: { packageId: string; fundPassword: string }) => {
+      const res = await apiRequest("POST", "/api/vip/purchase", { packageId, fundPassword });
       return res.json();
     },
     onSuccess: (data: { message: string; celebration?: CelebrationData }) => {
+      closePinModal();
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
       queryClient.invalidateQueries({ queryKey: ["/api/vip-packages"] });
       if (data.celebration) {
@@ -248,7 +265,8 @@ export default function VipPage() {
       }
     },
     onError: (error: Error) => {
-      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
+      setPinValue("");
+      setPinError(translateServerMessage(error.message));
     },
   });
 
@@ -544,7 +562,7 @@ export default function VipPage() {
                       <Button
                         className={`w-full font-bold rounded-xl shadow-md text-white bg-gradient-to-r ${colors.gradient} no-default-hover-elevate no-default-active-elevate`}
                         disabled={purchaseMutation.isPending || !canBuy}
-                        onClick={() => purchaseMutation.mutate(pkg.id)}
+                        onClick={() => openPinModal(pkg)}
                         data-testid={`button-buy-vip-${pkg.level}`}
                       >
                         {purchaseMutation.isPending
@@ -588,6 +606,89 @@ export default function VipPage() {
         </div>
       </div>
       <CelebrationModal data={celebrationData} onClose={() => setCelebrationData(null)} />
+
+      {pinModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" data-testid="vip-pin-modal">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={closePinModal} />
+          <div className="relative w-full max-w-md bg-card rounded-t-3xl sm:rounded-3xl border border-border/50 shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300">
+            <div className="relative overflow-hidden">
+              <div
+                className={`absolute inset-0 bg-gradient-to-br ${levelColors[pinModal.level]?.gradient || "from-primary to-blue-600"} opacity-10`}
+              />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-12 translate-x-12" />
+              <div className="relative px-5 pt-5 pb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center shadow-lg"
+                      style={{
+                        background: `linear-gradient(135deg, ${levelColors[pinModal.level]?.primary || "#3b82f6"}25, ${levelColors[pinModal.level]?.primary || "#3b82f6"}40)`,
+                        border: `1px solid ${levelColors[pinModal.level]?.primary || "#3b82f6"}35`,
+                      }}
+                    >
+                      <VipLevelIcon level={pinModal.level} size={22} />
+                    </div>
+                    <div>
+                      <h3 className="text-foreground font-bold text-sm">{t("vip.confirmPurchase")}</h3>
+                      <p className="text-muted-foreground text-[11px]">{pinModal.packageName}</p>
+                    </div>
+                  </div>
+                  <button onClick={closePinModal} className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center" data-testid="button-close-pin-modal">
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+
+                <div className="bg-muted/30 rounded-xl p-3 border border-border/30 mb-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-xs">{t("vip.packagePrice")}</span>
+                    <span className="text-foreground font-bold text-base">${Number(pinModal.price).toFixed(2)} <span className="text-[10px] text-muted-foreground font-medium">USDT</span></span>
+                  </div>
+                  {user && (
+                    <div className="flex items-center justify-between mt-1.5 pt-1.5 border-t border-border/20">
+                      <span className="text-muted-foreground text-xs">{t("common.balance")}</span>
+                      <span className={`font-bold text-sm ${Number(user.balance) >= Number(pinModal.price) ? "text-emerald-500" : "text-rose-500"}`}>
+                        ${Number(user.balance).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 pb-6">
+              <PinInput
+                value={pinValue}
+                onChange={(val) => {
+                  setPinValue(val);
+                  setPinError("");
+                  if (val.length === 6) {
+                    purchaseMutation.mutate({ packageId: pinModal.packageId, fundPassword: val });
+                  }
+                }}
+                label={t("vip.enterFundPassword")}
+                hint={t("vip.fundPasswordHint")}
+                variant="fund"
+                testId="input-vip-fund-password"
+                autoFocus
+              />
+
+              {pinError && (
+                <div className="mt-3 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2" data-testid="text-pin-error">
+                  <Shield className="w-4 h-4 text-rose-500 shrink-0" />
+                  <p className="text-rose-500 text-xs font-medium">{pinError}</p>
+                </div>
+              )}
+
+              {purchaseMutation.isPending && (
+                <div className="mt-4 flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  <span className="text-muted-foreground text-xs">{t("vip.processing")}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

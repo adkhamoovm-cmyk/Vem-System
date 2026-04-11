@@ -106,7 +106,7 @@ router.get("/api/vip-packages", requireAuth, asyncHandler(async (_req: Request, 
 
 router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, validateBody(userSchemas.purchaseVip), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
-  const { packageId } = req.body;
+  const { packageId, fundPassword } = req.body;
 
   const user = await storage.getUser(userId);
   if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
@@ -114,6 +114,30 @@ router.post("/api/vip/purchase", requireAuth, withdrawRateLimiter, validateBody(
   if (user.isBanned) {
     return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
   }
+
+  if (!user.fundPassword) {
+    return res.status(400).json({ message: "Moliya paroli o'rnatilmagan. Profildan moliya parolini o'rnating." });
+  }
+
+  if (!fundPassword) {
+    return res.status(400).json({ message: "Moliya paroli noto'g'ri" });
+  }
+
+  const pinLock = checkFundPinLock(userId);
+  if (pinLock.locked) {
+    return res.status(429).json({ message: `PIN blokland. ${pinLock.minutesLeft} daqiqadan so'ng urinib ko'ring.` });
+  }
+
+  const fundPassValid = await comparePasswords(fundPassword, user.fundPassword);
+  if (!fundPassValid) {
+    const fail = recordFundPinFailure(userId);
+    if (fail.locked) {
+      return res.status(429).json({ message: `5 marta noto'g'ri PIN. ${fail.minutesLeft} daqiqa bloklandi.` });
+    }
+    return res.status(400).json({ message: `Moliya paroli noto'g'ri. ${fail.attemptsLeft} ta urinish qoldi.` });
+  }
+
+  resetFundPinAttempts(userId);
 
   const pkg = await storage.getVipPackage(packageId);
   if (!pkg) return res.status(404).json({ message: "Paket topilmadi" });
