@@ -57,18 +57,18 @@ function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: str
 function FloatingParticles() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: 20 }).map((_, i) => (
+      {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="absolute rounded-full bg-primary/20"
+          className="absolute rounded-full bg-primary/15 will-change-transform"
           style={{
-            width: `${Math.random() * 4 + 2}px`,
-            height: `${Math.random() * 4 + 2}px`,
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            animation: `floatParticle ${Math.random() * 10 + 10}s ease-in-out infinite`,
-            animationDelay: `${Math.random() * 5}s`,
-            opacity: Math.random() * 0.5 + 0.2,
+            width: `${3 + (i % 3)}px`,
+            height: `${3 + (i % 3)}px`,
+            left: `${12 + i * 11}%`,
+            top: `${10 + (i * 13) % 80}%`,
+            animation: `floatParticle ${14 + i * 2}s ease-in-out infinite`,
+            animationDelay: `${i * 0.8}s`,
+            opacity: 0.3,
           }}
         />
       ))}
@@ -135,10 +135,10 @@ function AuthModal({ activeTab, onTabChange, onClose, onForgotPassword, showRese
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" style={{ touchAction: "none" }} data-testid="auth-modal">
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/70" onClick={onClose} />
       <div className="relative w-full sm:max-w-[440px] max-h-[92vh] overflow-y-auto overscroll-contain animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
         <div className="absolute -inset-[1px] rounded-t-[24px] sm:rounded-[24px] bg-gradient-to-b from-primary/30 via-border/20 to-border/60 pointer-events-none" />
-        <div className="relative bg-card/95 backdrop-blur-xl rounded-t-[24px] sm:rounded-[24px] px-4 py-6 sm:p-7 shadow-2xl shadow-black/40">
+        <div className="relative bg-card rounded-t-[24px] sm:rounded-[24px] px-4 py-6 sm:p-7 shadow-2xl shadow-black/40">
           <div className="w-10 h-1 rounded-full bg-muted-foreground/20 mx-auto mb-4 sm:hidden" />
           <button onClick={onClose} className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all z-10" data-testid="button-close-auth">
             <X className="w-4 h-4" />
@@ -253,18 +253,8 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       <style>{`
         @keyframes floatParticle {
-          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-          25% { transform: translate(20px, -30px) scale(1.2); opacity: 0.6; }
-          50% { transform: translate(-10px, -60px) scale(0.8); opacity: 0.4; }
-          75% { transform: translate(30px, -20px) scale(1.1); opacity: 0.5; }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes pulse-glow {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-30px); }
         }
         @keyframes slide-up {
           from { opacity: 0; transform: translateY(40px); }
@@ -278,10 +268,6 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
         }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-15px); }
-        }
         .animate-slide-up { animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-fade-scale { animation: fade-in-scale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .stagger-1 { animation-delay: 0.1s; }
@@ -290,17 +276,9 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
         .stagger-4 { animation-delay: 0.4s; }
         .stagger-5 { animation-delay: 0.5s; }
         .stagger-6 { animation-delay: 0.6s; }
-        .shimmer-text {
-          background: linear-gradient(90deg, currentColor 40%, hsl(var(--primary)) 50%, currentColor 60%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: shimmer 3s linear infinite;
-        }
       `}</style>
 
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${headerScrolled ? "bg-background/90 backdrop-blur-xl border-b border-border/40 shadow-lg shadow-black/5" : "bg-transparent"}`}>
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${headerScrolled ? "bg-background/95 border-b border-border/40 shadow-lg shadow-black/5" : "bg-transparent"}`}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img src={vemLogo} alt="VEM" className="h-14 transition-transform duration-300 hover:scale-105" style={{ imageRendering: "auto", filter: "contrast(1.05) brightness(1.02)" }} />
@@ -324,15 +302,14 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
 
       <section className="relative pt-28 pb-24 sm:pt-40 sm:pb-32 overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[700px] h-[700px] rounded-full blur-[180px] opacity-15 bg-gradient-to-br from-blue-500 to-purple-600" style={{ animation: "pulse-glow 6s ease-in-out infinite" }} />
-          <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full blur-[150px] opacity-10 bg-gradient-to-tr from-primary to-cyan-500" style={{ animation: "pulse-glow 8s ease-in-out infinite 2s" }} />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[120px] opacity-[0.07] bg-gradient-to-br from-emerald-500 to-blue-500" style={{ animation: "pulse-glow 10s ease-in-out infinite 4s" }} />
+          <div className="absolute -top-40 -right-40 w-[500px] h-[500px] rounded-full blur-[100px] opacity-10 bg-gradient-to-br from-blue-500 to-purple-600" />
+          <div className="absolute -bottom-40 -left-40 w-[400px] h-[400px] rounded-full blur-[80px] opacity-[0.08] bg-gradient-to-tr from-primary to-cyan-500" />
           <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.03) 1px, transparent 0)", backgroundSize: "48px 48px" }} />
         </div>
         <FloatingParticles />
 
         <div ref={heroReveal.ref} className={`relative max-w-6xl mx-auto px-4 sm:px-6 text-center transition-all duration-1000 ${heroReveal.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}>
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary/8 border border-primary/20 rounded-full text-primary text-sm font-medium mb-8 backdrop-blur-sm hover:bg-primary/12 hover:border-primary/30 transition-all duration-300 cursor-default" data-testid="badge-hero">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary/10 border border-primary/20 rounded-full text-primary text-sm font-medium mb-8 hover:bg-primary/15 hover:border-primary/30 transition-all duration-300 cursor-default" data-testid="badge-hero">
             <Sparkles className="w-4 h-4 animate-pulse" />
             {t("landing.heroBadge")}
           </div>
@@ -359,7 +336,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             </button>
             <button
               onClick={() => openAuth("login")}
-              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-white/5 border border-white/15 text-white font-semibold text-base rounded-2xl hover:bg-white/10 hover:border-white/25 hover:scale-[1.02] active:scale-[0.97] backdrop-blur-sm transition-all duration-300"
+              className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-8 py-4 bg-white/8 border border-white/15 text-white font-semibold text-base rounded-2xl hover:bg-white/12 hover:border-white/25 hover:scale-[1.02] active:scale-[0.97] transition-all duration-300"
               data-testid="button-hero-login"
             >
               <LogIn className="w-5 h-5" />
@@ -374,7 +351,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
               { display: "500+", labelKey: "landing.statPartners", icon: TrendingUp },
               { display: "24/7", labelKey: "landing.statSupport", icon: Shield },
             ].map((stat, i) => (
-              <div key={stat.labelKey} className={`group flex items-center gap-2.5 px-4 py-2.5 bg-card/40 border border-border/30 rounded-xl backdrop-blur-sm hover:bg-card/60 hover:border-border/50 hover:shadow-lg transition-all duration-300 opacity-0 ${heroReveal.isVisible ? "animate-fade-scale" : ""}`} style={{ animationDelay: `${0.6 + i * 0.12}s`, animationFillMode: "forwards" }}>
+              <div key={stat.labelKey} className={`group flex items-center gap-2.5 px-4 py-2.5 bg-card/50 border border-border/30 rounded-xl hover:bg-card/60 hover:border-border/50 hover:shadow-lg transition-all duration-300 opacity-0 ${heroReveal.isVisible ? "animate-fade-scale" : ""}`} style={{ animationDelay: `${0.6 + i * 0.12}s`, animationFillMode: "forwards" }}>
                 <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
                   <stat.icon className="w-3.5 h-3.5 text-primary" />
                 </div>
@@ -400,7 +377,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             {partners.map((p, i) => (
               <div
                 key={p.name}
-                className={`group relative flex flex-col items-center justify-center gap-3 px-5 py-6 sm:py-8 bg-card/30 border border-border/15 rounded-3xl backdrop-blur-sm hover:bg-card/60 hover:border-border/40 hover:shadow-2xl ${p.glow} hover:scale-[1.05] active:scale-[0.97] transition-all duration-500 cursor-default opacity-0 ${partnersReveal.isVisible ? "animate-fade-scale" : ""}`}
+                className={`group relative flex flex-col items-center justify-center gap-3 px-5 py-6 sm:py-8 bg-card/40 border border-border/15 rounded-3xl hover:bg-card/60 hover:border-border/40 hover:shadow-2xl ${p.glow} hover:scale-[1.05] active:scale-[0.97] transition-all duration-500 cursor-default opacity-0 ${partnersReveal.isVisible ? "animate-fade-scale" : ""}`}
                 style={{ animationDelay: `${i * 0.1}s`, animationFillMode: "forwards" }}
               >
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
@@ -416,7 +393,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
 
       <section className="py-24 sm:py-32 relative" id="features">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[150px] opacity-[0.06] bg-gradient-to-bl from-emerald-500 to-blue-500" />
+          <div className="absolute top-0 right-0 w-[350px] h-[350px] rounded-full blur-[80px] opacity-[0.05] bg-gradient-to-bl from-emerald-500 to-blue-500" />
         </div>
         <div ref={featuresReveal.ref} className={`relative max-w-6xl mx-auto px-4 sm:px-6 transition-all duration-800 ${featuresReveal.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
           <div className="text-center mb-16">
@@ -469,7 +446,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
                   data-testid={`card-step-${i}`}
                 >
                   <div className="relative inline-flex items-center justify-center mb-7">
-                    <div className={`w-[72px] h-[72px] rounded-[22px] bg-gradient-to-br ${s.color} flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`} style={{ animation: `float ${3 + i * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.3}s` }}>
+                    <div className={`w-[72px] h-[72px] rounded-[22px] bg-gradient-to-br ${s.color} flex items-center justify-center shadow-xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                       <s.icon className="w-8 h-8 text-white" />
                     </div>
                     <span className="absolute -top-3 -right-3 w-8 h-8 rounded-xl bg-background border-2 border-border/50 text-foreground text-xs font-extrabold flex items-center justify-center shadow-md">{s.num}</span>
@@ -524,8 +501,8 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
       <section className="py-24 sm:py-32 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-blue-500/5 to-purple-600/8" />
-          <div className="absolute -top-20 left-1/4 w-[400px] h-[400px] rounded-full blur-[160px] opacity-20 bg-gradient-to-br from-primary to-blue-500" />
-          <div className="absolute -bottom-20 right-1/4 w-[350px] h-[350px] rounded-full blur-[140px] opacity-20 bg-gradient-to-br from-purple-600 to-pink-500" />
+          <div className="absolute -top-20 left-1/4 w-[300px] h-[300px] rounded-full blur-[80px] opacity-10 bg-gradient-to-br from-primary to-blue-500" />
+          <div className="absolute -bottom-20 right-1/4 w-[250px] h-[250px] rounded-full blur-[80px] opacity-10 bg-gradient-to-br from-purple-600 to-pink-500" />
           <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: "radial-gradient(circle, hsl(var(--primary)) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
         </div>
         <FloatingParticles />

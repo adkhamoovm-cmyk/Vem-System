@@ -282,17 +282,15 @@
   }
 
   .glass-card {
-    backdrop-filter: blur(12px) saturate(150%);
-    -webkit-backdrop-filter: blur(12px) saturate(150%);
   }
 
   :root .glass-card {
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .dark .glass-card {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(30, 30, 40, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
