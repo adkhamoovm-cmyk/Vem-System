@@ -129,7 +129,23 @@ function WithdrawalSettingsPanel() {
           </div>
           <Switch
             checked={uzsEnabled}
-            onCheckedChange={setUzsEnabled}
+            onCheckedChange={(val) => {
+              setUzsEnabled(val);
+              apiRequest("POST", "/api/admin/platform-settings", {
+                withdrawalCommissionPercent: Number(commission),
+                minWithdrawalUsdt: Number(minUsdt),
+                minWithdrawalBank: Number(minBank),
+                withdrawalStartHour: Number(startHour),
+                withdrawalEndHour: Number(endHour),
+                maxDailyWithdrawals: Number(maxDaily),
+                withdrawalEnabled,
+                uzsEnabled: val,
+              }).then(() => {
+                queryClient.invalidateQueries({ queryKey: ["/api/admin/platform-settings"] });
+                queryClient.invalidateQueries({ queryKey: ["/api/platform-settings"] });
+                toast({ title: val ? t("admin.uzsEnabled") : t("admin.uzsDisabled") });
+              });
+            }}
             data-testid="toggle-uzs-enabled"
           />
         </div>
