@@ -600,8 +600,8 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
               <div className="absolute top-0 right-0 w-[200px] h-[200px] rounded-full bg-green-500/5 blur-[60px] pointer-events-none" />
 
               <div className="flex items-center gap-5 mb-8 relative">
-                <div className="w-[72px] h-[72px] rounded-[20px] bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-xl shadow-primary/25 shrink-0">
-                  <img src={vemLogo} alt="VEM" className="h-10" style={{ imageRendering: "auto", filter: "brightness(2)" }} />
+                <div className="w-[72px] h-[72px] rounded-[20px] overflow-hidden shadow-xl shadow-primary/25 shrink-0">
+                  <img src="/icons/icon-192.png" alt="VEM" className="w-full h-full object-cover" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-xl font-bold text-foreground mb-1">VEM App</h3>
