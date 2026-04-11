@@ -222,6 +222,11 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
+  const { data: platformSettings } = useQuery<{ uzsEnabled: boolean }>({
+    queryKey: ["/api/platform-settings"],
+  });
+  const uzsEnabled = platformSettings?.uzsEnabled ?? false;
+
   useEffect(() => {
     if (user && !isLoading) navigate("/dashboard");
   }, [user, isLoading, navigate]);
@@ -285,7 +290,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const steps = [
     { num: "01", titleKey: "landing.step1Title", descKey: "landing.step1Desc", icon: UserPlus, color: "from-blue-500 to-cyan-500" },
     { num: "02", titleKey: "landing.step2Title", descKey: "landing.step2Desc", icon: Play, color: "from-purple-500 to-pink-500" },
-    { num: "03", titleKey: "landing.step3Title", descKey: "landing.step3Desc", icon: Gift, color: "from-amber-500 to-orange-500" },
+    { num: "03", titleKey: "landing.step3Title", descKey: uzsEnabled ? "landing.step3Desc" : "landing.step3DescCrypto", icon: Gift, color: "from-amber-500 to-orange-500" },
   ];
 
   const faqs = [
