@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { PlayCircle, Wallet, Users, Crown, HelpCircle, Download, Mail } from "lucide-react";
+import { PlayCircle, Wallet, Users, Crown, HelpCircle, Download, Mail, BarChart3 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -15,6 +15,7 @@ export function QuickActions({ onInstallClick }: QuickActionsProps) {
     { title: t("dashboard.quickFund"), href: "/fund", icon: Wallet, gradient: "from-violet-500 to-purple-600" },
     { title: t("dashboard.quickInvite"), href: "/referral", icon: Users, gradient: "from-emerald-500 to-green-600" },
     { title: t("dashboard.quickVip"), href: "/vip", icon: Crown, gradient: "from-amber-500 to-orange-600" },
+    { title: "Hisobot", href: "/reports", icon: BarChart3, gradient: "from-indigo-500 to-blue-600" },
     { title: t("dashboard.quickHelp"), href: "/help", icon: HelpCircle, gradient: "from-cyan-500 to-blue-500" },
     { title: t("dashboard.quickApp"), href: "#install-app", icon: Download, gradient: "from-teal-500 to-emerald-600" },
     { title: t("dashboard.quickPromo"), href: "/promo", icon: Mail, gradient: "from-rose-500 to-red-600" },

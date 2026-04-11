@@ -24,6 +24,7 @@ const AdminPage = lazy(() => import("@/pages/admin"));
 const HelpPage = lazy(() => import("@/pages/help"));
 const PromoPage = lazy(() => import("@/pages/promo"));
 const NotificationsPage = lazy(() => import("@/pages/notifications"));
+const ReportsPage = lazy(() => import("@/pages/reports"));
 
 function PageLoader() {
   return (
@@ -141,6 +142,9 @@ function Router() {
       </Route>
       <Route path="/notifications">
         {() => <ProtectedRoute component={NotificationsPage} />}
+      </Route>
+      <Route path="/reports">
+        {() => <ProtectedRoute component={ReportsPage} />}
       </Route>
       <Route path="/admin">
         {() => <AdminRoute component={AdminPage} />}

@@ -400,4 +400,90 @@ router.get("/api/balance-history", requireAuth, asyncHandler(async (req: Request
   res.json({ data, total, page, limit, totalPages: Math.ceil(total / limit) });
 }));
 
+router.get("/api/reports/earnings", requireAuth, asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.session.userId!;
+  const period = (req.query.period as string) || "30";
+
+  let daysBack = 30;
+  if (period === "1") daysBack = 1;
+  else if (period === "2") daysBack = 2;
+  else if (period === "7") daysBack = 7;
+  else if (period === "30") daysBack = 30;
+  else if (period === "all") daysBack = 3650;
+
+  const sinceDate = new Date();
+  sinceDate.setDate(sinceDate.getDate() - daysBack);
+  sinceDate.setHours(0, 0, 0, 0);
+
+  const rows = await db
+    .select({
+      type: balanceHistoryTable.type,
+      amount: balanceHistoryTable.amount,
+      createdAt: balanceHistoryTable.createdAt,
+    })
+    .from(balanceHistoryTable)
+    .where(
+      dsql`${balanceHistoryTable.userId} = ${userId} AND ${balanceHistoryTable.createdAt} >= ${sinceDate.toISOString()} AND CAST(${balanceHistoryTable.amount} AS numeric) > 0`
+    );
+
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const yesterdayDate = new Date(now);
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+  const yesterdayStr = yesterdayDate.toISOString().slice(0, 10);
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const categories = {
+    task: 0,
+    referral: 0,
+    fund: 0,
+    promo: 0,
+    admin: 0,
+  };
+  let today = 0;
+  let yesterday = 0;
+  let weekly = 0;
+  let total = 0;
+
+  const dailyBreakdown: Record<string, number> = {};
+
+  for (const row of rows) {
+    const amt = Number(row.amount);
+    if (amt <= 0) continue;
+    const dateStr = new Date(row.createdAt).toISOString().slice(0, 10);
+    const rowDate = new Date(row.createdAt);
+
+    total += amt;
+    dailyBreakdown[dateStr] = (dailyBreakdown[dateStr] || 0) + amt;
+
+    if (dateStr === todayStr) today += amt;
+    if (dateStr === yesterdayStr) yesterday += amt;
+    if (rowDate >= weekAgo) weekly += amt;
+
+    if (row.type === "earning") categories.task += amt;
+    else if (row.type === "commission") categories.referral += amt;
+    else if (row.type === "fund_profit") categories.fund += amt;
+    else if (row.type === "promo") categories.promo += amt;
+    else if (row.type === "admin_adjust") categories.admin += amt;
+  }
+
+  const days: { date: string; amount: number }[] = [];
+  for (let i = Math.min(daysBack, 30) - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().slice(0, 10);
+    days.push({ date: ds, amount: dailyBreakdown[ds] || 0 });
+  }
+
+  res.json({
+    today,
+    yesterday,
+    weekly,
+    total,
+    categories,
+    days,
+  });
+}));
+
 export default router;
