@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
-import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe } from "lucide-react";
+import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe, Download, Smartphone, Monitor, ExternalLink, Apple, Share2 } from "lucide-react";
 import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv } from "react-icons/si";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
@@ -202,6 +202,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [showIosGuide, setShowIosGuide] = useState(false);
 
   useIsSafari();
 
@@ -240,7 +241,28 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const featuresReveal = useScrollReveal();
   const stepsReveal = useScrollReveal();
   const faqReveal = useScrollReveal();
+  const downloadReveal = useScrollReveal();
   const ctaReveal = useScrollReveal();
+
+  const handleDownload = useCallback(() => {
+    const ua = navigator.userAgent;
+    const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (isIos) {
+      setShowIosGuide(true);
+    } else {
+      const link = document.createElement("a");
+      link.href = window.location.origin;
+      const intentUrl = `intent://${window.location.host}#Intent;scheme=https;package=com.android.chrome;end`;
+      if (/android/i.test(ua)) {
+        window.location.href = intentUrl;
+        setTimeout(() => {
+          window.open(window.location.origin, "_blank");
+        }, 500);
+      } else {
+        window.open(window.location.origin, "_blank");
+      }
+    }
+  }, []);
 
   const features = [
     { icon: Play, titleKey: "landing.featureWatchTitle", descKey: "landing.featureWatchDesc", gradient: "from-red-500 to-orange-500", glow: "shadow-red-500/20" },
@@ -547,6 +569,94 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
         </div>
       </section>
 
+      <section className="py-24 sm:py-32 relative overflow-hidden" id="download">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="section-blur absolute top-1/4 left-0 w-[400px] h-[400px] rounded-full blur-[150px] opacity-[0.08] bg-gradient-to-br from-green-500 to-emerald-500" />
+          <div className="section-blur absolute bottom-0 right-0 w-[350px] h-[350px] rounded-full blur-[120px] opacity-[0.06] bg-gradient-to-br from-blue-500 to-cyan-500" />
+        </div>
+        <div ref={downloadReveal.ref} className={`relative max-w-5xl mx-auto px-4 sm:px-6 transition-all duration-800 ${downloadReveal.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/8 border border-green-500/15 rounded-full text-green-500 text-xs font-semibold uppercase tracking-wider mb-5">
+              <Download className="w-3.5 h-3.5" />
+              {t("landing.downloadBadge")}
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-5 tracking-tight" data-testid="text-download-title">{t("landing.downloadTitle")}</h2>
+            <p className="text-muted-foreground text-base sm:text-lg max-w-xl mx-auto leading-relaxed">{t("landing.downloadDesc")}</p>
+          </div>
+
+          <div className="max-w-2xl mx-auto">
+            <div className="relative bg-card/50 border border-border/20 rounded-3xl p-6 sm:p-8 overflow-hidden">
+              <div className="absolute top-0 right-0 w-[200px] h-[200px] rounded-full bg-green-500/5 blur-[60px] pointer-events-none" />
+
+              <div className="flex items-center gap-5 mb-8 relative">
+                <div className="w-[72px] h-[72px] rounded-[20px] bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-xl shadow-primary/25 shrink-0">
+                  <img src={vemLogo} alt="VEM" className="h-10" style={{ imageRendering: "auto", filter: "brightness(2)" }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl font-bold text-foreground mb-1">VEM App</h3>
+                  <p className="text-muted-foreground text-sm mb-2">{t("landing.downloadDesc")}</p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+                      <span className="font-semibold text-foreground">4.9</span>
+                    </span>
+                    <span>{t("landing.downloadVersion")}: 2.1.0</span>
+                    <span>{t("landing.downloadSize")}: 4.2 MB</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-3 relative">
+                <button
+                  onClick={handleDownload}
+                  className="group flex items-center gap-4 px-5 py-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl text-white hover:shadow-xl hover:shadow-green-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                  data-testid="button-download-android"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.523 15.341a.72.72 0 0 0 .72-.72V8.27a.72.72 0 0 0-1.44 0v6.352c0 .397.322.72.72.72zm-11.046 0a.72.72 0 0 0 .72-.72V8.27a.72.72 0 0 0-1.44 0v6.352c0 .397.322.72.72.72zM5.158 7.55h13.684v8.042c0 .579-.47 1.048-1.048 1.048h-1.172v2.652a.72.72 0 0 1-1.44 0V16.64H8.818v2.652a.72.72 0 0 1-1.44 0V16.64H6.206c-.578 0-1.048-.47-1.048-1.048V7.55zm10.09-3.452l1.142-1.702a.237.237 0 0 0-.068-.328.237.237 0 0 0-.328.068L14.82 3.9c-.79-.36-1.684-.56-2.634-.56-.949 0-1.844.2-2.634.56L8.38 2.136a.236.236 0 0 0-.328-.068.236.236 0 0 0-.068.328l1.142 1.702C7.578 5.053 6.52 6.444 6.363 8.072h11.274c-.157-1.628-1.215-3.02-2.763-3.974zm-5.61 2.39a.464.464 0 1 1 0-.928.464.464 0 0 1 0 .928zm4.724 0a.464.464 0 1 1 0-.928.464.464 0 0 1 0 .928z"/>
+                    </svg>
+                  </div>
+                  <div className="text-left">
+                    <span className="text-white/70 text-xs block">{t("landing.downloadFree")}</span>
+                    <span className="font-bold text-base">{t("landing.downloadAndroid")}</span>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setShowIosGuide(true)}
+                  className="group flex items-center gap-4 px-5 py-4 bg-card border border-border/30 rounded-2xl text-foreground hover:bg-card/80 hover:border-border/50 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                  data-testid="button-download-ios"
+                >
+                  <div className="w-11 h-11 rounded-xl bg-muted/60 flex items-center justify-center shrink-0 group-hover:bg-muted transition-colors">
+                    <Apple className="w-6 h-6" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-muted-foreground text-xs block">{t("landing.downloadIosDesc")}</span>
+                    <span className="font-bold text-base">{t("landing.downloadIos")}</span>
+                  </div>
+                </button>
+              </div>
+
+              <div className="flex items-center justify-center gap-6 mt-6 pt-6 border-t border-border/15">
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Shield className="w-4 h-4 text-green-500" />
+                  <span className="text-muted-foreground">{t("landing.ctaChip3")}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Zap className="w-4 h-4 text-yellow-500" />
+                  <span className="text-muted-foreground">{t("landing.ctaChip1")}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-sm">
+                  <Users className="w-4 h-4 text-blue-500" />
+                  <span className="text-muted-foreground">10K+ {t("landing.downloadUsers")}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-24 sm:py-32 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-blue-500/5 to-purple-600/8" />
@@ -606,6 +716,55 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
           </div>
         </div>
       </section>
+
+      {showIosGuide && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" style={{ touchAction: "none" }} data-testid="ios-guide-modal">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowIosGuide(false)} />
+          <div className="relative w-full sm:max-w-[420px] max-h-[85vh] overflow-y-auto overscroll-contain animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-0 sm:zoom-in-95 duration-300" style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}>
+            <div className="relative bg-card rounded-t-[24px] sm:rounded-[24px] px-5 py-7 sm:p-8 shadow-2xl shadow-black/40">
+              <div className="w-10 h-1 rounded-full bg-muted-foreground/20 mx-auto mb-5 sm:hidden" />
+              <button onClick={() => setShowIosGuide(false)} className="absolute top-4 right-4 w-9 h-9 rounded-xl bg-muted/50 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all z-10" data-testid="button-close-ios-guide">
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="text-center mb-7">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-200 dark:to-white flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Apple className="w-9 h-9 text-white dark:text-gray-900" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-1">{t("landing.downloadIosGuide")}</h3>
+                <p className="text-muted-foreground text-sm">{t("landing.downloadIosDesc")}</p>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { step: 1, icon: Globe, text: t("landing.downloadStep1"), color: "from-blue-500 to-cyan-500" },
+                  { step: 2, icon: Share2, text: t("landing.downloadStep2"), color: "from-green-500 to-emerald-500" },
+                  { step: 3, icon: Monitor, text: t("landing.downloadStep3"), color: "from-purple-500 to-violet-500" },
+                  { step: 4, icon: CheckCircle2, text: t("landing.downloadStep4"), color: "from-amber-500 to-orange-500" },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-center gap-4 p-4 bg-muted/30 border border-border/20 rounded-2xl" data-testid={`ios-step-${item.step}`}>
+                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shrink-0 shadow-md`}>
+                      <item.icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Step {item.step}</span>
+                      <p className="text-sm font-medium text-foreground">{item.text}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setShowIosGuide(false)}
+                className="w-full mt-6 py-3.5 bg-primary text-white font-semibold rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-200"
+                data-testid="button-ios-guide-close"
+              >
+                {t("landing.downloadClose")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="py-12 border-t border-border/20 bg-muted/5 relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
