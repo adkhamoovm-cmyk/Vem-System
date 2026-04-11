@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
-import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe, Download, Smartphone, Monitor, ExternalLink, Apple, Share2 } from "lucide-react";
+import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe, Download, Smartphone, Monitor, ExternalLink, Share2 } from "lucide-react";
 import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv } from "react-icons/si";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
@@ -609,31 +609,38 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
               <div className="grid sm:grid-cols-2 gap-3 relative">
                 <button
                   onClick={handleDownload}
-                  className="group flex items-center gap-4 px-5 py-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl text-white hover:shadow-xl hover:shadow-green-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                  className="group flex items-center gap-4 px-5 py-4 bg-black dark:bg-white/10 border border-white/10 dark:border-white/15 rounded-2xl text-white hover:shadow-xl hover:shadow-black/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                   data-testid="button-download-android"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-white/15 flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-colors">
-                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.523 15.341a.72.72 0 0 0 .72-.72V8.27a.72.72 0 0 0-1.44 0v6.352c0 .397.322.72.72.72zm-11.046 0a.72.72 0 0 0 .72-.72V8.27a.72.72 0 0 0-1.44 0v6.352c0 .397.322.72.72.72zM5.158 7.55h13.684v8.042c0 .579-.47 1.048-1.048 1.048h-1.172v2.652a.72.72 0 0 1-1.44 0V16.64H8.818v2.652a.72.72 0 0 1-1.44 0V16.64H6.206c-.578 0-1.048-.47-1.048-1.048V7.55zm10.09-3.452l1.142-1.702a.237.237 0 0 0-.068-.328.237.237 0 0 0-.328.068L14.82 3.9c-.79-.36-1.684-.56-2.634-.56-.949 0-1.844.2-2.634.56L8.38 2.136a.236.236 0 0 0-.328-.068.236.236 0 0 0-.068.328l1.142 1.702C7.578 5.053 6.52 6.444 6.363 8.072h11.274c-.157-1.628-1.215-3.02-2.763-3.974zm-5.61 2.39a.464.464 0 1 1 0-.928.464.464 0 0 1 0 .928zm4.724 0a.464.464 0 1 1 0-.928.464.464 0 0 1 0 .928z"/>
+                  <div className="w-10 h-10 flex items-center justify-center shrink-0">
+                    <svg className="w-9 h-9" viewBox="0 0 24 24">
+                      <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-1.707l2.108 1.22a1 1 0 0 1 0 1.56l-2.108 1.22-2.537-2.5 2.537-2.5zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z" fill="#34A853"/>
+                      <path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 0 1-.61-.92V2.734a1 1 0 0 1 .609-.92z" fill="#4285F4"/>
+                      <path d="M14.497 14.707l2.302-2.302 2.108 1.22a1 1 0 0 1 0 1.56l-2.108 1.22-2.302-1.698z" fill="#FBBC04"/>
+                      <path d="M5.864 2.658L14.5 11.293l2.302-2.302L5.864 2.658z" fill="#EA4335"/>
+                      <path d="M5.864 21.342l8.633-8.635 2.302 2.302-10.935 6.333z" fill="#34A853"/>
+                      <path d="M3.609 1.814L14.5 11.293l-0.708 0.707L3 2.734a1 1 0 0 1 .609-.92z" fill="#4285F4"/>
                     </svg>
                   </div>
                   <div className="text-left">
-                    <span className="text-white/70 text-xs block">{t("landing.downloadFree")}</span>
-                    <span className="font-bold text-base">{t("landing.downloadAndroid")}</span>
+                    <span className="text-white/60 text-[10px] uppercase tracking-wider block">Google Play</span>
+                    <span className="font-bold text-base leading-tight">{t("landing.downloadAndroid")}</span>
                   </div>
                 </button>
 
                 <button
                   onClick={() => setShowIosGuide(true)}
-                  className="group flex items-center gap-4 px-5 py-4 bg-card border border-border/30 rounded-2xl text-foreground hover:bg-card/80 hover:border-border/50 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                  className="group flex items-center gap-4 px-5 py-4 bg-black dark:bg-white/10 border border-white/10 dark:border-white/15 rounded-2xl text-white hover:shadow-xl hover:shadow-black/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                   data-testid="button-download-ios"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-muted/60 flex items-center justify-center shrink-0 group-hover:bg-muted transition-colors">
-                    <Apple className="w-6 h-6" />
+                  <div className="w-10 h-10 flex items-center justify-center shrink-0">
+                    <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                    </svg>
                   </div>
                   <div className="text-left">
-                    <span className="text-muted-foreground text-xs block">{t("landing.downloadIosDesc")}</span>
-                    <span className="font-bold text-base">{t("landing.downloadIos")}</span>
+                    <span className="text-white/60 text-[10px] uppercase tracking-wider block">App Store</span>
+                    <span className="font-bold text-base leading-tight">{t("landing.downloadIos")}</span>
                   </div>
                 </button>
               </div>
@@ -729,7 +736,9 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
 
               <div className="text-center mb-7">
                 <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 dark:from-gray-200 dark:to-white flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Apple className="w-9 h-9 text-white dark:text-gray-900" />
+                  <svg className="w-9 h-9 text-white dark:text-gray-900" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                  </svg>
                 </div>
                 <h3 className="text-xl font-bold text-foreground mb-1">{t("landing.downloadIosGuide")}</h3>
                 <p className="text-muted-foreground text-sm">{t("landing.downloadIosDesc")}</p>
