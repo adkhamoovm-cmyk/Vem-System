@@ -19,6 +19,7 @@ interface PlatformSettings {
   withdrawalEndHour: number;
   maxDailyWithdrawals: number;
   withdrawalEnabled: boolean;
+  uzsEnabled: boolean;
   minDepositUsdt?: number;
   minDepositBank?: number;
   [key: string]: string | number | boolean | undefined;
@@ -34,6 +35,7 @@ function WithdrawalSettingsPanel() {
   const [endHour, setEndHour] = useState("");
   const [maxDaily, setMaxDaily] = useState("");
   const [withdrawalEnabled, setWithdrawalEnabled] = useState(true);
+  const [uzsEnabled, setUzsEnabled] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
   const { data: settings, isLoading } = useQuery<PlatformSettings>({
@@ -49,6 +51,7 @@ function WithdrawalSettingsPanel() {
       setEndHour(String(settings.withdrawalEndHour));
       setMaxDaily(String(settings.maxDailyWithdrawals));
       setWithdrawalEnabled(settings.withdrawalEnabled !== false);
+      setUzsEnabled(settings.uzsEnabled === true);
       setInitialized(true);
     }
   }, [settings, initialized]);
@@ -63,6 +66,7 @@ function WithdrawalSettingsPanel() {
         withdrawalEndHour: Number(endHour),
         maxDailyWithdrawals: Number(maxDaily),
         withdrawalEnabled,
+        uzsEnabled,
       });
     },
     onSuccess: () => {
@@ -106,6 +110,27 @@ function WithdrawalSettingsPanel() {
             checked={withdrawalEnabled}
             onCheckedChange={setWithdrawalEnabled}
             data-testid="toggle-withdrawal-enabled"
+          />
+        </div>
+
+        <div className={`flex items-center justify-between p-3.5 rounded-xl border ${uzsEnabled ? "bg-emerald-500/10 border-emerald-500/30" : "bg-orange-500/10 border-orange-500/30"}`}>
+          <div className="flex items-center gap-2.5">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${uzsEnabled ? "bg-emerald-500/20" : "bg-orange-500/20"}`}>
+              <CreditCard className={`w-4 h-4 ${uzsEnabled ? "text-emerald-500" : "text-orange-500"}`} />
+            </div>
+            <div>
+              <p className={`text-sm font-bold ${uzsEnabled ? "text-emerald-500" : "text-orange-500"}`}>
+                {uzsEnabled ? t("admin.uzsEnabled") : t("admin.uzsDisabled")}
+              </p>
+              <p className="text-muted-foreground text-[11px]">
+                {uzsEnabled ? t("admin.uzsEnabledDesc") : t("admin.uzsDisabledDesc")}
+              </p>
+            </div>
+          </div>
+          <Switch
+            checked={uzsEnabled}
+            onCheckedChange={setUzsEnabled}
+            data-testid="toggle-uzs-enabled"
           />
         </div>
 

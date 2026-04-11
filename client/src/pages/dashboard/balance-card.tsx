@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, ArrowRightLeft, CheckCheck, AlertTriangle, GraduationCap, Star, Flame, Gem, Crown, Trophy, Rocket, Zap, Globe, RefreshCw } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
@@ -30,6 +31,11 @@ export function BalanceCard({ user, currentPkg, dailyPotential, todayEarned, vip
   const { t, locale } = useI18n();
   const balance = Number(user.balance);
   const [refreshing, setRefreshing] = useState(false);
+
+  const { data: platformSettings } = useQuery<{ uzsEnabled: boolean }>({
+    queryKey: ["/api/platform-settings"],
+  });
+  const uzsEnabled = platformSettings?.uzsEnabled ?? false;
 
   const handleRefresh = async () => {
     if (refreshing) return;
@@ -105,6 +111,7 @@ export function BalanceCard({ user, currentPkg, dailyPotential, todayEarned, vip
             </Link>
           </div>
           <div className="relative mt-4 mb-1">
+            {uzsEnabled && (
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-white/40 text-[10px] uppercase tracking-widest flex items-center gap-1">
                 <ArrowRightLeft className="w-3 h-3" />
@@ -112,6 +119,7 @@ export function BalanceCard({ user, currentPkg, dailyPotential, todayEarned, vip
               </span>
               <span className="text-white/30 text-[9px]">{t("dashboard.rate", { rate: UZS_RATE.toLocaleString() })}</span>
             </div>
+            )}
             <div className="flex items-end justify-between" data-testid="text-balance">
               <div>
                 <div className="flex items-center gap-2">
@@ -125,7 +133,7 @@ export function BalanceCard({ user, currentPkg, dailyPotential, todayEarned, vip
                     <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
                   </button>
                 </div>
-                <p className="text-white/50 text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>
+                {uzsEnabled && <p className="text-white/50 text-sm mt-0.5">{formatUZS(balance)} <span className="text-xs">UZS</span></p>}
               </div>
               <div className="text-right space-y-1">
                 <div className="flex items-center gap-1 text-emerald-300 text-xs justify-end">
@@ -148,12 +156,12 @@ export function BalanceCard({ user, currentPkg, dailyPotential, todayEarned, vip
             <div className="bg-emerald-500/5 dark:bg-emerald-500/8 rounded-xl p-3 border border-emerald-500/10">
               <span className="text-muted-foreground text-[9px] uppercase tracking-widest">{t("dashboard.earnings")}</span>
               <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-earnings">{Number(user.totalEarnings).toFixed(2)} USDT</p>
-              <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalEarnings))} UZS</p>
+              {uzsEnabled && <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalEarnings))} UZS</p>}
             </div>
             <div className="bg-blue-500/5 dark:bg-blue-500/8 rounded-xl p-3 border border-blue-500/10">
               <span className="text-muted-foreground text-[9px] uppercase tracking-widest">{t("common.deposit")}</span>
               <p className="text-foreground font-bold text-sm mt-1" data-testid="text-total-deposit">{Number(user.totalDeposit).toFixed(2)} USDT</p>
-              <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalDeposit))} UZS</p>
+              {uzsEnabled && <p className="text-muted-foreground text-[10px]">{formatUZS(Number(user.totalDeposit))} UZS</p>}
             </div>
           </div>
         </div>

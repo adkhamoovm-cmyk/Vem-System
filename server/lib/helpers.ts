@@ -426,6 +426,7 @@ export const adminSchemas = {
     withdrawalEndHour: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(0).max(23)),
     maxDailyWithdrawals: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().int().min(1)),
     withdrawalEnabled: z.boolean({ required_error: "Yechib olish holati kerak" }),
+    uzsEnabled: z.boolean().optional(),
   }),
   createBroadcast: z.object({
     title: z.string({ required_error: "Sarlavha majburiy" }).min(1, "Sarlavha majburiy"),

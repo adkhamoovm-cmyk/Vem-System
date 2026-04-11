@@ -33,6 +33,7 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
     withdrawalEndHour: number;
     maxDailyWithdrawals: number;
     withdrawalEnabled: boolean;
+    uzsEnabled: boolean;
   }>({ queryKey: ["/api/platform-settings"] });
 
   const commissionPercent = platformSettings?.withdrawalCommissionPercent ?? 10;
@@ -41,6 +42,7 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
   const withdrawalStartHour = platformSettings?.withdrawalStartHour ?? 11;
   const withdrawalEndHour = platformSettings?.withdrawalEndHour ?? 17;
   const withdrawalEnabled = platformSettings?.withdrawalEnabled !== false;
+  const uzsEnabled = platformSettings?.uzsEnabled ?? false;
 
   const balance = Number(user.balance);
   const numAmount = Number(amount) || 0;
@@ -180,7 +182,7 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
                 <span className="text-muted-foreground text-xs">{t("profile.availableBalance")}</span>
                 <span className="text-emerald-500 dark:text-emerald-400 text-sm font-bold">{balance.toFixed(2)} USDT</span>
               </div>
-              <p className="text-muted-foreground text-[10px] mt-0.5">≈ {formatUZS(balance)} UZS</p>
+              {uzsEnabled && <p className="text-muted-foreground text-[10px] mt-0.5">≈ {formatUZS(balance)} UZS</p>}
             </div>
             <div className="px-3.5 py-2.5 space-y-1.5">
               <div className="flex justify-between">
@@ -207,6 +209,7 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
           {!withdrawType ? (
             <div className="space-y-3">
               <p className="text-muted-foreground text-xs font-semibold uppercase tracking-wider">{t("profile.selectWithdrawType")}</p>
+              {uzsEnabled && (
               <button
                 onClick={() => setWithdrawType("card")}
                 className="w-full bg-card rounded-xl p-4 border border-border hover:border-[#3B82F6]/50 transition-colors flex items-center gap-3 text-left group"
@@ -221,6 +224,7 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#3B82F6] transition-colors" />
               </button>
+              )}
               <button
                 onClick={() => setWithdrawType("crypto")}
                 className="w-full bg-card rounded-xl p-4 border border-border hover:border-yellow-500/50 transition-colors flex items-center gap-3 text-left group"
@@ -328,7 +332,7 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
                         <span className="text-muted-foreground text-xs font-semibold">{t("profile.youReceive")}</span>
                         <div className="text-right">
                           <span className="text-emerald-500 dark:text-emerald-400 text-sm font-bold">{netAmount.toFixed(2)} USDT</span>
-                          <p className="text-muted-foreground text-[10px]">≈ {formatUZS(netAmount)} UZS</p>
+                          {uzsEnabled && <p className="text-muted-foreground text-[10px]">≈ {formatUZS(netAmount)} UZS</p>}
                         </div>
                       </div>
                     </div>

@@ -422,6 +422,7 @@ router.get("/api/platform-settings", requireAuth, asyncHandler(async (_req: Requ
     withdrawalEndHour: Number(map["withdrawal_end_hour"] ?? "17"),
     maxDailyWithdrawals: Number(map["max_daily_withdrawals"] ?? "1"),
     withdrawalEnabled: map["withdrawal_enabled"] !== "false",
+    uzsEnabled: map["uzs_enabled"] === "true",
   });
 }));
 
@@ -437,11 +438,12 @@ router.get("/api/admin/platform-settings", requireAdmin, asyncHandler(async (_re
     withdrawalEndHour: map["withdrawal_end_hour"] ?? "17",
     maxDailyWithdrawals: map["max_daily_withdrawals"] ?? "1",
     withdrawalEnabled: map["withdrawal_enabled"] !== "false",
+    uzsEnabled: map["uzs_enabled"] === "true",
   });
 }));
 
 router.post("/api/admin/platform-settings", requireAdmin, validateBody(adminSchemas.platformSettings), asyncHandler(async (req: Request, res: Response) => {
-  const { withdrawalCommissionPercent, minWithdrawalUsdt, minWithdrawalBank, withdrawalStartHour, withdrawalEndHour, maxDailyWithdrawals, withdrawalEnabled } = req.body;
+  const { withdrawalCommissionPercent, minWithdrawalUsdt, minWithdrawalBank, withdrawalStartHour, withdrawalEndHour, maxDailyWithdrawals, withdrawalEnabled, uzsEnabled } = req.body;
   const updates: [string, string][] = [
     ["withdrawal_commission_percent", String(withdrawalCommissionPercent)],
     ["min_withdrawal_usdt", String(minWithdrawalUsdt)],
@@ -451,6 +453,9 @@ router.post("/api/admin/platform-settings", requireAdmin, validateBody(adminSche
     ["max_daily_withdrawals", String(maxDailyWithdrawals)],
     ["withdrawal_enabled", withdrawalEnabled === false ? "false" : "true"],
   ];
+  if (uzsEnabled !== undefined) {
+    updates.push(["uzs_enabled", uzsEnabled ? "true" : "false"]);
+  }
   for (const [key, value] of updates) {
     await storage.upsertPlatformSetting(key, value);
   }

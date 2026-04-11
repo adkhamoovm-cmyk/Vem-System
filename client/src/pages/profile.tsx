@@ -75,10 +75,11 @@ export default function ProfilePage() {
     queryKey: ["/api/withdrawals"],
   });
 
-  const { data: platformSettingsMain } = useQuery<{ withdrawalEnabled: boolean }>({
+  const { data: platformSettingsMain } = useQuery<{ withdrawalEnabled: boolean; uzsEnabled: boolean }>({
     queryKey: ["/api/platform-settings"],
   });
   const isWithdrawalGloballyEnabled = platformSettingsMain?.withdrawalEnabled !== false;
+  const uzsEnabled = platformSettingsMain?.uzsEnabled ?? false;
 
   const [historyPage, setHistoryPage] = useState(1);
   const { data: balHistoryRes } = useQuery<{ data: BalanceHistory[]; total: number; totalPages: number }>({
@@ -268,7 +269,7 @@ export default function ProfilePage() {
                 <span className="text-foreground font-bold text-3xl tracking-tight" data-testid="text-balance">{balance.toFixed(2)}</span>
                 <span className="text-emerald-500 dark:text-emerald-400 text-sm font-semibold">USDT</span>
               </div>
-              <p className="text-muted-foreground text-xs mt-0.5">{formatUZS(balance)} UZS</p>
+              {uzsEnabled && <p className="text-muted-foreground text-xs mt-0.5">{formatUZS(balance)} UZS</p>}
             </div>
             <div className="grid grid-cols-2 gap-2.5">
               <Button

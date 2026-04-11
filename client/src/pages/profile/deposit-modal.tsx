@@ -34,6 +34,12 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
     enabled: open,
   });
 
+  const { data: platformSettings } = useQuery<{ uzsEnabled: boolean }>({
+    queryKey: ["/api/platform-settings"],
+  });
+
+  const uzsEnabled = platformSettings?.uzsEnabled ?? false;
+
   const bankRequisites = depositRequisites.filter(r => r.type === "bank");
   const usdtRequisites = depositRequisites.filter(r => r.type === "usdt");
 
@@ -163,6 +169,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </button>
+              {uzsEnabled && (
               <button
                 onClick={() => setPaymentType("local")}
                 className="w-full bg-card rounded-xl p-4 border border-border hover:border-[#4ADE80]/50 transition-colors flex items-center gap-3 text-left group"
@@ -177,6 +184,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-500 dark:text-emerald-400 transition-colors" />
               </button>
+              )}
             </div>
           ) : (
             <div className="space-y-4 pt-4">
@@ -324,7 +332,7 @@ export function DepositModal({ open, onClose, user }: { open: boolean; onClose: 
                 {paymentType === "local" && amount && Number(amount) > 0 && (
                   <p className="text-emerald-500 dark:text-emerald-400 text-xs">≈ {(Number(amount) / UZS_RATE).toFixed(2)} USDT</p>
                 )}
-                {paymentType === "crypto" && amount && Number(amount) > 0 && (
+                {paymentType === "crypto" && amount && Number(amount) > 0 && uzsEnabled && (
                   <p className="text-emerald-500 dark:text-emerald-400 text-xs">≈ {formatUZS(Number(amount))} UZS</p>
                 )}
               </div>
