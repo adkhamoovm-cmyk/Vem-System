@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, Users, Headphones, ExternalLink, HelpCircle, ChevronDown, TrendingUp, Shield, DollarSign, Smartphone, Clock, Award, Wallet, ArrowUpDown, UserPlus, Zap, BookOpen } from "lucide-react";
+import { MessageCircle, Users, Headphones, ExternalLink, HelpCircle, ChevronDown, TrendingUp, Shield, DollarSign, Smartphone, Clock, Award, Wallet, ArrowUpDown, UserPlus, Zap, BookOpen, PlayCircle, RefreshCw } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
 const faqCategories = [
@@ -51,6 +51,8 @@ export default function HelpPage() {
     { q: t("help.faqQ10"), a: t("help.faqA10"), category: "security", icon: BookOpen, color: "#EF4444" },
     { q: t("help.faqQ11"), a: t("help.faqA11"), category: "technical", icon: Smartphone, color: "#06B6D4" },
     { q: t("help.faqQ12"), a: t("help.faqA12"), category: "technical", icon: HelpCircle, color: "#06B6D4" },
+    { q: t("help.faqQ13"), a: t("help.faqA13"), category: "technical", icon: PlayCircle, color: "#06B6D4" },
+    { q: t("help.faqQ14"), a: t("help.faqA14"), category: "earning", icon: RefreshCw, color: "#10B981" },
   ];
 
   const filteredFaqs = activeCategory

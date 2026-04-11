@@ -463,7 +463,11 @@
     "faqQ11": "¿Cómo instalo la aplicación VEM en mi teléfono?",
     "faqA11": "Toca el botón \"Instalar App\" en tu navegador en nuestro sitio web. VEM Media se instalará directamente en la pantalla de inicio de tu teléfono como una aplicación real y no ocupa espacio de almacenamiento. Para iOS, en Safari presiona \"Compartir\" → \"Añadir a pantalla de inicio\".",
     "faqQ12": "¿A quién debo contactar para problemas técnicos?",
-    "faqA12": "Para cualquier problema técnico o pregunta, contacta nuestro servicio de soporte técnico vía Telegram: @vem_ms. También puedes compartir experiencias con otros usuarios en la comunidad oficial (@Vem_Official). Operamos de lunes a sábado, 09:00—18:00."
+    "faqA12": "Para cualquier problema técnico o pregunta, contacta nuestro servicio de soporte técnico vía Telegram: @vem_ms. También puedes compartir experiencias con otros usuarios en la comunidad oficial (@Vem_Official). Operamos de lunes a sábado, 09:00—18:00.",
+    "faqQ13": "¿Qué pasa si un video no se carga durante una tarea?",
+    "faqA13": "¡No te preocupes en absoluto! Nuestro sistema gestiona estas situaciones automáticamente. Si el tráiler de una empresa asociada no está disponible temporalmente, la plataforma selecciona instantáneamente un video alternativo de la biblioteca de contenido de otro estudio asociado. Este proceso toma solo unos segundos y tu tarea nunca será cancelada. Esto generalmente indica que la cuota diaria de visualización del estudio asociado se ha agotado, lo que demuestra la alta demanda de contenido en nuestra plataforma. ¡Nuestra biblioteca de miles de películas y tráileres se actualiza constantemente!",
+    "faqQ14": "¿Hay un horario específico para completar las tareas diarias?",
+    "faqA14": "Sí, las tareas están disponibles todos los días de lunes a sábado. El domingo es día de descanso. Cada nivel VIP tiene su propio límite diario de visualización de videos. Por ejemplo, Pasante — 5 videos, VIP1 — 10 videos, etc. Una vez que completes tu límite diario, las nuevas tareas se abrirán automáticamente al día siguiente."
   },
   "promo": {
     "title": "Código Promocional",

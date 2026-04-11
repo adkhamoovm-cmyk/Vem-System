@@ -463,7 +463,11 @@
     "faqQ11": "VEM uygulamasını telefonuma nasıl yüklerim?",
     "faqA11": "Web sitemizdeki tarayıcınızda \"Uygulamayı Yükle\" butonuna dokunun. VEM Media doğrudan telefonunuzun ana ekranına gerçek bir uygulama gibi yüklenir ve depolama alanı kaplamaz. iOS için Safari'de \"Paylaş\" → \"Ana Ekrana Ekle\" butonuna basın.",
     "faqQ12": "Teknik sorunlar için kiminle iletişime geçmeliyim?",
-    "faqA12": "Herhangi bir teknik sorun veya soru için Telegram üzerinden teknik destek servisimizle iletişime geçin: @vem_ms. Ayrıca resmi toplulukta (@Vem_Official) diğer kullanıcılarla deneyim paylaşabilirsiniz. Pazartesi'den Cumartesi'ye, 09:00—18:00 arası çalışıyoruz."
+    "faqA12": "Herhangi bir teknik sorun veya soru için Telegram üzerinden teknik destek servisimizle iletişime geçin: @vem_ms. Ayrıca resmi toplulukta (@Vem_Official) diğer kullanıcılarla deneyim paylaşabilirsiniz. Pazartesi'den Cumartesi'ye, 09:00—18:00 arası çalışıyoruz.",
+    "faqQ13": "Görev sırasında video yüklenmezse ne olur?",
+    "faqA13": "Hiç endişelenmeyin! Sistemimiz bu durumları otomatik olarak yönetir. Bir ortak şirketin video fragmanı geçici olarak mevcut değilse, platform anında başka bir ortak stüdyonun içerik kütüphanesinden alternatif bir video seçer. Bu işlem yalnızca birkaç saniye sürer ve göreviniz asla iptal edilmez. Bu durum genellikle ortak stüdyonun günlük gösterim kotasının dolduğunu gösterir — bu da platformumuzdaki içerik talebinin yüksek olduğunun kanıtıdır. Binlerce film ve fragmandan oluşan kütüphanemiz sürekli güncellenmektedir!",
+    "faqQ14": "Günlük görevleri tamamlamak için belirli bir zaman var mı?",
+    "faqA14": "Evet, görevler her gün Pazartesi'den Cumartesi'ye kadar mevcuttur. Pazar günü dinlenme günüdür. Her VIP seviyesinin kendi günlük video izleme limiti vardır. Örneğin, Stajyer — 5 video, VIP1 — 10 video vb. Günlük limitinizi tamamladığınızda, yeni görevler ertesi gün otomatik olarak açılacaktır."
   },
   "promo": {
     "title": "Promosyon Kodu",

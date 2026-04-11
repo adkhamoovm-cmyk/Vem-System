@@ -463,7 +463,11 @@
     "faqQ11": "How do I install the VEM app on my phone?",
     "faqA11": "Tap the \"Install App\" button in your browser on our website. VEM Media will be installed directly on your phone's home screen just like a real app and takes up no storage space. For iOS, in Safari press \"Share\" → \"Add to Home Screen\".",
     "faqQ12": "Who should I contact for technical issues?",
-    "faqA12": "For any technical issues or questions, contact our technical support service via Telegram: @vem_ms. You can also share experiences with other users in the official community (@Vem_Official). We operate Monday through Saturday, 09:00—18:00."
+    "faqA12": "For any technical issues or questions, contact our technical support service via Telegram: @vem_ms. You can also share experiences with other users in the official community (@Vem_Official). We operate Monday through Saturday, 09:00—18:00.",
+    "faqQ13": "What happens if a video doesn't load during a task?",
+    "faqA13": "No need to worry at all! Our system handles these situations automatically. If a partner company's video trailer is temporarily unavailable, the platform instantly selects an alternative video from another partner studio's content library. This process takes just a few seconds, and your task will never be cancelled. This usually indicates that the partner studio's daily viewing quota has been reached — which shows the high demand for content on our platform. Our library of thousands of movies and trailers is constantly updated!",
+    "faqQ14": "Is there a specific time to complete daily tasks?",
+    "faqA14": "Yes, tasks are available every day from Monday to Saturday. Sunday is a rest day. Each VIP level has its own daily video viewing limit. For example, Intern — 5 videos, VIP1 — 10 videos, and so on. Once you complete your daily limit, new tasks will automatically open the next day."
   },
   "promo": {
     "title": "Promo Code",

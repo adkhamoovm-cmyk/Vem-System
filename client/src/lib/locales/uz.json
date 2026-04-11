@@ -463,7 +463,11 @@
     "faqQ11": "Telefonimga VEM ilovasini qanday o'rnatsam bo'ladi?",
     "faqA11": "Saytimiz brauzeridan \"Ilovani o'rnatish\" (Install App) tugmasini bosing. VEM Media to'g'ridan-to'g'ri telefoningiz bosh ekraniga xuddi haqiqiy ilovadek o'rnatiladi va xotiradan joy egallamaydi. iOS uchun Safari brauzerida \"Share\" → \"Add to Home Screen\" tugmasini bosing.",
     "faqQ12": "Texnik muammo yuz bersa kimga murojaat qilaman?",
-    "faqA12": "Har qanday texnik muammo yoki savol bo'lsa, bizning texnik qo'llab-quvvatlash xizmatimizga Telegram orqali murojaat qiling: @vem_ms. Shuningdek, VEM rasmiy hamjamiyat guruhida (@Vem_Official) boshqa foydalanuvchilar bilan tajriba almashishingiz mumkin. Biz Dushanba-Shanba kunlari 09:00—18:00 oralig'ida xizmat ko'rsatamiz."
+    "faqA12": "Har qanday texnik muammo yoki savol bo'lsa, bizning texnik qo'llab-quvvatlash xizmatimizga Telegram orqali murojaat qiling: @vem_ms. Shuningdek, VEM rasmiy hamjamiyat guruhida (@Vem_Official) boshqa foydalanuvchilar bilan tajriba almashishingiz mumkin. Biz Dushanba-Shanba kunlari 09:00—18:00 oralig'ida xizmat ko'rsatamiz.",
+    "faqQ13": "Vazifa vaqtida video yuklanmasa yoki ishlamasa nima bo'ladi?",
+    "faqA13": "Mutlaqo tashvishlanmang! Tizimimiz bunday holatlarni avtomatik boshqaradi. Agar hamkor kompaniyaning video treyleri vaqtincha mavjud bo'lmasa, platforma darhol boshqa hamkor studiyalarning kontent kutubxonasidan muqobil video tanlaydi. Bu jarayon bir necha soniya ichida sodir bo'ladi va sizning vazifangiz hech qachon bekor bo'lmaydi. Bunday holat odatda hamkor studiyaning kunlik ko'rsatish kvotasi to'lganidan dalolat beradi — bu esa platformamizdagi kontent talab juda yuqori ekanligini ko'rsatadi. Minglab filmlar va traylerlar kutubxonamiz doimo yangilanib turadi!",
+    "faqQ14": "Kunlik vazifalarni bajarish uchun belgilangan vaqt bormi?",
+    "faqA14": "Ha, vazifalar har kuni Dushanba dan Shanba kunigacha bajariladi. Yakshanba dam olish kuni hisoblanadi. Har bir VIP darajangizga mos ravishda kunlik video ko'rish limiti belgilanadi. Masalan, Stajyor — 5 ta, VIP1 — 10 ta video va hokazo. Limitni to'ldirganingizda ertangi kunda yangi vazifalar avtomatik ochiladi."
   },
   "promo": {
     "title": "Promokod",
