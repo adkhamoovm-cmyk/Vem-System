@@ -204,8 +204,18 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [showIosGuide, setShowIosGuide] = useState(false);
   const [showAndroidGuide, setShowAndroidGuide] = useState(false);
+  const deferredPromptRef = useRef<any>(null);
 
   useIsSafari();
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      deferredPromptRef.current = e;
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/me"],
@@ -245,14 +255,24 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const downloadReveal = useScrollReveal();
   const ctaReveal = useScrollReveal();
 
-  const handleDownload = useCallback(() => {
+  const handleDownload = useCallback(async () => {
     const ua = navigator.userAgent;
     const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     if (isIos) {
       setShowIosGuide(true);
-    } else {
-      setShowAndroidGuide(true);
+      return;
     }
+    if (deferredPromptRef.current) {
+      try {
+        deferredPromptRef.current.prompt();
+        const result = await deferredPromptRef.current.userChoice;
+        if (result.outcome === "accepted") {
+          deferredPromptRef.current = null;
+        }
+        return;
+      } catch (e) {}
+    }
+    setShowAndroidGuide(true);
   }, []);
 
   const features = [
