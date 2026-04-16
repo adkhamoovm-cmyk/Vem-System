@@ -278,6 +278,14 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const downloadReveal = useScrollReveal();
   const ctaReveal = useScrollReveal();
   const orbitToggle = useScrollToggle();
+  const [orbitRadius, setOrbitRadius] = useState(130);
+
+  useEffect(() => {
+    const update = () => setOrbitRadius(window.innerWidth >= 640 ? 165 : 130);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
 
   const handleDownload = useCallback(async () => {
     const ua = navigator.userAgent;
@@ -757,17 +765,16 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
                   ) },
                 ].map((p, i) => {
                   const angle = (i * 60 - 90) * Math.PI / 180;
-                  const radiusPercent = 42;
-                  const x = Math.cos(angle) * radiusPercent;
-                  const y = Math.sin(angle) * radiusPercent;
+                  const cosA = Math.cos(angle);
+                  const sinA = Math.sin(angle);
                   return (
                     <div
                       key={p.key}
-                      className="absolute top-1/2 left-1/2 w-[64px] h-[64px] sm:w-[76px] sm:h-[76px] z-20"
+                      className="absolute top-1/2 left-1/2 w-[64px] h-[64px] sm:w-[76px] sm:h-[76px] z-20 -ml-[32px] -mt-[32px] sm:-ml-[38px] sm:-mt-[38px]"
                       style={{
                         transform: orbitToggle.isVisible
-                          ? `translate(calc(-50% + ${x}%), calc(-50% + ${y}%)) scale(1)`
-                          : `translate(-50%, -50%) scale(0.3)`,
+                          ? `translate(${cosA * orbitRadius}px, ${sinA * orbitRadius}px) scale(1)`
+                          : `translate(0, 0) scale(0.3)`,
                         opacity: orbitToggle.isVisible ? 1 : 0,
                         transition: `transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.08 + 0.15}s, opacity 0.45s ease-out ${i * 0.08 + 0.15}s`,
                       }}
