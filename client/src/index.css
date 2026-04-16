@@ -509,3 +509,24 @@ nav {
   animation: slow-zoom 30s ease-out forwards;
 }
 
+
+@keyframes cta-orbit-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes cta-orbit-counter {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+.cta-orbit-slow {
+  animation: cta-orbit-rotate 28s linear infinite;
+}
+.cta-orbit-fast {
+  animation: cta-orbit-counter 22s linear infinite;
+}
+.cta-counter-rotate-slow {
+  animation: cta-orbit-counter 28s linear infinite;
+}
+.cta-counter-rotate-fast {
+  animation: cta-orbit-rotate 22s linear infinite;
+}

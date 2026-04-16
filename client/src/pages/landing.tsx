@@ -716,15 +716,39 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             <div className="absolute -bottom-px left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
 
             <div className="relative px-6 py-14 sm:px-14 sm:py-20 text-center">
-              <div className="relative inline-flex items-center justify-center mb-8">
-                <div className="absolute inset-0 -m-10 rounded-full bg-gradient-to-br from-primary/30 via-blue-500/25 to-purple-600/30 blur-3xl opacity-80 animate-pulse" style={{ animationDuration: "3.5s" }} />
-                <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-br from-primary/40 to-purple-600/40 blur-2xl opacity-60" />
-                <img
-                  src={vemLogo}
-                  alt="VEM"
-                  className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] object-contain drop-shadow-[0_8px_32px_rgba(99,102,241,0.5)]"
-                  style={{ animation: "float 4s ease-in-out infinite" }}
-                />
+              <div className="relative inline-flex items-center justify-center mb-8 w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] mx-auto">
+                <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-br from-primary/25 via-blue-500/20 to-purple-600/25 blur-3xl opacity-80 animate-pulse" style={{ animationDuration: "3.5s" }} />
+
+                <div className="absolute inset-0 rounded-full border border-white/[0.06]" />
+                <div className="absolute inset-[14%] rounded-full border border-white/[0.08]" />
+
+                <div className="absolute inset-0 cta-orbit-slow">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-slow">
+                    <SiNetflix className="w-5 h-5 sm:w-6 sm:h-6 text-[#E50914]/70" />
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-slow">
+                    <SiAmazonprime className="w-5 h-5 sm:w-6 sm:h-6 text-[#00A8E1]/70" />
+                  </div>
+                </div>
+
+                <div className="absolute inset-[14%] cta-orbit-fast">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-fast">
+                    <SiAppletv className="w-4 h-4 sm:w-5 sm:h-5 text-foreground/60" />
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-fast">
+                    <SiHbo className="w-4 h-4 sm:w-5 sm:h-5 text-foreground/60" />
+                  </div>
+                </div>
+
+                <div className="relative z-10 flex items-center justify-center">
+                  <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-br from-primary/40 to-purple-600/40 blur-2xl opacity-70" />
+                  <img
+                    src={vemLogo}
+                    alt="VEM"
+                    className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] object-contain drop-shadow-[0_8px_32px_rgba(99,102,241,0.6)]"
+                    style={{ animation: "float 4s ease-in-out infinite" }}
+                  />
+                </div>
               </div>
 
               <h2
