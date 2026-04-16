@@ -716,36 +716,50 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             <div className="absolute -bottom-px left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
 
             <div className="relative px-6 py-14 sm:px-14 sm:py-20 text-center">
-              <div className="relative inline-flex items-center justify-center mb-8 w-[280px] h-[280px] sm:w-[340px] sm:h-[340px] mx-auto">
-                <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-br from-primary/25 via-blue-500/20 to-purple-600/25 blur-3xl opacity-80 animate-pulse" style={{ animationDuration: "3.5s" }} />
+              <div className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] mx-auto mb-8">
+                <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-br from-primary/25 via-blue-500/20 to-purple-600/25 blur-3xl opacity-80 animate-pulse" style={{ animationDuration: "3.5s" }} />
 
-                <div className="absolute inset-0 rounded-full border border-white/[0.06]" />
-                <div className="absolute inset-[14%] rounded-full border border-white/[0.08]" />
+                <div className="absolute inset-[10%] rounded-full border border-white/[0.06]" />
+                <div className="absolute inset-[24%] rounded-full border border-white/[0.04]" />
 
-                <div className="absolute inset-0 cta-orbit-slow">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-slow">
-                    <SiNetflix className="w-5 h-5 sm:w-6 sm:h-6 text-[#E50914]/70" />
-                  </div>
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-slow">
-                    <SiAmazonprime className="w-5 h-5 sm:w-6 sm:h-6 text-[#00A8E1]/70" />
-                  </div>
-                </div>
+                {[
+                  { name: "Netflix", color: "#E50914", svg: <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-7 sm:h-7" fill="#E50914"><path d="M5.398 0v.006c3.028 8.556 5.37 15.175 8.348 23.596 2.344.058 4.85.398 4.854.398-2.8-7.924-5.923-16.747-8.487-24zm8.489 0v9.63L18.6 22.951c-.043-7.86-.004-15.913.002-22.95zM5.398 1.05V24c1.873-.225 2.81-.312 4.715-.398v-9.22z"/></svg> },
+                  { name: "Disney+", color: "#0063E5", svg: <svg viewBox="0 0 80 32" className="h-5 sm:h-6" fill="#0063E5"><text x="0" y="22" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="22" fill="#0063E5">D</text><text x="14" y="22" fontFamily="Arial, sans-serif" fontWeight="700" fontSize="22" fill="#0063E5">isney</text><circle cx="65" cy="14" r="9" fill="#0063E5"/><rect x="60" y="13" width="10" height="2" fill="#fff"/><rect x="64" y="9" width="2" height="10" fill="#fff"/></svg> },
+                  { name: "AppleTV", color: "currentColor", svg: <SiAppletv className="w-7 h-7 sm:w-8 sm:h-8 text-foreground/85" /> },
+                  { name: "AmazonPrime", color: "#00A8E1", svg: <SiAmazonprime className="w-7 h-7 sm:w-8 sm:h-8 text-[#00A8E1]" /> },
+                  { name: "HBOMax", color: "currentColor", svg: <SiHbo className="w-6 h-6 sm:w-7 sm:h-7 text-foreground/85" /> },
+                  { name: "Hulu", color: "#1CE783", svg: <svg viewBox="0 0 80 32" className="h-5 sm:h-6"><text x="0" y="24" fontFamily="Arial Black, Helvetica, sans-serif" fontWeight="900" fontSize="26" fill="#1CE783" letterSpacing="-1">hulu</text></svg> },
+                ].map((p, i) => {
+                  const angle = (i * 60 - 90) * Math.PI / 180;
+                  const r = typeof window !== "undefined" && window.innerWidth >= 640 ? 158 : 125;
+                  const x = Math.cos(angle) * r;
+                  const y = Math.sin(angle) * r;
+                  return (
+                    <div
+                      key={p.name}
+                      className="absolute top-1/2 left-1/2 w-14 h-14 sm:w-[68px] sm:h-[68px] z-20"
+                      style={{
+                        transform: ctaReveal.isVisible
+                          ? `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1)`
+                          : `translate(-50%, -50%) scale(0.2)`,
+                        opacity: ctaReveal.isVisible ? 1 : 0,
+                        transition: `transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.08 + 0.4}s, opacity 0.5s ease-out ${i * 0.08 + 0.4}s`,
+                      }}
+                      data-testid={`partner-orbit-${p.name.toLowerCase()}`}
+                    >
+                      <div className="w-full h-full rounded-2xl bg-card/70 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-xl shadow-black/20 hover:scale-110 hover:border-white/20 transition-all duration-300" style={{ animation: `float ${3.5 + (i % 3) * 0.4}s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }}>
+                        {p.svg}
+                      </div>
+                    </div>
+                  );
+                })}
 
-                <div className="absolute inset-[14%] cta-orbit-fast">
-                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-fast">
-                    <SiAppletv className="w-4 h-4 sm:w-5 sm:h-5 text-foreground/60" />
-                  </div>
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-card/40 backdrop-blur-md border border-white/10 flex items-center justify-center shadow-lg cta-counter-rotate-fast">
-                    <SiHbo className="w-4 h-4 sm:w-5 sm:h-5 text-foreground/60" />
-                  </div>
-                </div>
-
-                <div className="relative z-10 flex items-center justify-center">
-                  <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-br from-primary/40 to-purple-600/40 blur-2xl opacity-70" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
+                  <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-br from-primary/50 to-purple-600/50 blur-2xl opacity-75" />
                   <img
                     src={vemLogo}
                     alt="VEM"
-                    className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] object-contain drop-shadow-[0_8px_32px_rgba(99,102,241,0.6)]"
+                    className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] object-contain drop-shadow-[0_8px_32px_rgba(99,102,241,0.6)]"
                     style={{ animation: "float 4s ease-in-out infinite" }}
                   />
                 </div>
