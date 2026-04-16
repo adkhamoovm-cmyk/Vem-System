@@ -716,16 +716,15 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             <div className="absolute -bottom-px left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
 
             <div className="relative px-6 py-14 sm:px-14 sm:py-20 text-center">
-              <div className="relative inline-flex items-center justify-center mb-9">
-                <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-br from-primary/40 via-blue-500/30 to-purple-600/40 blur-2xl opacity-70 animate-pulse" style={{ animationDuration: "3s" }} />
-                <div className="absolute inset-0 -m-3 rounded-3xl bg-gradient-to-br from-primary/30 to-purple-600/30 blur-xl" />
-                <div
-                  className="relative w-[88px] h-[88px] rounded-3xl bg-gradient-to-br from-primary via-blue-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-primary/50 ring-1 ring-white/20"
+              <div className="relative inline-flex items-center justify-center mb-8">
+                <div className="absolute inset-0 -m-10 rounded-full bg-gradient-to-br from-primary/30 via-blue-500/25 to-purple-600/30 blur-3xl opacity-80 animate-pulse" style={{ animationDuration: "3.5s" }} />
+                <div className="absolute inset-0 -m-4 rounded-full bg-gradient-to-br from-primary/40 to-purple-600/40 blur-2xl opacity-60" />
+                <img
+                  src={vemLogo}
+                  alt="VEM"
+                  className="relative w-[120px] h-[120px] sm:w-[140px] sm:h-[140px] object-contain drop-shadow-[0_8px_32px_rgba(99,102,241,0.5)]"
                   style={{ animation: "float 4s ease-in-out infinite" }}
-                >
-                  <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-white/15 via-transparent to-transparent" />
-                  <img src={vemLogo} alt="VEM" className="relative w-12 h-12 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]" />
-                </div>
+                />
               </div>
 
               <h2
