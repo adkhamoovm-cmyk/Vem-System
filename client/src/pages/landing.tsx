@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe, Download, Smartphone, Monitor, ExternalLink, Share2 } from "lucide-react";
-import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv, SiPrimevideo, SiMax } from "react-icons/si";
+import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv, SiPrimevideo } from "react-icons/si";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -759,7 +759,12 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
                   ) },
                   { key: "appletv", node: <SiAppletv className="w-9 h-9 sm:w-10 sm:h-10 text-white" /> },
                   { key: "primevideo", node: <SiPrimevideo className="w-9 h-9 sm:w-10 sm:h-10" style={{ color: "#1399FF" }} /> },
-                  { key: "max", node: <SiMax className="w-9 h-9 sm:w-10 sm:h-10 text-white" /> },
+                  { key: "hbomax", node: (
+                    <div className="flex items-baseline gap-[2px] text-white" style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
+                      <span className="font-black text-[14px] sm:text-[16px] tracking-tight">HBO</span>
+                      <span className="font-light text-[12px] sm:text-[14px] tracking-tight lowercase">max</span>
+                    </div>
+                  ) },
                   { key: "hulu", node: (
                     <span className="font-black text-[18px] sm:text-[20px] tracking-tight" style={{ color: "#1CE783", fontFamily: "system-ui, -apple-system, sans-serif" }}>hulu</span>
                   ) },
