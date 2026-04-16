@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Eye, Edit, Check, X, Ban, Trash2, Crown, Shield, CreditCard, Wallet, TrendingUp
+  Eye, Edit, Check, X, Ban, Trash2, Crown, Shield, CreditCard, Wallet, TrendingUp, Sprout
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +44,7 @@ interface AdminUserDetail {
     referredBy: string | null;
     isBanned: boolean;
     withdrawalBanned: boolean;
+    fundEnabled: boolean;
     createdAt: string;
     lastLoginIp: string | null;
     lastUserAgent: string | null;
@@ -124,6 +125,16 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
     },
   });
 
+  const fundAccessMutation = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      await apiRequest("POST", `/api/admin/users/${userId}/fund-access`, { enabled });
+    },
+    onSuccess: () => {
+      toast({ title: t("admin.fundAccessUpdated") });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+    },
+  });
+
   const passwordMutation = useMutation({
     mutationFn: async () => {
       const body: { password?: string; fundPassword?: string } = {};
@@ -191,6 +202,7 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
             <InfoRow label={t("admin.device")} value={user.lastUserAgent ? user.lastUserAgent.slice(0, 40) + "..." : t("admin.unknown")} />
             <InfoRow label={t("admin.status")} value={user.isBanned ? t("admin.blocked") : t("common.active")} color={user.isBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
             <InfoRow label={t("admin.withdrawal")} value={user.withdrawalBanned ? t("admin.banned") : t("admin.allowed") } color={user.withdrawalBanned ? "hsl(var(--primary))" : "hsl(var(--emerald-500, 142 71% 45%))"} />
+            <InfoRow label={t("admin.fundAccess")} value={user.fundEnabled ? t("admin.fundAllowed") : t("admin.fundBlocked")} color={user.fundEnabled ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--primary))"} />
             <InfoRow label={t("admin.registeredAt")} value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"} />
             <InfoRow label={t("admin.referralCode")} value={user.referralCode} />
             <InfoRow label={t("admin.invitedBy")} value={detail.invitedBy ? `${detail.invitedBy.phone} (UID: ${detail.invitedBy.numericId || "—"})` : t("admin.noInviter")} color={detail.invitedBy ? "hsl(var(--emerald-500, 142 71% 45%))" : "hsl(var(--muted-foreground))"} />
@@ -214,6 +226,12 @@ export function UserDetailModal({ userId, open, onClose }: { userId: string | nu
               data-testid="button-toggle-withdraw-ban"
             >
               <Shield className="w-3 h-3 mr-1" /> {user.withdrawalBanned ? t("admin.allowWithdraw") : t("admin.banWithdraw")}
+            </Button>
+            <Button size="sm" onClick={() => fundAccessMutation.mutate(!user.fundEnabled)}
+              className={`text-xs rounded-lg h-8 ${user.fundEnabled ? "bg-primary text-foreground" : "bg-[#4ADE80] text-black"}`}
+              data-testid="button-toggle-fund-access"
+            >
+              <Sprout className="w-3 h-3 mr-1" /> {user.fundEnabled ? t("admin.banFund") : t("admin.allowFund")}
             </Button>
             <Button size="sm" onClick={() => { setEditPassword(true); setNewPassword(""); setNewFundPassword(""); }}
               className="bg-[#3B82F6] text-foreground text-xs rounded-lg h-8" data-testid="button-edit-password"

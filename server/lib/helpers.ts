@@ -403,6 +403,9 @@ export const adminSchemas = {
   withdrawalBan: z.object({
     banned: z.boolean({ required_error: "Ban holati kerak" }),
   }),
+  fundAccess: z.object({
+    enabled: z.boolean({ required_error: "Fond holati kerak" }),
+  }),
   setBalance: z.object({
     amount: z.union([z.string(), z.number()]).transform(v => Number(v)).pipe(z.number().gt(0, "Miqdor 0 dan katta bo'lishi kerak")),
     mode: z.enum(["add", "subtract"], { required_error: "Rejim kerak (add yoki subtract)" }),

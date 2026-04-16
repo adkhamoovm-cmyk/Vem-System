@@ -51,6 +51,9 @@ router.post("/api/fund/invest", requireAuth, withdrawRateLimiter, validateBody(f
   if (user.isBanned) {
     return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
   }
+  if (!user.fundEnabled) {
+    return res.status(403).json({ message: "Fond bo'limi siz uchun faollashtirilmagan. Administrator bilan bog'laning." });
+  }
   if (!user.fundPassword) {
     return res.status(400).json({ message: "Moliya kodi sozlanmagan. Profildan avval sozlang." });
   }

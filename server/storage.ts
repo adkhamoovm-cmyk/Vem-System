@@ -49,6 +49,7 @@ export interface IStorage {
   getAllUsers(): Promise<User[]>;
   banUser(id: string, isBanned: boolean): Promise<void>;
   setWithdrawalBan(id: string, banned: boolean): Promise<void>;
+  setFundAccess(id: string, enabled: boolean): Promise<void>;
   setUserBalance(id: string, balance: string): Promise<void>;
   deleteUser(id: string): Promise<void>;
   setUserVipLevel(id: string, level: number, dailyLimit: number): Promise<void>;
@@ -339,6 +340,10 @@ export class DatabaseStorage implements IStorage {
 
   async setWithdrawalBan(id: string, banned: boolean): Promise<void> {
     await db.update(users).set({ withdrawalBanned: banned }).where(eq(users.id, id));
+  }
+
+  async setFundAccess(id: string, enabled: boolean): Promise<void> {
+    await db.update(users).set({ fundEnabled: enabled }).where(eq(users.id, id));
   }
 
   async setUserBalance(id: string, balance: string): Promise<void> {

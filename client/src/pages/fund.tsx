@@ -159,6 +159,28 @@ export default function FundPage() {
     );
   }
 
+  if (user && !user.fundEnabled) {
+    return (
+      <div className="px-4 py-6 pb-24 flex items-center justify-center min-h-[70vh]">
+        <div className="max-w-md w-full bg-card border border-border rounded-2xl p-6 shadow-xl text-center" data-testid="fund-locked">
+          <div className="w-20 h-20 mx-auto mb-5 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center">
+            <ShieldAlert className="w-10 h-10 text-amber-500" />
+          </div>
+          <h2 className="text-foreground text-xl font-bold mb-2" data-testid="text-fund-locked-title">{t("fund.lockedTitle")}</h2>
+          <p className="text-muted-foreground text-sm leading-relaxed mb-5" data-testid="text-fund-locked-desc">
+            {t("fund.lockedDesc")}
+          </p>
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 flex items-start gap-3 text-left">
+            <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+              <KeyRound className="w-4 h-4 text-primary" />
+            </div>
+            <p className="text-foreground/80 text-xs leading-relaxed">{t("fund.lockedHint")}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="px-4 py-4 space-y-4 pb-24">
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-blue-600 to-indigo-700 p-5 shadow-xl shadow-primary/20 animate-fade-up" style={{ animationDelay: "0.05s", animationFillMode: "both" }} data-testid="fund-header">

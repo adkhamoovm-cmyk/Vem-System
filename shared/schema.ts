@@ -22,6 +22,7 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").notNull().default(false),
   isBanned: boolean("is_banned").notNull().default(false),
   withdrawalBanned: boolean("withdrawal_banned").notNull().default(false),
+  fundEnabled: boolean("fund_enabled").notNull().default(false),
   vipExpiresAt: timestamp("vip_expires_at"),
   vipPurchasedAt: timestamp("vip_purchased_at"),
   vipPurchasePrice: decimal("vip_purchase_price", { precision: 12, scale: 2 }),

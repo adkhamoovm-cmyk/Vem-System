@@ -61,6 +61,12 @@ router.post("/api/admin/users/:id/ban", requireAdmin, validateBody(adminSchemas.
   res.json({ message: isBanned ? "Foydalanuvchi bloklandi" : "Foydalanuvchi blokdan chiqarildi" });
 }));
 
+router.post("/api/admin/users/:id/fund-access", requireAdmin, validateBody(adminSchemas.fundAccess), asyncHandler(async (req: Request, res: Response) => {
+  const { enabled } = req.body;
+  await storage.setFundAccess(req.params.id as string, enabled);
+  res.json({ message: enabled ? "Fond ruxsat berildi" : "Fond bloklandi" });
+}));
+
 router.post("/api/admin/users/:id/withdrawal-ban", requireAdmin, validateBody(adminSchemas.withdrawalBan), asyncHandler(async (req: Request, res: Response) => {
   const { banned } = req.body;
   await storage.setWithdrawalBan(req.params.id as string, banned);
@@ -618,6 +624,7 @@ router.get("/api/admin/passive-users", requireAdmin, asyncHandler(async (_req: R
     lastLoginIp: users.lastLoginIp,
     isBanned: users.isBanned,
     withdrawalBanned: users.withdrawalBanned,
+    fundEnabled: users.fundEnabled,
     vipExpiresAt: users.vipExpiresAt,
     createdAt: users.createdAt,
     referralCount: dsql<number>`COALESCE((SELECT COUNT(*) FROM referrals WHERE referrals.referrer_id = ${users.id} AND referrals.level = 1), 0)`,
