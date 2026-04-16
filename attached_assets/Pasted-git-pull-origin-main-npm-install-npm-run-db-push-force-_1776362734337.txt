@@ -1,0 +1,44 @@
+git pull origin main
+
+npm install
+
+npm run db:push --force
+
+npm run build
+
+pm2 restart all
+-bash: cd: /path/to/your/vem-project: No such file or directory
+fatal: not a git repository (or any of the parent directories): .git
+npm error code ENOENT
+npm error syscall open
+npm error path /root/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/root/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /root/.npm/_logs/2026-04-16T18_05_15_037Z-debug-0.log
+npm warn using --force Recommended protections disabled.
+npm error code ENOENT
+npm error syscall open
+npm error path /root/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/root/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /root/.npm/_logs/2026-04-16T18_05_15_672Z-debug-0.log
+npm error code ENOENT
+npm error syscall open
+npm error path /root/package.json
+npm error errno -2
+npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/root/package.json'
+npm error enoent This is related to npm not being able to find a file.
+npm error enoent
+npm error A complete log of this run can be found in: /root/.npm/_logs/2026-04-16T18_05_15_824Z-debug-0.log
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [all](ids: [ 0 ])
+[PM2] [vem](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ vem                │ fork     │ 29   │ online    │ 0%       │ 18.6mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
