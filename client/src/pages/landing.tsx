@@ -708,49 +708,70 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
           ref={ctaReveal.ref}
           className={`relative max-w-3xl mx-auto px-4 sm:px-6 transition-all duration-700 ${ctaReveal.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
         >
-          <div className="glass-card gradient-border rounded-3xl px-8 py-12 sm:px-14 sm:py-16 text-center shadow-2xl shadow-primary/10">
-            <div
-              className="relative inline-flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-blue-600 mb-8 shadow-xl shadow-primary/35"
-              style={{ width: 72, height: 72, animation: "float 4s ease-in-out infinite" }}
-            >
-              <Star className="w-9 h-9 text-white" />
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/20 to-transparent" />
-            </div>
-            <h2
-              className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-5 tracking-tight text-gradient"
-              data-testid="text-cta-title"
-            >
-              {t("landing.ctaTitle")}
-            </h2>
-            <p className="text-muted-foreground text-base sm:text-lg max-w-md mx-auto mb-10 leading-relaxed">
-              {t("landing.ctaDesc")}
-            </p>
-            <div className="grid grid-cols-3 gap-3 mb-10 max-w-lg mx-auto">
-              <div className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-2xl bg-primary/10 border border-primary/20 text-xs sm:text-sm font-medium text-primary" data-testid="chip-cta-1">
-                <Zap className="w-4 h-4" />
-                <span>{t("landing.ctaChip1")}</span>
+          <div className="relative rounded-[28px] overflow-hidden shadow-2xl shadow-primary/15">
+            <div className="absolute inset-0 bg-gradient-to-br from-card/80 via-card/60 to-card/80 backdrop-blur-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-purple-600/[0.08]" />
+            <div className="absolute inset-0 rounded-[28px] border border-white/[0.08]" />
+            <div className="absolute -top-px left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+            <div className="absolute -bottom-px left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
+
+            <div className="relative px-6 py-14 sm:px-14 sm:py-20 text-center">
+              <div className="relative inline-flex items-center justify-center mb-9">
+                <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-br from-primary/40 via-blue-500/30 to-purple-600/40 blur-2xl opacity-70 animate-pulse" style={{ animationDuration: "3s" }} />
+                <div className="absolute inset-0 -m-3 rounded-3xl bg-gradient-to-br from-primary/30 to-purple-600/30 blur-xl" />
+                <div
+                  className="relative w-[88px] h-[88px] rounded-3xl bg-gradient-to-br from-primary via-blue-500 to-purple-600 flex items-center justify-center shadow-2xl shadow-primary/50 ring-1 ring-white/20"
+                  style={{ animation: "float 4s ease-in-out infinite" }}
+                >
+                  <div className="absolute inset-[1px] rounded-3xl bg-gradient-to-br from-white/15 via-transparent to-transparent" />
+                  <img src={vemLogo} alt="VEM" className="relative w-12 h-12 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]" />
+                </div>
               </div>
-              <div className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-xs sm:text-sm font-medium text-blue-600 dark:text-blue-400" data-testid="chip-cta-2">
-                <CircleDollarSign className="w-4 h-4" />
-                <span>{t("landing.ctaChip2")}</span>
-              </div>
-              <div className="flex flex-col items-center gap-1.5 px-3 py-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400" data-testid="chip-cta-3">
-                <Shield className="w-4 h-4" />
-                <span>{t("landing.ctaChip3")}</span>
-              </div>
-            </div>
-            <div className="relative inline-block">
-              <div className="absolute inset-0 rounded-2xl blur-md bg-gradient-to-r from-primary via-blue-500 to-purple-600 opacity-40 scale-105" />
-              <button
-                onClick={() => openAuth("register")}
-                className="group relative inline-flex items-center gap-2.5 px-10 py-5 bg-gradient-to-r from-primary via-blue-500 to-blue-600 text-white font-bold text-lg rounded-2xl shadow-2xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.04] active:scale-[0.97] transition-all duration-300 overflow-hidden"
-                data-testid="button-cta-register"
+
+              <h2
+                className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-5 tracking-tight bg-clip-text text-transparent bg-gradient-to-br from-foreground via-primary to-purple-500 leading-[1.15]"
+                data-testid="text-cta-title"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
-                <UserPlus className="w-5 h-5 relative z-10" />
-                <span className="relative z-10">{t("landing.getStarted")}</span>
-                <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
-              </button>
+                {t("landing.ctaTitle")}
+              </h2>
+              <p className="text-muted-foreground text-base sm:text-lg max-w-md mx-auto mb-10 leading-relaxed">
+                {t("landing.ctaDesc")}
+              </p>
+
+              <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-11 max-w-xl mx-auto">
+                <div className="group flex items-center gap-2 px-4 py-2.5 rounded-full bg-primary/[0.08] border border-primary/20 backdrop-blur-sm hover:bg-primary/[0.12] hover:border-primary/30 transition-all" data-testid="chip-cta-1">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-blue-500 flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
+                    <Zap className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground/90">{t("landing.ctaChip1")}</span>
+                </div>
+                <div className="group flex items-center gap-2 px-4 py-2.5 rounded-full bg-blue-500/[0.08] border border-blue-500/20 backdrop-blur-sm hover:bg-blue-500/[0.12] hover:border-blue-500/30 transition-all" data-testid="chip-cta-2">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
+                    <CircleDollarSign className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground/90">{t("landing.ctaChip2")}</span>
+                </div>
+                <div className="group flex items-center gap-2 px-4 py-2.5 rounded-full bg-purple-500/[0.08] border border-purple-500/20 backdrop-blur-sm hover:bg-purple-500/[0.12] hover:border-purple-500/30 transition-all" data-testid="chip-cta-3">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
+                    <Shield className="w-3.5 h-3.5 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground/90">{t("landing.ctaChip3")}</span>
+                </div>
+              </div>
+
+              <div className="relative inline-block">
+                <div className="absolute inset-0 rounded-2xl blur-xl bg-gradient-to-r from-primary via-blue-500 to-purple-600 opacity-50 scale-110 animate-pulse" style={{ animationDuration: "2.5s" }} />
+                <button
+                  onClick={() => openAuth("register")}
+                  className="group relative inline-flex items-center gap-3 px-10 py-5 bg-gradient-to-r from-primary via-blue-500 to-purple-600 text-white font-bold text-lg rounded-2xl shadow-2xl shadow-primary/40 hover:shadow-primary/60 hover:scale-[1.04] active:scale-[0.97] transition-all duration-300 overflow-hidden ring-1 ring-white/20"
+                  data-testid="button-cta-register"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+                  <UserPlus className="w-5 h-5 relative z-10" />
+                  <span className="relative z-10">{t("landing.getStarted")}</span>
+                  <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
