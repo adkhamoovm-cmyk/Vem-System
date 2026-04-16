@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe, Download, Smartphone, Monitor, ExternalLink, Share2 } from "lucide-react";
-import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv } from "react-icons/si";
+import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv, SiPrimevideo, SiMax } from "react-icons/si";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -42,7 +42,7 @@ function useScrollToggle() {
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setIsVisible(entry.isIntersecting),
-      { threshold: 0.3 }
+      { threshold: 0.1, rootMargin: "0px 0px -80px 0px" }
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -742,12 +742,19 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
                 <div className="absolute inset-[22%] rounded-full border border-white/[0.04]" />
 
                 {[
-                  { name: "Netflix", slug: "netflix", color: "E50914" },
-                  { name: "DisneyPlus", slug: "disneyplus", color: "0063E5" },
-                  { name: "AppleTV", slug: "appletv", color: "FFFFFF" },
-                  { name: "PrimeVideo", slug: "primevideo", color: "00A8E1" },
-                  { name: "HBOMax", slug: "max", color: "FFFFFF" },
-                  { name: "Hulu", slug: "hulu", color: "1CE783" },
+                  { key: "netflix", node: <SiNetflix className="w-8 h-8 sm:w-9 sm:h-9" style={{ color: "#E50914" }} /> },
+                  { key: "disneyplus", node: (
+                    <div className="flex items-baseline gap-[2px] font-bold text-white" style={{ fontFamily: "Georgia, serif", letterSpacing: "-0.5px" }}>
+                      <span className="text-[15px] sm:text-[17px] italic">Disney</span>
+                      <span className="text-[14px] sm:text-[16px] font-light">+</span>
+                    </div>
+                  ) },
+                  { key: "appletv", node: <SiAppletv className="w-9 h-9 sm:w-10 sm:h-10 text-white" /> },
+                  { key: "primevideo", node: <SiPrimevideo className="w-9 h-9 sm:w-10 sm:h-10" style={{ color: "#1399FF" }} /> },
+                  { key: "max", node: <SiMax className="w-9 h-9 sm:w-10 sm:h-10 text-white" /> },
+                  { key: "hulu", node: (
+                    <span className="font-black text-[18px] sm:text-[20px] tracking-tight" style={{ color: "#1CE783", fontFamily: "system-ui, -apple-system, sans-serif" }}>hulu</span>
+                  ) },
                 ].map((p, i) => {
                   const angle = (i * 60 - 90) * Math.PI / 180;
                   const radiusPercent = 42;
@@ -755,28 +762,23 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
                   const y = Math.sin(angle) * radiusPercent;
                   return (
                     <div
-                      key={p.name}
-                      className="absolute top-1/2 left-1/2 w-[60px] h-[60px] sm:w-[72px] sm:h-[72px] z-20"
+                      key={p.key}
+                      className="absolute top-1/2 left-1/2 w-[64px] h-[64px] sm:w-[76px] sm:h-[76px] z-20"
                       style={{
                         transform: orbitToggle.isVisible
                           ? `translate(calc(-50% + ${x}%), calc(-50% + ${y}%)) scale(1)`
-                          : `translate(-50%, -50%) scale(0)`,
+                          : `translate(-50%, -50%) scale(0.3)`,
                         opacity: orbitToggle.isVisible ? 1 : 0,
-                        transition: `transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.07 + 0.2}s, opacity 0.5s ease-out ${i * 0.07 + 0.2}s`,
+                        transition: `transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.08 + 0.15}s, opacity 0.45s ease-out ${i * 0.08 + 0.15}s`,
                       }}
-                      data-testid={`partner-orbit-${p.slug}`}
+                      data-testid={`partner-orbit-${p.key}`}
                     >
                       <div
-                        className="relative w-full h-full rounded-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.02] backdrop-blur-xl border border-white/15 flex items-center justify-center shadow-xl shadow-black/30 hover:scale-110 hover:border-white/25 hover:shadow-2xl transition-all duration-300 overflow-hidden"
-                        style={{ animation: `float ${3.5 + (i % 3) * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.25}s` }}
+                        className="relative w-full h-full rounded-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/15 flex items-center justify-center shadow-xl shadow-black/40 hover:scale-110 hover:border-white/25 hover:shadow-2xl transition-all duration-300 overflow-hidden"
+                        style={{ animation: orbitToggle.isVisible ? `float ${3.5 + (i % 3) * 0.5}s ease-in-out infinite` : "none", animationDelay: `${i * 0.25 + 1}s` }}
                       >
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
-                        <img
-                          src={`https://cdn.simpleicons.org/${p.slug}/${p.color}`}
-                          alt={p.name}
-                          className="relative w-7 h-7 sm:w-8 sm:h-8 object-contain"
-                          loading="lazy"
-                        />
+                        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.06] to-transparent pointer-events-none" />
+                        {p.node}
                       </div>
                     </div>
                   );
