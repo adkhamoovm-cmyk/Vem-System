@@ -33,6 +33,24 @@ function useScrollReveal() {
   return { ref, isVisible };
 }
 
+function useScrollToggle() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.3 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, isVisible };
+}
+
 function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
   const { ref, isVisible } = useScrollReveal();
@@ -259,6 +277,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   const faqReveal = useScrollReveal();
   const downloadReveal = useScrollReveal();
   const ctaReveal = useScrollReveal();
+  const orbitToggle = useScrollToggle();
 
   const handleDownload = useCallback(async () => {
     const ua = navigator.userAgent;
@@ -716,39 +735,48 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             <div className="absolute -bottom-px left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
 
             <div className="relative px-6 py-14 sm:px-14 sm:py-20 text-center">
-              <div className="relative w-[300px] h-[300px] sm:w-[380px] sm:h-[380px] mx-auto mb-8">
+              <div ref={orbitToggle.ref} className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto mb-8">
                 <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-br from-primary/25 via-blue-500/20 to-purple-600/25 blur-3xl opacity-80 animate-pulse" style={{ animationDuration: "3.5s" }} />
 
-                <div className="absolute inset-[10%] rounded-full border border-white/[0.06]" />
-                <div className="absolute inset-[24%] rounded-full border border-white/[0.04]" />
+                <div className="absolute inset-[8%] rounded-full border border-white/[0.06]" />
+                <div className="absolute inset-[22%] rounded-full border border-white/[0.04]" />
 
                 {[
-                  { name: "Netflix", color: "#E50914", svg: <svg viewBox="0 0 24 24" className="w-6 h-6 sm:w-7 sm:h-7" fill="#E50914"><path d="M5.398 0v.006c3.028 8.556 5.37 15.175 8.348 23.596 2.344.058 4.85.398 4.854.398-2.8-7.924-5.923-16.747-8.487-24zm8.489 0v9.63L18.6 22.951c-.043-7.86-.004-15.913.002-22.95zM5.398 1.05V24c1.873-.225 2.81-.312 4.715-.398v-9.22z"/></svg> },
-                  { name: "Disney+", color: "#0063E5", svg: <svg viewBox="0 0 80 32" className="h-5 sm:h-6" fill="#0063E5"><text x="0" y="22" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="22" fill="#0063E5">D</text><text x="14" y="22" fontFamily="Arial, sans-serif" fontWeight="700" fontSize="22" fill="#0063E5">isney</text><circle cx="65" cy="14" r="9" fill="#0063E5"/><rect x="60" y="13" width="10" height="2" fill="#fff"/><rect x="64" y="9" width="2" height="10" fill="#fff"/></svg> },
-                  { name: "AppleTV", color: "currentColor", svg: <SiAppletv className="w-7 h-7 sm:w-8 sm:h-8 text-foreground/85" /> },
-                  { name: "AmazonPrime", color: "#00A8E1", svg: <SiAmazonprime className="w-7 h-7 sm:w-8 sm:h-8 text-[#00A8E1]" /> },
-                  { name: "HBOMax", color: "currentColor", svg: <SiHbo className="w-6 h-6 sm:w-7 sm:h-7 text-foreground/85" /> },
-                  { name: "Hulu", color: "#1CE783", svg: <svg viewBox="0 0 80 32" className="h-5 sm:h-6"><text x="0" y="24" fontFamily="Arial Black, Helvetica, sans-serif" fontWeight="900" fontSize="26" fill="#1CE783" letterSpacing="-1">hulu</text></svg> },
+                  { name: "Netflix", slug: "netflix", color: "E50914" },
+                  { name: "DisneyPlus", slug: "disneyplus", color: "0063E5" },
+                  { name: "AppleTV", slug: "appletv", color: "FFFFFF" },
+                  { name: "PrimeVideo", slug: "primevideo", color: "00A8E1" },
+                  { name: "HBOMax", slug: "max", color: "FFFFFF" },
+                  { name: "Hulu", slug: "hulu", color: "1CE783" },
                 ].map((p, i) => {
                   const angle = (i * 60 - 90) * Math.PI / 180;
-                  const r = typeof window !== "undefined" && window.innerWidth >= 640 ? 158 : 125;
-                  const x = Math.cos(angle) * r;
-                  const y = Math.sin(angle) * r;
+                  const radiusPercent = 42;
+                  const x = Math.cos(angle) * radiusPercent;
+                  const y = Math.sin(angle) * radiusPercent;
                   return (
                     <div
                       key={p.name}
-                      className="absolute top-1/2 left-1/2 w-14 h-14 sm:w-[68px] sm:h-[68px] z-20"
+                      className="absolute top-1/2 left-1/2 w-[60px] h-[60px] sm:w-[72px] sm:h-[72px] z-20"
                       style={{
-                        transform: ctaReveal.isVisible
-                          ? `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1)`
-                          : `translate(-50%, -50%) scale(0.2)`,
-                        opacity: ctaReveal.isVisible ? 1 : 0,
-                        transition: `transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.08 + 0.4}s, opacity 0.5s ease-out ${i * 0.08 + 0.4}s`,
+                        transform: orbitToggle.isVisible
+                          ? `translate(calc(-50% + ${x}%), calc(-50% + ${y}%)) scale(1)`
+                          : `translate(-50%, -50%) scale(0)`,
+                        opacity: orbitToggle.isVisible ? 1 : 0,
+                        transition: `transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.07 + 0.2}s, opacity 0.5s ease-out ${i * 0.07 + 0.2}s`,
                       }}
-                      data-testid={`partner-orbit-${p.name.toLowerCase()}`}
+                      data-testid={`partner-orbit-${p.slug}`}
                     >
-                      <div className="w-full h-full rounded-2xl bg-card/70 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-xl shadow-black/20 hover:scale-110 hover:border-white/20 transition-all duration-300" style={{ animation: `float ${3.5 + (i % 3) * 0.4}s ease-in-out infinite`, animationDelay: `${i * 0.2}s` }}>
-                        {p.svg}
+                      <div
+                        className="relative w-full h-full rounded-2xl bg-gradient-to-br from-white/[0.06] to-white/[0.02] backdrop-blur-xl border border-white/15 flex items-center justify-center shadow-xl shadow-black/30 hover:scale-110 hover:border-white/25 hover:shadow-2xl transition-all duration-300 overflow-hidden"
+                        style={{ animation: `float ${3.5 + (i % 3) * 0.5}s ease-in-out infinite`, animationDelay: `${i * 0.25}s` }}
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                        <img
+                          src={`https://cdn.simpleicons.org/${p.slug}/${p.color}`}
+                          alt={p.name}
+                          className="relative w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                          loading="lazy"
+                        />
                       </div>
                     </div>
                   );
