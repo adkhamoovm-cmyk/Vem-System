@@ -4,7 +4,7 @@ import { pool } from "../db";
 import { db } from "../db";
 import { users, taskHistory, balanceHistory, referrals } from "@shared/schema";
 import { eq, and, desc, sql as dsql } from "drizzle-orm";
-import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts, getUzbDayNow, getUzbToday, getUzbRealNow, DAY_OFFSET_HOURS } from "../lib/helpers";
+import { requireAuth, taskRateLimiter, withdrawRateLimiter, sendNotification, hashPassword, comparePasswords, uploadAvatar, asyncHandler, validateBody, userSchemas, checkFundPinLock, recordFundPinFailure, resetFundPinAttempts, getUzbDayNow, getUzbToday, getUzbRealNow, DAY_OFFSET_HOURS, signTaskToken, verifyTaskToken, TASK_MIN_WATCH_SECONDS, TASK_TOKEN_TTL_MS } from "../lib/helpers";
 
 const router = Router();
 
@@ -13,9 +13,47 @@ router.get("/api/videos", requireAuth, asyncHandler(async (_req: Request, res: R
   res.json(videoList);
 }));
 
-router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(userSchemas.completeTask), asyncHandler(async (req: Request, res: Response) => {
+router.post("/api/tasks/start", requireAuth, taskRateLimiter, validateBody(userSchemas.startTask), asyncHandler(async (req: Request, res: Response) => {
   const userId = req.session.userId!;
   const { videoId, youtubeVideoId } = req.body;
+
+  const uzbDayNow = getUzbDayNow();
+  if (uzbDayNow.getUTCDay() === 0) {
+    return res.status(400).json({ message: "Yakshanba kuni dam olish kuni. Vazifalar Dushanba-Shanba kunlari bajariladi." });
+  }
+
+  const user = await storage.getUser(userId);
+  if (!user) return res.status(401).json({ message: "Foydalanuvchi topilmadi" });
+  if (user.isBanned) return res.status(403).json({ message: "Sizning hisobingiz bloklangan." });
+  if (user.vipLevel < 0) return res.status(400).json({ message: "Avval VIP paket sotib oling" });
+  if (user.vipExpiresAt && new Date(user.vipExpiresAt) < getUzbRealNow()) {
+    return res.status(400).json({ message: "VIP paketingiz muddati tugagan." });
+  }
+  if (!videoId && !youtubeVideoId) {
+    return res.status(400).json({ message: "Video ID kerak" });
+  }
+  if (videoId) {
+    const video = await storage.getVideo(videoId);
+    if (!video) return res.status(404).json({ message: "Video topilmadi" });
+  }
+
+  const taskVideoId = videoId || `yt_${youtubeVideoId}`;
+  const today = getUzbToday();
+  const [existing] = await db.select().from(taskHistory).where(
+    and(eq(taskHistory.userId, userId), eq(taskHistory.videoId, taskVideoId), dsql`DATE(${taskHistory.completedAt} + make_interval(hours => ${DAY_OFFSET_HOURS})) = ${today}`)
+  ).limit(1);
+  if (existing) {
+    return res.status(400).json({ message: "Bu videoni bugun allaqachon ko'rgansiz" });
+  }
+
+  const startedAt = Date.now();
+  const token = signTaskToken({ userId, videoId: taskVideoId, startedAt });
+  res.json({ taskToken: token, requiredSeconds: TASK_MIN_WATCH_SECONDS, startedAt });
+}));
+
+router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(userSchemas.completeTask), asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.session.userId!;
+  const { videoId, youtubeVideoId, taskToken } = req.body;
 
   const uzbDayNow = getUzbDayNow();
   if (uzbDayNow.getUTCDay() === 0) {
@@ -40,6 +78,22 @@ router.post("/api/tasks/complete", requireAuth, taskRateLimiter, validateBody(us
 
   const taskVideoId = videoId || `yt_${youtubeVideoId}`;
   const today = getUzbToday();
+
+  const tokenPayload = verifyTaskToken(taskToken);
+  if (!tokenPayload) {
+    return res.status(400).json({ message: "Vazifa tokeni noto'g'ri. Videoni qaytadan boshlang." });
+  }
+  if (tokenPayload.userId !== userId || tokenPayload.videoId !== taskVideoId) {
+    return res.status(400).json({ message: "Vazifa tokeni mos kelmadi. Videoni qaytadan boshlang." });
+  }
+  const elapsedMs = Date.now() - tokenPayload.startedAt;
+  if (elapsedMs < TASK_MIN_WATCH_SECONDS * 1000) {
+    const left = Math.ceil((TASK_MIN_WATCH_SECONDS * 1000 - elapsedMs) / 1000);
+    return res.status(400).json({ message: `Videoni to'liq tomosha qiling. ${left} soniya qoldi.` });
+  }
+  if (elapsedMs > TASK_TOKEN_TTL_MS) {
+    return res.status(400).json({ message: "Vazifa tokeni muddati tugagan. Videoni qaytadan boshlang." });
+  }
 
   if (user.vipLevel < 0) {
     return res.status(400).json({ message: "Avval VIP paket sotib oling" });

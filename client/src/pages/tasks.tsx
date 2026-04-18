@@ -184,13 +184,31 @@ function VideoPlayerModal({
   const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   const hqThumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
+  const [taskToken, setTaskToken] = useState<string | null>(null);
+
+  const startMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/tasks/start", { youtubeVideoId: videoId });
+      return res.json() as Promise<{ taskToken: string; requiredSeconds: number }>;
+    },
+    onSuccess: (data) => {
+      setTaskToken(data.taskToken);
+      setStarted(true);
+    },
+    onError: (error: Error) => {
+      toast({ title: t("common.error"), description: translateServerMessage(error.message), variant: "destructive" });
+    },
+  });
+
   const completeMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/tasks/complete", { youtubeVideoId: videoId });
+      if (!taskToken) throw new Error("Vazifa tokeni topilmadi. Videoni qaytadan boshlang.");
+      const res = await apiRequest("POST", "/api/tasks/complete", { youtubeVideoId: videoId, taskToken });
       return res.json();
     },
     onSuccess: () => {
       setCompleted(true);
+      setTaskToken(null);
       queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
     },
     onError: (error: Error) => {
@@ -203,6 +221,7 @@ function VideoPlayerModal({
       setStarted(false);
       setTimeLeft(TIMER_DURATION);
       setCompleted(false);
+      setTaskToken(null);
     }
   }, [open]);
 
@@ -243,8 +262,9 @@ function VideoPlayerModal({
                 <div className="relative">
                   <div className="absolute inset-0 bg-white/20 rounded-full animate-ping" style={{ animationDuration: "2s" }} />
                   <Button
-                    onClick={() => setStarted(true)}
-                    className="relative w-18 h-18 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center shadow-2xl shadow-primary/40 no-default-hover-elevate no-default-active-elevate cursor-pointer active:scale-95 transition-transform"
+                    onClick={() => startMutation.mutate()}
+                    disabled={startMutation.isPending}
+                    className="relative w-18 h-18 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center shadow-2xl shadow-primary/40 no-default-hover-elevate no-default-active-elevate cursor-pointer active:scale-95 transition-transform disabled:opacity-60"
                     style={{ width: "72px", height: "72px" }}
                     data-testid="button-play"
                   >

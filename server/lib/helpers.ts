@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { storage } from "../storage";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { scrypt, randomBytes, timingSafeEqual, createHmac } from "crypto";
 import { promisify } from "util";
 import multer from "multer";
 import path from "path";
@@ -467,10 +467,42 @@ export const adminSchemas = {
   }),
 };
 
+const TASK_TOKEN_SECRET = process.env.TASK_TOKEN_SECRET || process.env.SESSION_SECRET || "dev-task-token-secret-change-me";
+export const TASK_MIN_WATCH_SECONDS = 25;
+export const TASK_TOKEN_TTL_MS = 10 * 60 * 1000;
+
+export function signTaskToken(payload: { userId: string; videoId: string; startedAt: number }): string {
+  const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
+  const sig = createHmac("sha256", TASK_TOKEN_SECRET).update(body).digest("base64url");
+  return `${body}.${sig}`;
+}
+
+export function verifyTaskToken(token: string): { userId: string; videoId: string; startedAt: number } | null {
+  if (typeof token !== "string" || !token.includes(".")) return null;
+  const [body, sig] = token.split(".");
+  if (!body || !sig) return null;
+  const expected = createHmac("sha256", TASK_TOKEN_SECRET).update(body).digest("base64url");
+  const sigBuf = Buffer.from(sig);
+  const expBuf = Buffer.from(expected);
+  if (sigBuf.length !== expBuf.length || !timingSafeEqual(sigBuf, expBuf)) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
+    if (typeof payload.userId !== "string" || typeof payload.videoId !== "string" || typeof payload.startedAt !== "number") return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 export const userSchemas = {
+  startTask: z.object({
+    videoId: z.string().optional(),
+    youtubeVideoId: z.string().optional(),
+  }),
   completeTask: z.object({
     videoId: z.string().optional(),
     youtubeVideoId: z.string().optional(),
+    taskToken: z.string({ required_error: "Vazifa tokeni topilmadi" }).min(1, "Vazifa tokeni topilmadi"),
   }),
   purchaseVip: z.object({
     packageId: z.string({ required_error: "Paket tanlang" }).min(1, "Paket tanlang"),
