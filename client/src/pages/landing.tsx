@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe, Download, Smartphone, Monitor, ExternalLink, Share2 } from "lucide-react";
-import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv, SiPrimevideo } from "react-icons/si";
+import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv, SiPrimevideo, SiYoutube, SiSpotify } from "react-icons/si";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -100,22 +100,6 @@ function FloatingParticles() {
         />
       ))}
     </div>
-  );
-}
-
-function DisneyPlusIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M2.056 6.834c-.04.218-.07.444-.07.685 0 2.022 2.115 3.66 4.724 3.66.556 0 1.09-.075 1.586-.213-.072.218-.112.45-.112.69 0 1.205.979 2.183 2.183 2.183 1.131 0 2.06-.863 2.17-1.965.455.347 1.008.568 1.612.568 1.468 0 2.658-1.19 2.658-2.657 0-.29-.047-.57-.133-.832.06.003.12.005.182.005 1.995 0 3.612-1.617 3.612-3.612S18.85 1.735 16.856 1.735c-.437 0-.856.078-1.244.22C14.872.78 13.653 0 12.266 0c-1.678 0-3.08 1.043-3.647 2.513A3.15 3.15 0 007.33 2.08c-1.74 0-3.15 1.41-3.15 3.15 0 .564.148 1.094.408 1.552-.936.038-1.768.21-2.532.052zM22.14 17.147c-1.164-.348-3.058-.563-5.198-.563-4.985 0-8.577 1.17-8.577 2.796 0 .458.287.884.793 1.258-.652.245-1.027.56-1.027.897 0 .95 2.48 1.72 5.54 1.72 2.143 0 3.98-.39 4.863-.954.37.09.81.14 1.296.14 2.13 0 3.858-.67 3.858-1.497 0-.42-.416-.8-1.09-1.076.67-.336 1.067-.73 1.067-1.155 0-.208-.128-.404-.357-.583.352.007.612-.067.832-.167z"/>
-    </svg>
-  );
-}
-
-function HuluIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M1.8 4.8h3.6v6.6c0 .48.12.84.36 1.08.24.24.6.36 1.08.36h1.8c.48 0 .84-.12 1.08-.36.24-.24.36-.6.36-1.08V4.8h3.6v6.6c0 .48.12.84.36 1.08.24.24.6.36 1.08.36h1.8c.48 0 .84-.12 1.08-.36.24-.24.36-.6.36-1.08V4.8h3.6v8.4c0 1.44-.36 2.52-1.08 3.24-.72.72-1.8 1.08-3.24 1.08h-3c-1.08 0-1.98-.24-2.7-.72-.72.48-1.62.72-2.7.72h-3c-1.44 0-2.52-.36-3.24-1.08-.72-.72-1.08-1.8-1.08-3.24V4.8z"/>
-    </svg>
   );
 }
 
@@ -333,9 +317,9 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
     { name: "Netflix", icon: SiNetflix, color: "#E50914", glow: "hover:shadow-[#E50914]/15" },
     { name: "Amazon Prime", icon: SiAmazonprime, color: "#00A8E1", glow: "hover:shadow-[#00A8E1]/15" },
     { name: "HBO Max", icon: SiHbo, color: "#B535F6", glow: "hover:shadow-[#B535F6]/15" },
-    { name: "Disney+", icon: DisneyPlusIcon, color: "#113CCF", glow: "hover:shadow-[#113CCF]/15" },
+    { name: "YouTube", icon: SiYoutube, color: "#FF0000", glow: "hover:shadow-[#FF0000]/15" },
     { name: "Apple TV+", icon: SiAppletv, color: "#A3AAAE", glow: "hover:shadow-[#A3AAAE]/15" },
-    { name: "Hulu", icon: HuluIcon, color: "#1CE783", glow: "hover:shadow-[#1CE783]/15" },
+    { name: "Spotify", icon: SiSpotify, color: "#1DB954", glow: "hover:shadow-[#1DB954]/15" },
   ];
 
   return (
