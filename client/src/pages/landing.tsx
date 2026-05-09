@@ -953,7 +953,7 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
               {[
                 { href: "https://t.me/vem_ms", label: t("landing.support"), testId: "link-footer-support" },
                 { href: "https://t.me/Vem_Official", label: t("landing.channel"), testId: "link-footer-channel" },
-                { href: "https://t.me/+rO6-eoMDl0EyYWNh", label: t("landing.community"), testId: "link-footer-community" },
+                { href: "https://t.me/Vem_Community", label: t("landing.community"), testId: "link-footer-community" },
               ].map((link) => (
                 <a
                   key={link.testId}
