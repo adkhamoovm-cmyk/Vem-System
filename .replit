@@ -51,3 +51,4 @@ VAPID_PRIVATE_KEY = "FBigRMwTD8ks9QJjfLqGdpTZ5vtLMp45GjGkzCxMOIg"
 
 [agent]
 expertMode = true
+stack = "FULLSTACK_JS"
