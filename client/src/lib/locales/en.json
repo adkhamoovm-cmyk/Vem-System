@@ -163,7 +163,8 @@
     "TJ": "Tajikistan",
     "KG": "Kyrgyzstan",
     "TM": "Turkmenistan",
-    "KZ": "Kazakhstan"
+    "KZ": "Kazakhstan",
+    "BD": "Bangladesh"
   },
   "dashboard": {
     "watch": "Watch",
