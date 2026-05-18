@@ -22,6 +22,7 @@ export const countryCodes: CountryCode[] = [
   { code: "+996", country: "KG", flag: "\u{1F1F0}\u{1F1EC}" },
   { code: "+993", country: "TM", flag: "\u{1F1F9}\u{1F1F2}" },
   { code: "+7",   country: "KZ", flag: "\u{1F1F0}\u{1F1FF}" },
+  { code: "+880", country: "BD", flag: "\u{1F1E7}\u{1F1E9}" },
 ];
 
 export function PinInput({ value, onChange, error }: { value: string; onChange: (val: string) => void; error?: boolean }) {
