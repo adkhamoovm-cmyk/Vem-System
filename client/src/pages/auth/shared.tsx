@@ -6,8 +6,11 @@ export interface CountryCode {
   flag: string;
 }
 
+export const DEFAULT_COUNTRY = "DE";
+
 export const countryCodes: CountryCode[] = [
   // O'rta Osiyo
+  { code: "+49",  country: "DE", flag: "🇩🇪" },
   { code: "+998", country: "UZ", flag: "🇺🇿" },
   { code: "+7",   country: "KZ", flag: "🇰🇿" },
   { code: "+996", country: "KG", flag: "🇰🇬" },
@@ -61,7 +64,6 @@ export const countryCodes: CountryCode[] = [
   // Yevropa
   { code: "+7",   country: "RU", flag: "🇷🇺" },
   { code: "+44",  country: "GB", flag: "🇬🇧" },
-  { code: "+49",  country: "DE", flag: "🇩🇪" },
   { code: "+33",  country: "FR", flag: "🇫🇷" },
   { code: "+39",  country: "IT", flag: "🇮🇹" },
   { code: "+34",  country: "ES", flag: "🇪🇸" },

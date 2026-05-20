@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { Phone, Lock, Eye, EyeOff, ChevronDown, Ban } from "lucide-react";
+import { Phone, Lock, Eye, EyeOff, ChevronDown, Ban, Search } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
-import { type CountryCode } from "./shared";
+import { type CountryCode, DEFAULT_COUNTRY } from "./shared";
 
 interface LoginFormProps {
   countryCodes: CountryCode[];
@@ -32,9 +32,10 @@ export function LoginForm({ countryCodes, locale, t, translateServerMessage, sho
   const [loginCountry, setLoginCountry] = useState<CountryCode>(() => {
     const saved = localStorage.getItem("vem_country");
     if (saved) { const found = countryCodes.find(c => c.country === saved); if (found) return found; }
-    return countryCodes[0];
+    return countryCodes.find(c => c.country === DEFAULT_COUNTRY) ?? countryCodes[0];
   });
   const [showLoginCountryList, setShowLoginCountryList] = useState(false);
+  const [loginCountrySearch, setLoginCountrySearch] = useState("");
 
   const triggerShake = () => {
     setLoginShake(true);
@@ -117,21 +118,40 @@ export function LoginForm({ countryCodes, locale, t, translateServerMessage, sho
                       </button>
                       {showLoginCountryList && (
                         <>
-                          <div className="fixed inset-0 z-40" onClick={() => setShowLoginCountryList(false)} />
-                          <div className="absolute top-full left-0 mt-2 w-72 max-h-64 overflow-y-auto bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-black/20 z-50 py-1">
-                            {countryCodes.map((c) => (
-                              <button
-                                key={c.country + c.code}
-                                type="button"
-                                onClick={() => { setLoginCountry(c); setShowLoginCountryList(false); }}
-                                className={`flex items-center gap-3 w-full px-4 py-3 text-left text-sm hover:bg-primary/5 transition-colors ${loginCountry.country === c.country ? "bg-primary/10 text-primary" : ""}`}
-                                data-testid={`option-country-${c.country}`}
-                              >
-                                <span className="text-lg">{c.flag}</span>
-                                <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
-                                <span className="text-muted-foreground text-xs font-mono">{c.code}</span>
-                              </button>
-                            ))}
+                          <div className="fixed inset-0 z-40" onClick={() => { setShowLoginCountryList(false); setLoginCountrySearch(""); }} />
+                          <div className="absolute top-full left-0 mt-2 w-72 bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-black/20 z-50 flex flex-col" style={{maxHeight: "300px"}}>
+                            <div className="p-2 border-b border-border/30 shrink-0">
+                              <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                <input
+                                  autoFocus
+                                  type="text"
+                                  value={loginCountrySearch}
+                                  onChange={e => setLoginCountrySearch(e.target.value)}
+                                  placeholder={t("common.search") || "Search..."}
+                                  className="w-full pl-8 pr-3 py-2 text-sm bg-muted/40 border border-border/40 rounded-xl outline-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground"
+                                  data-testid="input-country-search"
+                                />
+                              </div>
+                            </div>
+                            <div className="overflow-y-auto py-1">
+                              {countryCodes.filter(c => {
+                                const q = loginCountrySearch.toLowerCase();
+                                return !q || c.country.toLowerCase().includes(q) || c.code.includes(q) || t(`countries.${c.country}`).toLowerCase().includes(q);
+                              }).map((c) => (
+                                <button
+                                  key={c.country + c.code}
+                                  type="button"
+                                  onClick={() => { setLoginCountry(c); setShowLoginCountryList(false); setLoginCountrySearch(""); }}
+                                  className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-primary/5 transition-colors ${loginCountry.country === c.country ? "bg-primary/10 text-primary" : ""}`}
+                                  data-testid={`option-country-${c.country}`}
+                                >
+                                  <span className="text-lg">{c.flag}</span>
+                                  <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
+                                  <span className="text-muted-foreground text-xs font-mono">{c.code}</span>
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         </>
                       )}

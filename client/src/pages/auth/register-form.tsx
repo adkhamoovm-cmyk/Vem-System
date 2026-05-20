@@ -13,10 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Phone, Lock, Eye, EyeOff, ChevronDown, ChevronRight,
   Shield, UserPlus, ArrowLeft, ArrowRight, CheckCircle,
-  AlertTriangle, Bot, FileText,
+  AlertTriangle, Bot, FileText, Search,
 } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
-import { type CountryCode, PinInput } from "./shared";
+import { type CountryCode, PinInput, DEFAULT_COUNTRY } from "./shared";
 import { SliderCaptcha } from "./slider-captcha";
 import { TermsModal } from "./terms-modal";
 
@@ -31,8 +31,9 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
   const [, navigate] = useLocation();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [regCountry, setRegCountry] = useState(countryCodes[0]);
+  const [regCountry, setRegCountry] = useState(() => countryCodes.find(c => c.country === DEFAULT_COUNTRY) ?? countryCodes[0]);
   const [showRegCountryList, setShowRegCountryList] = useState(false);
+  const [regCountrySearch, setRegCountrySearch] = useState("");
   const [regStep, setRegStep] = useState<1 | 2>(1);
   const [showReferral, setShowReferral] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
@@ -186,21 +187,40 @@ export function RegisterForm({ countryCodes, locale, t, translateServerMessage }
                           </button>
                           {showRegCountryList && (
                             <>
-                              <div className="fixed inset-0 z-40" onClick={() => setShowRegCountryList(false)} />
-                              <div className="absolute top-full left-0 mt-2 w-72 max-h-64 overflow-y-auto bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-black/20 z-50 py-1">
-                                {countryCodes.map((c) => (
-                                  <button
-                                    key={c.country + c.code}
-                                    type="button"
-                                    onClick={() => { setRegCountry(c); setShowRegCountryList(false); }}
-                                    className={`flex items-center gap-3 w-full px-4 py-3 text-left text-sm hover:bg-primary/5 transition-colors ${regCountry.country === c.country ? "bg-primary/10 text-primary" : ""}`}
-                                    data-testid={`option-reg-country-${c.country}`}
-                                  >
-                                    <span className="text-lg">{c.flag}</span>
-                                    <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
-                                    <span className="text-muted-foreground text-xs font-mono">{c.code}</span>
-                                  </button>
-                                ))}
+                              <div className="fixed inset-0 z-40" onClick={() => { setShowRegCountryList(false); setRegCountrySearch(""); }} />
+                              <div className="absolute top-full left-0 mt-2 w-72 bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl shadow-black/20 z-50 flex flex-col" style={{maxHeight: "300px"}}>
+                                <div className="p-2 border-b border-border/30 shrink-0">
+                                  <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                                    <input
+                                      autoFocus
+                                      type="text"
+                                      value={regCountrySearch}
+                                      onChange={e => setRegCountrySearch(e.target.value)}
+                                      placeholder={t("common.search") || "Search..."}
+                                      className="w-full pl-8 pr-3 py-2 text-sm bg-muted/40 border border-border/40 rounded-xl outline-none focus:border-primary/50 text-foreground placeholder:text-muted-foreground"
+                                      data-testid="input-reg-country-search"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="overflow-y-auto py-1">
+                                  {countryCodes.filter(c => {
+                                    const q = regCountrySearch.toLowerCase();
+                                    return !q || c.country.toLowerCase().includes(q) || c.code.includes(q) || t(`countries.${c.country}`).toLowerCase().includes(q);
+                                  }).map((c) => (
+                                    <button
+                                      key={c.country + c.code}
+                                      type="button"
+                                      onClick={() => { setRegCountry(c); setShowRegCountryList(false); setRegCountrySearch(""); }}
+                                      className={`flex items-center gap-3 w-full px-4 py-2.5 text-left text-sm hover:bg-primary/5 transition-colors ${regCountry.country === c.country ? "bg-primary/10 text-primary" : ""}`}
+                                      data-testid={`option-reg-country-${c.country}`}
+                                    >
+                                      <span className="text-lg">{c.flag}</span>
+                                      <span className="text-foreground font-medium flex-1">{t(`countries.${c.country}`)}</span>
+                                      <span className="text-muted-foreground text-xs font-mono">{c.code}</span>
+                                    </button>
+                                  ))}
+                                </div>
                               </div>
                             </>
                           )}
