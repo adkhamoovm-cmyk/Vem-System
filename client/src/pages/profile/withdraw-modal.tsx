@@ -49,9 +49,9 @@ export function WithdrawModal({ open, onClose, user, paymentMethods }: { open: b
   const commission = numAmount * (commissionPercent / 100);
   const netAmount = numAmount - commission;
 
-  const now = new Date();
-  const day = now.getDay();
-  const hour = now.getHours();
+  const now = new Date(Date.now() + 5 * 60 * 60 * 1000); // UTC+5 O'zbekiston vaqti
+  const day = now.getUTCDay();
+  const hour = now.getUTCHours();
   const isSundayNow = day === 0;
   const isWithdrawTime = day >= 1 && day <= 6 && hour >= withdrawalStartHour && hour < withdrawalEndHour;
 
