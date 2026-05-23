@@ -1,0 +1,65 @@
+0|vem      |     at async <anonymous> (/var/www/vem/server/routes/auth.ts:204:16) {
+0|vem      |   query: 'select "id", "phone", "password", "fund_password", "balance", "total_earnings", "total_deposit", "vip_level", "referral_code", "referred_by", "daily_tasks_completed", "daily_tasks_limit", "last_task_date", "numeric_id", "avatar", "is_admin", "is_banned", "withdrawal_banned", "fund_enabled", "vip_expires_at", "vip_purchased_at", "vip_purchase_price", "stajyor_used", "last_login_ip", "last_user_agent", "created_at" from "users" where "users"."phone" = $1',
+0|vem      |   params: [ '+998502387123' ],
+0|vem      |   cause: Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+0|vem      |       at /var/www/vem/node_modules/pg-pool/index.js:45:11
+0|vem      |       at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|vem      |       at async <anonymous> (/var/www/vem/node_modules/src/node-postgres/session.ts:161:13)
+0|vem      |       at async NodePgPreparedQuery.queryWithCache (/var/www/vem/node_modules/src/pg-core/session.ts:71:12)
+0|vem      |       at async <anonymous> (/var/www/vem/node_modules/src/node-postgres/session.ts:154:19)
+0|vem      |       at async DatabaseStorage.getUserByPhone (/var/www/vem/server/storage.ts:129:20)
+0|vem      |       at async <anonymous> (/var/www/vem/server/routes/auth.ts:204:16)
+0|vem      | }
+0|vem      | [2026-05-23T15:44:26.624Z] Unhandled error: DrizzleQueryError: Failed query: select "id", "phone", "password", "fund_password", "balance", "total_earnings", "total_deposit", "vip_level", "referral_code", "referred_by", "daily_tasks_completed", "daily_tasks_limit", "last_task_date", "numeric_id", "avatar", "is_admin", "is_banned", "withdrawal_banned", "fund_enabled", "vip_expires_at", "vip_purchased_at", "vip_purchase_price", "stajyor_used", "last_login_ip", "last_user_agent", "created_at" from "users" where "users"."phone" = $1
+0|vem      | params: +998502387123
+0|vem      |     at NodePgPreparedQuery.queryWithCache (/var/www/vem/node_modules/src/pg-core/session.ts:73:11)
+0|vem      |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|vem      |     at async <anonymous> (/var/www/vem/node_modules/src/node-postgres/session.ts:154:19)
+0|vem      |     at async DatabaseStorage.getUserByPhone (/var/www/vem/server/storage.ts:129:20)
+0|vem      |     at async <anonymous> (/var/www/vem/server/routes/auth.ts:204:16) {
+0|vem      |   query: 'select "id", "phone", "password", "fund_password", "balance", "total_earnings", "total_deposit", "vip_level", "referral_code", "referred_by", "daily_tasks_completed", "daily_tasks_limit", "last_task_date", "numeric_id", "avatar", "is_admin", "is_banned", "withdrawal_banned", "fund_enabled", "vip_expires_at", "vip_purchased_at", "vip_purchase_price", "stajyor_used", "last_login_ip", "last_user_agent", "created_at" from "users" where "users"."phone" = $1',
+0|vem      |   params: [ '+998502387123' ],
+0|vem      |   cause: Error: SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string
+0|vem      |       at /var/www/vem/node_modules/pg-pool/index.js:45:11
+0|vem      |       at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+0|vem      |       at async <anonymous> (/var/www/vem/node_modules/src/node-postgres/session.ts:161:13)
+0|vem      |       at async NodePgPreparedQuery.queryWithCache (/var/www/vem/node_modules/src/pg-core/session.ts:71:12)
+0|vem      |       at async <anonymous> (/var/www/vem/node_modules/src/node-postgres/session.ts:154:19)
+0|vem      |       at async DatabaseStorage.getUserByPhone (/var/www/vem/server/storage.ts:129:20)
+0|vem      |       at async <anonymous> (/var/www/vem/server/routes/auth.ts:204:16)
+0|vem      | }
+
+/root/.pm2/logs/vem-out.log last 30 lines:
+0|vem      | > NODE_ENV=development tsx server/index.ts
+0|vem      | 
+0|vem      | 3:42:22 PM [express] Seed error: Failed query: CREATE INDEX IF NOT EXISTS idx_task_history_user_id ON task_history(user_id)
+0|vem      | params: 
+0|vem      | 3:42:22 PM [express] serving on port 5000
+0|vem      | 3:42:25 PM [express] GET /api/platform-settings 401 in 18ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:42:25 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:42:33 PM [express] GET /api/auth/me 401 in 2ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:42:33 PM [express] GET /api/platform-settings 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:42:33 PM [express] GET /api/auth/me 401 in 0ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:42:59 PM [express] GET /api/platform-settings 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:42:59 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:26 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:26 PM [express] GET /api/platform-settings 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:26 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:26 PM [express] GET /api/platform-settings 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:26 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:26 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:41 PM [express] GET /api/platform-settings 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:41 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+0|vem      | 3:43:49 PM [express] POST /api/auth/login 500 in 31ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:43:51 PM [express] POST /api/auth/login 500 in 4ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:43:52 PM [express] POST /api/auth/login 500 in 6ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:43:53 PM [express] POST /api/auth/login 500 in 5ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:43:53 PM [express] POST /api/auth/login 500 in 7ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:43:54 PM [express] POST /api/auth/login 500 in 6ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:43:59 PM [express] POST /api/auth/login 500 in 4ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:44:00 PM [express] POST /api/auth/login 500 in 7ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:44:26 PM [express] POST /api/auth/login 500 in 5ms :: {"message":"Xatolik yuz berdi"}
+0|vem      | 3:45:05 PM [express] GET /api/auth/me 401 in 1ms :: {"message":"Avtorizatsiya talab qilinadi"}
+
+
+
