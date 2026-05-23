@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { getQueryFn } from "@/lib/queryClient";
 import { Sun, Moon, LogIn, UserPlus, X, Play, TrendingUp, Users, ChevronDown, Shield, Zap, Gift, Star, ArrowRight, Sparkles, CircleDollarSign, Lock, Crown, CheckCircle2, Globe, Download, Smartphone, Monitor, ExternalLink, Share2 } from "lucide-react";
-import { SiTelegram, SiNetflix, SiAmazonprime, SiHbo, SiAppletv, SiPrimevideo, SiYoutube, SiSpotify } from "react-icons/si";
+import { SiTelegram } from "react-icons/si";
 import { useTheme } from "@/components/theme-provider";
 import { useI18n } from "@/lib/i18n";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -255,21 +255,12 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
   };
 
   const heroReveal = useScrollReveal();
-  const partnersReveal = useScrollReveal();
   const featuresReveal = useScrollReveal();
   const stepsReveal = useScrollReveal();
   const faqReveal = useScrollReveal();
   const downloadReveal = useScrollReveal();
   const ctaReveal = useScrollReveal();
-  const orbitToggle = useScrollToggle();
-  const [orbitRadius, setOrbitRadius] = useState(130);
 
-  useEffect(() => {
-    const update = () => setOrbitRadius(window.innerWidth >= 640 ? 165 : 130);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
 
   const handleDownload = useCallback(async () => {
     const ua = navigator.userAgent;
@@ -313,14 +304,6 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
     { qKey: "landing.faq6Q", aKey: "landing.faq6A" },
   ];
 
-  const partners = [
-    { name: "Netflix", icon: SiNetflix, color: "#E50914", glow: "hover:shadow-[#E50914]/15" },
-    { name: "Amazon Prime", icon: SiAmazonprime, color: "#00A8E1", glow: "hover:shadow-[#00A8E1]/15" },
-    { name: "HBO Max", icon: SiHbo, color: "#B535F6", glow: "hover:shadow-[#B535F6]/15" },
-    { name: "YouTube", icon: SiYoutube, color: "#FF0000", glow: "hover:shadow-[#FF0000]/15" },
-    { name: "Apple TV+", icon: SiAppletv, color: "#A3AAAE", glow: "hover:shadow-[#A3AAAE]/15" },
-    { name: "Spotify", icon: SiSpotify, color: "#1DB954", glow: "hover:shadow-[#1DB954]/15" },
-  ];
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -463,31 +446,6 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
         </div>
       </section>
 
-      <section className="py-16 sm:py-20 border-t border-border/10 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-muted/30 via-transparent to-muted/30 pointer-events-none" />
-        <div ref={partnersReveal.ref} className={`relative max-w-6xl mx-auto px-4 sm:px-6 transition-all duration-800 ${partnersReveal.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-          <div className="text-center mb-10">
-            <p className="text-muted-foreground text-xs font-semibold uppercase tracking-[0.2em]" data-testid="text-partners-label">
-              {t("landing.partnersTitle")}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-5" data-testid="partners-row">
-            {partners.map((p, i) => (
-              <div
-                key={p.name}
-                className={`group relative flex flex-col items-center justify-center gap-3 px-5 py-6 sm:py-8 bg-card/30 border border-border/15 rounded-3xl backdrop-blur-sm hover:bg-card/60 hover:border-border/40 hover:shadow-2xl ${p.glow} hover:scale-[1.05] active:scale-[0.97] transition-all duration-500 cursor-default opacity-0 ${partnersReveal.isVisible ? "animate-fade-scale" : ""}`}
-                style={{ animationDelay: `${i * 0.1}s`, animationFillMode: "forwards" }}
-              >
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-white/[0.03] to-transparent pointer-events-none" />
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/5 group-hover:border-white/10 transition-all duration-500 group-hover:scale-110">
-                  <p.icon className="w-8 h-8 sm:w-10 sm:h-10 transition-all duration-500 group-hover:scale-110" style={{ color: p.color }} />
-                </div>
-                <span className="text-foreground/60 font-bold text-sm group-hover:text-foreground transition-colors duration-300">{p.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section className="py-24 sm:py-32 relative" id="features">
         <div className="absolute inset-0 pointer-events-none">
@@ -727,58 +685,12 @@ export default function LandingPage({ initialAuth }: { initialAuth?: "login" | "
             <div className="absolute -bottom-px left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent" />
 
             <div className="relative px-6 py-14 sm:px-14 sm:py-20 text-center">
-              <div ref={orbitToggle.ref} className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto mb-8">
+              <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] mx-auto mb-8">
                 <div className="absolute inset-0 -m-8 rounded-full bg-gradient-to-br from-primary/25 via-blue-500/20 to-purple-600/25 blur-3xl opacity-80 animate-pulse" style={{ animationDuration: "3.5s" }} />
 
                 <div className="absolute inset-[8%] rounded-full border border-white/[0.06]" />
                 <div className="absolute inset-[22%] rounded-full border border-white/[0.04]" />
 
-                {[
-                  { key: "netflix", node: <SiNetflix className="w-8 h-8 sm:w-9 sm:h-9" style={{ color: "#E50914" }} /> },
-                  { key: "disneyplus", node: (
-                    <div className="flex items-baseline gap-[2px] font-bold text-white" style={{ fontFamily: "Georgia, serif", letterSpacing: "-0.5px" }}>
-                      <span className="text-[15px] sm:text-[17px] italic">Disney</span>
-                      <span className="text-[14px] sm:text-[16px] font-light">+</span>
-                    </div>
-                  ) },
-                  { key: "appletv", node: <SiAppletv className="w-9 h-9 sm:w-10 sm:h-10 text-white" /> },
-                  { key: "primevideo", node: <SiPrimevideo className="w-9 h-9 sm:w-10 sm:h-10" style={{ color: "#1399FF" }} /> },
-                  { key: "hbomax", node: (
-                    <div className="flex items-baseline gap-[2px] text-white" style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
-                      <span className="font-black text-[14px] sm:text-[16px] tracking-tight">HBO</span>
-                      <span className="font-light text-[12px] sm:text-[14px] tracking-tight lowercase">max</span>
-                    </div>
-                  ) },
-                  { key: "hulu", node: (
-                    <span className="font-black text-[18px] sm:text-[20px] tracking-tight" style={{ color: "#1CE783", fontFamily: "system-ui, -apple-system, sans-serif" }}>hulu</span>
-                  ) },
-                ].map((p, i) => {
-                  const angle = (i * 60 - 90) * Math.PI / 180;
-                  const cosA = Math.cos(angle);
-                  const sinA = Math.sin(angle);
-                  return (
-                    <div
-                      key={p.key}
-                      className="absolute top-1/2 left-1/2 w-[64px] h-[64px] sm:w-[76px] sm:h-[76px] z-20 -ml-[32px] -mt-[32px] sm:-ml-[38px] sm:-mt-[38px]"
-                      style={{
-                        transform: orbitToggle.isVisible
-                          ? `translate(${cosA * orbitRadius}px, ${sinA * orbitRadius}px) scale(1)`
-                          : `translate(0, 0) scale(0.3)`,
-                        opacity: orbitToggle.isVisible ? 1 : 0,
-                        transition: `transform 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.08 + 0.15}s, opacity 0.45s ease-out ${i * 0.08 + 0.15}s`,
-                      }}
-                      data-testid={`partner-orbit-${p.key}`}
-                    >
-                      <div
-                        className="relative w-full h-full rounded-2xl bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl border border-white/15 flex items-center justify-center shadow-xl shadow-black/40 hover:scale-110 hover:border-white/25 hover:shadow-2xl transition-all duration-300 overflow-hidden"
-                        style={{ animation: orbitToggle.isVisible ? `float ${3.5 + (i % 3) * 0.5}s ease-in-out infinite` : "none", animationDelay: `${i * 0.25 + 1}s` }}
-                      >
-                        <div className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.06] to-transparent pointer-events-none" />
-                        {p.node}
-                      </div>
-                    </div>
-                  );
-                })}
 
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 flex items-center justify-center">
                   <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-br from-primary/50 to-purple-600/50 blur-2xl opacity-75" />
