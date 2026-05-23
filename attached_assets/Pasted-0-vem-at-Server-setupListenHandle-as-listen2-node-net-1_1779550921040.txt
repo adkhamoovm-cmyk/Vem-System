@@ -1,0 +1,52 @@
+0|vem      |     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+0|vem      |     at listenInCluster (node:net:1965:12)
+0|vem      |     at doListen (node:net:2139:7)
+0|vem      |     at process.processTicksAndRejections (node:internal/process/task_queues:83:21) {
+0|vem      |   code: 'EADDRINUSE',
+0|vem      |   errno: -98,
+0|vem      |   syscall: 'listen',
+0|vem      |   address: '0.0.0.0',
+0|vem      |   port: 5000
+0|vem      | }
+
+/root/.pm2/logs/vem-out.log last 10 lines:
+0|vem      | 
+0|vem      | > rest-express@1.0.0 dev
+0|vem      | > NODE_ENV=development tsx server/index.ts
+0|vem      | 
+0|vem      | 3:41:25 PM [express] Seed error: Failed query: CREATE INDEX IF NOT EXISTS idx_task_history_user_id ON task_history(user_id)
+0|vem      | params: 
+0|vem      | 
+0|vem      | > rest-express@1.0.0 dev
+0|vem      | > NODE_ENV=development tsx server/index.ts
+0|vem      | 
+
+1|vem  | > rest-express@1.0.0 dev
+1|vem  | > NODE_ENV=development tsx server/index.ts
+0|vem  | VIP packages seeded (11 tiers)
+0|vem  | Videos seeded (83 total)
+0|vem  | Fund plans seeded (4 F-Series) - IDs preserved
+0|vem  | 3:41:29 PM [express] Database seeded successfully
+0|vem  | 3:41:29 PM [express] serving on port 5000
+1|vem  | [security] SESSION_SECRET not set — using randomly generated secret. Sessions will not persist across restarts.
+1|vem  | 3:41:30 PM [express] Seed error: Failed query: CREATE INDEX IF NOT EXISTS idx_task_history_user_id ON task_history(user_id)
+1|vem  | params: 
+1|vem  | [CRITICAL] Uncaught Exception: Error: listen EADDRINUSE: address already in use 0.0.0.0:5000
+1|vem  |     at Server.setupListenHandle [as _listen2] (node:net:1908:16)
+1|vem  |     at listenInCluster (node:net:1965:12)
+1|vem  |     at doListen (node:net:2139:7)
+1|vem  |     at process.processTicksAndRejections (node:internal/process/task_queues:83:21) {
+1|vem  |   code: 'EADDRINUSE',
+1|vem  |   errno: -98,
+1|vem  |   syscall: 'listen',
+1|vem  |   address: '0.0.0.0',
+1|vem  |   port: 5000
+1|vem  | }
+1|vem  | > rest-express@1.0.0 dev
+1|vem  | > NODE_ENV=development tsx server/index.ts
+1|vem  | [security] SESSION_SECRET not set — using randomly generated secret. Sessions will not persist across restarts.
+1|vem  | 3:41:33 PM [express] Seed error: Failed query: CREATE INDEX IF NOT EXISTS idx_task_history_user_id ON task_history(user_id)
+1|vem  | params: 
+^C
+root@vultr:/var/www/vem# 
+
